@@ -21,8 +21,8 @@ cases. Say which of the two you ran.
   compose file and no other services.
 - All persistent state is in the data volume: the database, attachments and
   backups. Nothing that matters is written anywhere else in the container.
-- Exactly one backend process. SQLite's locking and the in-process MCP
-  server both depend on it.
+- Exactly one process: the backend, which also serves the frontend's built
+  files. No Node program runs in the final image.
 - The data volume is on local disk. SQLite can corrupt on NFS or SMB.
 
 ## Starting up
@@ -31,12 +31,14 @@ cases. Say which of the two you ran.
 - Every setting comes from an environment variable, is listed in the README,
   and appears in the example env file. Settings have defaults that work for
   a fresh install.
-- The two exceptions have no default: the app's address and the session
-  secret. The container refuses to start without them.
+- The one exception has no default: the app's address. The container
+  refuses to start without it.
 - The app's address is treated as permanent because it is printed on every
   label. Do not add tooling that makes changing it look routine.
 - The container runs as a non-root user and has a health check.
 - Base image versions are pinned.
+- Backups copy the database with SQLite's own backup command, never by
+  copying the file of a running database.
 
 ## This repository is public
 

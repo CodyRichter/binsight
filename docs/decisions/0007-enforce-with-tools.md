@@ -31,4 +31,6 @@ only written down erodes one exception at a time.
 - Checks need writing and maintaining, and a wrong check blocks good work
   until it is fixed.
 - Some rules cannot be checked mechanically and stay as prose.
-- The check script must stay fast enough to run on every change.
+- The check script must stay fast enough to run every time an agent
+  finishes. The end-to-end tests are therefore not part of it: they run as
+  their own step in continuous integration and on demand locally.

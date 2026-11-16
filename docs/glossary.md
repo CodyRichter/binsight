@@ -59,6 +59,8 @@ before naming it in code.
 | **Actor**         | Who made a change: `app` (the owner in the interface) or `mcp` (Claude). |
 | **Undo**          | Reversing a history entry.                                 |
 | **Delete**        | Removing an item or location from view. Deleted things can be restored. Different from archive. |
+| **Preview**       | What an MCP tool returns in place of acting, when the action deletes, merges or changes many records. |
+| **Confirmation**  | The single-use token returned with a preview, sent back to make the action happen. |
 
 ## Finding
 
@@ -84,8 +86,8 @@ before naming it in code.
 | label (for a keyword)                 | tag                  | A label is the sticker.     |
 | tag (for a sticker)                   | label                | A tag is a keyword.         |
 | asset, product, thing, object, entry  | item                 | One word for a tracked thing. |
-| stock, inventory level, count         | quantity             | Stock management is a non-goal. |
+| stock, inventory level, count (of one item) | quantity       | Stock management is a non-goal. A count of records is still a count. |
 | ID, number (for what is on a label)   | code                 | Internal identifiers are separate and never shown. |
-| verify, audit, confirm, review        | check                | One word for confirming contents. |
+| verify, audit, review, confirm (contents) | check            | One word for confirming contents. Confirmation is the MCP step. |
 | user, account, member                 | owner                | There is one person.        |
 | remove (when it can be restored)      | delete, or archive   | They are different actions. |

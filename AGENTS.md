@@ -37,7 +37,8 @@ A change is done only when all of these are true:
   fail.
 - New behavior has a test that fails without the change.
 - A new user action exists in both the web API and the MCP tools.
-- The feature and page tables in [README.md](README.md) still match the code.
+- Every feature folder and page that exists is in the tables in
+  [README.md](README.md).
 - You have said plainly what you ran and what you could not verify. Never
   report something as working that you did not run.
 
@@ -86,6 +87,7 @@ check.
 | React component file               | 150 lines, one component per file |
 | Function parameters                | 5          |
 | Nesting depth                      | 3 levels   |
+| Branching complexity               | 10         |
 
 Test files may run longer than 300 lines; each test still follows the
 function limit.
@@ -160,16 +162,18 @@ the authority; this table says where to look.
 
 | Rule                                        | Enforced by               |
 | ------------------------------------------- | ------------------------- |
-| Python lint, formatting, type hints, parameters, complexity, commented-out code, TODO markers, `print` | `ruff.toml` |
+| Python lint, formatting, type hints present, parameters, nesting, complexity, commented-out code, TODO markers, `print` | `ruff.toml` |
+| Python type hints correct                   | mypy, set up in `backend/pyproject.toml` |
 | Python file and function length             | `scripts/check_repo.py`   |
-| Feature folders match on both sides and in the README; feature file names; no `utils` files; `AGENTS.md` length | `scripts/check_repo.py` |
+| Feature folders match on both sides and are in the README; each has its three files; a feature imports another only through its service; no `utils` files; `AGENTS.md` length | `scripts/check_repo.py` |
 | Frontend size limits, nesting, `any`, `console.log`, TODO markers, feature import boundaries, `fetch` outside `lib/api`, unexplained `eslint-disable` | `frontend/eslint.config.mjs` |
+| Frontend formatting                         | Prettier                  |
 | Formatting on edit; no finishing while checks fail; no reading `.env` or the data directory | `.claude/settings.json` |
 | Everything above, on every pull request     | `.github/workflows/ci.yml` |
 
 Added with the first code, in step 1 of the build order: type checking and
-the production build for the frontend, backend import boundaries, generated
-API types, and the migration test.
+the production build for the frontend, generated API types, the migration
+test, the parity test, and the end-to-end tests in continuous integration.
 
 If a rule here is being broken repeatedly, add a check for it rather than
 writing the rule in stronger words.

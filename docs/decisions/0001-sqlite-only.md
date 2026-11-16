@@ -16,7 +16,9 @@ is no Postgres option and no layer for swapping databases.
 ## Why
 
 - No database container, credentials or upgrades to manage.
-- A backup is a copy of one folder; a restore is copying it back.
+- A backup is one folder, and a restore is putting it back. The database
+  inside it is copied with SQLite's own backup command, because copying the
+  file of a running database can produce a broken copy.
 - Write-ahead-log mode allows many readers alongside one writer, which is
   more than this workload needs.
 - Supporting two databases would double the testing and rule out using

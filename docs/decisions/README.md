@@ -15,3 +15,6 @@ it and mark the old one as replaced. Do not quietly work around one.
 | 0005 | [Files live on disk, not in the database](0005-files-on-disk.md) | Accepted |
 | 0006 | [Frontend types are generated from the backend](0006-generated-api-types.md) | Accepted |
 | 0007 | [Rules are enforced by tools, not prose](0007-enforce-with-tools.md) | Accepted |
+| 0008 | [The frontend is a client-only app served by the backend](0008-frontend-served-by-backend.md) | Accepted |
+| 0009 | [One transaction per action, with history recorded inside it](0009-transactions-and-history.md) | Accepted |
+| 0010 | [Claude reaches the MCP server from local clients](0010-mcp-access.md) | Accepted |

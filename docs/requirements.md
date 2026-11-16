@@ -219,6 +219,8 @@ Also:
   confirmation.
 - MCP access has its own credential that can be revoked without affecting
   the app login.
+- Claude connects from Claude Code or Claude Desktop on a device that can
+  already reach the app.
 - The history records who made each change: you in the app, or Claude through
   MCP.
 - Natural questions should work: "Do I already own a multimeter?", "What's in
@@ -252,10 +254,8 @@ EXPERIENCE AND QUALITY
 - Installable on your phone's home screen and fast on mobile.
 - Dark mode.
 - Large touch targets for one-handed use at a shelf.
-- Works over Teleport or the LAN.
-- Keeps working on bad signal (garage, basement): recently viewed bins stay
-  readable, and adds, moves and quantity changes are saved and sent when the
-  connection comes back.
+- Works over Teleport or the LAN. It needs a connection to the home lab;
+  there is no offline use (see LATER).
 - Fast at a few thousand items: pages and search feel instant.
 - Accessible: works with the keyboard and screen readers.
 - Simple to run: one service, one place where all data lives, no required
@@ -308,3 +308,7 @@ Not ruled out, but not part of the first version.
   end. Until then the built-in views show the same information.
 - Label print layouts: label-printer sizes and sticker-sheet templates.
 - Custom fields per category.
+- Working without a connection: recently viewed bins stay readable, and
+  changes are saved and sent when the connection comes back.
+- Asking Claude from the phone app or claude.ai, which needs the MCP server
+  to be reachable from the internet.

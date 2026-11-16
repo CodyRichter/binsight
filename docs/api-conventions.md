@@ -20,6 +20,8 @@ endpoint does not set them by accident. Terms are from the
 - Everything is under `/api`. There is no version in the path: the frontend
   and backend ship together in one image.
 - The MCP server is at `/mcp`.
+- Every other path returns the frontend
+  ([decision 0008](decisions/0008-frontend-served-by-backend.md)).
 - Paths use plural nouns in kebab-case: `/api/locations`,
   `/api/saved-searches`.
 - A path's first segment is the feature that owns it.
@@ -48,8 +50,8 @@ There is no `PUT`.
   `_cents`. An install has one currency.
 - A missing optional value is `null`, never an empty string or a missing
   key.
-- Anything that returns an item includes its `path` and its
-  `last_checked_at`.
+- Anything that returns an item includes its `path`, and its
+  `last_checked_at` from the step that builds checks.
 
 ## Lists
 
@@ -59,6 +61,8 @@ There is no `PUT`.
   `next_cursor` set to `null` on the last page.
 - Counts shown in the interface come from dedicated count fields, not from
   fetching every page.
+- The location tree is the one exception: it is returned whole, because the
+  tree view needs all of it and a home has a few hundred locations at most.
 
 ## Errors
 
@@ -90,26 +94,26 @@ One shape for every error:
 
 ## Writes
 
-- Every write request carries an `Idempotency-Key` header holding a random
-  value made by the client. Sending the same key again returns the first
-  result and changes nothing. The offline queue depends on this.
 - Every write response includes `history_entry_id`, which is what undo
   takes.
-- Changes queued offline are applied in the order they were made. If the
-  record changed in the meantime, the later write wins and both appear in
-  history.
 - The actor is taken from how the request was authenticated, never from the
-  request body.
+  request body: a session cookie is `app`, an MCP credential is `mcp`.
 
 ## MCP tools
 
 - Named `verb_noun` in `snake_case`: `search_items`, `move_item`,
   `check_location`.
 - One tool per user action, calling the same service function as its route.
+- Every route has an operation name in the same `verb_noun` form, and the
+  tool for that action has the same name. The parity test compares the two
+  lists; the few routes Claude has no use for, such as signing in, are
+  named in that test.
+- A client authenticates with an MCP credential sent as a bearer token
+  ([decision 0010](decisions/0010-mcp-access.md)).
 - Inputs and results use the same field names and shapes as the API.
 - Errors use the same `code` values as the API.
 - A tool that deletes, merges or changes many records returns a preview and
-  a confirmation token first, and acts only when called again with the
-  token.
+  a confirmation token first, and acts only when called again with the same
+  inputs and the token. A token works once and expires after ten minutes.
 - A location can be named by its code wherever a location identifier is
   accepted.
