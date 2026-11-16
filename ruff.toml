@@ -1,0 +1,45 @@
+# Lint rules for all Python in the repository. The limits here are the ones
+# stated in AGENTS.md; change them there first.
+target-version = "py314"
+line-length = 100
+extend-exclude = ["frontend"]
+
+[lint]
+select = [
+    "E", "W", "F",  # pycodestyle, pyflakes
+    "I",            # import order
+    "N",            # naming
+    "UP",           # modern syntax
+    "B",            # likely bugs
+    "SIM",          # simplifications
+    "RUF",          # ruff's own checks
+    "ANN",          # type hints on every function
+    "ARG",          # unused arguments
+    "BLE",          # no blind `except Exception`
+    "S",            # security, including SQL built from strings
+    "DTZ",          # no timezone-naive datetimes
+    "ERA",          # no commented-out code
+    "FIX",          # no TODO, FIXME, HACK or XXX
+    "T20",          # no print left behind
+    "PT",           # pytest style
+    "C90",          # complexity
+    "PLR0912",      # too many branches
+    "PLR0913",      # too many parameters
+    "PLR0915",      # too many statements
+    "TID252",       # no relative imports reaching upward
+]
+
+[lint.mccabe]
+max-complexity = 10
+
+[lint.pylint]
+max-args = 5
+max-branches = 10
+max-statements = 30
+
+[lint.flake8-tidy-imports]
+ban-relative-imports = "parents"
+
+[lint.per-file-ignores]
+"backend/tests/**" = ["S101"]
+"scripts/**" = ["T20"]
