@@ -1,6 +1,7 @@
 import { ActionIcon, Button } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 import type { ReactNode } from "react";
+import { barIconVars } from "./barControls";
 import classes from "./TaskFrame.module.css";
 
 interface TaskFrameProps {
@@ -15,7 +16,7 @@ export function TaskFrame({ name, onClose, action, children }: TaskFrameProps) {
     <div className={classes.frame} data-frame="task">
       <title>{`${name} – Binsight`}</title>
       <header className={classes.bar}>
-        <ActionIcon aria-label="Close" onClick={onClose}>
+        <ActionIcon aria-label="Close" vars={barIconVars} onClick={onClose}>
           <IconX aria-hidden />
         </ActionIcon>
         <h1 className={classes.name} tabIndex={-1}>

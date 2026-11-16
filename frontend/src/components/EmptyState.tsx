@@ -6,12 +6,19 @@ interface EmptyStateProps {
   statement: string;
   fact?: string;
   action?: ReactNode;
+  standalone?: boolean;
 }
 
-export function EmptyState({ statement, fact, action }: EmptyStateProps) {
+export function EmptyState({ statement, fact, action, standalone }: EmptyStateProps) {
   return (
     <div className={classes.empty}>
-      <Title order={2}>{statement}</Title>
+      {standalone ? (
+        <h1 className={classes.heading} tabIndex={-1}>
+          {statement}
+        </h1>
+      ) : (
+        <Title order={2}>{statement}</Title>
+      )}
       {fact && (
         <Text size="md" c="dimmed">
           {fact}

@@ -1,61 +1,80 @@
-import { IconHome, IconInbox, IconListDetails, IconSettings, type Icon } from "@tabler/icons-react";
+import { IconHome, IconInbox, IconSettings } from "@tabler/icons-react";
 import { Link } from "react-router";
-import type { Destination, ViewLink } from "./navigation";
+import { BrandMark } from "./BrandMark";
+import type { Destination, NavItem, NavSection } from "./navigation";
 import classes from "./SideNavigation.module.css";
 
 interface SideNavigationProps {
   current: Destination | null;
-  currentView?: string;
-  inboxCount: number;
-  views: ViewLink[];
+  inboxCount?: number;
+  sections?: NavSection[];
 }
 
-interface EntryProps {
-  name: string;
-  to: string;
-  icon: Icon;
-  count?: number;
-  current: boolean;
-}
-
-function entry({ name, to, icon: EntryIcon, count, current }: EntryProps) {
+function entry({ name, to, icon: EntryIcon, count, current }: NavItem) {
   return (
-    <Link key={to} className={classes.entry} to={to} aria-current={current ? "page" : undefined}>
-      <EntryIcon aria-hidden size={20} className={classes.icon} />
-      <span className={classes.name}>{name}</span>
-      {count !== undefined && <span className={classes.count}>{count}</span>}
-    </Link>
+    <li key={to}>
+      <Link className={classes.entry} to={to} aria-current={current ? "page" : undefined}>
+        <EntryIcon aria-hidden size={20} className={classes.icon} />
+        <span className={classes.name}>{name}</span>
+        {count !== undefined && <span className={classes.count}>{count}</span>}
+      </Link>
+    </li>
   );
 }
 
-export function SideNavigation({ current, currentView, inboxCount, views }: SideNavigationProps) {
+function sectionGroup(section: NavSection) {
+  const headingId = `nav-${section.id}`;
+  return (
+    <div key={section.id} className={classes.section} role="group" aria-labelledby={headingId}>
+      {section.to ? (
+        <Link
+          id={headingId}
+          className={classes.sectionLink}
+          to={section.to}
+          aria-current={section.current ? "page" : undefined}
+        >
+          {section.title}
+        </Link>
+      ) : (
+        <span id={headingId} className={classes.sectionTitle}>
+          {section.title}
+        </span>
+      )}
+      {section.items.length > 0 && <ul className={classes.list}>{section.items.map(entry)}</ul>}
+    </div>
+  );
+}
+
+export function SideNavigation({ current, inboxCount, sections = [] }: SideNavigationProps) {
+  const visibleSections = sections.filter((section) => section.items.length > 0 || section.to);
   return (
     <nav className={classes.navigation} aria-label="Main">
-      <div className={classes.brand}>Binsight</div>
+      <div className={classes.brand}>
+        <BrandMark />
+        <span>Binsight</span>
+      </div>
       <div className={classes.entries}>
-        {entry({ name: "Home", to: "/", icon: IconHome, current: current === "home" })}
-        {entry({
-          name: "Inbox",
-          to: "/inbox",
-          icon: IconInbox,
-          count: inboxCount,
-          current: current === "inbox",
-        })}
-        {entry({
-          name: "Views",
-          to: "/views",
-          icon: IconListDetails,
-          current: current === "views" && currentView === undefined,
-        })}
-        {views.map((view) => entry({ ...view, current: view.to === currentView }))}
+        <ul className={classes.list}>
+          {entry({ name: "Home", to: "/", icon: IconHome, current: current === "home" })}
+          {entry({
+            name: "Inbox",
+            to: "/inbox",
+            icon: IconInbox,
+            count: inboxCount,
+            current: current === "inbox",
+          })}
+        </ul>
+        {visibleSections.map(sectionGroup)}
       </div>
       <div className={classes.pinned}>
-        {entry({
-          name: "Settings",
-          to: "/settings",
-          icon: IconSettings,
-          current: current === "settings",
-        })}
+        <ul className={classes.list}>
+          {entry({
+            name: "Settings",
+            to: "/settings",
+            icon: IconSettings,
+            current: current === "settings",
+          })}
+        </ul>
       </div>
     </nav>
   );

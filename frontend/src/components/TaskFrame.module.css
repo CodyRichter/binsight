@@ -15,10 +15,21 @@
 .bar {
   display: flex;
   align-items: center;
-  gap: var(--bs-space-xs);
+  gap: var(--bs-space-sm);
   height: var(--bs-bar-height);
-  padding-left: calc(var(--bs-space-lg) - (var(--bs-touch-min) - 24px) / 2);
+  padding-inline: calc(var(--bs-space-lg) - (40px - 24px) / 2) var(--bs-space-lg);
   border-bottom: 1px solid var(--bs-hairline);
+}
+
+.bar :global(.mantine-ActionIcon-root) {
+  position: relative;
+  overflow: visible;
+}
+
+.bar :global(.mantine-ActionIcon-root)::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
 }
 
 .work {

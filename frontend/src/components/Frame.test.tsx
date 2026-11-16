@@ -10,14 +10,23 @@ function Address() {
 
 function renderFrame(
   history: string[],
-  { selectionBar, destination }: { selectionBar?: React.ReactNode; destination?: boolean } = {},
+  {
+    selectionBar,
+    destination,
+    inboxCount = 0,
+    actions = { onAdd: vi.fn(), onScan: vi.fn() },
+  }: {
+    selectionBar?: React.ReactNode;
+    destination?: boolean;
+    inboxCount?: number;
+    actions?: { onAdd?: () => void; onScan?: () => void };
+  } = {},
 ) {
   return renderWithTheme(
     <Frame
-      navigation={{ current: "home", inboxCount: 0 }}
-      views={[]}
+      navigation={{ current: "home", inboxCount }}
       search={{ query: "", onChange: vi.fn() }}
-      actions={{ onAdd: vi.fn(), onScan: vi.fn() }}
+      actions={actions}
       parent="/locations/1"
       destination={destination}
       selectionBar={selectionBar}
@@ -59,4 +68,15 @@ test("the selection bar takes the bottom bar's place", () => {
   renderFrame(["/locations/1"], { selectionBar: <p>2 selected</p> });
   expect(screen.getByText("2 selected")).toBeInTheDocument();
   expect(screen.queryByRole("navigation", { name: "Main" })).not.toBeInTheDocument();
+});
+
+test("omitted actions are not rendered in the skeleton", () => {
+  renderFrame(["/"], { actions: {}, destination: true });
+  expect(screen.queryByRole("button", { name: "Scan" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Add" })).not.toBeInTheDocument();
+});
+
+test("bottom bar announces inbox count separately from the label", () => {
+  renderFrame(["/"], { inboxCount: 3, destination: true });
+  expect(screen.getByRole("link", { name: "Inbox, 3" })).toBeInTheDocument();
 });

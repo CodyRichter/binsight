@@ -15,6 +15,7 @@ export function BrowseSpecimen() {
       <DesignFrame parent="/design/browse">
         <title>Binsight</title>
         <EmptyState
+          standalone
           statement={`No location has the address ${id}`}
           action={
             <Button component={Link} to="/design/browse">

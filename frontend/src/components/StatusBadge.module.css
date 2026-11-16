@@ -2,13 +2,14 @@
   display: inline-flex;
   align-items: center;
   gap: var(--bs-space-xs);
+  max-width: 100%;
   padding: 1px var(--bs-space-sm) 1px var(--bs-space-xs);
   border: 1.5px solid currentColor;
   border-radius: var(--bs-radius-sm);
   font-size: var(--bs-text-small-size);
   line-height: var(--bs-text-small-line-height);
   font-weight: var(--bs-text-body-strong-weight);
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .badge[data-tone="ink"] {

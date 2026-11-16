@@ -124,7 +124,7 @@ rem (px ÷ 16), so they follow the owner's own text size setting.
 | `text-heading`     | 18 / 24     | 700    | Section headers, sheet and dialog titles, the task name, Binsight in the side navigation. |
 | `text-body-strong` | 16 / 24     | 650    | Item names in rows, button labels, the current navigation entry. |
 | `text-body`        | 16 / 24     | 400    | Everything else, and everything typed. |
-| `text-small`       | 14 / 20     | 400    | Paths, last checked, counts, tags, field errors. |
+| `text-small`       | 14 / 20     | 400    | Paths, last checked, counts, tags, field errors, side navigation section headers (650). |
 | `text-nav`         | 14 / 16     | 500    | Bottom bar labels and its count badge. Nowhere else. |
 | `code`             | 14 / 20     | 700    | A label code in a code chip (mono). |
 | `code-lg`          | 22 / 32     | 700    | The code in the header of a labeled location (mono). |
@@ -154,7 +154,7 @@ rem (px ÷ 16), so they follow the owner's own text size setting.
 | Token                 | Value | Used for |
 | --------------------- | ----- | -------- |
 | `space-xs`            | 4px   | Icon to its text; lines of one group: header lines, a row's name and path, a value row's name and value. |
-| `space-sm`            | 8px   | Between sibling controls; the add bar and "Add several"; row vertical padding. |
+| `space-sm`            | 8px   | Between sibling controls; the add bar and its action row; row vertical padding. |
 | `space-md`            | 12px  | Inside a field; thumbnail to its text. |
 | `space-lg`            | 16px  | The page gutter, at every width; between one group and the next: header lines and buttons, the blocks of a page lead, a list with no header and what is above it. |
 | `space-xl`            | 24px  | Above a section header; one tree indent; dialog padding. |
@@ -164,7 +164,7 @@ rem (px ÷ 16), so they follow the owner's own text size setting.
 | `radius-lg`           | 12px  | Sheets and dialogs only. |
 | `touch-min`           | 48px  | Smallest height and width of anything tappable. |
 | `row-min`             | 64px  | Smallest height of an item row. |
-| `bar-height`          | 56px  | Top bar. |
+| `bar-height`          | 56px  | Top bar, task frame header, and add bar. |
 | `nav-height`          | 64px  | Bottom bar on a phone. |
 | `content-max`         | 720px | Widest the content column gets. |
 | `nav-width`           | 264px | Side navigation on wide screens. |
@@ -177,8 +177,8 @@ rem (px ÷ 16), so they follow the owner's own text size setting.
 - Tappable things keep at least `space-sm` between them. The most used
   actions sit in the lower half of a phone screen.
 - A control drawn smaller than `touch-min` (segmented control, filter chip,
-  stepper button) keeps its drawn size, and its tap area grows to
-  `touch-min` in both directions.
+  stepper button, and controls inside a `bar-height` bar) keeps its drawn
+  size, and its tap area grows to `touch-min` in both directions.
 
 ### Vertical rhythm
 
@@ -188,7 +188,7 @@ them: a page arranges components and sets no spacing of its own.
 | Interval | Token | Between |
 | -------- | ----- | ------- |
 | Tight   | `space-xs` | Lines of one group: path, title, summary, stamp and counts in a page header; a row's name and path; a value row's name and value |
-| Sibling | `space-sm` | Controls side by side; the add bar and "Add several" |
+| Sibling | `space-sm` | Controls side by side; the add bar and its action row |
 | Group   | `space-lg` | The top bar and the first line; the page header's lines and its buttons; each block of the page lead and the next; a list with no header and what is above it |
 | Section | `space-xl` | Above every section header, on every page |
 | End     | `space-2xl` | Below the last block of a page, in the frame and in the task frame's work area |
@@ -211,8 +211,8 @@ At phone width, a location's page with a one-line title and path measures:
 | Path, title with chip, summary, stamp, 4 apart | 20, 36, 24, 20 | 184 |
 | Space, buttons | 16, 48 | 248 |
 | Space, add bar | 16, 56 | 320 |
-| Space, "Add several" line | 8, 24 | 352 |
-| Section header (24 space, 48 row, rule) | 73 | 425 |
+| Space, add actions | 8, 48 | 376 |
+| Section header (24 space, 48 row, rule) | 73 | 449 |
 
 Its page header is 192px. An item row with a path on one line is `row-min`
 (8, 24, 4, 20, 8) plus its hairline; a location row is `touch-min`; a text
@@ -259,9 +259,9 @@ Three widths and one content column. Design the narrow one first.
   every left edge is the gutter (`space-lg`): the search field or the Back
   glyph, the path, the title, a section header, a thumbnail, a tree
   chevron's glyph, a flat location row's type icon, a checkbox's box,
-  "Add several", and in a sheet its title and rows. Every right edge is the
-  gutter: Scan or Add, counts, a section's action text, "Add several", a
-  sheet's Close glyph.
+  and in a sheet its title and rows. Every right edge is the
+  gutter: Scan or Add, counts, a section's action text, the add bar's Add
+  button, a sheet's Close glyph.
 - The side navigation keeps its own text edge, 20px: an 8px inset plus 12px
   inside each entry. It is outside the column, so the gutter rule does not
   reach it.
@@ -286,9 +286,9 @@ Three widths and one content column. Design the narrow one first.
   scroll goes to the top, or back to where it was on Back, and focus moves
   to the page title.
 
-**Top bar.** On a phone: Back when shown, the search field, Scan. On a wide
-screen: the search field, taking the room left in the column, then Scan
-and Add.
+**Top bar.** On a phone: Back when shown, the search field, Scan when
+available. On a wide screen: the search field, taking the room left in the
+column, then Scan and Add when available.
 
 - Back shows on every page except the four destinations (`/`, `/views`,
   `/inbox`, `/settings`). A destination's page says so to the frame; the
@@ -302,6 +302,11 @@ and Add.
   field always shows the current query, and has a Close icon button to
   clear it when not empty. On `/search`, Back returns to where the search
   began.
+- Controls in the bar are drawn 40px high (with a `touch-min` tap area)
+  and kept `space-sm` apart at every width. Because `bar-height` stays 56px
+  including its hairline, 48px drawn controls leave only 3–4px vertically
+  and clip the 2px focus ring (`2px` offset); drawing them 40px high
+  leaves clear margin for focus rings without growing the bar.
 
 **Bottom bar.** Exactly five slots: Home, Views, Add, Inbox, Settings.
 
@@ -312,16 +317,24 @@ and Add.
   `inverse` box.
 - While rows are selected, the selection bar takes its place.
 
-**Side navigation.** Top to bottom: Binsight in `text-heading`, centered in
-a `bar-height` band so it lines up with the top bar; Home; Inbox with its
-count; Views; each view with its count; then Settings, pinned to the
-bottom while the entries above it scroll.
+**Side navigation.** Top to bottom: the Binsight bin mark and "Binsight" in
+`text-heading`, centered in
+a `bar-height` band so it lines up with the top bar; primary links (`Home`,
+and `Inbox` with its count when present); extensible grouped sections
+separated by a hairline (such as `Views`, with its header linking to
+`/views` and each view entry underneath; omitted when empty); then
+`Settings`, pinned to the bottom while the entries above it scroll.
 
 - An entry is `text-body`; the current one is `text-body-strong` on
   `highlight`. A long name wraps; its icon and count stay on the first
   line.
+- A section header is bold `text-small` in `muted` (sentence case, no
+  all-caps or letter spacing) and `touch-min` high when it links to a page.
 - Views is lit on `/views`. On `/views/{view}` only that view is lit. The
   Inbox is not repeated among the views.
+- The Binsight bin mark (`BrandMark` and favicon) sits on a transparent
+  ground with an `accent` lid and `label` sticker: an `ink` body in light
+  mode, and `inverse` with a `control-border` outline in dark mode.
 
 ### Page templates
 
@@ -451,7 +464,8 @@ parts; they live in `frontend/src/components/`.
 
 ### Mantine, themed
 
-**Button** (`Button`). One size, `touch-min` high.
+**Button** (`Button`). One size, `touch-min` high (drawn 40px inside a `bar-height`
+bar with a `touch-min` tap area).
 
 | Kind    | Looks like | Use for |
 | ------- | ---------- | ------- |
@@ -464,7 +478,8 @@ An icon before the text is optional. No blocking spinner for add, move or
 quantity. Prefer an enabled button that explains a refusal in a toast over a
 disabled one.
 
-**Icon button** (`ActionIcon`). `touch-min` square, 24px icon, only for the
+**Icon button** (`ActionIcon`). `touch-min` square (drawn 40px inside a
+`bar-height` bar with a `touch-min` tap area), 24px icon, only for the
 icons listed under Icons. Plain in bars and rows, bordered beside default
 buttons, `accent` only for Add.
 
@@ -473,7 +488,8 @@ did not make the two header buttons. Verb-first rows with a 20px icon. A destruc
 row is `danger` (`color="danger"`), last, below a rule. No nesting, no toggles, seven rows at
 most.
 
-**Text field** (`TextInput`, `Textarea`). `surface` fill, `touch-min` high,
+**Text field** (`TextInput`, `Textarea`). `surface` fill, `touch-min` high
+(drawn 40px inside a `bar-height` bar with a `touch-min` tap area),
 `text-body`. The name sits above in bold `text-small`, one to three words. A
 placeholder is an example or "Optional". Nothing is marked required. The
 line under a field exists only for an error. Search is this field with a
@@ -526,8 +542,9 @@ never holds more than one field.
 The title sits at the gutter and Close is a `touch-min` icon button with its
 glyph at the gutter, like the top bar's. The body has no side padding: rows
 bring their own gutter and their hairlines reach the sheet's edges, and a
-form is padded with the gutter by the sheet. The modal from 62em does the
-same with `space-xl`.
+form is padded with the gutter (and `space-xs` above so a focused field's
+ring clears the header) by the sheet. The modal from 62em does the same
+with `space-xl`.
 
 **Path.** `text-small`, `muted`, 16px chevron separators, last segment bold
 `ink`. Each line is `text-small`'s 20px; a linked segment's `touch-min` tap
@@ -552,7 +569,7 @@ place shows nothing.
 | Status | Color | Icon | Words |
 | ------ | ----- | ---- | ----- |
 | In use | `ink` | `hand-grab` | In use |
-| Lent out | `lent` | `user` | Lent to {name} |
+| Lent out | `lent` | `user` | Lent to {name} (or Lent out) |
 | Missing | `danger` | `zoom-question` | Missing |
 | Sold, given away, thrown away | `muted`, dashed | `archive` | Sold / Given away / Thrown away |
 
@@ -613,15 +630,20 @@ the top, a room inside a site, a bin anywhere else. Its page changes it.
 **Add bar.** The quick-add field, and the only field with an `accent`
 underline. At the top of a location's contents and in the add sheet, nowhere
 else. It states the destination: "to" and the code chip or name, or "to
-Inbox"; tapping that changes it. Enter adds, clears and keeps focus. A
+Inbox"; tapping that changes it. Its destination and camera controls follow
+the `bar-height` rule (drawn 40px high with a `touch-min` tap area) above
+the 4px `accent` bottom border so hover and focus states never overlap it;
+when its text field is focused, the bar uses a flush `focus` border and 1px
+inset ring instead of an offset outline so no gap or corner seam opens
+between the frame and the `accent` underline. Enter adds, clears and keeps
+focus, and the default Add button beside "Add several" does the same. A
 camera button adds by photo; "Add several" swaps in the multi-line field. A
 likely duplicate appears as a row beneath offering "Add to existing" and
 never blocks Enter.
 
-"Add several" and "Add one" sit `space-sm` under the bar, right edge at the
-gutter, and take their 24px text line; their `touch-min` tap area reaches
-past it. While the multi-line field is open, the row also holds the Add
-button and is `touch-min` high.
+The row `space-sm` under the bar holds "Add several" (or "Add one" while
+adding several) before the default Add button at the right edge and is
+`touch-min` high.
 
 **Page header.** In order, leaving out any line with nothing in it: the
 parent path; the title and large code chip; the summary, edited in place;
@@ -659,7 +681,8 @@ and its one primary button. No navigation and no top bar.
 **Empty state.** A `text-heading` statement of fact and at most one button,
 left-aligned: "Nothing matches "multimeter"", "This bin is empty", "Nothing
 is missing". A second sentence only when it adds a fact. No illustration or
-large icon. Loading is not an empty state.
+large icon. Loading is not an empty state. When standing alone without a
+page header, the statement is the page's `h1` in `text-heading`.
 
 ## Building it with Mantine
 
@@ -677,7 +700,7 @@ never style anything themselves.
 | `autoContrast` | On, so text on `accent` is dark |
 | `shadows` | Every key is `shadow-overlay` |
 | `cssVariablesResolver` | Sets the color tokens per color scheme, and points Mantine's body, text and dimmed colors at `ground`, `ink` and `muted` |
-| `components` | Defaults so no page passes them: buttons and inputs 48px high; `ActionIcon` 48px; `Badge` outline, `radius-sm`, no upper case; `Modal` and `Drawer` `radius-lg`, no blur; `Notifications` bottom, one at a time, 6 seconds |
+| `components` | Defaults so no page passes them: buttons and inputs 48px high; `ActionIcon` 48px; `Switch` uses `surface`/`control-border` off and `accent`/`on-accent` on; `Badge` outline, `radius-sm`, no upper case; `Modal` and `Drawer` `radius-lg`, no blur; `Notifications` bottom, one at a time, 6 seconds |
 
 In feature code:
 

@@ -1,19 +1,38 @@
-/* Icon buttons are wider than their glyphs, so the bar's padding puts each glyph at the gutter. */
+/* Drawn 40px high inside the 56px bar so focus rings clear both edges; ::after restores touch-min. */
 .bar {
   display: flex;
   align-items: center;
-  gap: var(--bs-space-xs);
-  height: var(--bs-bar-height);
-  padding: 0 calc(var(--bs-space-lg) - (var(--bs-touch-min) - 24px) / 2);
+  gap: var(--bs-space-sm);
+  height: 100%;
+  padding: 0 calc(var(--bs-space-lg) - (40px - 24px) / 2);
+}
+
+.bar :global(.mantine-ActionIcon-root),
+.bar :global(.mantine-Button-root) {
+  position: relative;
+  overflow: visible;
+}
+
+.bar :global(.mantine-ActionIcon-root)::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+}
+
+.bar :global(.mantine-Button-root)::after {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
 }
 
 .search {
   flex: 1;
   min-width: 0;
+  padding-block: 4px;
 }
 
 .search:first-child {
-  margin-left: calc((var(--bs-touch-min) - 24px) / 2);
+  margin-left: calc((40px - 24px) / 2);
 }
 
 .search input[type="search"]::-webkit-search-cancel-button {
@@ -22,7 +41,6 @@
 
 @media (min-width: 62em) {
   .bar {
-    gap: var(--bs-space-sm);
     padding: 0 var(--bs-space-lg);
   }
 

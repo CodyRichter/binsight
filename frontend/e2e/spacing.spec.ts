@@ -26,7 +26,7 @@ test("a location's page keeps its phone-width rhythm", async ({ page }) => {
     320,
   );
   const items = page.locator("#content section").filter({ hasText: "Items" });
-  expect(await box(items.locator("h2").locator(".."))).toMatchObject({ top: 352, bottom: 425 });
+  expect(await box(items.locator("h2").locator(".."))).toMatchObject({ top: 376, bottom: 449 });
 });
 
 test("a flat location row puts its type icon at the gutter", async ({ page }) => {

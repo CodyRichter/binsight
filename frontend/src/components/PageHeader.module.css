@@ -22,7 +22,15 @@
   min-width: 0;
 }
 
+/* Keep Path above Title and Title above Summary so expanded hit areas never steal text taps. */
+.identity > nav {
+  position: relative;
+  z-index: 2;
+}
+
 .title {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

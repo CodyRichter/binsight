@@ -48,6 +48,11 @@ test("a missing item says so", () => {
   expect(screen.getByText("Missing")).toBeInTheDocument();
 });
 
+test("a lent out item without a name reads Lent out", () => {
+  renderRow({ status: "lent_out" });
+  expect(screen.getByText("Lent out")).toBeInTheDocument();
+});
+
 test("in check mode a tap on the name ticks the box", async () => {
   const onChange = vi.fn();
   const { user } = renderRow({ check: { checked: false, onChange } });

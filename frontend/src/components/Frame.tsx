@@ -4,16 +4,16 @@ import { useEffect, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { sizes } from "@/lib/theme/tokens";
 import { BottomBar } from "./BottomBar";
-import type { Destination, ViewLink } from "./navigation";
+import type { Destination, NavSection } from "./navigation";
 import { SideNavigation } from "./SideNavigation";
 import { TopBar } from "./TopBar";
 import classes from "./Frame.module.css";
 
 interface FrameProps {
-  navigation: { current: Destination | null; currentView?: string; inboxCount: number };
-  views: ViewLink[];
+  navigation: { current: Destination | null; inboxCount?: number };
+  sections?: NavSection[];
   search: { query: string; onChange: (query: string) => void };
-  actions: { onAdd: () => void; onScan: () => void };
+  actions?: { onAdd?: () => void; onScan?: () => void };
   parent?: string;
   destination?: boolean;
   selectionBar?: ReactNode;
@@ -37,12 +37,40 @@ function useTitleFocusAfterNavigating() {
   }, [key]);
 }
 
-export function Frame(props: FrameProps) {
-  const { navigation, views, search, actions, parent = "/", selectionBar, children } = props;
+function useFocusSearch(): boolean {
+  const { state } = useLocation();
+  return Boolean((state as { focusSearch?: boolean } | null)?.focusSearch);
+}
+
+function useWide(): boolean {
   const theme = useMantineTheme();
-  const wide = useMediaQuery(`(min-width: ${theme.breakpoints.md})`, false, {
+  return useMediaQuery(`(min-width: ${theme.breakpoints.md})`, false, {
     getInitialValueInEffect: false,
   });
+}
+
+function shellConfig(wide: boolean, hasFooter: boolean) {
+  return {
+    header: { height: `calc(${sizes["bar-height"]} + env(safe-area-inset-top))` },
+    navbar: wide ? { width: sizes["nav-width"], breakpoint: 0 } : undefined,
+    footer: hasFooter
+      ? { height: `calc(${sizes["nav-height"]} + env(safe-area-inset-bottom))` }
+      : undefined,
+  };
+}
+
+export function Frame(props: FrameProps) {
+  const {
+    navigation,
+    sections,
+    search,
+    actions = {},
+    parent = "/",
+    selectionBar,
+    children,
+  } = props;
+  const wide = useWide();
+  const focusSearch = useFocusSearch();
   const back = useBack(parent, props.destination);
   useTitleFocusAfterNavigating();
   const footer = selectionBar ?? (!wide && <BottomBar {...navigation} onAdd={actions.onAdd} />);
@@ -53,25 +81,25 @@ export function Frame(props: FrameProps) {
       data-selecting={selectionBar ? true : undefined}
       layout="alt"
       transitionDuration={0}
-      header={{ height: `calc(${sizes["bar-height"]} + env(safe-area-inset-top))` }}
-      navbar={wide ? { width: sizes["nav-width"], breakpoint: 0 } : undefined}
-      footer={
-        footer
-          ? { height: `calc(${sizes["nav-height"]} + env(safe-area-inset-bottom))` }
-          : undefined
-      }
+      {...shellConfig(wide, Boolean(footer))}
     >
       <a className={classes.skip} href="#content">
         Skip to content
       </a>
       <AppShell.Header className={classes.header}>
         <div className={classes.column}>
-          <TopBar wide={wide} onBack={wide ? undefined : back} search={search} {...actions} />
+          <TopBar
+            wide={wide}
+            onBack={wide ? undefined : back}
+            search={search}
+            autoFocusSearch={focusSearch}
+            {...actions}
+          />
         </div>
       </AppShell.Header>
       {wide && (
         <AppShell.Navbar>
-          <SideNavigation views={views} {...navigation} />
+          <SideNavigation sections={sections} {...navigation} />
         </AppShell.Navbar>
       )}
       <AppShell.Main id="content" tabIndex={-1} className={classes.main}>

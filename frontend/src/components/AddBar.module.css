@@ -5,25 +5,38 @@
   gap: var(--bs-space-sm);
 }
 
+/* The accent underline is the bottom border itself so control-border never sits beneath it. */
 .bar {
   display: flex;
   align-items: center;
   gap: var(--bs-space-sm);
   min-height: var(--bs-bar-height);
   padding: 0 var(--bs-space-xs) 0 var(--bs-space-md);
-  border: 1.5px solid var(--bs-control-border);
+  border-width: 1.5px 1.5px 4px;
+  border-style: solid;
+  border-color: var(--bs-control-border) var(--bs-control-border) var(--bs-accent);
   border-radius: var(--bs-radius-md);
   background: var(--bs-surface);
-  box-shadow: inset 0 -4px 0 var(--bs-accent);
 }
 
-.bar:focus-within {
-  border-color: var(--bs-ink);
+.bar :global(.mantine-ActionIcon-root) {
+  position: relative;
+  overflow: visible;
 }
 
-.bar:has(:focus-visible) {
-  outline: 2px solid var(--bs-focus);
-  outline-offset: 2px;
+.bar :global(.mantine-ActionIcon-root)::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+}
+
+.bar:has(.input:focus, .several :focus) {
+  border-color: var(--bs-focus) var(--bs-focus) var(--bs-accent);
+}
+
+.bar:has(.input:focus-visible, .several :focus-visible) {
+  box-shadow: inset 0 0 0 1px var(--bs-focus);
+  outline: 2px solid transparent;
 }
 
 .plus {
@@ -53,7 +66,8 @@
   padding-block: var(--bs-space-sm);
 }
 
-.several textarea {
+.several textarea,
+.several :global(.mantine-Textarea-input) {
   border: 0;
   outline: 0;
   padding: 0;
@@ -65,10 +79,12 @@
 }
 
 .destination {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--bs-space-xs);
-  min-height: var(--bs-touch-min);
+  max-width: 45%;
+  min-height: 40px;
   padding: 0 var(--bs-space-xs);
   border: 0;
   border-radius: var(--bs-radius-sm);
@@ -77,26 +93,26 @@
   font-size: var(--bs-text-small-size);
   line-height: var(--bs-text-small-line-height);
   font-weight: var(--bs-text-small-weight);
-  white-space: nowrap;
+  text-align: right;
+  overflow-wrap: anywhere;
   cursor: pointer;
+}
+
+.destination::after {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
 }
 
 .destination:hover {
   background: var(--bs-hover);
 }
 
-/* The subtle button's text sits inside its padding; this puts the text at the column's edge. */
 .below {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--bs-space-sm);
-  margin-right: calc(-1 * var(--bs-space-sm));
-}
-
-/* "Add several" takes only its text line; its touch-min button reaches past it. */
-.below:not([data-several]) > * {
-  margin-block: calc((var(--bs-text-body-strong-line-height) - var(--bs-touch-min)) / 2);
 }
 
 .photoInput {

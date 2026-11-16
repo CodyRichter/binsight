@@ -20,7 +20,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--bs-space-lg);
-  padding: 0 var(--bs-space-lg) var(--bs-space-lg);
+  padding: var(--bs-space-xs) var(--bs-space-lg) var(--bs-space-lg);
 }
 
 @media (min-width: 62em) {
@@ -29,7 +29,7 @@
   }
 
   .form {
-    padding: 0 var(--bs-space-xl) var(--bs-space-xl);
+    padding: var(--bs-space-xs) var(--bs-space-xl) var(--bs-space-xl);
   }
 
   .form:has(+ .rows) {

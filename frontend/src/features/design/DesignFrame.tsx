@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { useLocation, useNavigate, useNavigation, useSearchParams } from "react-router";
 import { Frame } from "@/components/Frame";
-import type { Destination } from "@/components/navigation";
+import type { Destination, NavSection } from "@/components/navigation";
 import { Sheet } from "@/components/Sheet";
 import { AddBarDemo } from "./AddBarDemo";
 import { sampleViews } from "./samples";
@@ -28,19 +28,32 @@ function useSampleSearch() {
     query: searching ? (params.get("q") ?? "") : "",
     // Typing replaces the results page, so Back leaves search in one step.
     onChange: (query: string) =>
-      navigate(`${searchPage}?q=${encodeURIComponent(query)}`, { replace: searching || pending }),
+      navigate(`${searchPage}?q=${encodeURIComponent(query)}`, {
+        replace: searching || pending,
+        state: { focusSearch: true },
+      }),
   };
 }
 
 export function DesignFrame({ current = "home", currentView, parent, ...props }: DesignFrameProps) {
   const [adding, setAdding] = useState(false);
+  const navigate = useNavigate();
   const search = useSampleSearch();
+  const sections: NavSection[] = [
+    {
+      id: "views",
+      title: "Views",
+      to: "/views",
+      current: current === "views" && currentView === undefined,
+      items: sampleViews.map((view) => ({ ...view, current: view.to === currentView })),
+    },
+  ];
   return (
     <Frame
-      navigation={{ current, currentView, inboxCount: 3 }}
-      views={sampleViews}
+      navigation={{ current, inboxCount: 3 }}
+      sections={sections}
       search={search}
-      actions={{ onAdd: () => setAdding(true), onScan: () => undefined }}
+      actions={{ onAdd: () => setAdding(true), onScan: () => navigate("/design/task") }}
       parent={parent ?? "/design"}
       destination={props.destination}
       selectionBar={props.selectionBar}

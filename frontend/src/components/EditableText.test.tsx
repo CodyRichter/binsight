@@ -54,3 +54,11 @@ test("multiline text takes Enter as a new line and saves on leaving", async () =
   await user.tab();
   expect(onSave).toHaveBeenCalledWith("Patch cables\nCat 6");
 });
+
+test("Enter and Escape return focus to the button", async () => {
+  const { user } = renderName();
+  await user.type(await startEditing(user), " box{Enter}");
+  expect(screen.getByRole("button", { name: "Name: Patch cables" })).toHaveFocus();
+  await user.type(await startEditing(user), " two{Escape}");
+  expect(screen.getByRole("button", { name: "Name: Patch cables" })).toHaveFocus();
+});

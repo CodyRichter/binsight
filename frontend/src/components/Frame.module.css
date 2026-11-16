@@ -45,7 +45,7 @@
   padding-bottom: var(--bs-space-2xl);
 }
 
-@media (min-width: 48em) and (max-width: 61.99em) {
+@media (width >= 48em) and (width < 62em) {
   .column {
     margin-inline: auto;
   }

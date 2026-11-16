@@ -59,19 +59,34 @@ export const components = {
   }),
   Switch: Switch.extend({
     defaultProps: { radius: "sm" },
-    classNames: { body: classes.checkboxBody, label: classes.controlLabel },
+    classNames: {
+      body: classes.checkboxBody,
+      input: classes.switchInput,
+      track: classes.switchTrack,
+      thumb: classes.switchThumb,
+      label: classes.controlLabel,
+    },
+    vars: () => ({
+      root: {
+        "--switch-height": "24px",
+        "--switch-width": "44px",
+        "--switch-thumb-size": "16px",
+        "--switch-track-label-padding": "2.5px",
+      },
+    }),
   }),
   SegmentedControl: SegmentedControl.extend({
     vars: () => ({ root: { "--sc-color": "var(--bs-inverse)" } }),
     classNames: {
       root: classes.segmented,
+      input: classes.segmentedInput,
       indicator: classes.segmentedIndicator,
       label: classes.segmentedLabel,
     },
   }),
   Chip: Chip.extend({
     defaultProps: { variant: "outline", radius: "md" },
-    classNames: { label: classes.chip, iconWrapper: classes.chipIcon },
+    classNames: { input: classes.chipInput, label: classes.chip, iconWrapper: classes.chipIcon },
   }),
   Badge: Badge.extend({
     defaultProps: { variant: "outline" },
