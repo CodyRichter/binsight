@@ -1,3 +1,4 @@
 *.md
 dist/
 src/types/api.generated.ts
+.impeccable/

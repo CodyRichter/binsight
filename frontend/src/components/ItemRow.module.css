@@ -1,12 +1,18 @@
 .row {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-auto-flow: column;
   align-items: center;
-  gap: var(--bs-space-md);
+  gap: var(--bs-space-sm) var(--bs-space-md);
   min-height: var(--bs-row-min);
   padding: var(--bs-space-sm) var(--bs-space-lg);
   border-bottom: 1px solid var(--bs-hairline);
   list-style: none;
+}
+
+.row > * {
+  grid-row: 1;
 }
 
 .row:hover {
@@ -19,22 +25,23 @@
 
 .main {
   display: flex;
-  flex: 1;
   flex-direction: column;
   gap: var(--bs-space-xs);
   min-width: 0;
 }
 
+/* The box sits at the gutter; the slot is a thumbnail's width so names line up. */
 .check {
   display: flex;
   flex: none;
-  justify-content: center;
   width: var(--bs-touch-min);
 }
 
 .name {
   color: var(--bs-ink);
   cursor: pointer;
+  font-size: var(--bs-text-body-strong-size);
+  line-height: var(--bs-text-body-strong-line-height);
   font-weight: var(--bs-text-body-strong-weight);
   text-decoration: none;
   overflow-wrap: anywhere;
@@ -67,7 +74,21 @@
   gap: var(--bs-space-xs) var(--bs-space-sm);
 }
 
-.row > :last-child:not(.main) {
+.quantity,
+.move {
   position: relative;
   z-index: 1;
+}
+
+/* The button is wider than its glyph; this puts the glyph at the gutter. */
+.move {
+  margin-right: calc((24px - var(--bs-touch-min)) / 2);
+}
+
+@media (max-width: 47.99em) {
+  .row[data-movable] .quantity {
+    grid-row: 2;
+    grid-column: 2;
+    justify-self: start;
+  }
 }

@@ -2,7 +2,8 @@
   display: flex;
   align-items: center;
   gap: var(--bs-space-sm);
-  min-height: calc(var(--bs-touch-min) + var(--bs-space-xl));
+  /* The 1px rule is outside the touch-min row, with or without an action in it. */
+  min-height: calc(var(--bs-touch-min) + var(--bs-space-xl) + 1px);
   padding: var(--bs-space-xl) var(--bs-space-lg) 0;
   border-bottom: 1px solid var(--bs-ink);
 }
@@ -16,15 +17,26 @@
 }
 
 .count {
-  margin-left: var(--bs-space-xs);
+  margin-left: var(--bs-space-sm);
   color: var(--bs-muted);
-  font-size: var(--bs-text-body-size);
-  font-weight: var(--bs-text-body-weight);
+  font-size: var(--bs-text-small-size);
+  line-height: var(--bs-text-small-line-height);
+  font-weight: var(--bs-text-small-weight);
   font-variant-numeric: tabular-nums;
+}
+
+/* A subtle button's text sits inside its padding; this puts the text at the gutter. */
+.header > :last-child:not(.title) {
+  margin-right: calc(-1 * var(--bs-space-sm));
 }
 
 .rows {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.bare {
+  margin-top: var(--bs-space-lg);
+  border-top: 1px solid var(--bs-hairline);
 }

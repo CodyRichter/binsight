@@ -167,7 +167,7 @@ the authority; this table says where to look.
 | Python file and function length             | `scripts/check_repo.py`   |
 | Feature folders match on both sides and are in the README; each has its three files; a feature imports another only through its service; no `utils` files; `AGENTS.md` length | `scripts/check_repo.py` |
 | Frontend size limits, nesting, `any`, `console.log`, TODO markers, feature import boundaries, `fetch` outside `lib/api`, unexplained `eslint-disable`, the design language's no-exception rules | `frontend/eslint.config.mjs` |
-| Design color tokens match the document; CSS only in `src/components/` and `src/lib/theme/`, with no hex colors | `scripts/check_repo.py` |
+| Design color tokens and type styles match the document; CSS only in `src/components/` and `src/lib/theme/`, with no hex colors | `scripts/check_repo.py` |
 | Frontend formatting                         | Prettier                  |
 | Formatting on edit; no finishing while checks fail; no reading `.env` or the data directory | `.claude/settings.json` |
 | Everything above, on every pull request     | `.github/workflows/ci.yml` |

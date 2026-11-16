@@ -19,7 +19,7 @@ export function Path({ segments, linked }: PathProps) {
     <Container className={classes.path} aria-label={linked ? "Path" : undefined}>
       {segments.map((segment, index) => (
         <Fragment key={index}>
-          {index > 0 && <IconChevronRight aria-hidden size={14} className={classes.separator} />}
+          {index > 0 && <IconChevronRight aria-hidden size={16} className={classes.separator} />}
           {linked ? (
             <Link className={classes.link} to={segment.to}>
               {segment.name}

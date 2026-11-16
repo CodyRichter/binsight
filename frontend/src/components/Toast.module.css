@@ -29,7 +29,9 @@
   background: none;
   color: var(--bs-accent);
   font: inherit;
-  font-weight: var(--bs-text-title-weight);
+  font-size: var(--bs-text-body-strong-size);
+  line-height: var(--bs-text-body-strong-line-height);
+  font-weight: var(--bs-text-body-strong-weight);
   cursor: pointer;
 }
 

@@ -1,4 +1,5 @@
 .stepper {
+  --step: calc(var(--bs-touch-min) - 3px);
   position: relative;
   display: inline-flex;
   flex: none;
@@ -10,10 +11,11 @@
 
 .step,
 .number {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 44px;
+  height: var(--step);
   border: 0;
   border-radius: var(--bs-radius-sm);
   background: none;
@@ -22,7 +24,28 @@
 }
 
 .step {
-  width: 44px;
+  width: var(--step);
+}
+
+/* Drawn inside the 1.5px border; the tap area grows outward to touch-min without covering the number. */
+.step::before {
+  content: "";
+  position: absolute;
+  inset: calc((var(--step) - var(--bs-touch-min)) / 2) 0;
+}
+
+.step:first-child::before {
+  left: calc(var(--step) - var(--bs-touch-min));
+}
+
+.step:last-child::before {
+  right: calc(var(--step) - var(--bs-touch-min));
+}
+
+.number::before {
+  content: "";
+  position: absolute;
+  inset: calc((var(--step) - var(--bs-touch-min)) / 2) 0;
 }
 
 .step:hover,
@@ -38,8 +61,10 @@
 
 .number,
 .typed {
-  min-width: 44px;
+  min-width: var(--bs-touch-min);
   font: inherit;
+  font-size: var(--bs-text-body-strong-size);
+  line-height: var(--bs-text-body-strong-line-height);
   font-weight: var(--bs-text-body-strong-weight);
   font-variant-numeric: tabular-nums;
   text-align: center;
@@ -47,7 +72,7 @@
 
 .typed {
   width: 4ch;
-  height: 44px;
+  height: var(--step);
   border: 0;
   background: none;
   color: var(--bs-ink);

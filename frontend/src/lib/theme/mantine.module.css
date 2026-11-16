@@ -20,6 +20,8 @@
 }
 
 .buttonLabel {
+  font-size: var(--bs-text-body-strong-size);
+  line-height: var(--bs-text-body-strong-line-height);
   font-weight: var(--bs-text-body-strong-weight);
 }
 
@@ -49,6 +51,7 @@
   margin-top: var(--bs-space-xs);
   font-size: var(--bs-text-small-size);
   line-height: var(--bs-text-small-line-height);
+  font-weight: var(--bs-text-small-weight);
   color: var(--bs-danger);
 }
 
@@ -60,6 +63,7 @@
 .controlLabel {
   font-size: var(--bs-text-body-size);
   line-height: var(--bs-text-body-line-height);
+  font-weight: var(--bs-text-body-weight);
 }
 
 .checkboxInput {
@@ -84,14 +88,23 @@
 }
 
 .segmentedLabel {
-  min-height: 40px;
+  position: relative;
+  min-height: calc(var(--bs-touch-min) - 2 * (3px + 1.5px));
   display: flex;
   align-items: center;
   justify-content: center;
   padding-inline: var(--bs-space-lg);
   color: var(--bs-ink);
   font-size: var(--bs-text-small-size);
+  line-height: var(--bs-text-small-line-height);
   font-weight: var(--bs-text-small-weight);
+}
+
+/* The control is touch-min high outside; a segment's tap area reaches that outer edge. */
+.segmentedLabel::before {
+  content: "";
+  position: absolute;
+  inset: calc(-3px - 1.5px) 0;
 }
 
 .segmentedLabel[data-active],
@@ -101,13 +114,21 @@
 }
 
 .chip {
+  position: relative;
   height: 40px;
   padding-inline: var(--bs-space-md);
   border: 1.5px solid var(--bs-control-border);
   background: var(--bs-surface);
   color: var(--bs-ink);
   font-size: var(--bs-text-small-size);
+  line-height: var(--bs-text-small-line-height);
   font-weight: var(--bs-text-small-weight);
+}
+
+.chip::after {
+  content: "";
+  position: absolute;
+  inset: calc((40px - var(--bs-touch-min)) / 2) 0;
 }
 
 .chip[data-checked],
@@ -147,6 +168,8 @@
   padding-inline: var(--bs-space-md);
   border-radius: var(--bs-radius-sm);
   font-size: var(--bs-text-body-size);
+  line-height: var(--bs-text-body-line-height);
+  font-weight: var(--bs-text-body-weight);
   color: var(--menu-item-color, var(--bs-ink));
 }
 
@@ -161,11 +184,23 @@
 }
 
 .overlayHeader {
+  padding-inline-end: var(--mb-padding, var(--mantine-spacing-md));
   background: var(--bs-surface);
 }
 
 .overlayContent {
   background: var(--bs-surface);
+}
+
+/* Rows in a sheet bring their own gutter, so the body has no side padding. */
+.overlayBody {
+  padding: 0;
+}
+
+/* The button is wider than its glyph; this puts the glyph at the gutter, like the top bar's. */
+.overlayClose {
+  color: var(--bs-ink);
+  margin-right: calc((24px - var(--bs-touch-min)) / 2);
 }
 
 /* Mantine renders one container per screen position; only the bottom-left one is used. */
@@ -178,15 +213,35 @@
 }
 
 .toasts[data-position="bottom-left"] {
-  bottom: calc(var(--bs-nav-height) + var(--bs-space-sm));
-  left: var(--bs-space-sm);
-  width: calc(100% - 2 * var(--bs-space-sm));
-  max-width: 420px;
+  --toast-above: calc(var(--bs-nav-height) + var(--bs-space-sm));
+  bottom: calc(var(--toast-above) + env(safe-area-inset-bottom));
+  left: var(--bs-space-lg);
+  width: calc(100% - 2 * var(--bs-space-lg));
+  max-width: none;
+}
+
+:global(body:has([data-frame="task"])) .toasts[data-position="bottom-left"] {
+  --toast-above: calc(var(--bs-touch-min) + var(--bs-space-lg) + var(--bs-space-sm));
+}
+
+:global(body:has([data-frame="gate"])) .toasts[data-position="bottom-left"] {
+  --toast-above: var(--bs-space-lg);
+}
+
+@media (min-width: 48em) {
+  .toasts[data-position="bottom-left"] {
+    left: calc((100% - var(--bs-content-max)) / 2 + var(--bs-space-lg));
+    width: calc(var(--bs-content-max) - 2 * var(--bs-space-lg));
+  }
 }
 
 @media (min-width: 62em) {
-  .toasts[data-position="bottom-left"] {
-    bottom: var(--bs-space-lg);
+  :global(body:has([data-frame="app"]:not([data-selecting]))) .toasts[data-position="bottom-left"] {
+    --toast-above: var(--bs-space-lg);
+  }
+
+  :global(body:has([data-frame="app"])) .toasts[data-position="bottom-left"] {
     left: calc(var(--bs-nav-width) + var(--bs-space-lg));
+    width: calc(min(var(--bs-content-max), 100% - var(--bs-nav-width)) - 2 * var(--bs-space-lg));
   }
 }

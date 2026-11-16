@@ -14,10 +14,13 @@ import {
 } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import classes from "./mantine.module.css";
+import { sizes } from "./tokens";
 
 const touchMin = "var(--bs-touch-min)";
 
 const overlay = { backgroundOpacity: 1, color: "var(--bs-scrim)", blur: 0 };
+
+const closeButton = { size: sizes["touch-min"], iconSize: 24 };
 
 export const components = {
   Button: Button.extend({
@@ -79,19 +82,35 @@ export const components = {
     classNames: { dropdown: classes.menu, item: classes.menuItem, divider: classes.menuDivider },
   }),
   Modal: Modal.extend({
-    defaultProps: { radius: "lg", shadow: "md", padding: "xl", overlayProps: overlay },
+    defaultProps: {
+      radius: "lg",
+      shadow: "md",
+      padding: "xl",
+      overlayProps: overlay,
+      closeButtonProps: closeButton,
+    },
     classNames: {
       header: classes.overlayHeader,
       title: classes.overlayTitle,
       content: classes.overlayContent,
+      body: classes.overlayBody,
+      close: classes.overlayClose,
     },
   }),
   Drawer: Drawer.extend({
-    defaultProps: { radius: "lg", shadow: "md", padding: "lg", overlayProps: overlay },
+    defaultProps: {
+      radius: "lg",
+      shadow: "md",
+      padding: "lg",
+      overlayProps: overlay,
+      closeButtonProps: closeButton,
+    },
     classNames: {
       header: classes.overlayHeader,
       title: classes.overlayTitle,
       content: classes.overlayContent,
+      body: classes.overlayBody,
+      close: classes.overlayClose,
     },
   }),
   Notifications: Notifications.extend({

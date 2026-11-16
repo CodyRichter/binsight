@@ -13,7 +13,7 @@ FRONTEND_ONLY_FEATURES = {"scan", "design"}
 FRONTEND_SOURCE = ROOT / "frontend/src"
 CSS_FOLDERS = (FRONTEND_SOURCE / "components", FRONTEND_SOURCE / "lib/theme")
 DESIGN_LANGUAGE = ROOT / "docs/design-language.md"
-COLOR_TOKENS = FRONTEND_SOURCE / "lib/theme/tokens.ts"
+THEME_TOKENS = FRONTEND_SOURCE / "lib/theme/tokens.ts"
 HEX_COLOR = re.compile(r"#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b")
 REQUIRED_FEATURE_FILES = {"service.py", "schemas.py", "routes.py", "__init__.py"}
 BANNED_STEMS = {"utils", "util", "helpers", "helper", "common", "misc"}
@@ -140,7 +140,7 @@ def documented_colors() -> dict[str, tuple[str, str]]:
 
 def coded_colors() -> dict[str, tuple[str, str]]:
     entry = re.compile(r'^\s+"?([a-z-]+)"?: \{ light: "([^"]+)", dark: "([^"]+)" \},', re.MULTILINE)
-    return {name: (light, dark) for name, light, dark in entry.findall(COLOR_TOKENS.read_text())}
+    return {name: (light, dark) for name, light, dark in entry.findall(THEME_TOKENS.read_text())}
 
 
 def check_color_tokens_match() -> Iterator[str]:
@@ -149,7 +149,34 @@ def check_color_tokens_match() -> Iterator[str]:
         if documented.get(name) != coded.get(name):
             yield (
                 f"color token '{name}' is {documented.get(name)} in {DESIGN_LANGUAGE.name} "
-                f"but {coded.get(name)} in {COLOR_TOKENS.relative_to(ROOT)}"
+                f"but {coded.get(name)} in {THEME_TOKENS.relative_to(ROOT)}"
+            )
+
+
+def documented_type_styles() -> dict[str, tuple[int, int, int]]:
+    row = re.compile(r"^\| `([a-z-]+)` +\| (\d+) / (\d+) +\| (\d+) +\|", flags=re.MULTILINE)
+    rows = row.findall(DESIGN_LANGUAGE.read_text())
+    return {name: (int(size), int(line), int(weight)) for name, size, line, weight in rows}
+
+
+def coded_type_styles() -> dict[str, tuple[int, int, int]]:
+    entry = re.compile(
+        r'^\s+"?([a-z-]+)"?: \{ size: "([\d.]+)rem", lineHeight: "([\d.]+)rem", weight: (\d+) \},',
+        flags=re.MULTILINE,
+    )
+    return {
+        name: (round(float(size) * 16), round(float(line) * 16), int(weight))
+        for name, size, line, weight in entry.findall(THEME_TOKENS.read_text())
+    }
+
+
+def check_type_styles_match() -> Iterator[str]:
+    documented, coded = documented_type_styles(), coded_type_styles()
+    for name in sorted(documented.keys() | coded.keys()):
+        if documented.get(name) != coded.get(name):
+            yield (
+                f"type style '{name}' is {documented.get(name)} in {DESIGN_LANGUAGE.name} "
+                f"but {coded.get(name)} (px) in {THEME_TOKENS.relative_to(ROOT)}"
             )
 
 
@@ -173,6 +200,7 @@ CHECKS = (
     check_banned_file_names,
     check_python_sizes,
     check_color_tokens_match,
+    check_type_styles_match,
     check_css_files,
 )
 

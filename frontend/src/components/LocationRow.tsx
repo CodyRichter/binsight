@@ -11,18 +11,23 @@ type LocationRowProps = {
   locationType: LocationType;
   code?: string;
   itemCount: number;
-  depth?: number;
-  expanded?: boolean;
-  onToggle?: () => void;
-} & ({ to: string; onPick?: never } | { onPick: () => void; to?: never });
+} & ({ to: string; onPick?: never } | { onPick: () => void; to?: never }) &
+  (
+    | { tree: true; depth: number; expanded?: boolean; onToggle?: () => void }
+    | { tree?: never; depth?: never; expanded?: never; onToggle?: never }
+  );
 
 export function LocationRow(props: LocationRowProps) {
-  const { name, code, itemCount, depth = 0, expanded, onToggle } = props;
+  const { name, code, itemCount, tree, depth = 0, expanded, onToggle } = props;
   const TypeIcon = locationTypeIcons[props.locationType];
   const Chevron = expanded ? IconChevronDown : IconChevronRight;
   return (
-    <li className={classes.row} style={{ "--depth": depth } as CSSProperties}>
-      {onToggle ? (
+    <li
+      className={classes.row}
+      data-tree={tree || undefined}
+      style={{ "--depth": depth } as CSSProperties}
+    >
+      {onToggle && (
         <ActionIcon
           className={classes.toggle}
           aria-label={`${expanded ? "Collapse" : "Expand"} ${name}`}
@@ -31,9 +36,8 @@ export function LocationRow(props: LocationRowProps) {
         >
           <Chevron aria-hidden size={20} />
         </ActionIcon>
-      ) : (
-        <span className={classes.toggleSpace} />
       )}
+      {tree && !onToggle && <span className={classes.toggleSpace} />}
       <TypeIcon aria-hidden size={20} className={classes.type} />
       {props.to !== undefined ? (
         <Link className={classes.name} to={props.to}>

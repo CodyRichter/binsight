@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Button, Group, Menu, Modal, Stack, Text, TextInput } from "@mantine/core";
+import { ActionIcon, Button, Group, Menu, Modal, Stack, Text, TextInput } from "@mantine/core";
 import {
   IconChecklist,
   IconListDetails,
@@ -50,19 +50,12 @@ export function OverlaysSpecimen() {
         <Button onClick={undoToast}>Undo toast</Button>
         <Button onClick={refusalToast}>Refusal toast</Button>
       </Group>
-      <Sheet opened={sheetOpen} title="Move to" onClose={() => setSheetOpen(false)}>
-        <Stack gap="md">
-          <TextInput
-            aria-label="Search locations"
-            placeholder="Search locations or scan"
-            leftSection={<IconSearch aria-hidden size={20} />}
-            rightSection={
-              <ActionIcon aria-label="Scan destination">
-                <IconScan aria-hidden />
-              </ActionIcon>
-            }
-          />
-          <Box component="ul" p={0} m={0}>
+      <Sheet
+        opened={sheetOpen}
+        title="Move to"
+        onClose={() => setSheetOpen(false)}
+        rows={
+          <>
             <LocationRow
               name="Power tools"
               onPick={() => moveTo("Bin B-015")}
@@ -76,8 +69,19 @@ export function OverlaysSpecimen() {
               locationType="furniture"
               itemCount={22}
             />
-          </Box>
-        </Stack>
+          </>
+        }
+      >
+        <TextInput
+          aria-label="Search locations"
+          placeholder="Search locations or scan"
+          leftSection={<IconSearch aria-hidden size={20} />}
+          rightSection={
+            <ActionIcon aria-label="Scan destination">
+              <IconScan aria-hidden />
+            </ActionIcon>
+          }
+        />
       </Sheet>
       <Modal
         opened={dialogOpen}

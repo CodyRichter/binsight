@@ -1,25 +1,31 @@
 import { ActionIcon, Button, TextInput } from "@mantine/core";
-import { IconArrowLeft, IconPlus, IconScan, IconSearch } from "@tabler/icons-react";
-import type { KeyboardEvent } from "react";
+import { IconArrowLeft, IconPlus, IconScan, IconSearch, IconX } from "@tabler/icons-react";
+import { useRef } from "react";
 import classes from "./TopBar.module.css";
 
 interface TopBarProps {
   wide: boolean;
   onBack?: () => void;
-  onSearch: (query: string) => void;
+  search: { query: string; onChange: (query: string) => void };
   onScan: () => void;
   onAdd: () => void;
 }
 
-export function TopBar({ wide, onBack, onSearch, onScan, onAdd }: TopBarProps) {
-  function search(event: KeyboardEvent<HTMLInputElement>) {
-    const query = event.currentTarget.value.trim();
-    if (event.key === "Enter" && query) onSearch(query);
-  }
-
+export function TopBar({ wide, onBack, search, onScan, onAdd }: TopBarProps) {
+  const field = useRef<HTMLInputElement>(null);
+  const clearSearch = () => {
+    if (field.current) field.current.value = "";
+    field.current?.focus();
+    search.onChange("");
+  };
+  const clear = search.query && (
+    <ActionIcon aria-label="Clear search" onClick={clearSearch}>
+      <IconX aria-hidden size={20} />
+    </ActionIcon>
+  );
   return (
     <div className={classes.bar}>
-      {!wide && onBack && (
+      {onBack && (
         <ActionIcon aria-label="Back" onClick={onBack}>
           <IconArrowLeft aria-hidden />
         </ActionIcon>
@@ -29,8 +35,14 @@ export function TopBar({ wide, onBack, onSearch, onScan, onAdd }: TopBarProps) {
         type="search"
         aria-label="Search"
         placeholder="Search"
+        ref={field}
+        defaultValue={search.query}
+        // Typing moves to the results page, which mounts a new frame; this keeps the cursor there.
+        autoFocus={search.query !== ""}
+        onChange={(event) => search.onChange(event.currentTarget.value)}
         leftSection={<IconSearch aria-hidden size={20} />}
-        onKeyDown={search}
+        rightSection={clear}
+        rightSectionPointerEvents="all"
       />
       {wide ? (
         <>

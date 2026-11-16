@@ -1,4 +1,4 @@
-import { IconArchive, IconArrowsMove, IconUser, IconZoomQuestion } from "@tabler/icons-react";
+import { IconArchive, IconHandGrab, IconUser, IconZoomQuestion } from "@tabler/icons-react";
 import classes from "./StatusBadge.module.css";
 
 export type Status =
@@ -12,7 +12,7 @@ interface StatusBadgeProps {
 const archivedWords = { sold: "Sold", given_away: "Given away", thrown_away: "Thrown away" };
 
 function badgeLook(status: Exclude<Status, "in_place">, lentTo?: string) {
-  if (status === "in_use") return { tone: "ink", Icon: IconArrowsMove, words: "In use" };
+  if (status === "in_use") return { tone: "ink", Icon: IconHandGrab, words: "In use" };
   if (status === "lent_out") return { tone: "lent", Icon: IconUser, words: `Lent to ${lentTo}` };
   if (status === "missing") return { tone: "danger", Icon: IconZoomQuestion, words: "Missing" };
   return { tone: "archived", Icon: IconArchive, words: archivedWords[status] };

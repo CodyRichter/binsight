@@ -1,6 +1,6 @@
 .bar {
   display: flex;
-  height: 100%;
+  height: var(--bs-nav-height);
 }
 
 .slot {
@@ -33,7 +33,7 @@
 
 .slot[aria-current="page"] {
   color: var(--bs-ink);
-  font-weight: var(--bs-text-title-weight);
+  font-weight: var(--bs-text-body-strong-weight);
 }
 
 .slot[aria-current="page"] > .icon {
@@ -52,15 +52,19 @@
 
 .count {
   position: absolute;
-  top: -4px;
-  right: 2px;
-  min-width: 18px;
+  top: -6px;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
   padding: 0 var(--bs-space-xs);
   border-radius: var(--bs-radius-sm);
   background: var(--bs-inverse);
   color: var(--bs-on-inverse);
   font-size: var(--bs-text-nav-size);
-  line-height: 18px;
-  text-align: center;
+  line-height: var(--bs-text-nav-line-height);
+  font-weight: var(--bs-text-nav-weight);
   font-variant-numeric: tabular-nums;
 }

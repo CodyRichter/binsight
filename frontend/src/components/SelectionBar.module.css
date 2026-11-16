@@ -1,0 +1,21 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--bs-space-sm);
+  height: var(--bs-nav-height);
+  padding: 0 calc(var(--bs-space-lg) - (var(--bs-touch-min) - 24px) / 2) 0 var(--bs-space-lg);
+}
+
+.count {
+  flex: 1;
+  font-size: var(--bs-text-body-strong-size);
+  line-height: var(--bs-text-body-strong-line-height);
+  font-weight: var(--bs-text-body-strong-weight);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  gap: var(--bs-space-sm);
+}

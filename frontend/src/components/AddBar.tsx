@@ -102,7 +102,7 @@ export function AddBar(props: AddBarProps) {
         />
       </div>
       {!several && props.suggestion?.(clearName)}
-      <div className={classes.below}>
+      <div className={classes.below} data-several={several || undefined}>
         {several && <Button onClick={addSeveral}>Add</Button>}
         <Button variant="subtle" onClick={switchField}>
           {several ? "Add one" : "Add several"}

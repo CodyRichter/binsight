@@ -29,7 +29,6 @@ export function HeaderSpecimen() {
         actions={
           <>
             <Button
-              variant="primary"
               leftSection={<IconCheck aria-hidden />}
               onClick={() => showToast({ message: "Contents checked", onUndo: () => undefined })}
             >
@@ -60,7 +59,7 @@ export function HeaderSpecimen() {
           </>
         }
       />
-      <PageHeader title="Home" counts={["3 sites", "412 items"]} />
+      <PageHeader title="Locations" counts={["3 sites", "412 items"]} />
     </Specimen>
   );
 }

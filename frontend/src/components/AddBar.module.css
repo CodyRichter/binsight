@@ -1,6 +1,7 @@
 .addBar {
   display: flex;
   flex-direction: column;
+  align-self: stretch;
   gap: var(--bs-space-sm);
 }
 
@@ -66,6 +67,8 @@
   background: none;
   color: var(--bs-muted);
   font-size: var(--bs-text-small-size);
+  line-height: var(--bs-text-small-line-height);
+  font-weight: var(--bs-text-small-weight);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -74,10 +77,18 @@
   background: var(--bs-hover);
 }
 
+/* The subtle button's text sits inside its padding; this puts the text at the column's edge. */
 .below {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: var(--bs-space-sm);
+  margin-right: calc(-1 * var(--bs-space-sm));
+}
+
+/* "Add several" takes only its text line; its touch-min button reaches past it. */
+.below:not([data-several]) > * {
+  margin-block: calc((var(--bs-text-body-strong-line-height) - var(--bs-touch-min)) / 2);
 }
 
 .photoInput {

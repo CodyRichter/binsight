@@ -1,25 +1,32 @@
+/* Icon buttons are wider than their glyphs, so the bar's padding puts each glyph at the gutter. */
 .bar {
   display: flex;
   align-items: center;
   gap: var(--bs-space-xs);
-  height: 100%;
-  padding: 0 var(--bs-space-xs);
+  height: var(--bs-bar-height);
+  padding: 0 calc(var(--bs-space-lg) - (var(--bs-touch-min) - 24px) / 2);
 }
 
 .search {
   flex: 1;
   min-width: 0;
-  margin: 0 var(--bs-space-xs);
+}
+
+.search:first-child {
+  margin-left: calc((var(--bs-touch-min) - 24px) / 2);
+}
+
+.search input[type="search"]::-webkit-search-cancel-button {
+  display: none;
 }
 
 @media (min-width: 62em) {
   .bar {
     gap: var(--bs-space-sm);
-    padding: 0 var(--bs-space-xl);
+    padding: 0 var(--bs-space-lg);
   }
 
-  .search {
-    max-width: 520px;
-    margin: 0 auto 0 0;
+  .search:first-child {
+    margin-left: 0;
   }
 }

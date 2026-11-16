@@ -1,5 +1,25 @@
 .drawer {
   height: auto;
   max-height: 85%;
+  padding-bottom: env(safe-area-inset-bottom);
   border-radius: var(--bs-radius-lg) var(--bs-radius-lg) 0 0;
+}
+
+.rows {
+  margin: 0;
+  padding: 0 0 var(--bs-space-lg);
+  list-style: none;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bs-space-lg);
+  padding: 0 var(--bs-space-lg) var(--bs-space-lg);
+}
+
+@media (min-width: 62em) {
+  .form {
+    padding: 0 var(--bs-space-xl) var(--bs-space-xl);
+  }
 }

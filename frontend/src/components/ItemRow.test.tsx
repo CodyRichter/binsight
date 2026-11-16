@@ -55,3 +55,10 @@ test("in check mode a tap on the name ticks the box", async () => {
   expect(onChange).toHaveBeenCalledWith(true);
   expect(screen.getByRole("checkbox", { name: "AA batteries" })).toBeInTheDocument();
 });
+
+test("Move on the row moves that item in one tap", async () => {
+  const onMove = vi.fn();
+  const { user } = renderRow({ onMove });
+  await user.click(screen.getByRole("button", { name: "Move AA batteries" }));
+  expect(onMove).toHaveBeenCalledOnce();
+});
