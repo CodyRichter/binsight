@@ -1,6 +1,6 @@
 # Acceptance criteria
 
-The five core flows from the [requirements](requirements.txt), written as
+The five core flows from the [requirements](requirements.md), written as
 steps and results. Each flow has one end-to-end test in `frontend/e2e/`, run
 at phone width, that follows these steps exactly. A flow is not done until
 its test passes.

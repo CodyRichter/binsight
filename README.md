@@ -15,7 +15,7 @@ what's inside. Search for anything and get its full location path, e.g.
 
 | Document                                         | What it settles                         |
 | ------------------------------------------------ | --------------------------------------- |
-| [Requirements](docs/requirements.txt)            | What the app does, and what it deliberately does not |
+| [Requirements](docs/requirements.md)            | What the app does, and what it deliberately does not |
 | [Glossary](docs/glossary.md)                     | The one word for each concept           |
 | [Data model](docs/data-model.md)                 | What is stored and the rules that always hold |
 | [Acceptance criteria](docs/acceptance.md)        | The five core flows as steps and results |

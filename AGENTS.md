@@ -11,7 +11,7 @@ obvious to the next reader.
 
 ## Before you write anything
 
-1. Read [docs/requirements.txt](docs/requirements.txt). It is the source of
+1. Read [docs/requirements.md](docs/requirements.md). It is the source of
    truth for what the app does.
 2. If the behavior you were asked for is not in the requirements, or is
    listed under NON-GOALS or LATER, stop and ask. Do not build it and do not
