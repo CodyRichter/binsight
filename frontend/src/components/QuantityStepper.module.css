@@ -1,0 +1,54 @@
+.stepper {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  border: 1.5px solid var(--bs-control-border);
+  border-radius: var(--bs-radius-md);
+  background: var(--bs-surface);
+}
+
+.step,
+.number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  border: 0;
+  border-radius: var(--bs-radius-sm);
+  background: none;
+  color: var(--bs-ink);
+  cursor: pointer;
+}
+
+.step {
+  width: 44px;
+}
+
+.step:hover,
+.number:hover {
+  background: var(--bs-hover);
+}
+
+.step:disabled {
+  color: var(--bs-muted);
+  cursor: default;
+  background: none;
+}
+
+.number,
+.typed {
+  min-width: 44px;
+  font: inherit;
+  font-weight: var(--bs-text-body-strong-weight);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.typed {
+  width: 4ch;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: var(--bs-ink);
+}

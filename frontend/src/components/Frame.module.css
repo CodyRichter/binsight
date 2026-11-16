@@ -1,0 +1,7 @@
+.frame {
+  --app-shell-border-color: var(--bs-hairline);
+}
+
+.content {
+  max-width: var(--bs-content-max);
+}

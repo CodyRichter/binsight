@@ -166,14 +166,16 @@ the authority; this table says where to look.
 | Python type hints correct                   | mypy, set up in `backend/pyproject.toml` |
 | Python file and function length             | `scripts/check_repo.py`   |
 | Feature folders match on both sides and are in the README; each has its three files; a feature imports another only through its service; no `utils` files; `AGENTS.md` length | `scripts/check_repo.py` |
-| Frontend size limits, nesting, `any`, `console.log`, TODO markers, feature import boundaries, `fetch` outside `lib/api`, unexplained `eslint-disable` | `frontend/eslint.config.mjs` |
+| Frontend size limits, nesting, `any`, `console.log`, TODO markers, feature import boundaries, `fetch` outside `lib/api`, unexplained `eslint-disable`, the design language's no-exception rules | `frontend/eslint.config.mjs` |
+| Design color tokens match the document; CSS only in `src/components/` and `src/lib/theme/`, with no hex colors | `scripts/check_repo.py` |
 | Frontend formatting                         | Prettier                  |
 | Formatting on edit; no finishing while checks fail; no reading `.env` or the data directory | `.claude/settings.json` |
 | Everything above, on every pull request     | `.github/workflows/ci.yml` |
 
-Added with the first code, in step 1 of the build order: type checking and
-the production build for the frontend, generated API types, the migration
-test, the parity test, and the end-to-end tests in continuous integration.
+Frontend type checking and the production build run in `scripts/check.sh`.
+Added with the first code, in step 1 of the build order: generated API
+types, the migration test, the parity test, and the end-to-end tests in
+continuous integration.
 
 If a rule here is being broken repeatedly, add a check for it rather than
 writing the rule in stronger words.

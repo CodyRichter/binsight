@@ -1,0 +1,47 @@
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--bs-space-md);
+  min-height: var(--bs-touch-min);
+  padding: 0 var(--bs-space-xs) 0 var(--bs-space-lg);
+  border-radius: var(--bs-radius-md);
+  background: var(--bs-inverse);
+  color: var(--bs-on-inverse);
+  box-shadow: var(--bs-shadow-overlay);
+}
+
+.icon {
+  flex: none;
+  color: var(--bs-accent);
+}
+
+.message {
+  flex: 1;
+  min-width: 0;
+  margin: var(--bs-space-md) 0;
+}
+
+.action {
+  min-height: var(--bs-touch-min);
+  padding: 0 var(--bs-space-md);
+  border: 0;
+  border-radius: var(--bs-radius-sm);
+  background: none;
+  color: var(--bs-accent);
+  font: inherit;
+  font-weight: var(--bs-text-title-weight);
+  cursor: pointer;
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--bs-touch-min);
+  height: var(--bs-touch-min);
+  border: 0;
+  border-radius: var(--bs-radius-sm);
+  background: none;
+  color: var(--bs-on-inverse);
+  cursor: pointer;
+}

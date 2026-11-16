@@ -1,0 +1,192 @@
+.button {
+  transition: background-color 120ms ease-out;
+}
+
+.button[data-variant="subtle"] {
+  padding-inline: var(--bs-space-sm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.button[data-variant="subtle"]:hover {
+  background: transparent;
+}
+
+.button:disabled,
+.button[data-disabled] {
+  background: var(--bs-ground);
+  color: var(--bs-muted);
+  border: 1.5px solid var(--bs-hairline);
+}
+
+.buttonLabel {
+  font-weight: var(--bs-text-body-strong-weight);
+}
+
+.input {
+  border: 1.5px solid var(--bs-control-border);
+  background: var(--bs-surface);
+  color: var(--bs-ink);
+}
+
+.input[data-error] {
+  border-color: var(--bs-danger);
+  color: var(--bs-ink);
+}
+
+.inputSection {
+  color: var(--bs-muted);
+}
+
+.inputLabel {
+  margin-bottom: var(--bs-space-xs);
+  font-size: var(--bs-text-small-size);
+  line-height: var(--bs-text-small-line-height);
+  font-weight: var(--bs-text-body-strong-weight);
+}
+
+.inputError {
+  margin-top: var(--bs-space-xs);
+  font-size: var(--bs-text-small-size);
+  line-height: var(--bs-text-small-line-height);
+  color: var(--bs-danger);
+}
+
+.checkboxBody {
+  align-items: center;
+  min-height: var(--bs-touch-min);
+}
+
+.controlLabel {
+  font-size: var(--bs-text-body-size);
+  line-height: var(--bs-text-body-line-height);
+}
+
+.checkboxInput {
+  border: 1.5px solid var(--bs-control-border);
+  background: var(--bs-surface);
+}
+
+.checkboxInput:checked {
+  border-color: var(--bs-accent-edge);
+  background: var(--bs-accent);
+}
+
+.segmented {
+  padding: 3px;
+  border: 1.5px solid var(--bs-control-border);
+  background: var(--bs-surface);
+}
+
+.segmentedIndicator {
+  background: var(--bs-inverse);
+  box-shadow: none;
+}
+
+.segmentedLabel {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--bs-space-lg);
+  color: var(--bs-ink);
+  font-size: var(--bs-text-small-size);
+  font-weight: var(--bs-text-small-weight);
+}
+
+.segmentedLabel[data-active],
+.segmentedLabel[data-active]:hover {
+  color: var(--bs-on-inverse);
+  font-weight: var(--bs-text-body-strong-weight);
+}
+
+.chip {
+  height: 40px;
+  padding-inline: var(--bs-space-md);
+  border: 1.5px solid var(--bs-control-border);
+  background: var(--bs-surface);
+  color: var(--bs-ink);
+  font-size: var(--bs-text-small-size);
+  font-weight: var(--bs-text-small-weight);
+}
+
+.chip[data-checked],
+.chip[data-checked]:hover {
+  padding-inline: var(--bs-space-md);
+  border-color: var(--bs-ink);
+  background: var(--bs-highlight);
+  font-weight: var(--bs-text-body-strong-weight);
+}
+
+.chipIcon {
+  display: none;
+}
+
+.tag {
+  height: auto;
+  padding: 1px var(--bs-space-sm);
+  border: 1px solid var(--bs-hairline);
+  border-radius: var(--bs-radius-sm);
+  background: transparent;
+  color: var(--bs-muted);
+  font-size: var(--bs-text-small-size);
+  line-height: var(--bs-text-small-line-height);
+  font-weight: var(--bs-text-body-weight);
+  text-transform: none;
+}
+
+.menu {
+  min-width: 220px;
+  padding: var(--bs-space-xs);
+  border: 1px solid var(--bs-hairline);
+  background: var(--bs-surface);
+}
+
+.menuItem {
+  min-height: var(--bs-touch-min);
+  padding-inline: var(--bs-space-md);
+  border-radius: var(--bs-radius-sm);
+  font-size: var(--bs-text-body-size);
+  color: var(--menu-item-color, var(--bs-ink));
+}
+
+.menuDivider {
+  border-color: var(--bs-hairline);
+}
+
+.overlayTitle {
+  font-size: var(--bs-text-heading-size);
+  line-height: var(--bs-text-heading-line-height);
+  font-weight: var(--bs-text-heading-weight);
+}
+
+.overlayHeader {
+  background: var(--bs-surface);
+}
+
+.overlayContent {
+  background: var(--bs-surface);
+}
+
+/* Mantine renders one container per screen position; only the bottom-left one is used. */
+.toasts {
+  pointer-events: none;
+}
+
+.toasts > * {
+  pointer-events: auto;
+}
+
+.toasts[data-position="bottom-left"] {
+  bottom: calc(var(--bs-nav-height) + var(--bs-space-sm));
+  left: var(--bs-space-sm);
+  width: calc(100% - 2 * var(--bs-space-sm));
+  max-width: 420px;
+}
+
+@media (min-width: 62em) {
+  .toasts[data-position="bottom-left"] {
+    bottom: var(--bs-space-lg);
+    left: calc(var(--bs-nav-width) + var(--bs-space-lg));
+  }
+}

@@ -1,0 +1,25 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--bs-space-xs);
+  height: 100%;
+  padding: 0 var(--bs-space-xs);
+}
+
+.search {
+  flex: 1;
+  min-width: 0;
+  margin: 0 var(--bs-space-xs);
+}
+
+@media (min-width: 62em) {
+  .bar {
+    gap: var(--bs-space-sm);
+    padding: 0 var(--bs-space-xl);
+  }
+
+  .search {
+    max-width: 520px;
+    margin: 0 auto 0 0;
+  }
+}

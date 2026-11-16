@@ -1,0 +1,39 @@
+.text,
+.field {
+  display: block;
+  width: calc(100% + 2 * var(--bs-space-sm));
+  min-height: var(--bs-touch-min);
+  margin: 0 calc(-1 * var(--bs-space-sm));
+  padding: var(--bs-space-xs) var(--bs-space-sm);
+  border: 1.5px solid transparent;
+  border-radius: var(--bs-radius-sm);
+  background: none;
+  color: var(--bs-ink);
+  font: inherit;
+  text-align: left;
+}
+
+.text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  cursor: text;
+}
+
+textarea.field {
+  resize: vertical;
+}
+
+.text:hover {
+  background: var(--bs-hover);
+}
+
+.text[data-empty] {
+  color: var(--bs-muted);
+}
+
+.field {
+  border-color: var(--bs-control-border);
+  background: var(--bs-surface);
+  outline: 2px solid var(--bs-focus);
+  outline-offset: 1px;
+}

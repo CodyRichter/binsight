@@ -13,14 +13,26 @@ npm run lint
 npm run format
 ```
 
-`npm run typecheck` and `npm run build` are added with the first code and
-join `scripts/check.sh` then. `npm run e2e` is added at the same time and
-runs in continuous integration, not in the check script. Lint rules are in
-`eslint.config.mjs`. A React component's length is governed by the 150-line
-file limit, not the 40-line function limit.
+`npm run typecheck`, `npm test` and `npm run build` are part of
+`scripts/check.sh`. `npm run dev` serves the app; `/design` shows every
+component and token. `npm run e2e` runs the Playwright tests, in continuous
+integration rather than the check script. Its screenshots of `/design` are
+compared and made only in the CI container. To make new baselines, run
+`gh workflow run ci.yml --ref <branch> -f update_screenshots=true`, check
+the four images in the `screenshots` artifact, and commit them to
+`e2e/__screenshots__/`. Lint rules are in `eslint.config.mjs`. A React
+component's length is governed by the 150-line file limit, not the 40-line
+function limit.
 
 For anything visible, also open it at phone width in light and dark mode
 and say that you did, or that you could not.
+
+## How it looks
+
+Read [docs/design-language.md](../docs/design-language.md) before changing
+anything visible. Every page is one of its templates and every piece of
+interface is one of its components, built from its tokens. If what you need
+is not there, stop and ask; do not invent it on the page.
 
 ## Where code goes
 
@@ -28,7 +40,10 @@ and say that you did, or that you could not.
   fetching of their own. Each is listed once in the route table.
 - A feature's components and hooks live in its folder under `src/features/`,
   at most one folder deep. Something moves to `src/components/` only when a
-  second feature uses it.
+  second feature uses it. The design language's components are the
+  exception: they live in `src/components/` from the start.
+- The theme is `src/lib/theme/`, and `tokens.ts` there is the only file
+  with a color value.
 - A feature imports from another feature only what that feature exports from
   its index file, and reaches it through the `@/` alias.
 - Every backend call goes through `src/lib/api/`. Components never call

@@ -1,0 +1,57 @@
+import { screen } from "@testing-library/react";
+import type { ComponentProps } from "react";
+import { expect, test, vi } from "vitest";
+import { renderWithTheme } from "@/lib/testing/renderWithTheme";
+import { ItemRow } from "./ItemRow";
+
+function renderRow(props: Partial<ComponentProps<typeof ItemRow>> = {}) {
+  return renderWithTheme(
+    <ul>
+      <ItemRow name="AA batteries" to="/items/1" {...props} />
+    </ul>,
+  );
+}
+
+test("the matched part of the name is marked, ignoring case", () => {
+  renderRow({ match: "BAT" });
+  expect(screen.getByRole("mark")).toHaveTextContent(/^bat$/);
+});
+
+test("a name without the match is not marked", () => {
+  renderRow({ match: "cable" });
+  expect(screen.queryByRole("mark")).not.toBeInTheDocument();
+});
+
+test("the quantity shows only above one", () => {
+  const { rerender } = renderRow({ quantity: 1, onQuantityChange: vi.fn() });
+  expect(screen.queryByRole("button", { name: "One more" })).not.toBeInTheDocument();
+  rerender(
+    <ul>
+      <ItemRow name="AA batteries" to="/items/1" quantity={3} onQuantityChange={vi.fn()} />
+    </ul>,
+  );
+  expect(screen.getByRole("button", { name: "Quantity 3, type a number" })).toBeInTheDocument();
+});
+
+test("the quantity needs a way to change it", () => {
+  renderRow({ quantity: 3 });
+  expect(screen.queryByRole("button", { name: "One more" })).not.toBeInTheDocument();
+});
+
+test("an item in place shows no status", () => {
+  renderRow();
+  expect(screen.getByRole("listitem")).toHaveTextContent(/^AA batteries$/);
+});
+
+test("a missing item says so", () => {
+  renderRow({ status: "missing" });
+  expect(screen.getByText("Missing")).toBeInTheDocument();
+});
+
+test("in check mode a tap on the name ticks the box", async () => {
+  const onChange = vi.fn();
+  const { user } = renderRow({ check: { checked: false, onChange } });
+  await user.click(screen.getByText("AA batteries"));
+  expect(onChange).toHaveBeenCalledWith(true);
+  expect(screen.getByRole("checkbox", { name: "AA batteries" })).toBeInTheDocument();
+});

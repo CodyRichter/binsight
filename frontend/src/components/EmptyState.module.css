@@ -1,0 +1,11 @@
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--bs-space-sm);
+  padding: var(--bs-space-xl) var(--bs-space-lg);
+}
+
+.empty > p {
+  max-width: 40ch;
+}

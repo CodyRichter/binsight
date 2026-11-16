@@ -9,7 +9,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 BACKEND_FEATURES = ROOT / "backend/app/features"
 FRONTEND_FEATURES = ROOT / "frontend/src/features"
-FRONTEND_ONLY_FEATURES = {"scan"}
+FRONTEND_ONLY_FEATURES = {"scan", "design"}
+FRONTEND_SOURCE = ROOT / "frontend/src"
+CSS_FOLDERS = (FRONTEND_SOURCE / "components", FRONTEND_SOURCE / "lib/theme")
+DESIGN_LANGUAGE = ROOT / "docs/design-language.md"
+COLOR_TOKENS = FRONTEND_SOURCE / "lib/theme/tokens.ts"
+HEX_COLOR = re.compile(r"#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b")
 REQUIRED_FEATURE_FILES = {"service.py", "schemas.py", "routes.py", "__init__.py"}
 BANNED_STEMS = {"utils", "util", "helpers", "helper", "common", "misc"}
 SOURCE_ROOTS = ("backend/app", "frontend/src", "scripts")
@@ -127,6 +132,38 @@ def check_python_sizes() -> Iterator[str]:
                 yield f"{where} has {length} lines; the limit is {MAX_FUNCTION_LINES}"
 
 
+def documented_colors() -> dict[str, tuple[str, str]]:
+    row = re.compile(r"^\| `([a-z-]+)` +\| `([^`]+)` \| `([^`]+)` \|", flags=re.MULTILINE)
+    rows = row.findall(DESIGN_LANGUAGE.read_text())
+    return {name: (light, dark) for name, light, dark in rows}
+
+
+def coded_colors() -> dict[str, tuple[str, str]]:
+    entry = re.compile(r'^\s+"?([a-z-]+)"?: \{ light: "([^"]+)", dark: "([^"]+)" \},', re.MULTILINE)
+    return {name: (light, dark) for name, light, dark in entry.findall(COLOR_TOKENS.read_text())}
+
+
+def check_color_tokens_match() -> Iterator[str]:
+    documented, coded = documented_colors(), coded_colors()
+    for name in sorted(documented.keys() | coded.keys()):
+        if documented.get(name) != coded.get(name):
+            yield (
+                f"color token '{name}' is {documented.get(name)} in {DESIGN_LANGUAGE.name} "
+                f"but {coded.get(name)} in {COLOR_TOKENS.relative_to(ROOT)}"
+            )
+
+
+def check_css_files() -> Iterator[str]:
+    for path in repository_files(".css"):
+        if not path.is_relative_to(FRONTEND_SOURCE):
+            continue
+        relative = path.relative_to(ROOT)
+        if not any(path.is_relative_to(folder) for folder in CSS_FOLDERS):
+            yield f"{relative}: CSS lives only in src/components/ and src/lib/theme/"
+        if HEX_COLOR.search(path.read_text()):
+            yield f"{relative} contains a hex color; use a --bs-* variable"
+
+
 CHECKS = (
     check_feature_folders_match,
     check_readme_lists_features,
@@ -135,6 +172,8 @@ CHECKS = (
     check_agent_files,
     check_banned_file_names,
     check_python_sizes,
+    check_color_tokens_match,
+    check_css_files,
 )
 
 

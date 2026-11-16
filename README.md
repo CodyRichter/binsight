@@ -8,7 +8,9 @@ what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
 > **Status: foundations.** The requirements, data model, conventions and
-> checks are in place. No application code has been written yet. See the
+> checks are in place, and the frontend has its toolchain and the design
+> language as working components, shown at `/design` in development. No
+> application behavior has been written yet. See the
 > [build order](docs/build-order.md) for what comes next.
 
 ## Documents
@@ -20,6 +22,7 @@ what's inside. Search for anything and get its full location path, e.g.
 | [Data model](docs/data-model.md)                 | What is stored and the rules that always hold |
 | [Acceptance criteria](docs/acceptance.md)        | The five core flows as steps and results |
 | [API conventions](docs/api-conventions.md)       | How every endpoint and MCP tool behaves |
+| [Design language](docs/design-language.md)       | How the interface looks, reads and is laid out |
 | [Build order](docs/build-order.md)               | The sequence the app is built in        |
 | [Testing](docs/testing.md)                       | What is tested, where, and how          |
 | [Decisions](docs/decisions/README.md)            | Choices that are settled, and why       |
@@ -77,10 +80,11 @@ binsight/
 │   ├── src/
 │   │   ├── pages/           One thin file per page (see below)
 │   │   ├── features/        One folder per feature: its components and hooks
-│   │   ├── components/      Shared interface pieces used by several features
+│   │   ├── components/      The design language's components, and pieces shared by features
 │   │   ├── lib/api/         The one client used to call the backend
+│   │   ├── lib/theme/       The Mantine theme: every design token, set once
 │   │   └── types/           Shared data shapes, including the generated ones
-│   └── e2e/                 End-to-end tests, one per flow listed above
+│   └── e2e/                 End-to-end tests, one per flow listed above, and screenshots of /design
 ├── deploy/                  Container image and compose file
 ├── scripts/                 setup.sh, check.sh, and the Claude Code hooks
 ├── .claude/                 Shared Claude Code permissions and hooks
@@ -117,6 +121,7 @@ plan for all of them; a folder that exists must be listed here.
 | `import_export` | CSV import, full export, insurance export, contents sheets  |
 | `backups`       | Scheduled backups and restore                               |
 | `scan`          | Frontend only: the in-app scanner used for scan-to-move     |
+| `design`        | Frontend only, development builds: the design language rendered |
 
 The frontend folder for `import_export` is named `import-export`.
 
@@ -129,11 +134,13 @@ The frontend folder for `import_export` is named `import-export`.
 | `/locations/{id}`   | A location and its contents                             |
 | `/items/{id}`       | An item                                                 |
 | `/search`           | Search results                                          |
+| `/views`            | Every view, with its count                              |
 | `/views/{view}`     | A built-in view or saved search                         |
 | `/inbox`            | Items still missing a name or location                  |
 | `/scan`             | The in-app scanner                                      |
 | `/settings`         | Labels, export, backups, MCP credentials                |
 | `/login`            | Sign in, and creating the owner on a new install        |
+| `/design`           | Development builds only: every component and token      |
 
 `/l/{code}` is printed on every label, so it can never change
 ([decision 0004](docs/decisions/0004-permanent-labels.md)).

@@ -18,3 +18,4 @@ it and mark the old one as replaced. Do not quietly work around one.
 | 0008 | [The frontend is a client-only app served by the backend](0008-frontend-served-by-backend.md) | Accepted |
 | 0009 | [One transaction per action, with history recorded inside it](0009-transactions-and-history.md) | Accepted |
 | 0010 | [Claude reaches the MCP server from local clients](0010-mcp-access.md) | Accepted |
+| 0011 | [The interface follows one design language](0011-design-language.md) | Accepted |

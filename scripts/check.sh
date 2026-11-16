@@ -37,4 +37,13 @@ npm run --silent --prefix frontend lint
 step "Frontend formatting"
 npm run --silent --prefix frontend format:check
 
+step "Frontend types"
+npm run --silent --prefix frontend typecheck
+
+step "Frontend tests"
+npm run --silent --prefix frontend test
+
+step "Frontend build"
+npm run --silent --prefix frontend build
+
 printf '\nAll checks passed.\n'

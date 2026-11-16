@@ -19,7 +19,9 @@ end before the next one starts. Breadth comes after the five core flows in
 ## Step 0: Foundations (this commit)
 
 Requirements, glossary, data model, conventions, decisions, lint limits,
-continuous integration, and agent rules. No application code.
+continuous integration, and agent rules. The frontend toolchain (Vite,
+React, Mantine) and the design language as a theme, lint rules and
+components, rendered at `/design` in development. No application behavior.
 
 ## Step 1: Walking skeleton
 
@@ -36,8 +38,7 @@ The smallest thing that proves every layer connects. Features: `auth`,
 - An MCP tool for each of those actions, an MCP credential to call them
   with, and the parity test.
 - Generated API types, checked for staleness.
-- Type checks and the production build for the frontend join
-  `scripts/check.sh`. The end-to-end tests join continuous integration.
+- The end-to-end tests join continuous integration.
 - The container image builds and runs.
 
 ## Step 2: Labels (flow 1)

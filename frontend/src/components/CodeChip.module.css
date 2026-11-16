@@ -1,0 +1,28 @@
+.chip {
+  display: inline-block;
+  padding: 0 6px;
+  border: 1.5px solid var(--bs-on-label);
+  border-radius: var(--bs-radius-sm);
+  background: var(--bs-label);
+  color: var(--bs-on-label);
+  font-family: var(--bs-font-mono);
+  font-size: var(--bs-code-size);
+  line-height: var(--bs-code-line-height);
+  font-weight: var(--bs-code-weight);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.chip[data-large] {
+  padding: 0 10px;
+  border-width: 2px;
+  font-size: var(--bs-code-lg-size);
+  line-height: var(--bs-code-lg-line-height);
+}
+
+.chip[data-blank] {
+  border-style: dashed;
+  border-color: var(--bs-control-border);
+  background: none;
+  color: var(--bs-muted);
+}

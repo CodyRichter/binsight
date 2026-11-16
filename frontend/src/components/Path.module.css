@@ -1,0 +1,43 @@
+.path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  color: var(--bs-muted);
+  font-size: var(--bs-text-small-size);
+  line-height: var(--bs-text-small-line-height);
+}
+
+.link {
+  position: relative;
+}
+
+.segment,
+.link {
+  padding: 2px 0;
+  color: inherit;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+/* Links sit in a text line, so the tappable area grows past the text instead of the line. */
+.link::before {
+  content: "";
+  position: absolute;
+  inset: calc((var(--bs-touch-min) - 100%) / -2) 0;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.segment:last-of-type,
+.link:last-of-type {
+  color: var(--bs-ink);
+  font-weight: var(--bs-text-body-strong-weight);
+}
+
+.separator {
+  flex: none;
+}

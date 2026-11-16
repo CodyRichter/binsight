@@ -1,0 +1,5 @@
+.drawer {
+  height: auto;
+  max-height: 85%;
+  border-radius: var(--bs-radius-lg) var(--bs-radius-lg) 0 0;
+}

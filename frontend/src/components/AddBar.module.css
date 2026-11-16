@@ -1,0 +1,85 @@
+.addBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bs-space-sm);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--bs-space-sm);
+  min-height: var(--bs-bar-height);
+  padding: 0 var(--bs-space-xs) 0 var(--bs-space-md);
+  border: 1.5px solid var(--bs-accent-edge);
+  border-radius: var(--bs-radius-md);
+  background: var(--bs-surface);
+  box-shadow: inset 0 -4px 0 var(--bs-accent);
+}
+
+.bar:focus-within {
+  outline: 2px solid var(--bs-focus);
+  outline-offset: 1px;
+}
+
+.plus {
+  flex: none;
+  color: var(--bs-ink);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: var(--bs-touch-min);
+  border: 0;
+  outline: 0;
+  background: none;
+  color: var(--bs-ink);
+  font: inherit;
+}
+
+.input::placeholder {
+  color: var(--bs-muted);
+  opacity: 1;
+}
+
+.several {
+  flex: 1;
+  min-width: 0;
+  padding-block: var(--bs-space-sm);
+}
+
+.several textarea {
+  border: 0;
+  outline: 0;
+  padding-inline: 0;
+  background: none;
+}
+
+.destination {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--bs-space-xs);
+  min-height: var(--bs-touch-min);
+  padding: 0 var(--bs-space-xs);
+  border: 0;
+  border-radius: var(--bs-radius-sm);
+  background: none;
+  color: var(--bs-muted);
+  font-size: var(--bs-text-small-size);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.destination:hover {
+  background: var(--bs-hover);
+}
+
+.below {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--bs-space-sm);
+}
+
+.photoInput {
+  display: none;
+}

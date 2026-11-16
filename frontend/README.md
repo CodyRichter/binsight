@@ -4,8 +4,9 @@ The web app. A client-only React app, phone first and installable to the
 home screen, built into static files that the backend serves
 ([decision 0008](../docs/decisions/0008-frontend-served-by-backend.md)).
 
-> **Status: foundations.** Tooling is set up; no application code yet. This
-> describes the intended stack.
+> **Status: foundations.** The toolchain, the Mantine theme and the design
+> language's components are in place, shown at `/design` by `npm run dev`.
+> No application behavior yet.
 
 ## Tech stack
 
@@ -18,12 +19,15 @@ home screen, built into static files that the backend serves
 | Server data        | TanStack Query (React Query)                        |
 | Installable app    | A web app manifest. No service worker.              |
 | QR scanning        | The phone's own camera for labels; an in-browser scanner for scan-to-move |
+| Unit tests         | Vitest, React Testing Library, user-event, jsdom    |
 | End-to-end tests   | Playwright                                          |
 | Lint               | ESLint                                              |
 | Format             | Prettier                                            |
 
-Only TypeScript, ESLint and Prettier are installed so far. The rest are
-added by the step that first uses them.
+Installed so far: Vite, React, React Router, Mantine (core, hooks,
+notifications), Tabler icons, the two Atkinson Hyperlegible font families,
+TypeScript, ESLint, Prettier, Vitest with React Testing Library, and
+Playwright. TanStack Query is added by the step that first uses it.
 
 ## Layout
 
