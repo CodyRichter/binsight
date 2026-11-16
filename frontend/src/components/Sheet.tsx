@@ -60,7 +60,7 @@ export function Sheet(props: SheetProps) {
   const body = sheetBody(props);
   if (wide) {
     return (
-      <Modal opened={opened} onClose={onClose} title={title}>
+      <Modal opened={opened} onClose={onClose} title={title} classNames={{ body: classes.body }}>
         {body}
       </Modal>
     );
@@ -71,7 +71,7 @@ export function Sheet(props: SheetProps) {
       onClose={onClose}
       title={title}
       position="bottom"
-      classNames={{ content: classes.drawer }}
+      classNames={{ content: classes.drawer, body: classes.body }}
       styles={{ inner: { bottom: keyboardHeight } }}
     >
       {body}

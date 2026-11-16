@@ -13,7 +13,7 @@ export function ValuesSpecimen() {
   const [quantity, setQuantity] = useState(1);
   const [backups, setBackups] = useState(true);
   return (
-    <Specimen title="Value rows" fullWidth>
+    <Specimen title="Value rows" fullWidth gap={0}>
       <ListSection title="Details">
         <ValueRow name="Category">
           <EditableText value={category} label="Category" onSave={setCategory} />

@@ -1,4 +1,4 @@
-/* At rest the text takes only its line height; the tap area and hover fill reach past it. */
+/* At rest the text takes only its line height; the tap area reaches past it without covering labels. */
 .text {
   position: relative;
   z-index: 0;
@@ -18,12 +18,18 @@
 .text::before {
   content: "";
   position: absolute;
+  inset: min(0px, (100% - var(--bs-touch-min)) / 2) 0;
+}
+
+.text::after {
+  content: "";
+  position: absolute;
   z-index: -1;
-  inset: min(0px, (100% - var(--bs-touch-min)) / 2) calc(-1 * var(--bs-space-sm));
+  inset: calc(-1 * var(--bs-space-xs) / 2) calc(-1 * var(--bs-space-xs));
   border-radius: var(--bs-radius-sm);
 }
 
-.text:hover::before {
+.text:hover::after {
   background: var(--bs-hover);
 }
 
@@ -31,24 +37,31 @@
   color: var(--bs-muted);
 }
 
-/* The field's padding and border sit outside the text, so editing moves nothing. */
 .field {
-  --edge: calc(var(--bs-space-xs) + 1.5px);
-  --side: calc(var(--bs-space-sm) + 1.5px);
   display: block;
-  box-sizing: content-box;
+  box-sizing: border-box;
   width: 100%;
-  margin: calc(-1 * var(--edge)) calc(-1 * var(--side));
-  padding: var(--bs-space-xs) var(--bs-space-sm);
+  min-height: var(--bs-touch-min);
+  margin: 0;
+  padding: var(--bs-space-sm) var(--bs-space-md);
   border: 1.5px solid var(--bs-control-border);
-  border-radius: var(--bs-radius-sm);
+  border-radius: var(--bs-radius-md);
   background: var(--bs-surface);
   color: var(--bs-ink);
   font: inherit;
+}
+
+.field:focus {
+  outline: none;
+  border-color: var(--bs-ink);
+}
+
+.field:focus-visible {
   outline: 2px solid var(--bs-focus);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
 textarea.field {
+  padding: var(--bs-space-md);
   resize: vertical;
 }

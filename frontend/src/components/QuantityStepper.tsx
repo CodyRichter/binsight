@@ -1,5 +1,5 @@
 import { IconMinus, IconPlus } from "@tabler/icons-react";
-import { useState, type KeyboardEvent } from "react";
+import { useState, type CSSProperties, type KeyboardEvent } from "react";
 import classes from "./QuantityStepper.module.css";
 
 interface QuantityStepperProps {
@@ -9,6 +9,12 @@ interface QuantityStepperProps {
 
 export function QuantityStepper({ value, onChange }: QuantityStepperProps) {
   const [typing, setTyping] = useState(false);
+  const [digits, setDigits] = useState(String(value).length);
+
+  function startTyping() {
+    setDigits(String(value).length);
+    setTyping(true);
+  }
 
   function finishTyping(typed: string) {
     setTyping(false);
@@ -35,11 +41,13 @@ export function QuantityStepper({ value, onChange }: QuantityStepperProps) {
       {typing ? (
         <input
           className={classes.typed}
+          style={{ "--digits": Math.max(2, digits) } as CSSProperties}
           aria-label="Quantity"
           inputMode="numeric"
           defaultValue={value}
           autoFocus
           onFocus={(event) => event.currentTarget.select()}
+          onChange={(event) => setDigits(event.currentTarget.value.length)}
           onBlur={(event) => finishTyping(event.currentTarget.value)}
           onKeyDown={handleKey}
         />
@@ -48,7 +56,7 @@ export function QuantityStepper({ value, onChange }: QuantityStepperProps) {
           type="button"
           className={classes.number}
           aria-label={`Quantity ${value}, type a number`}
-          onClick={() => setTyping(true)}
+          onClick={startTyping}
         >
           {value}
         </button>

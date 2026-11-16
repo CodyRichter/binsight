@@ -61,7 +61,9 @@
 
 .number,
 .typed {
+  box-sizing: border-box;
   min-width: var(--bs-touch-min);
+  padding: 0 var(--bs-space-sm);
   font: inherit;
   font-size: var(--bs-text-body-strong-size);
   line-height: var(--bs-text-body-strong-line-height);
@@ -71,9 +73,17 @@
 }
 
 .typed {
-  width: 4ch;
+  width: calc(var(--digits, 2) * 1ch + 2 * var(--bs-space-sm) + 2px);
+  field-sizing: content;
   height: var(--step);
   border: 0;
   background: none;
   color: var(--bs-ink);
+}
+
+.step:focus-visible,
+.number:focus-visible,
+.typed:focus-visible {
+  outline: 2px solid var(--bs-focus);
+  outline-offset: -2px;
 }

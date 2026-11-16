@@ -30,6 +30,8 @@
 }
 
 .title > h1 {
+  min-width: 0;
+  max-width: 100%;
   text-wrap: balance;
 }
 

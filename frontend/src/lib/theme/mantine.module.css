@@ -26,12 +26,27 @@
 }
 
 .input {
+  --input-padding: var(--bs-space-md);
   border: 1.5px solid var(--bs-control-border);
   background: var(--bs-surface);
   color: var(--bs-ink);
 }
 
-.input[data-error] {
+.input:focus {
+  border-color: var(--bs-ink);
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--bs-focus);
+  outline-offset: 2px;
+}
+
+textarea.input {
+  padding-block: var(--bs-space-md);
+}
+
+.input[data-error],
+.input[data-error]:focus {
   border-color: var(--bs-danger);
   color: var(--bs-ink);
 }
@@ -183,18 +198,17 @@
   font-weight: var(--bs-text-heading-weight);
 }
 
+/* The close button is 48px around a 24px row; trimming 12px keeps title at --mb-padding. */
 .overlayHeader {
+  min-height: 0;
+  padding-top: calc(var(--mb-padding, var(--mantine-spacing-md)) - 12px);
+  padding-bottom: var(--bs-space-xs);
   padding-inline-end: var(--mb-padding, var(--mantine-spacing-md));
   background: var(--bs-surface);
 }
 
 .overlayContent {
   background: var(--bs-surface);
-}
-
-/* Rows in a sheet bring their own gutter, so the body has no side padding. */
-.overlayBody {
-  padding: 0;
 }
 
 /* The button is wider than its glyph; this puts the glyph at the gutter, like the top bar's. */

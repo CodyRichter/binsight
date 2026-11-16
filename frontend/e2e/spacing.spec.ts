@@ -65,3 +65,43 @@ test("only pages below a destination show Back", async ({ page }) => {
   await open(page, "/design/browse/cables");
   await expect(page.getByRole("button", { name: "Back" })).toHaveCount(1);
 });
+
+test("a confirmation dialog keeps space-xl body padding", async ({ page }) => {
+  await open(page, "/design");
+  await page.getByRole("button", { name: "Delete blank labels" }).click();
+  const dialog = page.getByRole("dialog");
+  const card = await box(dialog);
+  const title = await box(dialog.getByRole("heading", { name: "Delete 12 blank labels?" }));
+  const bodyText = await box(dialog.getByText(/Their codes can never be used again/));
+  expect(bodyText.left - card.left).toBe(24);
+  expect(card.right - bodyText.right).toBe(24);
+  expect(title.top - card.top).toBe(24);
+  expect(bodyText.top - title.bottom).toBe(16);
+});
+
+test("editable text inside a value row stays below its label when editing", async ({ page }) => {
+  await open(page, "/design/record/hdmi-cable");
+  const row = page.locator("#content li").filter({ hasText: "Category" });
+  const label = await box(row.getByText("Category", { exact: true }));
+  await row.getByRole("button", { name: "Category: Cables" }).click();
+  const input = await box(row.getByRole("textbox", { name: "Category" }));
+  expect(input.top).toBeGreaterThanOrEqual(label.bottom);
+});
+
+test("typing a multi-digit quantity expands the stepper input without clipping", async ({
+  page,
+}) => {
+  await open(page, "/design/record/hdmi-cable");
+  await page.getByRole("button", { name: "Quantity 3, type a number" }).click();
+  const input = page.getByRole("textbox", { name: "Quantity" });
+  await input.fill("12345");
+  const overflows = await input.evaluate((node) => node.scrollWidth > node.clientWidth);
+  expect(overflows).toBe(false);
+});
+
+test("refusal toast stays compact at phone width", async ({ page }) => {
+  await open(page, "/design");
+  await page.getByRole("button", { name: "Refusal toast" }).click();
+  const toast = page.getByRole("alert");
+  expect((await box(toast)).height).toBeLessThanOrEqual(68);
+});

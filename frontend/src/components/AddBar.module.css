@@ -11,15 +11,19 @@
   gap: var(--bs-space-sm);
   min-height: var(--bs-bar-height);
   padding: 0 var(--bs-space-xs) 0 var(--bs-space-md);
-  border: 1.5px solid var(--bs-accent-edge);
+  border: 1.5px solid var(--bs-control-border);
   border-radius: var(--bs-radius-md);
   background: var(--bs-surface);
   box-shadow: inset 0 -4px 0 var(--bs-accent);
 }
 
 .bar:focus-within {
+  border-color: var(--bs-ink);
+}
+
+.bar:has(:focus-visible) {
   outline: 2px solid var(--bs-focus);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
 .plus {
@@ -52,8 +56,12 @@
 .several textarea {
   border: 0;
   outline: 0;
-  padding-inline: 0;
+  padding: 0;
   background: none;
+}
+
+.several textarea:focus-visible {
+  outline: none;
 }
 
 .destination {

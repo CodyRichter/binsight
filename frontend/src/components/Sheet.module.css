@@ -5,9 +5,14 @@
   border-radius: var(--bs-radius-lg) var(--bs-radius-lg) 0 0;
 }
 
+/* Rows in a sheet bring their own gutter, so the body has no side padding. */
+.body {
+  padding: 0;
+}
+
 .rows {
   margin: 0;
-  padding: 0 0 var(--bs-space-lg);
+  padding: 0 0 var(--bs-space-sm);
   list-style: none;
 }
 
@@ -19,7 +24,15 @@
 }
 
 @media (min-width: 62em) {
+  .rows > li {
+    padding-inline: var(--bs-space-xl);
+  }
+
   .form {
     padding: 0 var(--bs-space-xl) var(--bs-space-xl);
+  }
+
+  .form:has(+ .rows) {
+    padding-bottom: var(--bs-space-lg);
   }
 }

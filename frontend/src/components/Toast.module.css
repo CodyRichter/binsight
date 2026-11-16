@@ -1,7 +1,7 @@
 .toast {
   display: flex;
   align-items: center;
-  gap: var(--bs-space-md);
+  gap: var(--bs-space-sm);
   min-height: var(--bs-touch-min);
   padding: 0 var(--bs-space-xs) 0 var(--bs-space-lg);
   border-radius: var(--bs-radius-md);
@@ -18,12 +18,13 @@
 .message {
   flex: 1;
   min-width: 0;
-  margin: var(--bs-space-md) 0;
+  margin: var(--bs-space-sm) 0;
 }
 
 .action {
+  flex: none;
   min-height: var(--bs-touch-min);
-  padding: 0 var(--bs-space-md);
+  padding: 0 var(--bs-space-sm);
   border: 0;
   border-radius: var(--bs-radius-sm);
   background: none;
@@ -35,15 +36,27 @@
   cursor: pointer;
 }
 
+.action:last-child {
+  padding-inline-end: var(--bs-space-md);
+}
+
 .close {
+  flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: var(--bs-touch-min);
   height: var(--bs-touch-min);
+  margin-left: calc(-1 * var(--bs-space-sm));
   border: 0;
   border-radius: var(--bs-radius-sm);
   background: none;
   color: var(--bs-on-inverse);
   cursor: pointer;
+}
+
+.action:focus-visible,
+.close:focus-visible {
+  outline: 2px solid var(--bs-focus);
+  outline-offset: -2px;
 }
