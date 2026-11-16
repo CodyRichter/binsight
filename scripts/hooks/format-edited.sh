@@ -12,7 +12,14 @@ case "$file" in
     uv run --project backend --locked ruff format --quiet "$file"
     ;;
   */frontend/*.ts | */frontend/*.tsx | */frontend/*.mjs)
-    (cd frontend && npx --no-install eslint --fix --no-warn-ignored "$file" >/dev/null)
+    (
+      cd frontend
+      npx --no-install prettier --write --log-level warn "$file"
+      npx --no-install eslint --fix --no-warn-ignored "$file" >/dev/null
+    )
+    ;;
+  */frontend/*.json | */frontend/*.css | */frontend/*.html)
+    (cd frontend && npx --no-install prettier --write --log-level warn "$file")
     ;;
 esac
 exit 0

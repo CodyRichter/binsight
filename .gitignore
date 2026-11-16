@@ -28,24 +28,15 @@ venv/
 htmlcov/
 coverage.xml
 
-# --- Node / Next.js (frontend) ---
+# --- Node (frontend) ---
 node_modules/
-.next/
-/frontend/out/
-/frontend/build/
-next-env.d.ts
+/frontend/dist/
 *.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 /frontend/coverage/
-
-# Generated service worker files for the installable web app
-/frontend/public/sw.js
-/frontend/public/sw.js.map
-/frontend/public/workbox-*.js
-/frontend/public/workbox-*.js.map
 
 # End-to-end test output
 /frontend/test-results/

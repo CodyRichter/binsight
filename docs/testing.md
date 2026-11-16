@@ -13,9 +13,13 @@ them.
 | MCP tests        | `backend/tests/mcp/`         | Each tool reaches the same result as its route, and destructive tools need confirmation. | Some |
 | End-to-end tests | `frontend/e2e/`              | The five core flows work in a real browser at phone width against the real backend. | Five, plus a few |
 
+The first three layers run in `scripts/check.sh`. The end-to-end tests run
+as their own step in continuous integration, and locally with
+`npm run e2e`, so the check script stays quick.
+
 There are no frontend unit tests for components by default. A component
-earns one only when it holds logic worth testing alone, such as the offline
-queue.
+earns one only when it holds logic worth testing alone, such as splitting
+pasted text into item names.
 
 ## Structural tests
 
@@ -24,11 +28,10 @@ drift.
 
 | Test              | Fails when                                               | Exists from |
 | ----------------- | -------------------------------------------------------- | ----------- |
-| Repository layout | Backend and frontend feature folders differ, the README feature table is out of date, an `AGENTS.md` exceeds 200 lines, or a Python file or function exceeds its size limit. | Now (`scripts/check_repo.py`) |
+| Repository layout | Backend and frontend feature folders differ, a feature is missing from the README table or lacks its three files, a feature imports another's internals, an `AGENTS.md` exceeds 200 lines, or a Python file or function exceeds its size limit. | Now (`scripts/check_repo.py`) |
 | Generated types   | The committed frontend types differ from what the backend's contract generates. | Step 1 |
 | Migrations        | A model changed without a migration, or a migration fails against a database that has rows in it. | Step 1 |
-| Parity            | A user action has a route but no MCP tool, or a tool but no route. | Step 6 |
-| Speed             | A core read takes too long on the large data set below.  | Step 4 |
+| Parity            | A route's operation name has no MCP tool of the same name, or a tool has no route. | Step 1 |
 
 ## Test data
 
@@ -36,24 +39,8 @@ drift.
   tests. Tests say what matters to them (`item(name="HDMI cable")`) and take
   defaults for the rest.
 - The acceptance setup in [acceptance.md](acceptance.md) is one named
-  fixture, shared by the MCP tests and the end-to-end tests.
-- The **large data set** is generated, not stored: 5,000 items across 300
-  locations, with realistic names.
-
-## Speed
-
-The requirements say pages and search feel instant at a few thousand items.
-Measured against the large data set, in the backend, without the network:
-
-| Operation                         | Limit   |
-| --------------------------------- | ------- |
-| Search as you type                | 100 ms  |
-| Open a location with its contents | 100 ms  |
-| Load the whole tree with counts   | 200 ms  |
-
-These limits are a first estimate and are adjusted once there are real
-measurements. They are only ever loosened on purpose, in a change that
-says why.
+  fixture. The MCP tests use it directly, and the end-to-end run starts the
+  backend on a fresh data directory filled from the same fixture.
 
 ## Rules that keep tests honest
 

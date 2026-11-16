@@ -5,6 +5,9 @@ line-length = 100
 extend-exclude = ["frontend"]
 
 [lint]
+# Preview is on only for the nesting-depth rule, which has no stable version.
+preview = true
+explicit-preview-rules = true
 select = [
     "E", "W", "F",  # pycodestyle, pyflakes
     "I",            # import order
@@ -23,9 +26,8 @@ select = [
     "T20",          # no print left behind
     "PT",           # pytest style
     "C90",          # complexity
-    "PLR0912",      # too many branches
     "PLR0913",      # too many parameters
-    "PLR0915",      # too many statements
+    "PLR1702",      # nesting depth
     "TID252",       # no relative imports reaching upward
 ]
 
@@ -34,8 +36,7 @@ max-complexity = 10
 
 [lint.pylint]
 max-args = 5
-max-branches = 10
-max-statements = 30
+max-nested-blocks = 3
 
 [lint.flake8-tidy-imports]
 ban-relative-imports = "parents"

@@ -10,7 +10,7 @@ repository root:
 
 ```
 uv run --project backend ruff check .
-(cd backend && uv run pytest)
+(cd backend && uv run mypy app tests && uv run pytest)
 ```
 
 Lint rules are in `../ruff.toml`. Dependencies are added with `uv add`, so
@@ -18,12 +18,18 @@ Lint rules are in `../ruff.toml`. Dependencies are added with `uv add`, so
 
 ## Where code goes
 
-- A feature's behavior lives in its `service.py`. Nowhere else.
+- A feature's public functions live in its `service.py`. When that file
+  nears the size limit, move behavior into files beside it named for what
+  they do; `service.py` stays the only file other code calls.
 - `routes.py` and the MCP tools in `app/mcp/` do three things: validate
   input, call one service function, shape the result. If either needs an
   `if` about business rules, that rule belongs in the service.
 - A feature calls another feature only through its service functions. It
-  never queries another feature's tables directly.
+  never queries another feature's tables directly. Undo in `history` is the
+  one exception.
+- Service functions take the database session as their first argument and
+  never open, commit or roll back a transaction
+  ([decision 0009](../docs/decisions/0009-transactions-and-history.md)).
 - Tables are defined only in `app/models/`.
 - SQLite settings (write-ahead-log mode, busy timeout, foreign keys, taking
   the write lock up front) are set once in `app/core/`. No feature opens its
@@ -38,25 +44,25 @@ Lint rules are in `../ruff.toml`. Dependencies are added with `uv add`, so
   the app or MCP. Undo and item history depend on it, so a write that skips
   it is a bug even if it works.
 - Every user action has an MCP tool calling the same service function as its
-  route.
+  route, with the same name as the route's operation name.
 - MCP tools that delete, merge or touch many items at once go through the
   confirmation step.
-- Anything returning an item includes its full location path and when its
-  bin was last checked.
+- Anything returning an item includes its full location path.
 - Items are archived, never removed. Deleted items stay restorable.
-- A label code is never reused, even after its location is deleted.
-- The `/l/{code}` address format never changes. It is printed on labels.
-- Photos and files are stored on disk in the data directory. The database
-  holds paths.
+- Label codes and the `/l/{code}` address are permanent
+  ([decision 0004](../docs/decisions/0004-permanent-labels.md)).
 
 ## Python
 
 - Route handlers are plain `def`, not `async def`. SQLAlchemy calls block,
   and FastAPI runs `def` handlers in a thread pool.
-- Every function has type hints on its arguments and return value.
+- An MCP tool hands its service call to a worker thread, so a slow tool
+  call cannot hold up web requests.
+- Every function has type hints on its arguments and return value, and
+  mypy runs in strict mode.
 - Queries use SQLAlchemy or bound parameters. Never build SQL from strings.
-- One write transaction per service call. Do not hold a transaction open
-  across a network call or file upload.
+- Do not hold a write transaction open across a network call or file
+  upload.
 - List endpoints are paginated from the start.
 
 ## Migrations

@@ -51,7 +51,6 @@ These are not:
 ## For people running it
 
 - Keep it behind your access layer.
-- Set a long random session secret, and keep it and the data directory out
-  of anything public.
+- Keep the data directory out of anything public.
 - Back up the data directory. It holds everything.
 - Revoke an MCP credential you no longer use.

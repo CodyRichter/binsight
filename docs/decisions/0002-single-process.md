@@ -10,8 +10,9 @@ server and must behave exactly as the app does.
 ## Decision
 
 The backend runs as exactly one process. The MCP server is part of that
-process, served at `/mcp`, not a separate program. There are no extra
-workers, replicas, queues or background services.
+process, served at `/mcp`, not a separate program. The same process serves
+the frontend's files ([decision 0008](0008-frontend-served-by-backend.md)).
+There are no extra workers, replicas, queues or background services.
 
 SQLite is configured with write-ahead-log mode, a busy timeout, and write
 transactions that take the lock up front.

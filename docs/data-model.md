@@ -158,14 +158,15 @@ Rules:
 | `at`        | When.                                                        |
 | `actor`     | `app` or `mcp`.                                              |
 | `action`    | What happened, e.g. `item.moved`, `location.merged`.         |
-| `target`    | The record changed.                                          |
-| `before`, `after` | The changed fields' values on each side.               |
+| `changes`   | One per record changed: the record, and its changed fields' values before and after. |
 | `undone_by` | The history entry that reversed this one, if any.            |
 
 - History is append-only. Undo adds a new entry; it never edits or removes
   an old one.
 - One user action is one history entry, even when it touches many records
   (a bulk move), so it can be undone in one step.
+- When undo is allowed and when it is refused is in
+  [decision 0009](decisions/0009-transactions-and-history.md).
 
 ## Saved search
 
@@ -173,6 +174,17 @@ Rules:
 
 ## Owner and access
 
-- One owner record, with a password hash and its login sessions.
+- One owner record, with a password hash. It is created on the first visit
+  to a new install, by choosing a password.
+- A login session is a random secret held in a cookie and stored as a hash.
+  Nothing is signed, so an install has no session secret to configure.
 - MCP credentials are stored as hashes with a created time and a revoked
   time. The secret is shown once, when created.
+
+## Confirmation
+
+- Stored when an MCP tool returns a preview: the tool, its exact inputs, a
+  token stored as a hash, and when it expires (ten minutes after it is
+  made).
+- A confirmation is used once, and only for the same tool with the same
+  inputs.

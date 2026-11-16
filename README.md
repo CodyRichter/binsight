@@ -23,7 +23,6 @@ what's inside. Search for anything and get its full location path, e.g.
 | [Build order](docs/build-order.md)               | The sequence the app is built in        |
 | [Testing](docs/testing.md)                       | What is tested, where, and how          |
 | [Decisions](docs/decisions/README.md)            | Choices that are settled, and why       |
-| [Releasing](docs/releasing.md)                   | Versions and what every release promises |
 | [AGENTS.md](AGENTS.md)                           | Rules for anyone changing the code      |
 | [Security](SECURITY.md)                          | How to report a problem, and how to run it safely |
 
@@ -41,15 +40,18 @@ Everything else is secondary to these:
 
 | Part     | Choice                                   |
 | -------- | ---------------------------------------- |
-| Frontend | Next.js (installable web app, phone first) |
-| Backend  | FastAPI, with the MCP server in the same process |
-| Database | SQLite, one file, write-ahead-log mode   |
-| Runs as  | One container with one data volume       |
+| Frontend | React, built with Vite into static files (installable, phone first) |
+| Backend  | FastAPI, serving the API, the MCP server and the frontend's files |
+| Database | SQLite, one file                         |
+| Runs as  | One container, one process, one data volume |
 
-SQLite is the only supported database. The backend runs as a single process,
-and the database file must sit on local disk, not a network share.
+The reasons are in the [decisions](docs/decisions/README.md). Running it is
+covered in [deploy/README.md](deploy/README.md).
 
 ## Repository layout
+
+Folders appear as the [build order](docs/build-order.md) reaches them. This
+is where things go.
 
 ```
 binsight/
@@ -61,7 +63,7 @@ binsight/
 ├── docs/                    Requirements, data model, conventions, decisions
 ├── backend/                 FastAPI application
 │   ├── app/
-│   │   ├── core/            Settings, database setup, shared errors
+│   │   ├── core/            Settings, database sessions, shared errors
 │   │   ├── models/          Database tables, all in one place
 │   │   ├── features/        One folder per feature (see below)
 │   │   └── mcp/             MCP server and its tools
@@ -70,17 +72,14 @@ binsight/
 │   └── tests/
 │       ├── features/        Tests per feature
 │       └── mcp/             Tests for the MCP tools
-├── frontend/                Next.js application
+├── frontend/                React application
 │   ├── public/              Icons and the web app manifest
 │   ├── src/
-│   │   ├── app/             Pages (see below)
+│   │   ├── pages/           One thin file per page (see below)
 │   │   ├── features/        One folder per feature: its components and hooks
 │   │   ├── components/      Shared interface pieces used by several features
-│   │   ├── lib/
-│   │   │   ├── api/         The one client used to call the backend
-│   │   │   └── offline/     Cached pages and the queue of unsent changes
-│   │   ├── styles/          Theme, including dark mode
-│   │   └── types/           Shared data shapes
+│   │   ├── lib/api/         The one client used to call the backend
+│   │   └── types/           Shared data shapes, including the generated ones
 │   └── e2e/                 End-to-end tests, one per flow listed above
 ├── deploy/                  Container image and compose file
 ├── scripts/                 setup.sh, check.sh, and the Claude Code hooks
@@ -90,7 +89,8 @@ binsight/
 
 ## Working on it
 
-Needs [uv](https://docs.astral.sh/uv/) and Node 24 or newer.
+Needs [uv](https://docs.astral.sh/uv/) and Node 24 or newer. The Claude Code
+hooks also need `jq`.
 
 ```
 scripts/setup.sh    # install tooling
@@ -100,20 +100,20 @@ scripts/check.sh    # every check; must pass before any change is done
 ### Features
 
 The backend and frontend use the same feature names, so anything about a
-feature is in the folder with its name on both sides. Each maps to a section
-of the requirements.
+feature is in the folder with its name on both sides. This table is the
+plan for all of them; a folder that exists must be listed here.
 
 | Feature         | What it covers                                              |
 | --------------- | ----------------------------------------------------------- |
-| `auth`          | Owner login, long-lived sessions, the MCP credential        |
+| `auth`          | Owner login, long-lived sessions, MCP credentials           |
 | `locations`     | The nested tree of places, moving, merging, deleting        |
 | `labels`        | Label codes, QR images, blank labels and claiming them      |
-| `items`         | Items, quantity, status, "lent to", links, quick and batch add, inbox |
+| `items`         | Items, quantity, status, "lent to", links, categories, tags, quick and batch add, bulk edit, inbox |
 | `checks`        | "Contents checked", check mode, last-checked dates          |
 | `attachments`   | Photos and files on items and locations                     |
 | `search`        | Global fuzzy search and filters                             |
 | `views`         | Built-in views and pinned saved searches                    |
-| `history`       | Change history, undo, restoring deleted items               |
+| `history`       | Change history, undo, restoring deleted items, MCP confirmations |
 | `import_export` | CSV import, full export, insurance export, contents sheets  |
 | `backups`       | Scheduled backups and restore                               |
 | `scan`          | Frontend only: the in-app scanner used for scan-to-move     |
@@ -125,48 +125,18 @@ The frontend folder for `import_export` is named `import-export`.
 | Path                | Page                                                    |
 | ------------------- | ------------------------------------------------------- |
 | `/`                 | The tree of the whole home                              |
-| `/l/[code]`         | Where a scanned QR code lands, e.g. `/l/B-014`          |
-| `/locations/[id]`   | A location and its contents                             |
-| `/items/[id]`       | An item                                                 |
+| `/l/{code}`         | Where a scanned QR code lands, e.g. `/l/B-014`          |
+| `/locations/{id}`   | A location and its contents                             |
+| `/items/{id}`       | An item                                                 |
 | `/search`           | Search results                                          |
-| `/views/[view]`     | A built-in view or saved search                         |
+| `/views/{view}`     | A built-in view or saved search                         |
 | `/inbox`            | Items still missing a name or location                  |
 | `/scan`             | The in-app scanner                                      |
-| `/settings`         | Labels, export, backups, the MCP credential             |
-| `/login`            | Sign in                                                 |
+| `/settings`         | Labels, export, backups, MCP credentials                |
+| `/login`            | Sign in, and creating the owner on a new install        |
 
-`/l/[code]` is printed on every label, so that path can never change.
-
-## Rules for the code
-
-These keep the layout understandable as it fills in.
-
-- **One place for behavior.** Each backend feature owns its rules. The web
-  API and the MCP tools are both thin layers that call the same feature code,
-  so Claude and the app can never behave differently.
-- **Features do not reach into each other's internals.** A feature calls
-  another feature through its public functions only.
-- **Tables are defined once**, in `backend/app/models/`, because they relate
-  across features.
-- **Every change goes through `history`**, so undo and "who changed this"
-  work everywhere without each feature reimplementing them.
-- **Pages are thin.** Files under `frontend/src/app/` arrange components from
-  `features/`; they hold no logic of their own.
-- **The frontend calls the backend only through `lib/api/`.**
-
-## Data
-
-Everything Binsight stores lives in one data directory, mounted as a volume:
-
-```
-data/
-├── binsight.db      The SQLite database
-├── attachments/     Photos and files
-└── backups/         Scheduled backups
-```
-
-Backing up Binsight means copying this directory. It is not part of the
-repository.
+`/l/{code}` is printed on every label, so it can never change
+([decision 0004](docs/decisions/0004-permanent-labels.md)).
 
 ## License
 

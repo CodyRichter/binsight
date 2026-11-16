@@ -5,6 +5,10 @@ steps and results. Each flow has one end-to-end test in `frontend/e2e/`, run
 at phone width, that follows these steps exactly. A flow is not done until
 its test passes.
 
+A flow's test is started at the step named for it in the
+[build order](build-order.md) and is complete by step 6. A result that
+depends on a later step joins the test at that step.
+
 "Tap" counts start once the page named in the first step is showing.
 Typing a name is not counted as a tap.
 
@@ -25,9 +29,8 @@ Results:
 - The page for `Cables` shows without any further tap.
 - The path reads `Home > Garage > Shelf 2 > Cables`.
 - Both items show, with `HDMI cable` showing quantity 3.
-- The page shows when the bin was last checked, or that it never has been.
-- Quick add, move this bin, and contents checked are all visible without
-  scrolling on a phone.
+- Quick add and move this bin are both visible without scrolling on a
+  phone.
 
 Also:
 
@@ -56,8 +59,6 @@ Also:
   and no name, which appears in the inbox.
 - Typing `HDMI cable` offers "add to existing" and, if taken, raises the
   existing item's quantity to 4 instead of creating a second item.
-- With the connection off, the item still appears immediately and is saved
-  once the connection returns.
 
 ## 3. Search for a thing and see where it is
 
@@ -67,8 +68,8 @@ Also:
 Results:
 
 - `HDMI cable` appears as results update while typing, with no submit.
-- The result shows the full path `Home > Garage > Shelf 2 > Cables`, a
-  thumbnail if there is a photo, and when its bin was last checked.
+- The result shows the full path `Home > Garage > Shelf 2 > Cables`, and a
+  thumbnail if there is a photo.
 
 Also:
 
@@ -76,7 +77,6 @@ Also:
 - `cable hdmi` (words reversed) still finds it.
 - `b14` finds the bin `Cables`.
 - A search with no results offers to add an item with that name.
-- Archived items appear only when the archive filter is on.
 
 ## 4. Move a thing or a whole bin
 
@@ -114,7 +114,7 @@ Using the MCP tools with a valid MCP credential:
 
 | Request                              | Result                                   |
 | ------------------------------------ | ---------------------------------------- |
-| What is in `B-014`?                  | Both items, the bin's path, and when it was last checked. |
+| What is in `B-014`?                  | Both items and the bin's path.           |
 | Add `Ethernet cable` to `B-014`.     | The item exists with home location `Cables`. |
 | Where is the HDMI cable?             | `Home > Garage > Shelf 2 > Cables`, code `B-014`, quantity 3. |
 | Do I own a multimeter?               | A clear no, not an error.                |
@@ -124,7 +124,7 @@ Results:
 
 - Every change made this way has the actor `mcp` in history.
 - Every change is visible in the app without a restart.
-- Deleting an item, merging, or changing many items at once does not happen
-  until the confirmation step is completed.
+- Deleting an item does not happen until the confirmation step is
+  completed.
 - A revoked MCP credential is refused, and the app login is unaffected.
 - Every tool reaches the same result as the matching action in the app.

@@ -7,7 +7,7 @@ import tseslint from "typescript-eslint";
 const sizeLimit = (max) => ["error", { max, skipBlankLines: true, skipComments: true }];
 
 export default tseslint.config(
-  { ignores: [".next/", "out/", "build/", "node_modules/", "src/types/api.generated.ts"] },
+  { ignores: ["dist/", "node_modules/", "src/types/api.generated.ts"] },
   js.configs.recommended,
   ...tseslint.configs.strict,
   comments.recommended,
@@ -21,7 +21,10 @@ export default tseslint.config(
       "no-warning-comments": ["error", { terms: ["todo", "fixme", "hack", "xxx"] }],
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-non-null-assertion": "error",
-      "@typescript-eslint/ban-ts-comment": ["error", { "ts-expect-error": "allow-with-description" }],
+      "@typescript-eslint/ban-ts-comment": [
+        "error",
+        { "ts-expect-error": "allow-with-description" },
+      ],
       "@eslint-community/eslint-comments/require-description": "error",
       "no-restricted-imports": [
         "error",
@@ -30,6 +33,10 @@ export default tseslint.config(
             {
               group: ["@/features/*/*"],
               message: "Import from the feature's index file, not its internals.",
+            },
+            {
+              regex: "^(\\.\\./){2,}",
+              message: "Reach other folders through the @/ alias.",
             },
           ],
         },

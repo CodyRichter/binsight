@@ -9,7 +9,7 @@ compose file.
 
 | Purpose        | Choice                                                   |
 | -------------- | -------------------------------------------------------- |
-| Packaging      | One container image holding the frontend and the backend |
+| Packaging      | One container image. A Node stage builds the frontend's files; the final image holds Python and those files. |
 | Running it     | Docker Compose, one service                              |
 | Storage        | One data volume on local disk                            |
 | Database       | SQLite inside the data volume. No database container.    |
@@ -17,7 +17,7 @@ compose file.
 
 ## What a deployment consists of
 
-One container, one port, one volume.
+One container, one process, one port, one volume.
 
 ```
 data/                    The mounted volume
@@ -26,25 +26,23 @@ data/                    The mounted volume
 └── backups/             Scheduled backups
 ```
 
-Backing up Binsight means copying this directory. Restoring means putting it
-back.
+Everything Binsight stores is in this directory, and it is not part of the
+repository.
+
+To back it up by hand, stop the container and copy the directory; restoring
+is putting it back. Copying the database file while the app is running can
+produce a broken copy. The app's own scheduled backups are safe to take
+while it runs, and land in `backups/`; copy that folder somewhere off the
+machine.
 
 ## Settings
 
 Set once at install time:
 
 - **The app's address** (e.g. `https://binsight.example.com`). QR codes are
-  printed with this address, so it is permanent. Changing it later means
-  reprinting every label.
+  printed with this address, so it is permanent
+  ([decision 0004](../docs/decisions/0004-permanent-labels.md)).
 - **The data directory** location.
-- **A secret** for signing login sessions.
-
-## Open decision
-
-The image holds two programs: the Next.js server and the FastAPI backend.
-Which one answers on the public port is not settled. The current plan is for
-Next.js to answer and pass `/api` and `/mcp` through to the backend inside
-the container.
 
 ## Working here
 

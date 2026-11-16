@@ -1,54 +1,36 @@
 # Binsight frontend
 
-The Next.js web app. Phone first, installable to the home screen, and usable
-on a weak connection.
+The web app. A client-only React app, phone first and installable to the
+home screen, built into static files that the backend serves
+([decision 0008](../docs/decisions/0008-frontend-served-by-backend.md)).
 
-> **Status: foundations.** Tooling is set up; no application code yet. This describes the intended stack and
-> layout.
+> **Status: foundations.** Tooling is set up; no application code yet. This
+> describes the intended stack.
 
 ## Tech stack
 
 | Purpose            | Choice                                              |
 | ------------------ | --------------------------------------------------- |
-| Runtime            | Node 24                                             |
-| Framework          | Next.js (App Router) with React and TypeScript      |
+| Runtime            | None in production. Node 24 to build and develop.   |
+| Build              | Vite, with React and TypeScript                     |
+| Pages              | React Router                                        |
 | Interface library  | Mantine, with Tabler icons                          |
 | Server data        | TanStack Query (React Query)                        |
-| Installable app    | Web app manifest and a service worker               |
+| Installable app    | A web app manifest. No service worker.              |
 | QR scanning        | The phone's own camera for labels; an in-browser scanner for scan-to-move |
 | End-to-end tests   | Playwright                                          |
 | Lint               | ESLint                                              |
+| Format             | Prettier                                            |
+
+Only TypeScript, ESLint and Prettier are installed so far. The rest are
+added by the step that first uses them.
 
 ## Layout
 
-```
-frontend/
-├── public/              Icons and the web app manifest
-├── src/
-│   ├── app/             Pages. Thin: they arrange feature components.
-│   ├── features/        One folder per feature: its components and hooks
-│   ├── components/      Shared interface pieces used by several features
-│   ├── lib/
-│   │   ├── api/         The one client used to call the backend
-│   │   └── offline/     Cached pages and the queue of unsent changes
-│   ├── styles/          Theme, including dark mode
-│   └── types/           Shared data shapes
-└── e2e/                 End-to-end tests, one per core flow
-```
-
-Feature folders use the same names as the backend. The list of features and
-pages is in the [root README](../README.md#features).
-
-## What shapes this app
-
-- **Phone first.** Most use is one-handed, standing at a shelf. Every screen
-  is designed at phone width first, with large touch targets.
-- **Two taps.** Find, add, move and update each take two taps or two scans.
-- **Edit in place.** Lists and item pages are edited inline. There are no
-  separate edit forms.
-- **Works on bad signal.** Recently viewed bins stay readable. Adds, moves
-  and quantity changes are queued and sent when the connection returns.
-- **`/l/[code]` is permanent.** It is the address printed on every label.
+The folder tree is in the [root README](../README.md#repository-layout),
+with the lists of [features](../README.md#features) and
+[pages](../README.md#pages) below it. Feature folders use the same names as
+the backend.
 
 ## Working here
 
