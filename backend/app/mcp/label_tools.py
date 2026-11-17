@@ -141,4 +141,5 @@ def _add_reading_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             open_read_session,
             lambda session: service.label_image(session, code, _app_address(app)).png,
+            "image/png",
         )

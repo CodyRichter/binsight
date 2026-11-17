@@ -245,7 +245,8 @@ function stubPaths(bodies: Record<string, unknown>) {
     "fetch",
     vi.fn((path: string) => {
       const route = path.split("?")[0];
-      return Promise.resolve(answer(200, route === "/api/auth/status" ? signedIn : bodies[route]));
+      const known = { "/api/auth/status": signedIn, "/api/items/inbox/count": { count: 0 } };
+      return Promise.resolve(answer(200, { ...known, ...bodies }[route]));
     }),
   );
 }
@@ -288,4 +289,40 @@ test("/items/{id} shows the item's path, quantity and history", async () => {
   expect(screen.getByRole("navigation", { name: "Path" })).toHaveTextContent("HomeCables");
   expect(screen.getByRole("button", { name: "Quantity 3, type a number" })).toBeVisible();
   expect(await screen.findByText("Added")).toBeVisible();
+});
+
+const photoItem = {
+  ...cable,
+  id: "photo",
+  name: null,
+  quantity: 1,
+  photo_url: "/api/attachments/a1/file",
+};
+
+test("/inbox lists an item with no name as Unnamed, with its photo and path", async () => {
+  stubPaths({
+    "/api/items/inbox": { items: [photoItem], next_cursor: null },
+    "/api/items/inbox/count": { count: 1 },
+  });
+  renderRoutes(routes, "/inbox");
+  expect(await screen.findByRole("heading", { level: 1, name: "Inbox" })).toBeVisible();
+  const row = await screen.findByRole("link", { name: "Unnamed" });
+  expect(row).toHaveAttribute("href", "/items/photo");
+  expect(screen.getByText("1 item")).toBeVisible();
+  expect(row.closest("li")).toHaveTextContent("UnnamedHomeCables");
+  expect(screen.getByRole("link", { name: "Inbox, 1" })).toHaveAttribute("aria-current", "page");
+});
+
+test("/inbox with nothing in it says Nothing is missing", async () => {
+  stubPaths({ "/api/items/inbox": { items: [], next_cursor: null } });
+  renderRoutes(routes, "/inbox");
+  expect(await screen.findByText("Nothing is missing")).toBeVisible();
+});
+
+test("Add in the bottom bar opens the add sheet, adding to the inbox", async () => {
+  stubPaths({ "/api/locations": { locations: [site, bin] } });
+  renderRoutes(routes, "/");
+  await userEvent.click(await screen.findByRole("button", { name: "Add" }));
+  expect(await screen.findByRole("button", { name: /^Add to Inbox/ })).toBeInTheDocument();
+  expect(screen.getByRole("textbox", { name: "Add an item" })).toBeInTheDocument();
 });

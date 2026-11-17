@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, type QueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import type { components } from "@/types/api.generated";
 
@@ -6,6 +6,23 @@ export type Item = components["schemas"]["Item"];
 type ItemPage = components["schemas"]["Page_Item_"];
 
 export const itemListsKey = ["items", "in"] as const;
+export const inboxKey = ["items", "inbox"] as const;
+
+/** Where new items go: a location, or the inbox when it is null. */
+export interface Destination {
+  id: string;
+  name: string;
+  label_code: string | null;
+  path: Item["path"];
+}
+
+/** Reads every list of items again, the inbox and its count among them. */
+export async function refreshItemLists(queryClient: QueryClient): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: itemListsKey }),
+    queryClient.invalidateQueries({ queryKey: inboxKey }),
+  ]);
+}
 
 export function itemListKey(locationId: string, everythingInside: boolean) {
   return [...itemListsKey, locationId, everythingInside] as const;

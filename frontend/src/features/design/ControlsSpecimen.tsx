@@ -61,7 +61,7 @@ export function ControlsSpecimen() {
         <Chip>Category</Chip>
         <Chip>Status</Chip>
       </Group>
-      <TagList tags={["hdmi", "usb-c"]} tagHref={(tag) => `/design/list?q=${tag}`} />
+      <TagList tags={["hdmi", "usb-c"]} tagHref={(tag) => `/design?tag=${tag}`} />
       <Group gap="sm">
         <QuantityStepper value={quantity} onChange={setQuantity} />
         <QuantityStepper value={single} onChange={setSingle} />

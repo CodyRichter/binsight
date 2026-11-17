@@ -1,3 +1,4 @@
+from app.models.attachments import Attachment, AttachmentKind
 from app.models.auth import LoginSession, McpCredential, Owner
 from app.models.base import Model
 from app.models.history import Actor, HistoryChange, HistoryEntry
@@ -7,6 +8,8 @@ from app.models.locations import Location, LocationType
 
 __all__ = [
     "Actor",
+    "Attachment",
+    "AttachmentKind",
     "HistoryChange",
     "HistoryEntry",
     "Item",

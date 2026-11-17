@@ -1,3 +1,4 @@
+export { AddSheet } from "./AddSheet";
 export { ClaimTree } from "./ClaimTree";
 export { LocationContents, LocationView } from "./LocationContents";
 export { LocationTree } from "./LocationTree";

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from app.models import Actor
 
-RecordType = Literal["item", "label", "location"]
+RecordType = Literal["attachment", "item", "label", "location"]
 
 
 class HistoryChange(BaseModel):
@@ -21,3 +21,9 @@ class HistoryEntry(BaseModel):
     actor: Actor
     action: str
     changes: list[HistoryChange]
+    undone_by: str | None
+
+
+class Undone(BaseModel):
+    history_entry_id: str
+    undone_entry_id: str

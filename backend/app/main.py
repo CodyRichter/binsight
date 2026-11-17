@@ -11,6 +11,7 @@ from app.core.frontend_files import add_frontend_files
 from app.core.migrate import migrate_database
 from app.core.security_headers import add_security_headers
 from app.core.settings import Settings, load_settings
+from app.features.attachments import routes as attachments
 from app.features.auth import routes as auth
 from app.features.history import routes as history
 from app.features.items import routes as items
@@ -53,6 +54,7 @@ def build_app(settings: Settings) -> FastAPI:
     signed_in.include_router(items.router)
     signed_in.include_router(labels.router)
     signed_in.include_router(history.router)
+    signed_in.include_router(attachments.router)
     app.include_router(signed_in, prefix="/api")
     mcp_server = add_mcp_server(app)
     add_frontend_files(app, settings.frontend_directory)

@@ -26,8 +26,10 @@ class HistoryEntry(Model):
         )
     )
     action: Mapped[str]
+    # The entry that undid this one; history is append-only, so the undo is an entry too.
+    undone_by: Mapped[str | None] = mapped_column(ForeignKey("history_entry.id"))
 
-    changes: Mapped[list[HistoryChange]] = relationship()
+    changes: Mapped[list[HistoryChange]] = relationship(foreign_keys="HistoryChange.entry_id")
 
 
 class HistoryChange(Model):

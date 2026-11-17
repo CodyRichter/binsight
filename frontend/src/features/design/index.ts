@@ -2,7 +2,6 @@ export { ControlsSpecimen } from "./ControlsSpecimen";
 export { DesignFrame } from "./DesignFrame";
 export { FieldsSpecimen } from "./FieldsSpecimen";
 export { HeaderSpecimen } from "./HeaderSpecimen";
-export { ListSpecimen } from "./ListSpecimen";
 export { OverlaysSpecimen } from "./OverlaysSpecimen";
 export { PageStatesSpecimen } from "./PageStatesSpecimen";
 export { RowsSpecimen } from "./RowsSpecimen";

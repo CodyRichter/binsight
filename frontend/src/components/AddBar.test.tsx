@@ -41,6 +41,24 @@ test("several lines become several names", async () => {
   expect(lines).toHaveValue("");
 });
 
+test("pasting several lines into the name field switches to adding several", async () => {
+  const { user, onAdd } = renderBar();
+  await user.click(screen.getByRole("textbox", { name: "Add an item" }));
+  await user.paste("Ethernet cable\nPatch cable\nCable ties");
+  const lines = screen.getByRole("textbox", { name: "Add several, one name per line" });
+  expect(lines).toHaveValue("Ethernet cable\nPatch cable\nCable ties");
+  await user.click(screen.getByRole("button", { name: "Add" }));
+  expect(onAdd).toHaveBeenCalledWith(["Ethernet cable", "Patch cable", "Cable ties"]);
+});
+
+test("pasting one line stays in the name field", async () => {
+  const { user } = renderBar();
+  const field = screen.getByRole("textbox", { name: "Add an item" });
+  await user.click(field);
+  await user.paste("Ethernet cable");
+  expect(field).toHaveValue("Ethernet cable");
+});
+
 test("blank multi-line input is ignored", async () => {
   const { user, onAdd } = renderBar();
   await user.click(screen.getByRole("button", { name: "Add several" }));

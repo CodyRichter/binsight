@@ -177,6 +177,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/items/add-several": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Items */
+        post: operations["add_items"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/add-by-photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Item By Photo */
+        post: operations["add_item_by_photo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/inbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Inbox */
+        get: operations["list_inbox"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/inbox/count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Count Inbox */
+        get: operations["count_inbox"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/items/{item_id}": {
         parameters: {
             query?: never;
@@ -314,6 +382,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/history/{entry_id}/undo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Undo History Entry */
+        post: operations["undo_history_entry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attachments/{attachment_id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Attachment File */
+        get: operations["get_attachment_file"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -336,6 +438,13 @@ export interface components {
             labels: components["schemas"]["Label"][];
             /** History Entry Id */
             history_entry_id: string;
+        };
+        /** Body_add_item_by_photo */
+        Body_add_item_by_photo: {
+            /** Photo */
+            photo: string;
+            /** Home Location Id */
+            home_location_id?: string | null;
         };
         /** ErrorBody */
         ErrorBody: {
@@ -371,7 +480,7 @@ export interface components {
              * Record Type
              * @enum {string}
              */
-            record_type: "item" | "label" | "location";
+            record_type: "attachment" | "item" | "label" | "location";
             /** Record Id */
             record_id: string;
             /** Before */
@@ -397,6 +506,13 @@ export interface components {
             action: string;
             /** Changes */
             changes: components["schemas"]["HistoryChange"][];
+            /** Undone By */
+            undone_by: string | null;
+        };
+        /** InboxCount */
+        InboxCount: {
+            /** Count */
+            count: number;
         };
         /** Item */
         Item: {
@@ -410,6 +526,8 @@ export interface components {
             home_location_id: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
+            /** Photo Url */
+            photo_url: string | null;
             /**
              * Created At
              * Format: date-time
@@ -418,8 +536,10 @@ export interface components {
         };
         /** ItemChanges */
         ItemChanges: {
+            /** Name */
+            name?: string | null;
             /** Quantity */
-            quantity: number;
+            quantity?: number | null;
         };
         /** ItemCreated */
         ItemCreated: {
@@ -433,6 +553,8 @@ export interface components {
             home_location_id: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
+            /** Photo Url */
+            photo_url: string | null;
             /**
              * Created At
              * Format: date-time
@@ -453,11 +575,20 @@ export interface components {
             home_location_id: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
+            /** Photo Url */
+            photo_url: string | null;
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** ItemsCreated */
+        ItemsCreated: {
+            /** Items */
+            items: components["schemas"]["Item"][];
             /** History Entry Id */
             history_entry_id: string;
         };
@@ -602,6 +733,13 @@ export interface components {
             /** Home Location Id */
             home_location_id?: string | null;
         };
+        /** NewItems */
+        NewItems: {
+            /** Names */
+            names: string[];
+            /** Home Location Id */
+            home_location_id?: string | null;
+        };
         /** NewLocation */
         NewLocation: {
             /** Name */
@@ -659,6 +797,13 @@ export interface components {
             type: components["schemas"]["LocationType"];
             /** Label Code */
             label_code: string | null;
+        };
+        /** Undone */
+        Undone: {
+            /** History Entry Id */
+            history_entry_id: string;
+            /** Undone Entry Id */
+            undone_entry_id: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -1141,6 +1286,151 @@ export interface operations {
             };
         };
     };
+    add_items: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewItems"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemsCreated"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_item_by_photo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_add_item_by_photo"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemCreated"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_inbox: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_Item_"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    count_inbox: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InboxCount"];
+                };
+            };
+        };
+    };
     get_item: {
         parameters: {
             query?: never;
@@ -1519,6 +1809,95 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    undo_history_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Undone"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_attachment_file: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attachment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": unknown;
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

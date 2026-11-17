@@ -373,6 +373,8 @@ toast offers Undo.
    above it. Left out when the list has no filters.
 3. One list of item rows (and location rows on `/search`), or the empty
    state. No section header: the page title already names the list.
+   `/inbox` shows each item's path, and its empty state reads "Nothing is
+   missing".
 
 **Record** (`/items/{id}`)
 
@@ -540,6 +542,11 @@ subtle "Add tag" button follows the list.
 at a time. Every reversible action shows one with Undo for 6 seconds; this
 replaces "Are you sure?". A refusal puts the screen back, says what is now
 true, offers Retry, and stays until dismissed. No titles, ticks or stacking.
+Adding says "Added {name} to {place}", "Added {n} items to {place}" or
+"Added a photo to {place}", where the place reads as a path segment does
+("Bin B-014") or "Inbox"; "Add to existing" says "Added 1 more {name}"; a
+burst on the quantity stepper says "Quantity of {name} changed to {n}";
+naming an item says "Named {name}".
 
 **Dialog** (`ConfirmDialog`, built on `Modal`). Only for what cannot be
 undone: emptying deleted items for good, deleting blank labels, revoking an
@@ -626,7 +633,9 @@ Full width on `ground`, hairline below, at least `row-min` high, and a path does
 has its box at the gutter, and the name stays where a thumbnail row's name
 starts. Names wrap;
 nothing is cut with an ellipsis. Matched search text is marked with
-`highlight`. No swipe gestures.
+`highlight`. No swipe gestures. An item added by photo and not named yet
+reads "Unnamed" in `muted`, here and as its page's title, which is edited in
+place like any name; it is a fact, not a prompt.
 
 **Location row.** Expand toggle (only with children), type icon, name, code
 chip if labeled, count of every item inside in `muted` at the right.
@@ -689,6 +698,16 @@ blocks Enter.
 The row `space-sm` under the bar holds "Add several" (or "Add one" while
 adding several) before the default Add button at the right edge and is
 `touch-min` high.
+
+Pasting more than one line into the one-name field switches to "Add
+several" with the pasted lines in it. A likely duplicate is an item already
+in the destination with the typed name, ignoring case.
+
+The add sheet, opened by Add in the navigation, holds the add bar alone. Its
+destination starts as the location whose page is showing, or the inbox.
+Tapping the destination swaps the bar for "Add to", the tree of every
+location with a subtle "Inbox" action; tapping a row or "Inbox" picks it and
+brings the bar back.
 
 **Page header.** In order, leaving out any line with nothing in it: the
 parent path; the title and large code chip; the summary, edited in place;

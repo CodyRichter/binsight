@@ -1,44 +1,16 @@
-from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
 
 from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app import models
-from app.core.identifiers import new_identifier
 from app.core.pagination import Page, decode_cursor, encode_cursor
-from app.features.history.schemas import HistoryEntry, RecordType
+from app.core.settings import Settings
+from app.features.history import undo as undoing
+from app.features.history.recording import RecordChange as RecordChange
+from app.features.history.recording import record as record
+from app.features.history.schemas import HistoryEntry, Undone
 from app.models import Actor
-
-
-@dataclass(frozen=True)
-class RecordChange:
-    """One record's changed fields, before and after; `before` is None for a create."""
-
-    record_type: RecordType
-    record_id: str
-    before: dict[str, Any] | None
-    after: dict[str, Any]
-
-
-def record(
-    session: Session, actor: Actor, action: str, changes: list[RecordChange], now: datetime
-) -> str:
-    """Write down one change to the home, so it shows in history and can be undone."""
-    entry = models.HistoryEntry(id=new_identifier(), at=now, actor=actor, action=action)
-    entry.changes = [
-        models.HistoryChange(
-            id=new_identifier(),
-            record_type=change.record_type,
-            record_id=change.record_id,
-            before=change.before,
-            after=change.after,
-        )
-        for change in changes
-    ]
-    session.add(entry)
-    return entry.id
 
 
 def list_item_history(
@@ -66,3 +38,10 @@ def list_item_history(
         items=[HistoryEntry.model_validate(row, from_attributes=True) for row in entries[:limit]],
         next_cursor=encode_cursor(last.at, last.id) if last else None,
     )
+
+
+def undo(
+    session: Session, settings: Settings, entry_id: str, actor: Actor, now: datetime
+) -> Undone:
+    """Put back what one change did, as a new change, if nothing has changed it since."""
+    return undoing.undo(session, settings, entry_id, actor, now)

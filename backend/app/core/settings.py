@@ -23,6 +23,10 @@ class Settings:
         return self.data_directory / "binsight.db"
 
     @property
+    def attachments_directory(self) -> Path:
+        return self.data_directory / "attachments"
+
+    @property
     def backups_directory(self) -> Path:
         return self.data_directory / "backups"
 

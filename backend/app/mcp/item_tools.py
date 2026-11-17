@@ -3,14 +3,24 @@ from typing import Annotated
 from fastapi import FastAPI
 from mcp.server.mcpserver import MCPServer
 from mcp.types import CallToolResult
+from sqlalchemy.orm import Session
 
 from app.core import clock
 from app.core.database import open_read_session, open_write_session
 from app.core.pagination import DEFAULT_LIMIT, Page, PageLimit
 from app.features.items import service
-from app.features.items.schemas import Item, ItemChanges, ItemCreated, ItemUpdated, NewItem
+from app.features.items.schemas import (
+    InboxCount,
+    Item,
+    ItemChanges,
+    ItemCreated,
+    ItemsCreated,
+    ItemUpdated,
+    NewItem,
+    NewItems,
+)
 from app.features.labels import service as labels
-from app.mcp.actions import run_action
+from app.mcp.actions import run_action, run_photo_action
 from app.models import Actor
 
 CREATE_ITEM = """Add an item to the home by name.
@@ -40,18 +50,62 @@ and an empty path means it is in the inbox.
 
 Returns the item, or the error item_not_found."""
 
-UPDATE_ITEM = """Change how many of an item there are.
+UPDATE_ITEM = """Give an item its name, or change how many of it there are.
 
-Use this when the owner says they used some up, bought more, or counted them. quantity is
-the new total, a whole number of 0 or more, not the difference.
+Use this when the owner says they used some up, bought more, or counted them: quantity is
+the new total, a whole number of 0 or more, not the difference. Use it with name to name
+an item added by photo, or to correct a name. Give either or both; a name cannot be
+cleared.
 
 Returns the item as it is now, with the history_entry_id of the change."""
+
+ADD_ITEMS = """Add several items by name at once, all to the same place.
+
+Use this when the owner lists several things that go in one bin or location, rather than
+calling create_item for each. names is 1 to 100 names, kept in the order given;
+home_location_id works as in create_item, and leaving it out puts them all in the inbox.
+Each new item has quantity 1. The whole batch is one change: undo_history_entry with its
+history_entry_id removes every item in it.
+
+Returns {"items": [...], "history_entry_id": ...}, each item with its path."""
+
+ADD_ITEM_BY_PHOTO = """Add an item from a photo, with no name.
+
+Use this when the owner gives you a picture of something to keep track of and no name
+for it, or asks for the photo itself to be kept. photo_base64 is the image, JPEG, PNG or
+WebP, at most 20 MB, encoded as base64. home_location_id works as in create_item. The
+item has no name, so it waits in the inbox until it is named with update_item; if you
+can tell what the photo shows, name it straight away.
+
+Returns the new item with its photo_url and the history_entry_id, or the error
+unsupported_photo or photo_too_large."""
+
+LIST_INBOX = """List the inbox, oldest first, a page at a time: items with no name or no home.
+
+Use this when the owner asks what is still waiting to be sorted, or to find items added
+by photo that need a name. limit is 1 to 200 (50 if left out); when next_cursor is not
+null, pass it as cursor for the next page.
+
+Returns {"items": [...], "next_cursor": ...}; each item has its path, empty when it has
+no home location, and its photo_url."""
+
+COUNT_INBOX = """Count the items in the inbox: those with no name or no home location.
+
+Use this to say how many items are waiting to be sorted, without listing them.
+
+Returns {"count": ...}."""
 
 
 def add_item_tools(server: MCPServer, app: FastAPI) -> None:
     """Give Claude the tools for adding, reading and changing items."""
     _add_reading_tools(server, app)
+    _add_inbox_tools(server, app)
     _add_changing_tools(server, app)
+    _add_adding_tools(server, app)
+
+
+def _home(session: Session, home_location_id: str | None) -> str | None:
+    return labels.location_id_for(session, home_location_id) if home_location_id else None
 
 
 def _add_changing_tools(server: MCPServer, app: FastAPI) -> None:
@@ -64,26 +118,55 @@ def _add_changing_tools(server: MCPServer, app: FastAPI) -> None:
             open_write_session,
             lambda session: service.create_item(
                 session,
-                NewItem(
-                    name=name,
-                    home_location_id=(
-                        labels.location_id_for(session, home_location_id)
-                        if home_location_id
-                        else None
-                    ),
-                ),
+                NewItem(name=name, home_location_id=_home(session, home_location_id)),
                 Actor.mcp,
                 clock.now(),
             ),
         )
 
     @server.tool(description=UPDATE_ITEM)
-    async def update_item(item_id: str, quantity: int) -> Annotated[CallToolResult, ItemUpdated]:
+    async def update_item(
+        item_id: str, name: str | None = None, quantity: int | None = None
+    ) -> Annotated[CallToolResult, ItemUpdated]:
+        given = {"name": name, "quantity": quantity}
         return await run_action(
             app,
             open_write_session,
             lambda session: service.update_item(
-                session, item_id, ItemChanges(quantity=quantity), Actor.mcp, clock.now()
+                session,
+                item_id,
+                ItemChanges.model_validate({k: v for k, v in given.items() if v is not None}),
+                Actor.mcp,
+                clock.now(),
+            ),
+        )
+
+
+def _add_adding_tools(server: MCPServer, app: FastAPI) -> None:
+    @server.tool(description=ADD_ITEMS)
+    async def add_items(
+        names: list[str], home_location_id: str | None = None
+    ) -> Annotated[CallToolResult, ItemsCreated]:
+        return await run_action(
+            app,
+            open_write_session,
+            lambda session: service.create_items(
+                session,
+                NewItems(names=names, home_location_id=_home(session, home_location_id)),
+                Actor.mcp,
+                clock.now(),
+            ),
+        )
+
+    @server.tool(description=ADD_ITEM_BY_PHOTO)
+    async def add_item_by_photo(
+        photo_base64: str, home_location_id: str | None = None
+    ) -> Annotated[CallToolResult, ItemCreated]:
+        return await run_photo_action(
+            app,
+            photo_base64,
+            lambda session, photo: service.create_item_by_photo(
+                session, photo, _home(session, home_location_id), Actor.mcp, clock.now()
             ),
         )
 
@@ -113,3 +196,19 @@ def _add_reading_tools(server: MCPServer, app: FastAPI) -> None:
         return await run_action(
             app, open_read_session, lambda session: service.get_item(session, item_id)
         )
+
+
+def _add_inbox_tools(server: MCPServer, app: FastAPI) -> None:
+    @server.tool(description=LIST_INBOX)
+    async def list_inbox(
+        limit: int = DEFAULT_LIMIT, cursor: str | None = None
+    ) -> Annotated[CallToolResult, Page[Item]]:
+        return await run_action(
+            app,
+            open_read_session,
+            lambda session: service.list_inbox(session, PageLimit(limit=limit).limit, cursor),
+        )
+
+    @server.tool(description=COUNT_INBOX)
+    async def count_inbox() -> Annotated[CallToolResult, InboxCount]:
+        return await run_action(app, open_read_session, service.count_inbox)

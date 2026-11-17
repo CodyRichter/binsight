@@ -137,6 +137,9 @@ Rules:
 | `position` | Order among the owner's attachments. The first photo is the picture shown. |
 
 - File bytes live on disk in the data directory, never in the database.
+- A photo is stored as JPEG under `attachments/`, turned upright from its
+  orientation tag, at most 2048 pixels on its longest edge, and without its
+  metadata, so it never carries where it was taken.
 - Locations take photos only.
 
 ## Check

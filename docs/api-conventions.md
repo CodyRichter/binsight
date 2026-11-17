@@ -107,7 +107,15 @@ One shape for every error:
 ## Writes
 
 - Every write response includes `history_entry_id`, which is what undo
-  takes.
+  takes: `POST /api/history/{entry_id}/undo`. Undo is refused with 409
+  `already_undone`, `changed_since` when a record no longer holds what the
+  entry left it as, or `undo_not_supported` for an action undo does not
+  cover yet. It covers adding items and changing an item's name or
+  quantity.
+- A photo is uploaded as `multipart/form-data` with one `photo` part,
+  JPEG, PNG or WebP, at most 20 MB; anything else is refused with 422
+  `unsupported_photo` or `photo_too_large`. The photo is stored before the
+  write transaction starts, and deleted again if that transaction fails.
 - The actor is taken from how the request was authenticated, never from the
   request body: a session cookie is `app`, an MCP credential is `mcp`.
 - Signing in and out are not changes to the home, so `auth`'s routes write
@@ -130,10 +138,13 @@ One shape for every error:
   ([decision 0010](decisions/0010-mcp-access.md)). A request to `/mcp`
   without a current one, including one with only a session cookie, gets 401
   `invalid_mcp_credential`.
-- Inputs and results use the same field names and shapes as the API.
+- Inputs and results use the same field names and shapes as the API. A
+  photo goes to a tool as base64 text, and comes back as image content.
 - Errors use the same `code` values as the API.
 - A tool that deletes, merges or changes many records returns a preview and
   a confirmation token first, and acts only when called again with the same
   inputs and the token. A token works once and expires after ten minutes.
+  Adding several items is not one of these: it only creates, and one undo
+  removes the whole batch.
 - A location can be named by its code wherever a location identifier is
   accepted.

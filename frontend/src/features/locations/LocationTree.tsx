@@ -1,5 +1,5 @@
 import { Button } from "@mantine/core";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { AppFrame } from "@/components/AppFrame";
 import { ListSection } from "@/components/ListSection";
 import { LocationRow } from "@/components/LocationRow";
@@ -24,6 +24,7 @@ function useOpenBranches() {
 
 interface TreeProps {
   locations: Location[];
+  heading?: { title: string; action?: ReactNode };
   onPick?: (location: Location) => void;
   onAddInside?: (location: Location) => void;
 }
@@ -33,26 +34,27 @@ function rowTarget(location: Location, onPick?: (location: Location) => void) {
 }
 
 /** Every location as a tree; rows open their location, or are picked when onPick is given. */
-export function Tree({ locations, onPick, onAddInside }: TreeProps) {
+export function Tree({ locations, heading, onPick, onAddInside }: TreeProps) {
   const { open, toggle } = useOpenBranches();
-  return (
-    <ListSection>
-      {treeRows(locations, open).map(({ location, depth, hasChildren, expanded }) => (
-        <LocationRow
-          key={location.id}
-          name={location.name}
-          locationType={location.type}
-          code={location.label_code ?? undefined}
-          itemCount={location.item_count}
-          {...rowTarget(location, onPick)}
-          onAddInside={onAddInside && (() => onAddInside(location))}
-          tree
-          depth={depth}
-          expanded={hasChildren ? expanded : undefined}
-          onToggle={hasChildren ? () => toggle(location.id) : undefined}
-        />
-      ))}
-    </ListSection>
+  const rows = treeRows(locations, open).map(({ location, depth, hasChildren, expanded }) => (
+    <LocationRow
+      key={location.id}
+      name={location.name}
+      locationType={location.type}
+      code={location.label_code ?? undefined}
+      itemCount={location.item_count}
+      {...rowTarget(location, onPick)}
+      onAddInside={onAddInside && (() => onAddInside(location))}
+      tree
+      depth={depth}
+      expanded={hasChildren ? expanded : undefined}
+      onToggle={hasChildren ? () => toggle(location.id) : undefined}
+    />
+  ));
+  return heading ? (
+    <ListSection {...heading}>{rows}</ListSection>
+  ) : (
+    <ListSection>{rows}</ListSection>
   );
 }
 
