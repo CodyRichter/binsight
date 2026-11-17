@@ -103,7 +103,6 @@ const templateSpecimens = [
   "LocationsSpecimen",
   "MoveSheet",
   "RecordSpecimen",
-  "SettingsSpecimen",
   "TaskSpecimen",
 ].map((name) => `src/features/design/${name}.tsx`);
 

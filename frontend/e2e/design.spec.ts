@@ -8,8 +8,6 @@ const pages = [
   { name: "list", path: "/design/list?q=cable" },
   { name: "record", path: "/design/record/hdmi-cable" },
   { name: "task", path: "/design/task" },
-  { name: "settings", path: "/design/settings" },
-  { name: "gate", path: "/design/gate" },
 ];
 
 for (const { name, path } of pages) {
@@ -21,7 +19,7 @@ for (const { name, path } of pages) {
       await page.goto(path);
       await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
       await expect(page.getByRole("navigation", { name: "Main" })).toHaveCount(
-        ["task", "gate"].includes(name) ? 0 : 1,
+        name === "task" ? 0 : 1,
       );
       expect(errors).toEqual([]);
     });

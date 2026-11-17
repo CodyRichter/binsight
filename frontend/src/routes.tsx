@@ -97,12 +97,6 @@ const developmentRoutes: RouteObject[] = import.meta.env.DEV
           page("/design/task", async () => ({
             Component: (await import("@/pages/DesignTaskPage")).DesignTaskPage,
           })),
-          page("/design/settings", async () => ({
-            Component: (await import("@/pages/DesignSettingsPage")).DesignSettingsPage,
-          })),
-          page("/design/gate", async () => ({
-            Component: (await import("@/pages/DesignGatePage")).DesignGatePage,
-          })),
           page("/design/*", async () => ({ Component: DesignNotFound })),
         ],
       },

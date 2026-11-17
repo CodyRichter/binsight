@@ -8,8 +8,6 @@ const templates = [
   { name: "List", to: "/design/list?q=cable" },
   { name: "Record", to: "/design/record/hdmi-cable" },
   { name: "Task", to: "/design/task" },
-  { name: "Settings", to: "/design/settings" },
-  { name: "Gate", to: "/design/gate" },
 ];
 
 export function TemplatesSpecimen() {

@@ -410,8 +410,10 @@ Check mode is a Task that opens over a location's page and has no address.
 
 `/design` exists only in development builds and is outside the templates:
 it renders every token and component, in the frame, for checking the
-design by eye. Under it, `/design/{template}` shows each template built
-from sample data; a real page copies its template's specimen.
+design by eye. Under it, `/design/{template}` shows each template that has
+no real page yet, built from sample data. A real page copies its template's
+specimen, which is then deleted
+([decision 0015](decisions/0015-specimens-end-with-their-page.md)).
 
 ### States every page in the frame handles
 

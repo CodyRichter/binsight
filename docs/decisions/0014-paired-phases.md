@@ -1,6 +1,7 @@
 # 0014: Each backend phase is followed by its frontend phase
 
-Status: Accepted. Replaces [0013](0013-backend-first.md).
+Status: Accepted. Replaces [0013](0013-backend-first.md); amended by
+[0015](0015-specimens-end-with-their-page.md).
 
 ## Context
 

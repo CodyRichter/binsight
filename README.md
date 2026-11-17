@@ -144,7 +144,7 @@ The frontend folder for `import_export` is named `import-export`.
 | `/settings`         | Labels, export, backups, MCP credentials                |
 | `/login`            | Sign in, and creating the owner on a new install        |
 | `/design`           | Development builds only: every component and token      |
-| `/design/{template}` | Development builds only: each page template from sample data |
+| `/design/{template}` | Development builds only: each page template with no real page yet, from sample data |
 
 `/l/{code}` is printed on every label, so it can never change
 ([decision 0004](docs/decisions/0004-permanent-labels.md)).

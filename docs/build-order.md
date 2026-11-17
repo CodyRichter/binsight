@@ -10,7 +10,9 @@ Breadth comes after.
 - A backend phase ships its services, routes, MCP tools and tests together.
   No phase leaves the MCP side for later.
 - A frontend phase builds its pages from the design language's components,
-  copying its template's specimen in `frontend/src/features/design/`. If a
+  copying its template's specimen in `frontend/src/features/design/`, then
+  deletes that specimen, its route and its browser tests
+  ([decision 0015](decisions/0015-specimens-end-with-their-page.md)). If a
   screen needs something the design language lacks, the phase stops and
   asks.
 - A step creates the feature folders it needs. No folder exists before the
