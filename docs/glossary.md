@@ -71,6 +71,9 @@ before naming it in code.
 
 | Term             | Meaning                                                     |
 | ---------------- | ----------------------------------------------------------- |
+| **Search**       | Finding items and locations across the whole home from typed words or a label code. |
+| **Search result** | One item or location a search found, with the parts of its name that matched (its **marks**). |
+| **Typo tolerance** | Search still matching a word typed with a letter wrong, missing, extra or swapped. |
 | **View**         | A built-in list across the whole home, e.g. lent out, missing. |
 | **Saved search** | A search the owner has kept and may pin.                    |
 

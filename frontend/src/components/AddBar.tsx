@@ -13,6 +13,8 @@ interface AddBarProps {
   onAddSeveral?: (names: string[]) => void;
   onAddByPhoto?: (photo: File) => void;
   onNameChange?: (name: string) => void;
+  /** The name the field starts with, such as a search that found nothing. */
+  defaultName?: string;
   suggestion?: (clearName: () => void) => ReactNode;
   autoFocus?: boolean;
 }
@@ -110,6 +112,7 @@ export function AddBar(props: AddBarProps) {
             className={classes.input}
             aria-label="Add an item"
             placeholder="Add an item"
+            defaultValue={props.defaultName}
             autoFocus={switched}
             data-autofocus={props.autoFocus || undefined}
             onChange={(event) => props.onNameChange?.(event.currentTarget.value.trim())}

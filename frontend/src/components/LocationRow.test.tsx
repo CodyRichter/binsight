@@ -34,3 +34,18 @@ test("a row without add-inside has no such button", () => {
   );
   expect(screen.queryByRole("button", { name: /Add location inside/ })).toBeNull();
 });
+
+test("the parts of the name a search matched are marked", () => {
+  renderWithTheme(
+    <ul>
+      <LocationRow
+        name="Cables"
+        locationType="bin"
+        itemCount={2}
+        to="/locations/cables"
+        marks={[{ start: 0, end: 3 }]}
+      />
+    </ul>,
+  );
+  expect(screen.getByRole("mark")).toHaveTextContent(/^Cab$/);
+});

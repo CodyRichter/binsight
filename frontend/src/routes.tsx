@@ -121,6 +121,7 @@ const appRoutes: RouteObject[] = [
       })),
       page("/items/:id", async () => ({ Component: (await import("@/pages/ItemPage")).ItemPage })),
       page("/inbox", async () => ({ Component: (await import("@/pages/InboxPage")).InboxPage })),
+      page("/search", async () => ({ Component: (await import("@/pages/SearchPage")).SearchPage })),
       page("/login", async () => ({ Component: (await import("@/pages/LoginPage")).LoginPage })),
       page("/settings", async () => ({
         Component: (await import("@/pages/SettingsPage")).SettingsPage,

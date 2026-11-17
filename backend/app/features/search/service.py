@@ -1,0 +1,120 @@
+import re
+from dataclasses import dataclass
+from typing import Literal
+
+from sqlalchemy.orm import Session
+
+from app.core.pagination import decode_offset, encode_offset
+from app.features.items import service as items
+from app.features.labels import service as labels
+from app.features.locations import service as locations
+from app.features.search.matching import (
+    EXACT,
+    Word,
+    best_score,
+    marks,
+    match_vocabulary,
+    words,
+)
+from app.features.search.schemas import ItemResult, LocationResult, Mark, SearchResults
+
+# A name counts double against a summary, so a bin called "Cables" beats one that mentions them.
+NAME_WEIGHT = 2
+CODE_SCORE = EXACT * NAME_WEIGHT
+# A code is typed as one word, so the hyphen in B-014 must not split it in two.
+CODE_HYPHEN = re.compile(r"\b(b)-(?=\d)", re.IGNORECASE)
+
+
+@dataclass(frozen=True)
+class _Found:
+    kind: Literal["item", "location"]
+    id: str
+    name: str
+    score: int
+    marks: list[Mark]
+
+
+@dataclass(frozen=True)
+class _Candidate:
+    kind: Literal["item", "location"]
+    id: str
+    name: list[Word]
+    name_text: str
+    summary: list[Word]
+    code_number: int | None
+
+
+def _candidates(session: Session) -> list[_Candidate]:
+    found = [
+        _Candidate("item", item.id, words(item.name), item.name, [], None)
+        for item in items.searchable_items(session)
+    ]
+    for location in locations.searchable_locations(session):
+        code = labels.label_number(location.label_code) if location.label_code else None
+        summary = words(location.summary or "")
+        name = words(location.name)
+        found.append(_Candidate("location", location.id, name, location.name, summary, code))
+    return found
+
+
+def _word_score(candidate: _Candidate, found: dict[str, int], code: int | None) -> int:
+    if code is not None and code == candidate.code_number:
+        return CODE_SCORE
+    return max(
+        best_score(found, candidate.name) * NAME_WEIGHT, best_score(found, candidate.summary)
+    )
+
+
+def _score(
+    candidate: _Candidate, query: list[str], found: list[dict[str, int]], codes: list[int | None]
+) -> _Found | None:
+    total = 0
+    for word_found, code in zip(found, codes, strict=True):
+        score = _word_score(candidate, word_found, code)
+        if not score:
+            return None
+        total += score
+    spans = marks(query, found, candidate.name)
+    return _Found(candidate.kind, candidate.id, candidate.name_text, total, spans)
+
+
+def _ranked(session: Session, query: str) -> list[_Found]:
+    query_words = [word.text for word in words(CODE_HYPHEN.sub(r"\1", query))]
+    if not query_words:
+        return []
+    candidates = _candidates(session)
+    vocabulary = {word.text for each in candidates for word in each.name + each.summary}
+    found = match_vocabulary(query_words, vocabulary)
+    codes = [labels.label_number(word) for word in query_words]
+    scored = [_score(candidate, query_words, found, codes) for candidate in candidates]
+    matched = [each for each in scored if each is not None]
+    return sorted(
+        matched, key=lambda each: (-each.score, each.kind != "item", len(each.name), each.name)
+    )
+
+
+def _shaped(session: Session, page: list[_Found]) -> list[ItemResult | LocationResult]:
+    item_ids = [each.id for each in page if each.kind == "item"]
+    location_ids = [each.id for each in page if each.kind == "location"]
+    found_items = dict(zip(item_ids, items.get_items(session, item_ids), strict=True))
+    # Reading locations builds the whole tree for its counts, so skip it when none are shown.
+    shown = locations.get_locations(session, location_ids) if location_ids else []
+    found_locations = dict(zip(location_ids, shown, strict=True))
+    return [
+        ItemResult(kind="item", item=found_items[each.id], marks=each.marks)
+        if each.kind == "item"
+        else LocationResult(kind="location", location=found_locations[each.id], marks=each.marks)
+        for each in page
+    ]
+
+
+def search_home(session: Session, query: str, limit: int, cursor: str | None) -> SearchResults:
+    """Find items and locations by name, in any word order and despite typos, or by label code."""
+    start = decode_offset(cursor) if cursor else 0
+    ranked = _ranked(session, query)
+    end = start + limit
+    return SearchResults(
+        results=_shaped(session, ranked[start:end]),
+        next_cursor=encode_offset(end) if end < len(ranked) else None,
+        count=len(ranked),
+    )

@@ -1,5 +1,5 @@
 import { useContext, useState, type ReactNode } from "react";
-import { useLocation, useNavigate, useNavigation, useSearchParams } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { SessionCheck } from "./SessionCheck";
 import { Frame } from "./Frame";
 import { FrameAdditionsContext } from "./frameAdditions";
@@ -20,14 +20,14 @@ function useSearch() {
   const { pathname } = useLocation();
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const pending = useNavigation().state !== "idle";
   const searching = pathname === searchPage;
   return {
     query: searching ? (params.get("q") ?? "") : "",
-    // Typing replaces the results page, so Back leaves search in one step.
+    // Typing replaces the results page, so Back leaves search in one step. A replace while the
+    // first push is still loading would replace the page the search began on instead.
     onChange: (query: string) =>
       navigate(`${searchPage}?q=${encodeURIComponent(query)}`, {
-        replace: searching || pending,
+        replace: searching,
         state: { focusSearch: true },
       }),
   };

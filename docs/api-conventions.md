@@ -123,7 +123,7 @@ One shape for every error:
 
 ## MCP tools
 
-- Named `verb_noun` in `snake_case`: `search_items`, `move_item`,
+- Named `verb_noun` in `snake_case`: `search_home`, `move_item`,
   `check_location`.
 - One tool per user action, calling the same service function as its route.
 - Every route has an operation name in the same `verb_noun` form, and the

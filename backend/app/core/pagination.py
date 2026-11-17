@@ -46,3 +46,19 @@ def decode_cursor(cursor: str) -> tuple[datetime, str]:
     if moment.tzinfo is None or not isinstance(identifier, str):
         raise _invalid_cursor()
     return moment, identifier
+
+
+def encode_offset(offset: int) -> str:
+    """Mark how many results earlier pages held, for a list that is ranked, not dated."""
+    return base64.urlsafe_b64encode(json.dumps(offset).encode()).decode()
+
+
+def decode_offset(cursor: str) -> int:
+    """Read back how many results earlier pages held, refusing a cursor this app did not make."""
+    try:
+        offset = json.loads(base64.urlsafe_b64decode(cursor))
+    except ValueError as error:
+        raise _invalid_cursor() from error
+    if not isinstance(offset, int) or isinstance(offset, bool) or offset < 0:
+        raise _invalid_cursor()
+    return offset

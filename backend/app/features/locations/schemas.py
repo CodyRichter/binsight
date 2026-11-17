@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Annotated, Self
 
 from pydantic import BaseModel, StringConstraints, model_validator
@@ -50,3 +51,13 @@ class LocationCreated(Location):
 
 class LocationTree(BaseModel):
     locations: list[Location]
+
+
+@dataclass(frozen=True)
+class SearchableLocation:
+    """What search scores a location on: its name, summary and label's code."""
+
+    id: str
+    name: str
+    summary: str | None
+    label_code: str | None

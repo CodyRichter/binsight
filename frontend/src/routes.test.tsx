@@ -1,27 +1,24 @@
-import { MantineProvider } from "@mantine/core";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { RouterProvider, createMemoryRouter, type RouteObject } from "react-router";
+import type { RouteObject } from "react-router";
 import { afterEach, expect, test, vi } from "vitest";
 import { DesignFrame } from "@/features/design";
 import { ApiError } from "@/lib/api/client";
-import { createQueryClient } from "@/lib/api/queryClient";
-import { cssVariablesResolver, theme } from "@/lib/theme/theme";
+import {
+  answer,
+  bin,
+  cable,
+  renderRoutes,
+  signedIn,
+  site,
+  stubPaths,
+} from "@/lib/testing/routeTesting";
 import { routes } from "./routes";
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function answer(status: number, body: unknown) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-const signedIn = { owner_exists: true, signed_in: true };
 const signedOut = { owner_exists: true, signed_in: false };
 const newInstall = { owner_exists: false, signed_in: false };
 const noCredentials = { items: [], next_cursor: null };
@@ -53,21 +50,6 @@ function PageWithBrokenChild() {
     <DesignFrame>
       <BrokenContent />
     </DesignFrame>
-  );
-}
-
-function renderRoutes(routeTree: RouteObject[], initialEntry: string) {
-  const memoryRouter = createMemoryRouter(routeTree, { initialEntries: [initialEntry] });
-  const queryClient = createQueryClient();
-  queryClient.setDefaultOptions({
-    queries: { ...queryClient.getDefaultOptions().queries, retry: false },
-  });
-  return render(
-    <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver}>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={memoryRouter} />
-      </QueryClientProvider>
-    </MantineProvider>,
   );
 }
 
@@ -210,46 +192,7 @@ test("signing out sends the page to the Gate, ready to return to it", async () =
   expect(screen.queryByRole("navigation", { name: "Main" })).not.toBeInTheDocument();
 });
 
-const site = {
-  id: "home",
-  name: "Home",
-  type: "site",
-  parent_id: null,
-  summary: null,
-  path: [{ id: "home", name: "Home" }],
-  direct_item_count: 0,
-  item_count: 1,
-};
-const bin = {
-  ...site,
-  id: "cables",
-  name: "Cables",
-  type: "bin",
-  parent_id: "home",
-  path: [...site.path, { id: "cables", name: "Cables" }],
-  direct_item_count: 1,
-};
-const cable = {
-  id: "hdmi",
-  name: "HDMI cable",
-  quantity: 3,
-  home_location_id: "cables",
-  path: bin.path,
-  created_at: "2026-11-16T12:00:00Z",
-};
 const added = { id: "e1", at: "2026-11-16T12:00:00Z", actor: "app", action: "item.created" };
-
-/** Answers each API path with its own body, signed in. */
-function stubPaths(bodies: Record<string, unknown>) {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn((path: string) => {
-      const route = path.split("?")[0];
-      const known = { "/api/auth/status": signedIn, "/api/items/inbox/count": { count: 0 } };
-      return Promise.resolve(answer(200, { ...known, ...bodies }[route]));
-    }),
-  );
-}
 
 test("/ shows the sites as a tree under Locations", async () => {
   stubPaths({ "/api/locations": { locations: [site, bin] } });

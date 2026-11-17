@@ -12,13 +12,13 @@ function renderRow(props: Partial<ComponentProps<typeof ItemRow>> = {}) {
   );
 }
 
-test("the matched part of the name is marked, ignoring case", () => {
-  renderRow({ match: "BAT" });
+test("the parts of the name a search matched are marked", () => {
+  renderRow({ marks: [{ start: 3, end: 6 }] });
   expect(screen.getByRole("mark")).toHaveTextContent(/^bat$/);
 });
 
-test("a name without the match is not marked", () => {
-  renderRow({ match: "cable" });
+test("a name without marks is not marked", () => {
+  renderRow();
   expect(screen.queryByRole("mark")).not.toBeInTheDocument();
 });
 

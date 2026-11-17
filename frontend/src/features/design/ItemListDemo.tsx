@@ -40,7 +40,7 @@ export function ItemListDemo() {
           to="/design"
           path={binPath}
           photoUrl={samplePhoto}
-          match="hdmi"
+          marks={[{ start: 9, end: 13 }]}
         />
         <ItemRow
           {...selection("AA batteries")}

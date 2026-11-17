@@ -17,6 +17,16 @@ test("an item row with a path is row-min plus its hairline", async ({ page }) =>
   expect((await box(row)).height).toBe(65);
 });
 
+test("a search result row with a path is row-min plus its hairline", async ({ page }) => {
+  const shed = uniqueName("Shed");
+  const item = await addPhotoItem(page.request, await addLocation(page.request, shed, "site"));
+  const name = uniqueName("Torch");
+  await page.request.patch(`/api/items/${item}`, { data: { name } });
+  await open(page, `/search?q=${encodeURIComponent(name)}`);
+  const row = page.locator("#content li").filter({ hasText: name });
+  expect((await box(row)).height).toBe(65);
+});
+
 test("a flat location row puts its type icon at the gutter", async ({ page }) => {
   const { ids } = await siteRoomBin(page.request);
   await open(page, `/locations/${ids.site}`);

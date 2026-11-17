@@ -6,7 +6,7 @@ import { ItemAdder } from "@/features/items";
 import { Tree } from "./LocationTree";
 import { useLocationTree, useRefreshLocationTree } from "./useLocations";
 
-function AddSheetBody({ locationId }: { locationId?: string }) {
+function AddSheetBody({ locationId, name }: { locationId?: string; name?: string }) {
   const tree = useLocationTree();
   const refreshTree = useRefreshLocationTree();
   // Undefined until a destination is picked, so adding starts where the page is.
@@ -40,15 +40,16 @@ function AddSheetBody({ locationId }: { locationId?: string }) {
       onSettled={refreshTree}
       onChangeDestination={() => setChoosing(true)}
       autoFocus
+      defaultName={name}
     />
   );
 }
 
 /** Add from anywhere: the add bar, starting at the page's location or the inbox. */
-export function AddSheet({ opened, onClose, locationId }: AddSheetProps) {
+export function AddSheet({ opened, onClose, locationId, name }: AddSheetProps) {
   return (
     <Sheet opened={opened} title="Add" onClose={onClose}>
-      {opened && <AddSheetBody locationId={locationId} />}
+      {opened && <AddSheetBody locationId={locationId} name={name} />}
     </Sheet>
   );
 }

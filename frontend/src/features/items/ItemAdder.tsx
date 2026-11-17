@@ -10,11 +10,13 @@ interface ItemAdderProps {
   onSettled: () => void;
   onChangeDestination?: () => void;
   autoFocus?: boolean;
+  defaultName?: string;
 }
 
 /** The add bar for one destination: by name, several at once, by photo, or to an existing item. */
-export function ItemAdder({ home, onSettled, onChangeDestination, autoFocus }: ItemAdderProps) {
-  const [typed, setTyped] = useState("");
+export function ItemAdder(props: ItemAdderProps) {
+  const { home, onSettled, onChangeDestination, autoFocus, defaultName } = props;
+  const [typed, setTyped] = useState(defaultName ?? "");
   const addItem = useAddItem(home, onSettled);
   const addItems = useAddItems(home, onSettled);
   const addByPhoto = useAddByPhoto(home, onSettled);
@@ -28,6 +30,7 @@ export function ItemAdder({ home, onSettled, onChangeDestination, autoFocus }: I
       onAddByPhoto={addByPhoto}
       onNameChange={setTyped}
       autoFocus={autoFocus}
+      defaultName={defaultName}
       suggestion={(clearName) =>
         home && <DuplicateOffer home={home} typed={typed} clearName={clearName} />
       }

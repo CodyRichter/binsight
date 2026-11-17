@@ -10,10 +10,14 @@ from app.features.attachments import service as attachments
 from app.features.attachments.service import StoredPhoto
 from app.features.history import service as history
 from app.features.items.listing import count_inbox as count_inbox
+from app.features.items.listing import get_items as get_items
 from app.features.items.listing import list_inbox as list_inbox
 from app.features.items.listing import list_items as list_items
+from app.features.items.listing import searchable_items as searchable_items
 from app.features.items.schemas import (
-    Item,
+    Item as Item,
+)  # re-exported: search shapes its results with it
+from app.features.items.schemas import (
     ItemChanges,
     ItemCreated,
     ItemsCreated,

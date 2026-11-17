@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Annotated, Self
 
@@ -56,3 +57,11 @@ class ItemUpdated(Item):
 
 class InboxCount(BaseModel):
     count: int
+
+
+@dataclass(frozen=True)
+class SearchableItem:
+    """What search scores an item on: its name."""
+
+    id: str
+    name: str

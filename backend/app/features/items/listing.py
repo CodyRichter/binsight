@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app import models
 from app.core.pagination import Page, decode_cursor, encode_cursor
-from app.features.items.schemas import InboxCount, Item
+from app.features.items.schemas import InboxCount, Item, SearchableItem
 from app.features.items.shaping import shaped
 from app.features.locations import service as locations
 
@@ -51,3 +51,22 @@ def count_inbox(session: Session) -> InboxCount:
     """How many items are missing a name or a home location."""
     count = session.scalar(select(func.count()).select_from(models.Item).where(_in_inbox()))
     return InboxCount(count=count or 0)
+
+
+def searchable_items(session: Session) -> list[SearchableItem]:
+    """Every named item's identifier and name, for search to score."""
+    query = select(models.Item.id, models.Item.name).where(models.Item.name.is_not(None))
+    return [
+        SearchableItem(id=item_id, name=name)
+        for item_id, name in session.execute(query)
+        if name is not None
+    ]
+
+
+def get_items(session: Session, item_ids: list[str]) -> list[Item]:
+    """The items with these identifiers, in the order given, each with its path."""
+    found = {
+        row.id: row
+        for row in session.scalars(select(models.Item).where(models.Item.id.in_(item_ids)))
+    }
+    return [shaped(session, found[item_id]) for item_id in item_ids]
