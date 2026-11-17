@@ -3,12 +3,15 @@
 The FastAPI application: the web API the frontend calls, the MCP server
 Claude calls, and the frontend's built files, in one process.
 
-> **Status: locations, items and history (phase B3).** The app starts,
+> **Status: MCP (phase B4).** The app starts,
 > opens SQLite with the agreed settings, migrates the database and serves
 > the frontend's files. `auth` creates the owner and signs devices in; every
 > other API route needs a session. `locations` creates locations and lists
 > the tree, `items` adds items by name and lists a location's items with
 > their paths, and `history` records each change in the same transaction.
+> `auth` also creates, lists and revokes MCP credentials, and the MCP
+> server at `/mcp` has a tool for every one of those actions, recorded with
+> the actor `mcp`.
 
 ## Tech stack
 
@@ -27,8 +30,8 @@ Claude calls, and the frontend's built files, in one process.
 | Type checks        | mypy, strict                                     |
 
 The server is uvicorn. `segno` draws label QR codes, and
-`python-multipart` reads photo uploads. `mcp`, Pillow, `segno` and
-`python-multipart` are added in the phase that first uses them (B4, B6, B7).
+`python-multipart` reads photo uploads. Pillow, `segno` and
+`python-multipart` are added in the phase that first uses them (B6, B7).
 
 ## Running it
 
@@ -43,6 +46,16 @@ The API is under `/api`, its generated description at `/api/docs`. Every
 other path serves `../frontend/dist`, so run `npm run build` there first.
 After changing a route or schema, run `npm run generate:types` in
 `frontend/` and commit the result.
+
+Claude connects to the MCP server at `/mcp` over streamable HTTP, sending
+an MCP credential as a bearer token. Until the settings page exists, create
+one while signed in with `POST /api/auth/mcp-credentials` and a `name`; the
+answer holds its `secret`, shown only that once. Then, for Claude Code:
+
+```
+claude mcp add --transport http binsight http://localhost:8000/mcp \
+  --header "Authorization: Bearer <secret>"
+```
 
 New migrations are written with `uv run alembic revision --autogenerate`,
 with the same two settings pointing at a scratch data directory. The app

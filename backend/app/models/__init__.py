@@ -1,4 +1,4 @@
-from app.models.auth import LoginSession, Owner
+from app.models.auth import LoginSession, McpCredential, Owner
 from app.models.base import Model
 from app.models.history import Actor, HistoryChange, HistoryEntry
 from app.models.items import Item
@@ -12,6 +12,7 @@ __all__ = [
     "Location",
     "LocationType",
     "LoginSession",
+    "McpCredential",
     "Model",
     "Owner",
 ]

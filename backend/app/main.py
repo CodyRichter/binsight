@@ -15,10 +15,11 @@ from app.features.auth import routes as auth
 from app.features.history import routes as history
 from app.features.items import routes as items
 from app.features.locations import routes as locations
+from app.mcp.server import add_mcp_server
 
 
 def build_app(settings: Settings) -> FastAPI:
-    """Assemble the web API and the frontend's files for one install."""
+    """Assemble the web API, the MCP server and the frontend's files for one install."""
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -26,7 +27,8 @@ def build_app(settings: Settings) -> FastAPI:
         engine = create_database_engine(settings.database_path)
         migrate_database(engine, settings)
         app.state.engine = engine
-        yield
+        async with mcp_server.session_manager.run():
+            yield
         engine.dispose()
 
     app = FastAPI(
@@ -45,10 +47,12 @@ def build_app(settings: Settings) -> FastAPI:
     app.include_router(auth.router, prefix="/api")
     # Every feature router goes in here, so a route is signed-in-only unless placed above.
     signed_in = APIRouter(dependencies=[Depends(auth.require_sign_in)])
+    signed_in.include_router(auth.mcp_credentials_router)
     signed_in.include_router(locations.router)
     signed_in.include_router(items.router)
     signed_in.include_router(history.router)
     app.include_router(signed_in, prefix="/api")
+    mcp_server = add_mcp_server(app)
     add_frontend_files(app, settings.frontend_directory)
     return app
 

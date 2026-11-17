@@ -4,12 +4,19 @@ from datetime import datetime
 from typing import Annotated
 
 from fastapi import Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.core.errors import AppError
 
-Limit = Annotated[int, Query(ge=1, le=200)]
+MAX_LIMIT = 200
+Limit = Annotated[int, Query(ge=1, le=MAX_LIMIT)]
 DEFAULT_LIMIT = 50
+
+
+class PageLimit(BaseModel):
+    """How many records an MCP tool asks for, held to the bounds a list route's `limit` has."""
+
+    limit: int = Field(ge=1, le=MAX_LIMIT)
 
 
 class Page[T](BaseModel):

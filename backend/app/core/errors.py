@@ -1,10 +1,11 @@
+from collections.abc import Mapping
 from http import HTTPStatus
 from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from starlette.exceptions import HTTPException
 
 
@@ -44,11 +45,11 @@ def error_response(error: AppError) -> JSONResponse:
 
 
 def _field_name(location: tuple[int | str, ...]) -> str:
-    # The first part says where the field was sent (body, query); the owner never sees that.
-    return ".".join(str(part) for part in location[1:]) or str(location[0])
+    # A rule about the input as a whole, such as which types need a parent, names no field.
+    return ".".join(str(part) for part in location) or "input"
 
 
-def _field_sentence(problem: dict[str, Any]) -> str:
+def _field_sentence(problem: Mapping[str, Any]) -> str:
     limits = problem.get("ctx", {})
     match problem["type"]:
         case "string_too_short":
@@ -61,8 +62,15 @@ def _field_sentence(problem: dict[str, Any]) -> str:
             return f"{problem['msg'].rstrip('.')}."
 
 
-def validation_failed(error: RequestValidationError) -> AppError:
-    fields = {_field_name(problem["loc"]): _field_sentence(problem) for problem in error.errors()}
+def validation_failed(error: RequestValidationError | ValidationError) -> AppError:
+    """Say which fields failed and why, for a web request or an MCP tool's input."""
+    problems = list(error.errors())
+    if isinstance(error, RequestValidationError):
+        # The first part says where the field was sent (body, query); the owner never sees that.
+        problems = [
+            {**problem, "loc": problem["loc"][1:] or problem["loc"]} for problem in problems
+        ]
+    fields = {_field_name(problem["loc"]): _field_sentence(problem) for problem in problems}
     message = next(iter(fields.values())) if len(fields) == 1 else "Some fields are not valid."
     return AppError(422, "validation_failed", message, {"fields": fields})
 

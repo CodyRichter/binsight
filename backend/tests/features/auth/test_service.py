@@ -6,7 +6,7 @@ from sqlalchemy import Engine, select
 from app.core.database import open_read_session, open_write_session
 from app.core.errors import AppError
 from app.features.auth import service
-from app.models import LoginSession, Owner
+from app.models import LoginSession, McpCredential, Owner
 
 NOW = datetime(2026, 11, 16, 12, 0, tzinfo=UTC)
 PASSWORD = "correct horse"  # noqa: S105 -- a made-up password for the tests
@@ -98,4 +98,78 @@ def test_neither_the_password_nor_the_secret_is_stored(migrated_engine: Engine) 
         password_hash = session.scalars(select(Owner.password_hash)).one()
         secret_hash = session.scalars(select(LoginSession.secret_hash)).one()
     assert PASSWORD not in password_hash
+    assert secret not in secret_hash
+
+
+def _create_credential(engine: Engine, name: str = "Claude Code", now: datetime = NOW) -> str:
+    with open_write_session(engine) as session:
+        return service.create_mcp_credential(session, name, now).secret
+
+
+def _credential_names(engine: Engine, limit: int = 50, cursor: str | None = None) -> list[str]:
+    with open_read_session(engine) as session:
+        return [row.name for row in service.list_mcp_credentials(session, limit, cursor).items]
+
+
+def _is_mcp_credential(engine: Engine, secret: str) -> bool:
+    with open_read_session(engine) as session:
+        return service.is_mcp_credential(session, secret)
+
+
+def _revoke(engine: Engine, credential_id: str) -> None:
+    with open_write_session(engine) as session:
+        service.revoke_mcp_credential(session, credential_id, NOW)
+
+
+def _credential_id(engine: Engine, name: str) -> str:
+    with open_read_session(engine) as session:
+        return session.scalars(select(McpCredential.id).where(McpCredential.name == name)).one()
+
+
+def test_a_new_mcp_credential_works_as_a_bearer_secret(migrated_engine: Engine) -> None:
+    secret = _create_credential(migrated_engine)
+    assert _is_mcp_credential(migrated_engine, secret)
+    assert not _is_mcp_credential(migrated_engine, "made-up")
+
+
+def test_mcp_credentials_are_listed_newest_first_a_page_at_a_time(
+    migrated_engine: Engine,
+) -> None:
+    for minutes, name in enumerate(["Laptop", "Desktop", "Phone"]):
+        _create_credential(migrated_engine, name, NOW + timedelta(minutes=minutes))
+    with open_read_session(migrated_engine) as session:
+        first = service.list_mcp_credentials(session, 2, None)
+    assert [row.name for row in first.items] == ["Phone", "Desktop"]
+    assert first.next_cursor is not None
+    assert _credential_names(migrated_engine, 2, first.next_cursor) == ["Laptop"]
+
+
+def test_a_revoked_mcp_credential_stops_working_and_is_not_listed(
+    migrated_engine: Engine,
+) -> None:
+    secret = _create_credential(migrated_engine, "Laptop")
+    _create_credential(migrated_engine, "Desktop")
+    _revoke(migrated_engine, _credential_id(migrated_engine, "Laptop"))
+    assert not _is_mcp_credential(migrated_engine, secret)
+    assert _credential_names(migrated_engine) == ["Desktop"]
+
+
+def test_revoking_an_unknown_or_revoked_mcp_credential_is_refused(
+    migrated_engine: Engine,
+) -> None:
+    _create_credential(migrated_engine)
+    credential_id = _credential_id(migrated_engine, "Claude Code")
+    _revoke(migrated_engine, credential_id)
+    assert _refusal_code(lambda: _revoke(migrated_engine, credential_id)) == (
+        "mcp_credential_not_found"
+    )
+    assert _refusal_code(lambda: _revoke(migrated_engine, "made-up")) == (
+        "mcp_credential_not_found"
+    )
+
+
+def test_an_mcp_credential_s_secret_is_not_stored(migrated_engine: Engine) -> None:
+    secret = _create_credential(migrated_engine)
+    with open_read_session(migrated_engine) as session:
+        secret_hash = session.scalars(select(McpCredential.secret_hash)).one()
     assert secret not in secret_hash

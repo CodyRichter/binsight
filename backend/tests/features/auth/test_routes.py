@@ -128,3 +128,39 @@ def test_a_signed_in_only_route_answers_a_current_session(migrated_engine: Engin
     guarded = _guarded_client(migrated_engine)
     guarded.cookies.set("binsight_session", secret)
     assert guarded.get("/guarded").json() == {"reached": True}
+
+
+CREDENTIALS = "/api/auth/mcp-credentials"
+
+
+def test_creating_an_mcp_credential_answers_with_its_secret_once(signed_in: TestClient) -> None:
+    response = signed_in.post(CREDENTIALS, json={"name": "  Claude Desktop  "})
+    assert response.status_code == 201
+    created = response.json()
+    assert created["name"] == "Claude Desktop"
+    assert created["secret"]
+    assert created["created_at"].endswith("Z")
+    listed = signed_in.get(CREDENTIALS).json()
+    assert listed == {
+        "items": [{key: created[key] for key in ("id", "name", "created_at")}],
+        "next_cursor": None,
+    }
+
+
+def test_an_mcp_credential_needs_a_name(signed_in: TestClient) -> None:
+    response = signed_in.post(CREDENTIALS, json={"name": " "})
+    assert response.status_code == 422
+    assert list(response.json()["error"]["details"]["fields"]) == ["name"]
+
+
+def test_revoking_an_mcp_credential_removes_it_from_the_list(signed_in: TestClient) -> None:
+    created = signed_in.post(CREDENTIALS, json={"name": "Claude Code"}).json()
+    response = signed_in.post(f"{CREDENTIALS}/{created['id']}/revoke")
+    assert response.status_code == 204
+    assert signed_in.get(CREDENTIALS).json()["items"] == []
+
+
+def test_revoking_an_unknown_mcp_credential_is_not_found(signed_in: TestClient) -> None:
+    response = signed_in.post(f"{CREDENTIALS}/made-up/revoke")
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "mcp_credential_not_found"

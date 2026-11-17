@@ -3,9 +3,16 @@ from fastapi import APIRouter, Request, Response
 from app.core import clock
 from app.core.database import ReadSession, WriteSession, open_read_session
 from app.core.errors import AppError, refusals
+from app.core.pagination import DEFAULT_LIMIT, Limit, Page
 from app.core.settings import AppSettings
 from app.features.auth import service
-from app.features.auth.schemas import AuthStatus, Password
+from app.features.auth.schemas import (
+    AuthStatus,
+    McpCredential,
+    McpCredentialCreated,
+    NewMcpCredential,
+    Password,
+)
 from app.features.auth.session_cookie import (
     clear_session_cookie,
     read_session_cookie,
@@ -13,6 +20,8 @@ from app.features.auth.session_cookie import (
 )
 
 router = APIRouter(prefix="/auth")
+# Signed in only: main.py includes this one among the routers that need a session.
+mcp_credentials_router = APIRouter(prefix="/auth/mcp-credentials")
 SIGNED_IN = AuthStatus(owner_exists=True, signed_in=True)
 
 
@@ -53,3 +62,29 @@ def sign_out(request: Request, session: WriteSession, settings: AppSettings) -> 
     response = Response(status_code=204)
     clear_session_cookie(response, settings)
     return response
+
+
+@mcp_credentials_router.post(
+    "", operation_id="create_mcp_credential", status_code=201, responses=refusals(422)
+)
+def create_mcp_credential(body: NewMcpCredential, session: WriteSession) -> McpCredentialCreated:
+    return service.create_mcp_credential(session, body.name, clock.now())
+
+
+@mcp_credentials_router.get("", operation_id="list_mcp_credentials", responses=refusals(400, 422))
+def list_mcp_credentials(
+    session: ReadSession, limit: Limit = DEFAULT_LIMIT, cursor: str | None = None
+) -> Page[McpCredential]:
+    return service.list_mcp_credentials(session, limit, cursor)
+
+
+@mcp_credentials_router.post(
+    "/{credential_id}/revoke",
+    operation_id="revoke_mcp_credential",
+    status_code=204,
+    response_class=Response,
+    responses=refusals(404),
+)
+def revoke_mcp_credential(credential_id: str, session: WriteSession) -> Response:
+    service.revoke_mcp_credential(session, credential_id, clock.now())
+    return Response(status_code=204)
