@@ -127,6 +127,41 @@ def test_a_label_cannot_be_claimed_for_an_unknown_location(migrated_engine: Engi
     assert refusal.value.code == "location_not_found"
 
 
+def test_unclaiming_makes_the_label_blank_and_records_it(migrated_engine: Engine) -> None:
+    _blanks(migrated_engine, 1)
+    home = _site(migrated_engine)
+    _claim(migrated_engine, "B-001", home)
+    with open_write_session(migrated_engine) as session:
+        unclaimed = service.unclaim_label(session, "b1", Actor.app, builders.NOW)
+    assert (unclaimed.location_id, unclaimed.claimed_at) == (None, None)
+    with open_read_session(migrated_engine) as session:
+        assert locations.get_location(session, home).label_code is None
+        entry = session.get(HistoryEntry, unclaimed.history_entry_id)
+        assert entry is not None
+        assert (entry.action, entry.actor) == ("label.unclaimed", Actor.app)
+        assert [(change.before, change.after) for change in entry.changes] == [
+            ({"location_id": home}, {"location_id": None})
+        ]
+
+
+def test_an_unclaimed_label_can_be_claimed_again(migrated_engine: Engine) -> None:
+    _blanks(migrated_engine, 1)
+    _claim(migrated_engine, "B-001", _site(migrated_engine, "Home"))
+    with open_write_session(migrated_engine) as session:
+        service.unclaim_label(session, "B-001", Actor.app, builders.NOW)
+    car = _site(migrated_engine, "Car")
+    _claim(migrated_engine, "B-001", car)
+    with open_read_session(migrated_engine) as session:
+        assert service.get_label(session, "B-001").location_id == car
+
+
+def test_a_blank_label_cannot_be_unclaimed(migrated_engine: Engine) -> None:
+    _blanks(migrated_engine, 1)
+    with pytest.raises(AppError) as refusal, open_write_session(migrated_engine) as session:
+        service.unclaim_label(session, "B-001", Actor.app, builders.NOW)
+    assert (refusal.value.status, refusal.value.code) == (409, "label_not_claimed")
+
+
 def test_labels_are_listed_newest_code_first_a_page_at_a_time(migrated_engine: Engine) -> None:
     _blanks(migrated_engine, 5)
     with open_read_session(migrated_engine) as session:

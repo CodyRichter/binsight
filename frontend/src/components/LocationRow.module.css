@@ -26,6 +26,14 @@
   flex: none;
 }
 
+/* Pulled into the row's padding by the room around its glyph, so the glyph sits at the gutter. */
+.addInside {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  margin-right: calc((20px - var(--bs-touch-min)) / 2);
+}
+
 .toggleSpace {
   flex: none;
   width: var(--bs-touch-min);

@@ -94,8 +94,8 @@ Codes, QR images, blank labels and claiming. Feature: `labels`.
 
 ### F6: Labels
 
-The `/l/{code}` page for a location, a blank label to claim, an unknown
-code and a deleted location; code chips; "Labels" in `/settings`.
+The `/l/{code}` page for a location, a blank label to claim and an
+unknown code; code chips; "Labels" in `/settings`.
 
 ### B7: Adding quickly (flow 2)
 
@@ -152,7 +152,8 @@ In this order, each as its own step shipping both sides together:
 5. Import and export, the insurance export, contents sheets. Feature:
    `import_export`.
 6. Scheduled backups and restore. Feature: `backups`.
-7. Location housekeeping: merge, delete with reassignment, reorder.
+7. Location housekeeping: merge, delete with reassignment, reorder, and
+   the label page of a deleted location.
 8. Bulk edit.
 9. Install-to-home-screen polish and an accessibility pass.
 

@@ -14,6 +14,7 @@ from app.features.labels.schemas import (
     Label,
     LabelClaim,
     LabelClaimed,
+    LabelUnclaimed,
     NewBlankLabels,
 )
 from app.mcp.actions import run_action, run_image_action
@@ -52,6 +53,15 @@ call create_location first. A label goes on one location, and a location has one
 
 Returns the label with its location_id, the history_entry_id of the change, or the error
 label_already_claimed, location_has_label, label_not_found or location_not_found."""
+
+UNCLAIM_LABEL = """Turn a claimed label back into a blank label, to undo a claim made by mistake.
+
+Use this when the owner says a label was claimed for the wrong location, right after
+claim_label. The location stays; only the label comes off it, and it can then be claimed
+again. Do not use it to move a label: codes are permanent once they are in real use.
+
+Returns the blank label, the history_entry_id of the change, or the error
+label_not_claimed or label_not_found."""
 
 GET_LABEL_IMAGE = """Draw a label as a PNG to print: its QR code with its code beneath.
 
@@ -95,6 +105,14 @@ def _add_changing_tools(server: MCPServer, app: FastAPI) -> None:
                 Actor.mcp,
                 clock.now(),
             ),
+        )
+
+    @server.tool(description=UNCLAIM_LABEL)
+    async def unclaim_label(code: str) -> Annotated[CallToolResult, LabelUnclaimed]:
+        return await run_action(
+            app,
+            open_write_session,
+            lambda session: service.unclaim_label(session, code, Actor.mcp, clock.now()),
         )
 
 

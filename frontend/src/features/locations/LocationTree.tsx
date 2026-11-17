@@ -22,7 +22,18 @@ function useOpenBranches() {
   return { open, toggle };
 }
 
-function Tree({ locations }: { locations: Location[] }) {
+interface TreeProps {
+  locations: Location[];
+  onPick?: (location: Location) => void;
+  onAddInside?: (location: Location) => void;
+}
+
+function rowTarget(location: Location, onPick?: (location: Location) => void) {
+  return onPick ? { onPick: () => onPick(location) } : { to: `/locations/${location.id}` };
+}
+
+/** Every location as a tree; rows open their location, or are picked when onPick is given. */
+export function Tree({ locations, onPick, onAddInside }: TreeProps) {
   const { open, toggle } = useOpenBranches();
   return (
     <ListSection>
@@ -31,8 +42,10 @@ function Tree({ locations }: { locations: Location[] }) {
           key={location.id}
           name={location.name}
           locationType={location.type}
+          code={location.label_code ?? undefined}
           itemCount={location.item_count}
-          to={`/locations/${location.id}`}
+          {...rowTarget(location, onPick)}
+          onAddInside={onAddInside && (() => onAddInside(location))}
           tree
           depth={depth}
           expanded={hasChildren ? expanded : undefined}

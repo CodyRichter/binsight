@@ -22,7 +22,7 @@ def test_creating_an_item_answers_with_it_and_its_history_entry(signed_in: TestC
         "name": "HDMI cable",
         "quantity": 1,
         "home_location_id": home,
-        "path": [{"id": home, "name": "Home"}],
+        "path": [{"id": home, "name": "Home", "type": "site", "label_code": None}],
         "created_at": body["created_at"],
         "history_entry_id": body["history_entry_id"],
     }

@@ -26,15 +26,20 @@ export function useRefreshLocationTree(): () => void {
 }
 
 /** Adds a location; the tree shows it once the backend has it. */
-export function useCreateLocation(): (location: NewLocation) => void {
+export function useCreateLocation(): (
+  location: NewLocation,
+  onCreated?: (created: LocationCreated) => void,
+) => void {
   const refresh = useRefreshLocationTree();
   const create = useMutation({
     mutationFn: (location: NewLocation) => api.post<LocationCreated>("/api/locations", location),
     onSuccess: refresh,
   });
-  const add = (location: NewLocation) =>
+  const add = (location: NewLocation, onCreated?: (created: LocationCreated) => void) =>
     create.mutate(location, {
-      onError: (error) => showToast({ message: error.message, onRetry: () => add(location) }),
+      onSuccess: onCreated,
+      onError: (error) =>
+        showToast({ message: error.message, onRetry: () => add(location, onCreated) }),
     });
   return add;
 }

@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
-import { openAtPhoneWidth, ownerPassword } from "./owner";
+import { claim, makeLabels, siteRoomBin } from "./homeData";
+import { openAtPhoneWidth, ownerPassword, signedInState } from "./owner";
 
 async function signIn(page: Page, password: string) {
   await page.getByLabel("Password").fill(password);
@@ -30,4 +31,22 @@ test("signing in returns to the page asked for, and signing out gates it again",
   await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
   await page.goto("/settings");
   await expect(page).toHaveURL("/login?next=%2Fsettings");
+});
+
+test("a signed-out owner who scans a label signs in and lands on its bin", async ({
+  page,
+  playwright,
+  baseURL,
+}) => {
+  const owner = await playwright.request.newContext({ baseURL, storageState: signedInState });
+  const { names, ids } = await siteRoomBin(owner);
+  const [code = ""] = await makeLabels(owner, 1);
+  await claim(owner, code, ids.bin);
+  await owner.dispose();
+
+  await openAtPhoneWidth(page, `/l/${code}`);
+  await expect(page).toHaveURL(`/login?next=%2Fl%2F${code}`);
+  await signIn(page, ownerPassword);
+  await expect(page).toHaveURL(`/l/${code}`);
+  await expect(page.getByRole("heading", { level: 1, name: names.bin })).toBeVisible();
 });

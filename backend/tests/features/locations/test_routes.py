@@ -22,7 +22,7 @@ def test_creating_a_location_answers_with_it_and_its_history_entry(signed_in: Te
         "parent_id": None,
         "summary": None,
         "label_code": None,
-        "path": [{"id": body["id"], "name": "Home"}],
+        "path": [{"id": body["id"], "name": "Home", "type": "site", "label_code": None}],
         "direct_item_count": 0,
         "item_count": 0,
         "history_entry_id": body["history_entry_id"],

@@ -26,11 +26,17 @@ def _get(session: Session, location_id: str) -> models.Location:
     return location
 
 
+def _step(location: models.Location) -> PathStep:
+    return PathStep(
+        id=location.id, name=location.name, type=location.type, label_code=location.label_code
+    )
+
+
 def _path(session: Session, location: models.Location) -> list[PathStep]:
-    steps = [PathStep(id=location.id, name=location.name)]
+    steps = [_step(location)]
     while location.parent_id is not None:
         location = _get(session, location.parent_id)
-        steps.append(PathStep(id=location.id, name=location.name))
+        steps.append(_step(location))
     return steps[::-1]
 
 

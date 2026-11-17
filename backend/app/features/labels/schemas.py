@@ -30,3 +30,7 @@ class LabelClaimed(Label):
 class LabelImage(BaseModel):
     code: str
     png: bytes
+
+
+class LabelUnclaimed(Label):
+    history_entry_id: str

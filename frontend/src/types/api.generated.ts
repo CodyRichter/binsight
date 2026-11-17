@@ -263,6 +263,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/labels/{code}/unclaim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Unclaim Label */
+        post: operations["unclaim_label"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/labels/{code}/image": {
         parameters: {
             query?: never;
@@ -479,6 +496,22 @@ export interface components {
             /** History Entry Id */
             history_entry_id: string;
         };
+        /** LabelUnclaimed */
+        LabelUnclaimed: {
+            /** Code */
+            code: string;
+            /** Location Id */
+            location_id: string | null;
+            /** Claimed At */
+            claimed_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
         /** Location */
         Location: {
             /** Id */
@@ -623,6 +656,9 @@ export interface components {
             id: string;
             /** Name */
             name: string;
+            type: components["schemas"]["LocationType"];
+            /** Label Code */
+            label_code: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -1352,6 +1388,55 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    unclaim_label: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabelUnclaimed"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

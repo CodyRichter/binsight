@@ -57,6 +57,19 @@ def test_labels_made_and_claimed_through_mcp_match_the_api_and_are_recorded_as_m
             assert entry.actor == Actor.mcp
 
 
+def test_unclaiming_through_mcp_is_recorded_as_mcp(
+    claude: Claude, signed_in: TestClient, home: AcceptanceHome
+) -> None:
+    unclaimed = claude.call("unclaim_label", code="B-014")
+    assert unclaimed["location_id"] is None
+    assert signed_in.get(f"/api/locations/{home.cables}").json()["label_code"] is None
+    app = cast(FastAPI, signed_in.app)
+    with open_read_session(app.state.engine) as session:
+        entry = session.get(HistoryEntry, unclaimed["history_entry_id"])
+        assert entry is not None
+        assert (entry.action, entry.actor) == ("label.unclaimed", Actor.mcp)
+
+
 def test_a_label_in_use_is_refused_with_the_api_s_code(
     claude: Claude, home: AcceptanceHome
 ) -> None:

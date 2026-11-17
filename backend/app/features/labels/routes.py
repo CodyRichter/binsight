@@ -11,6 +11,7 @@ from app.features.labels.schemas import (
     Label,
     LabelClaim,
     LabelClaimed,
+    LabelUnclaimed,
     NewBlankLabels,
 )
 from app.models import Actor
@@ -38,6 +39,11 @@ def get_label(code: str, session: ReadSession) -> Label:
 @router.post("/{code}/claim", operation_id="claim_label", responses=refusals(404, 409, 422))
 def claim_label(code: str, body: LabelClaim, session: WriteSession) -> LabelClaimed:
     return service.claim_label(session, code, body, Actor.app, clock.now())
+
+
+@router.post("/{code}/unclaim", operation_id="unclaim_label", responses=refusals(404, 409))
+def unclaim_label(code: str, session: WriteSession) -> LabelUnclaimed:
+    return service.unclaim_label(session, code, Actor.app, clock.now())
 
 
 @router.get(

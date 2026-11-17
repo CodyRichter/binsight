@@ -358,6 +358,13 @@ header; the navigation item stays "Home". `/views` is a header ("Views")
 and one list of views, each a row with its count. `/l/{code}` shows the
 same page as `/locations/{id}`.
 
+A blank label's `/l/{code}` has its own layout. The header holds the title
+"Blank label", the large dashed code chip, and the default button "Add
+location", which makes a new site. Below it is the tree of every location
+with no section header, as on `/`. Tapping a row claims the label for that
+location, and the page becomes that location's page at the same address; a
+toast offers Undo.
+
 **List** (`/search`, `/views/{view}`, `/inbox`)
 
 1. Header: the title and the count. On `/search` the title is the query in
@@ -387,7 +394,14 @@ is tapped by mistake.
 **Settings** (`/settings`). Header ("Settings"), then sections of value
 rows, each with `space-xl` above its header like every section. A section
 whose action is the only way to add to it shows even when empty: "MCP
-credentials", whose action is "Add MCP credential".
+credentials", whose action is "Add MCP credential", and "Labels", whose
+action is "Make blank labels".
+
+"Make blank labels" opens a sheet with one field, "How many", from 1 to
+100, and a primary "Make". The section's rows are value rows, newest
+first, each named by its location or "Blank" and holding the code chip
+(dashed while blank) and a default "Download" button. "Show more" loads the
+next page.
 
 **Gate** (`/login`, and creating the owner on a new install). The gate
 frame: a `gate-width` column, centered across and placed in the upper
@@ -624,6 +638,10 @@ the type icon sits at the gutter. The list says which it is. The toggle
 expands in place; the rest of the row opens the location. No summary in the
 tree.
 
+On the claim page only, a row can end with an "Add location inside {name}"
+icon button (`IconPlus`, `touch-min`), which opens the one-field "Add
+location" sheet.
+
 **History row.** One change to the thing, in a Record page's History
 section. A line saying what happened in `text-body` ("Added", "Quantity
 changed from 3 to 4"), and under it one `text-small`, `muted` line: when, in
@@ -677,7 +695,8 @@ parent path; the title and large code chip; the summary, edited in place;
 the checked stamp and counts; at most two buttons and a More icon button. No
 eyebrow above the title. It scrolls with the page. The lines before the
 buttons are one group, `space-xs` apart; the buttons sit `space-lg` below.
-It sets the document title.
+It sets the document title. A labeled location's More menu holds
+"Download label".
 
 With a thumbnail (an item's page), the thumbnail is at the left and the
 path, title and status badge sit `space-md` to its right, top-aligned, at

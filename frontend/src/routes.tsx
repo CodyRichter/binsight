@@ -102,6 +102,9 @@ const appRoutes: RouteObject[] = [
     ErrorBoundary: AppError,
     children: [
       page("/", async () => ({ Component: (await import("@/pages/HomePage")).HomePage })),
+      page("/l/:code", async () => ({
+        Component: (await import("@/pages/LabelPage")).LabelPage,
+      })),
       page("/locations/:id", async () => ({
         Component: (await import("@/pages/LocationPage")).LocationPage,
       })),
