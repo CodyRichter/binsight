@@ -375,6 +375,12 @@ toast offers Undo.
    state. No section header: the page title already names the list.
    `/inbox` shows each item's path, and its empty state reads "Nothing is
    missing".
+   `/search` lists items and locations in one list, best match first: item
+   rows with their paths, and flat location rows. The matched parts of each
+   name are marked. With nothing found, the empty state reads "Nothing
+   matches "{query}"" with the default button "Add "{query}"", which opens
+   the Add sheet with that name in the add bar. With no query yet, the
+   title is "Search" and nothing is listed.
 
 **Record** (`/items/{id}`)
 
@@ -645,7 +651,8 @@ level the toggle's glyph sits at the gutter. In a flat list (a location's
 "Locations" section, search results, the move sheet) there is no toggle and
 the type icon sits at the gutter. The list says which it is. The toggle
 expands in place; the rest of the row opens the location. No summary in the
-tree.
+tree. On `/search` the matched parts of its name are marked with
+`highlight`, as in an item row.
 
 On the claim page only, a row can end with an "Add location inside {name}"
 icon button (`IconPlus`, `touch-min`), which opens the one-field "Add

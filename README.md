@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: adding quickly (phases B7 and F7).** The requirements,
+> **Status: search (phases B8 and F8).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -27,7 +27,9 @@ what's inside. Search for anything and get its full location path, e.g.
 > code chips, and the API and MCP can do the same. The add bar adds by
 > name, several at once, by photo or to an existing item, from a location's
 > page or from Add in the navigation, each with Undo; `/inbox` lists what
-> still lacks a name or a home.
+> still lacks a name or a home. Typing in the search field opens `/search`,
+> which finds items and locations as you type, despite typos and in any
+> word order, and by label code; the API and MCP search the same way.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 

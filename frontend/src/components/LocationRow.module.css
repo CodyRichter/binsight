@@ -85,3 +85,8 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+
+.match {
+  background: var(--bs-highlight);
+  color: inherit;
+}

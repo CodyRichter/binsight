@@ -3,6 +3,7 @@ import { IconChevronDown, IconChevronRight, IconPlus } from "@tabler/icons-react
 import type { CSSProperties, ReactNode } from "react";
 import { Link } from "react-router";
 import { CodeChip } from "./CodeChip";
+import { markedText, type Mark } from "./markedText";
 import { locationTypeIcons, type LocationType } from "./locationTypeIcons";
 import classes from "./LocationRow.module.css";
 
@@ -11,6 +12,8 @@ type LocationRowProps = {
   locationType: LocationType;
   code?: string;
   itemCount: number;
+  /** The parts of the name a search matched. */
+  marks?: Mark[];
   onAddInside?: () => void;
 } & ({ to: string; onPick?: never } | { onPick: () => void; to?: never }) &
   (
@@ -35,6 +38,7 @@ function toggleControl({ name, tree, expanded, onToggle }: LocationRowProps): Re
 
 export function LocationRow(props: LocationRowProps) {
   const { name, code, itemCount, tree, depth = 0 } = props;
+  const shownName = markedText(name, props.marks, classes.match);
   const TypeIcon = locationTypeIcons[props.locationType];
   return (
     <li
@@ -46,11 +50,11 @@ export function LocationRow(props: LocationRowProps) {
       <TypeIcon aria-hidden size={20} className={classes.type} />
       {props.to !== undefined ? (
         <Link className={classes.name} to={props.to}>
-          {name}
+          {shownName}
         </Link>
       ) : (
         <button type="button" className={classes.name} onClick={props.onPick}>
-          {name}
+          {shownName}
         </button>
       )}
       {code && <CodeChip code={code} />}

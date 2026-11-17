@@ -31,9 +31,26 @@ export function showQuantity(queryClient: QueryClient, itemId: string, quantity:
   queryClient.setQueriesData<Item[]>({ queryKey: itemListsKey }, (items) => items?.map(changed));
 }
 
-/** Changes an item's quantity on screen at once and sends a burst of taps as one change. */
-export function useQuantity(item: Item): (quantity: number) => void {
+/** Shows a quantity in the item caches and, through onShow, in a list outside them. */
+function useShowQuantity(itemId: string, onShow?: (quantity: number) => void) {
   const queryClient = useQueryClient();
+  return (quantity: number) => {
+    showQuantity(queryClient, itemId, quantity);
+    onShow?.(quantity);
+  };
+}
+
+function changedMessage(updated: ItemUpdated): string {
+  return `Quantity of ${itemName(updated.name)} changed to ${updated.quantity}`;
+}
+
+/** Changes an item's quantity on screen at once and sends a burst of taps as one change. */
+export function useQuantity(
+  item: Item,
+  onShow?: (quantity: number) => void,
+): (quantity: number) => void {
+  const queryClient = useQueryClient();
+  const show = useShowQuantity(item.id, onShow);
   const undo = useUndo();
   const burst = useRef<Burst | null>(null);
   const { mutate } = useMutation({
@@ -41,19 +58,16 @@ export function useQuantity(item: Item): (quantity: number) => void {
       api.patch<ItemUpdated>(`/api/items/${item.id}`, { quantity } satisfies ItemChanges),
     onSuccess: (updated) => {
       void queryClient.invalidateQueries({ queryKey: itemHistoryKey(item.id) });
-      showToast({
-        message: `Quantity of ${itemName(updated.name)} changed to ${updated.quantity}`,
-        onUndo: () => undo(updated.history_entry_id),
-      });
+      showToast({ message: changedMessage(updated), onUndo: () => undo(updated.history_entry_id) });
     },
     onError: (error, sent) => {
-      showQuantity(queryClient, item.id, sent.rollbackTo);
+      show(sent.rollbackTo);
       showToast({ message: error.message, onRetry: () => retry(sent) });
     },
   });
 
   function retry(sent: Sent) {
-    showQuantity(queryClient, item.id, sent.quantity);
+    show(sent.quantity);
     mutate(sent);
   }
 
@@ -73,6 +87,6 @@ export function useQuantity(item: Item): (quantity: number) => void {
     const before = burst.current?.before ?? item.quantity;
     window.clearTimeout(burst.current?.timer);
     burst.current = { before, latest: quantity, timer: window.setTimeout(flush, burstMs) };
-    showQuantity(queryClient, item.id, quantity);
+    show(quantity);
   };
 }

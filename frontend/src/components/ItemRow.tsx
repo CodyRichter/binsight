@@ -2,6 +2,7 @@ import { ActionIcon, Checkbox } from "@mantine/core";
 import { IconArrowsMove } from "@tabler/icons-react";
 import { useId, type ReactNode } from "react";
 import { Link } from "react-router";
+import { markedText, type Mark } from "./markedText";
 import { Path, type PathSegment } from "./Path";
 import { QuantityStepper } from "./QuantityStepper";
 import { StatusBadge, type Status } from "./StatusBadge";
@@ -19,26 +20,14 @@ interface ItemRowProps {
   quantity?: number;
   onQuantityChange?: (quantity: number) => void;
   onMove?: () => void;
-  match?: string;
+  /** The parts of the name a search matched. */
+  marks?: Mark[];
   selected?: boolean;
   check?: { checked: boolean; onChange: (checked: boolean) => void };
 }
 
-function markedName(name: string, match?: string): ReactNode {
-  const start = match ? name.toLowerCase().indexOf(match.toLowerCase()) : -1;
-  if (!match || start < 0) return name;
-  const end = start + match.length;
-  return (
-    <>
-      {name.slice(0, start)}
-      <mark className={classes.match}>{name.slice(start, end)}</mark>
-      {name.slice(end)}
-    </>
-  );
-}
-
 function rowName(props: ItemRowProps, checkId: string): ReactNode {
-  const name = markedName(props.name ?? "Unnamed", props.match);
+  const name = markedText(props.name ?? "Unnamed", props.marks, classes.match);
   if (!props.check) {
     return (
       <Link className={classes.name} data-unnamed={props.name === null || undefined} to={props.to}>

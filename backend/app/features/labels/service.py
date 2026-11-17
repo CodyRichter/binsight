@@ -158,3 +158,8 @@ def location_id_for(session: Session, location: str) -> str:
     if label is None or label.location_id is None:
         return location
     return label.location_id
+
+
+def label_number(text: str) -> int | None:
+    """The number in a typed label code, ignoring case and the hyphen: b14 and B-014 are 14."""
+    return _number(text)

@@ -102,3 +102,11 @@ test("a bar given only Add draws the name field and Add alone", async () => {
   await user.type(screen.getByRole("textbox", { name: "Add an item" }), "Solder{Enter}");
   expect(onAdd).toHaveBeenCalledWith(["Solder"]);
 });
+
+test("the name field can start with a name, ready to add", async () => {
+  const onAdd = vi.fn();
+  const { user } = renderWithTheme(<AddBar onAdd={onAdd} defaultName="Multimeter" />);
+  expect(screen.getByRole("textbox", { name: "Add an item" })).toHaveValue("Multimeter");
+  await user.click(screen.getByRole("button", { name: "Add" }));
+  expect(onAdd).toHaveBeenCalledWith(["Multimeter"]);
+});

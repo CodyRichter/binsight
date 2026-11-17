@@ -8,7 +8,15 @@ from app import models
 from app.core.errors import AppError
 from app.core.identifiers import new_identifier
 from app.features.history import service as history
-from app.features.locations.schemas import Location, LocationCreated, LocationTree, NewLocation
+from app.features.locations.schemas import (
+    Location as Location,
+)  # re-exported: search shapes with it
+from app.features.locations.schemas import (
+    LocationCreated,
+    LocationTree,
+    NewLocation,
+    SearchableLocation,
+)
 from app.features.locations.schemas import (
     PathStep as PathStep,
 )  # re-exported: items reach locations only through this file
@@ -123,3 +131,17 @@ def location_ids_within(session: Session, location_id: str) -> list[str]:
         within.append(current)
         waiting.extend(children[current])
     return within
+
+
+def searchable_locations(session: Session) -> list[SearchableLocation]:
+    """Every location's name, summary and label code, for search to score."""
+    return [
+        SearchableLocation(row.id, row.name, row.summary, row.label_code)
+        for row in session.scalars(select(models.Location))
+    ]
+
+
+def get_locations(session: Session, location_ids: list[str]) -> list[Location]:
+    """The locations with these identifiers, in the order given, with their paths and counts."""
+    found = {location.id: location for location in _tree(session)}
+    return [found[location_id] for location_id in location_ids]

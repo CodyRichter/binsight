@@ -5,6 +5,8 @@ export interface AddSheetProps {
   onClose: () => void;
   /** The location whose page is showing, where adding starts; the inbox when left out. */
   locationId?: string;
+  /** The name the add bar starts with, such as a search that found nothing. */
+  name?: string;
 }
 
 /** What the app's features add to every frame: the Add sheet and the inbox's count. */

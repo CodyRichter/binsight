@@ -16,11 +16,13 @@ export interface Destination {
   path: Item["path"];
 }
 
-/** Reads every list of items again, the inbox and its count among them. */
+/** Reads every list of items again: the inbox and its count, and search results among them. */
 export async function refreshItemLists(queryClient: QueryClient): Promise<void> {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: itemListsKey }),
     queryClient.invalidateQueries({ queryKey: inboxKey }),
+    // Search results list items too; the key is the search feature's, which cannot be imported here.
+    queryClient.invalidateQueries({ queryKey: ["search"] }),
   ]);
 }
 
