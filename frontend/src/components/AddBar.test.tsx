@@ -6,7 +6,12 @@ import { AddBar } from "./AddBar";
 function renderBar() {
   const onAdd = vi.fn();
   const rendered = renderWithTheme(
-    <AddBar onAdd={onAdd} onChangeDestination={vi.fn()} onAddByPhoto={vi.fn()} />,
+    <AddBar
+      onAdd={onAdd}
+      onAddSeveral={onAdd}
+      onChangeDestination={vi.fn()}
+      onAddByPhoto={vi.fn()}
+    />,
   );
   return { ...rendered, onAdd };
 }
@@ -70,4 +75,12 @@ test("Add sits to the right of Add one while adding several", async () => {
   const addOne = screen.getByRole("button", { name: "Add one" });
   const add = screen.getByRole("button", { name: "Add" });
   expect(addOne.compareDocumentPosition(add) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
+test("a bar given only Add draws the name field and Add alone", async () => {
+  const onAdd = vi.fn();
+  const { user } = renderWithTheme(<AddBar onAdd={onAdd} />);
+  expect(screen.getAllByRole("button").map((button) => button.textContent)).toEqual(["Add"]);
+  await user.type(screen.getByRole("textbox", { name: "Add an item" }), "Solder{Enter}");
+  expect(onAdd).toHaveBeenCalledWith(["Solder"]);
 });

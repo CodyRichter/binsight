@@ -71,6 +71,9 @@ export function LocationSpecimen({ location }: LocationSpecimenProps) {
           onAdd={(names) =>
             setItems([...items, ...names.map((name) => newItem(name, location.id))])
           }
+          onAddSeveral={(names) =>
+            setItems([...items, ...names.map((name) => newItem(name, location.id))])
+          }
           onAddByPhoto={(photo) => setItems([...items, newItem(photo.name, location.id)])}
         />
         {childrenOf(location.id).length > 0 && (

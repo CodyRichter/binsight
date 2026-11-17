@@ -3,6 +3,8 @@ import { IconPlus } from "@tabler/icons-react";
 import { CheckedStamp } from "@/components/CheckedStamp";
 import { CodeChip } from "@/components/CodeChip";
 import { EmptyState } from "@/components/EmptyState";
+import { HistoryRow } from "@/components/HistoryRow";
+import { ListSection } from "@/components/ListSection";
 import { Path } from "@/components/Path";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Thumbnail } from "@/components/Thumbnail";
@@ -40,6 +42,10 @@ export function RowsSpecimen() {
       </Stack>
       <LocationTreeDemo />
       <ItemListDemo />
+      <ListSection title="History">
+        <HistoryRow happened="Quantity changed from 3 to 4" at={daysAgo(0)} actor="app" />
+        <HistoryRow happened="Added" at={daysAgo(21)} actor="mcp" />
+      </ListSection>
       <EmptyState
         statement='Nothing matches "multimeter"'
         action={

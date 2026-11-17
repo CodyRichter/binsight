@@ -114,7 +114,3 @@
   justify-content: flex-end;
   gap: var(--bs-space-sm);
 }
-
-.photoInput {
-  display: none;
-}
