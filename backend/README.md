@@ -48,14 +48,8 @@ After changing a route or schema, run `npm run generate:types` in
 `frontend/` and commit the result.
 
 Claude connects to the MCP server at `/mcp` over streamable HTTP, sending
-an MCP credential as a bearer token. Until the settings page exists, create
-one while signed in with `POST /api/auth/mcp-credentials` and a `name`; the
-answer holds its `secret`, shown only that once. Then, for Claude Code:
-
-```
-claude mcp add --transport http binsight http://localhost:8000/mcp \
-  --header "Authorization: Bearer <secret>"
-```
+an MCP credential as a bearer token. Make one in `/settings`, which shows
+its secret once, inside the command that connects Claude Code.
 
 New migrations are written with `uv run alembic revision --autogenerate`,
 with the same two settings pointing at a scratch data directory. The app
