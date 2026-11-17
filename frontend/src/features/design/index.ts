@@ -1,4 +1,3 @@
-export { BrowseSpecimen } from "./BrowseSpecimen";
 export { ControlsSpecimen } from "./ControlsSpecimen";
 export { DesignFrame } from "./DesignFrame";
 export { FieldsSpecimen } from "./FieldsSpecimen";
@@ -6,7 +5,6 @@ export { HeaderSpecimen } from "./HeaderSpecimen";
 export { ListSpecimen } from "./ListSpecimen";
 export { OverlaysSpecimen } from "./OverlaysSpecimen";
 export { PageStatesSpecimen } from "./PageStatesSpecimen";
-export { RecordSpecimen } from "./RecordSpecimen";
 export { RowsSpecimen } from "./RowsSpecimen";
 export { TaskSpecimen } from "./TaskSpecimen";
 export { TemplatesSpecimen } from "./TemplatesSpecimen";

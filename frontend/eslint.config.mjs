@@ -92,19 +92,9 @@ const layoutRules = [
   },
 ];
 
-const templateSpecimens = [
-  "AddLocationSheet",
-  "BrowseSpecimen",
-  "DesignFrame",
-  "ListSpecimen",
-  "LocationContents",
-  "LocationHeader",
-  "LocationSpecimen",
-  "LocationsSpecimen",
-  "MoveSheet",
-  "RecordSpecimen",
-  "TaskSpecimen",
-].map((name) => `src/features/design/${name}.tsx`);
+const templateSpecimens = ["DesignFrame", "ListSpecimen", "TaskSpecimen"].map(
+  (name) => `src/features/design/${name}.tsx`,
+);
 
 export default tseslint.config(
   { ignores: ["dist/", "node_modules/", "src/types/api.generated.ts"] },

@@ -5,7 +5,7 @@ import { ItemRow } from "@/components/ItemRow";
 import { ListSection } from "@/components/ListSection";
 import { TaskFrame } from "@/components/TaskFrame";
 import { showToast } from "@/lib/toast";
-import { itemUrl, locationUrl, sampleItems } from "./sampleHome";
+import { sampleItems, sampleLink } from "./sampleHome";
 
 export function TaskSpecimen() {
   const navigate = useNavigate();
@@ -17,13 +17,13 @@ export function TaskSpecimen() {
   function finish(message: string) {
     setConfirmOpen(false);
     showToast({ message, onUndo: () => undefined });
-    navigate(locationUrl("cables"));
+    navigate(sampleLink);
   }
 
   return (
     <TaskFrame
       name="Check Cables"
-      onClose={() => navigate(locationUrl("cables"))}
+      onClose={() => navigate(sampleLink)}
       action={{
         label: "Contents checked",
         onClick: () => {
@@ -37,7 +37,7 @@ export function TaskSpecimen() {
           <ItemRow
             key={item.id}
             name={item.name}
-            to={itemUrl(item.id)}
+            to={sampleLink}
             check={{
               checked: ticked.includes(item.id),
               onChange: (on) =>

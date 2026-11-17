@@ -200,3 +200,83 @@ test("signing out sends the page to the Gate, ready to return to it", async () =
   expect(await screen.findByRole("button", { name: "Sign in" })).toBeVisible();
   expect(screen.queryByRole("navigation", { name: "Main" })).not.toBeInTheDocument();
 });
+
+const site = {
+  id: "home",
+  name: "Home",
+  type: "site",
+  parent_id: null,
+  summary: null,
+  path: [{ id: "home", name: "Home" }],
+  direct_item_count: 0,
+  item_count: 1,
+};
+const bin = {
+  ...site,
+  id: "cables",
+  name: "Cables",
+  type: "bin",
+  parent_id: "home",
+  path: [...site.path, { id: "cables", name: "Cables" }],
+  direct_item_count: 1,
+};
+const cable = {
+  id: "hdmi",
+  name: "HDMI cable",
+  quantity: 3,
+  home_location_id: "cables",
+  path: bin.path,
+  created_at: "2026-11-16T12:00:00Z",
+};
+const added = { id: "e1", at: "2026-11-16T12:00:00Z", actor: "app", action: "item.created" };
+
+/** Answers each API path with its own body, signed in. */
+function stubPaths(bodies: Record<string, unknown>) {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((path: string) => {
+      const route = path.split("?")[0];
+      return Promise.resolve(answer(200, route === "/api/auth/status" ? signedIn : bodies[route]));
+    }),
+  );
+}
+
+test("/ shows the sites as a tree under Locations", async () => {
+  stubPaths({ "/api/locations": { locations: [site, bin] } });
+  renderRoutes(routes, "/");
+  expect(await screen.findByRole("heading", { level: 1, name: "Locations" })).toBeVisible();
+  expect(screen.getByText("1 site")).toBeVisible();
+  await userEvent.click(screen.getByRole("button", { name: "Expand Home" }));
+  expect(screen.getByRole("link", { name: "Cables" })).toBeVisible();
+});
+
+test("/locations/{id} shows the location's items", async () => {
+  stubPaths({
+    "/api/locations": { locations: [site, bin] },
+    "/api/items": { items: [cable], next_cursor: null },
+  });
+  renderRoutes(routes, "/locations/cables");
+  expect(await screen.findByRole("heading", { level: 1, name: "Cables" })).toBeVisible();
+  expect(await screen.findByRole("link", { name: "HDMI cable" })).toBeVisible();
+});
+
+test("/locations/{id} for a location that does not exist says so", async () => {
+  stubPaths({ "/api/locations": { locations: [site] } });
+  renderRoutes(routes, "/locations/made-up");
+  expect(
+    await screen.findByRole("heading", { level: 1, name: "Nothing at this address" }),
+  ).toBeVisible();
+  expect(screen.getByRole("navigation", { name: "Main" })).toBeInTheDocument();
+});
+
+test("/items/{id} shows the item's path, quantity and history", async () => {
+  stubPaths({
+    "/api/items/hdmi": cable,
+    "/api/history": { items: [{ ...added, changes: [] }], next_cursor: null },
+  });
+  renderRoutes(routes, "/items/hdmi");
+  expect(await screen.findByRole("heading", { level: 1, name: "HDMI cable" })).toBeVisible();
+  expect(screen.getByRole("navigation", { name: "Path" })).toHaveTextContent("HomeCables");
+  expect(screen.getByRole("button", { name: "Quantity 3, type a number" })).toBeVisible();
+  expect(await screen.findByText("Added")).toBeVisible();
+});
