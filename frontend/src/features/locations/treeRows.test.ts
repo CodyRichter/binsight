@@ -9,6 +9,7 @@ function location(id: string, parentId: string | null): Location {
     type: parentId ? "bin" : "site",
     parent_id: parentId,
     summary: null,
+    label_code: null,
     path: [],
     direct_item_count: 0,
     item_count: 0,

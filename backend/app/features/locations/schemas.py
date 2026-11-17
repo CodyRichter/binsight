@@ -36,6 +36,7 @@ class Location(BaseModel):
     type: LocationType
     parent_id: str | None
     summary: str | None
+    label_code: str | None
     path: list[PathStep]
     direct_item_count: int
     item_count: int

@@ -9,13 +9,15 @@ from app.core.database import open_read_session, open_write_session
 from app.core.pagination import DEFAULT_LIMIT, Page, PageLimit
 from app.features.items import service
 from app.features.items.schemas import Item, ItemChanges, ItemCreated, ItemUpdated, NewItem
+from app.features.labels import service as labels
 from app.mcp.actions import run_action
 from app.models import Actor
 
 CREATE_ITEM = """Add an item to the home by name.
 
 Use this when the owner says they have something, or asks to add or put a thing somewhere.
-home_location_id is where it lives; find it with list_locations. Leave it out and the item
+home_location_id is where it lives: find it with list_locations, or give the label code of
+the bin it goes in, such as B-014. Leave it out and the item
 goes to the inbox, the items still waiting for a name or a home location. A new item has
 quantity 1; change it afterwards with update_item.
 
@@ -24,7 +26,8 @@ location, and the history_entry_id of the change."""
 
 LIST_ITEMS = """List the items in one location, oldest first, a page at a time.
 
-Use this to answer what is in a location. With everything_inside set to true it also
+Use this to answer what is in a location. location_id may be the location's label code,
+such as B-014. With everything_inside set to true it also
 includes the items in every location beneath it, such as every bin on a shelf. limit is
 1 to 200 (50 if left out); when next_cursor is not null, pass it as cursor for the next page.
 
@@ -61,7 +64,14 @@ def _add_changing_tools(server: MCPServer, app: FastAPI) -> None:
             open_write_session,
             lambda session: service.create_item(
                 session,
-                NewItem(name=name, home_location_id=home_location_id),
+                NewItem(
+                    name=name,
+                    home_location_id=(
+                        labels.location_id_for(session, home_location_id)
+                        if home_location_id
+                        else None
+                    ),
+                ),
                 Actor.mcp,
                 clock.now(),
             ),
@@ -90,7 +100,11 @@ def _add_reading_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             open_read_session,
             lambda session: service.list_items(
-                session, location_id, everything_inside, PageLimit(limit=limit).limit, cursor
+                session,
+                labels.location_id_for(session, location_id),
+                everything_inside,
+                PageLimit(limit=limit).limit,
+                cursor,
             ),
         )
 

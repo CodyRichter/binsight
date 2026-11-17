@@ -14,6 +14,7 @@ from app.core.settings import Settings, load_settings
 from app.features.auth import routes as auth
 from app.features.history import routes as history
 from app.features.items import routes as items
+from app.features.labels import routes as labels
 from app.features.locations import routes as locations
 from app.mcp.server import add_mcp_server
 
@@ -50,6 +51,7 @@ def build_app(settings: Settings) -> FastAPI:
     signed_in.include_router(auth.mcp_credentials_router)
     signed_in.include_router(locations.router)
     signed_in.include_router(items.router)
+    signed_in.include_router(labels.router)
     signed_in.include_router(history.router)
     app.include_router(signed_in, prefix="/api")
     mcp_server = add_mcp_server(app)

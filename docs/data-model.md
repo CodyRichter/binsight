@@ -74,6 +74,8 @@ Rules:
   restore.
 - Codes are matched without regard to letter case or the hyphen, so typing
   `b14` into search finds `B-014`.
+- The code's number is stored beside it, so the series continues from the
+  highest number and a typed code is matched by number.
 
 ## Item
 

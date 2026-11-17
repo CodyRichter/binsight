@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: the app in the container (phase F5).** The requirements,
+> **Status: labels in the backend (phase B6).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -20,7 +20,9 @@ what's inside. Search for anything and get its full location path, e.g.
 > credential as a bearer token, made and revoked in `/settings`. It runs
 > as one container from `deploy/compose.yml`, checked from an empty and a
 > used data directory by `scripts/check_container.sh`, and the browser
-> tests run against that image.
+> tests run against that image. The API and MCP make blank labels with
+> codes such as `B-014`, claim them for a location, and draw each as a
+> printable PNG with its QR code; the `/l/{code}` page comes in F6.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 
