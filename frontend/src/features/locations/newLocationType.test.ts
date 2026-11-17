@@ -9,6 +9,7 @@ function parent(type: Location["type"]): Location {
     type,
     parent_id: null,
     summary: null,
+    label_code: null,
     path: [],
     direct_item_count: 0,
     item_count: 0,

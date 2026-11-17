@@ -3,7 +3,7 @@
 The FastAPI application: the web API the frontend calls, the MCP server
 Claude calls, and the frontend's built files, in one process.
 
-> **Status: MCP (phase B4).** The app starts,
+> **Status: labels (phase B6).** The app starts,
 > opens SQLite with the agreed settings, migrates the database and serves
 > the frontend's files. `auth` creates the owner and signs devices in; every
 > other API route needs a session. `locations` creates locations and lists
@@ -11,7 +11,9 @@ Claude calls, and the frontend's built files, in one process.
 > their paths, and `history` records each change in the same transaction.
 > `auth` also creates, lists and revokes MCP credentials, and the MCP
 > server at `/mcp` has a tool for every one of those actions, recorded with
-> the actor `mcp`.
+> the actor `mcp`. `labels` makes blank labels in one series of codes,
+> claims them for a location, and draws each as a PNG of its QR code and
+> code; MCP tools accept a label's code wherever they take a location.
 
 ## Tech stack
 
@@ -24,14 +26,14 @@ Claude calls, and the frontend's built files, in one process.
 | Schema migrations  | Alembic, using batch mode for SQLite             |
 | Validation         | Pydantic v2                                      |
 | MCP server         | The official `mcp` Python SDK, streamable HTTP at `/mcp` |
-| Images             | Pillow, for resizing photos and thumbnails       |
+| Images             | Pillow, for label images, and for photos and thumbnails from B7 |
 | Tests              | pytest                                           |
 | Lint and format    | ruff                                             |
 | Type checks        | mypy, strict                                     |
 
 The server is uvicorn. `segno` draws label QR codes, and
-`python-multipart` reads photo uploads. Pillow, `segno` and
-`python-multipart` are added in the phase that first uses them (B6, B7).
+`python-multipart` reads photo uploads; `python-multipart` is added in B7,
+the phase that first uses it.
 
 ## Running it
 

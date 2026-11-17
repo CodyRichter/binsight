@@ -195,6 +195,91 @@ export interface paths {
         patch: operations["update_item"];
         trace?: never;
     };
+    "/api/labels/blank": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Blank Labels */
+        post: operations["create_blank_labels"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/labels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Labels */
+        get: operations["list_labels"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/labels/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Label */
+        get: operations["get_label"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/labels/{code}/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Claim Label */
+        post: operations["claim_label"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/labels/{code}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Label Image */
+        get: operations["get_label_image"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/history": {
         parameters: {
             query?: never;
@@ -227,6 +312,13 @@ export interface components {
             owner_exists: boolean;
             /** Signed In */
             signed_in: boolean;
+        };
+        /** BlankLabelsCreated */
+        BlankLabelsCreated: {
+            /** Labels */
+            labels: components["schemas"]["Label"][];
+            /** History Entry Id */
+            history_entry_id: string;
         };
         /** ErrorBody */
         ErrorBody: {
@@ -262,7 +354,7 @@ export interface components {
              * Record Type
              * @enum {string}
              */
-            record_type: "item" | "location";
+            record_type: "item" | "label" | "location";
             /** Record Id */
             record_id: string;
             /** Before */
@@ -352,6 +444,41 @@ export interface components {
             /** History Entry Id */
             history_entry_id: string;
         };
+        /** Label */
+        Label: {
+            /** Code */
+            code: string;
+            /** Location Id */
+            location_id: string | null;
+            /** Claimed At */
+            claimed_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** LabelClaim */
+        LabelClaim: {
+            /** Location Id */
+            location_id: string;
+        };
+        /** LabelClaimed */
+        LabelClaimed: {
+            /** Code */
+            code: string;
+            /** Location Id */
+            location_id: string | null;
+            /** Claimed At */
+            claimed_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
         /** Location */
         Location: {
             /** Id */
@@ -363,6 +490,8 @@ export interface components {
             parent_id: string | null;
             /** Summary */
             summary: string | null;
+            /** Label Code */
+            label_code: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Direct Item Count */
@@ -381,6 +510,8 @@ export interface components {
             parent_id: string | null;
             /** Summary */
             summary: string | null;
+            /** Label Code */
+            label_code: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Direct Item Count */
@@ -426,6 +557,11 @@ export interface components {
             /** Secret */
             secret: string;
         };
+        /** NewBlankLabels */
+        NewBlankLabels: {
+            /** Count */
+            count: number;
+        };
         /** NewItem */
         NewItem: {
             /** Name */
@@ -459,6 +595,13 @@ export interface components {
         Page_Item_: {
             /** Items */
             items: components["schemas"]["Item"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /** Page[Label] */
+        Page_Label_: {
+            /** Items */
+            items: components["schemas"]["Label"][];
             /** Next Cursor */
             next_cursor: string | null;
         };
@@ -1042,6 +1185,213 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    create_blank_labels: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewBlankLabels"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlankLabelsCreated"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_labels: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_Label_"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_label: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Label"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    claim_label: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LabelClaim"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabelClaimed"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_label_image: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": unknown;
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

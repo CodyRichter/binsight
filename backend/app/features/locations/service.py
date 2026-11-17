@@ -55,6 +55,7 @@ def _tree(session: Session) -> list[Location]:
             type=row.type,
             parent_id=row.parent_id,
             summary=row.summary,
+            label_code=row.label_code,
             path=_path(session, row),
             direct_item_count=row.direct_item_count,
             item_count=item_count(row),

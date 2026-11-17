@@ -9,7 +9,7 @@ from sqlalchemy import Engine, create_engine, event
 from sqlalchemy.engine import Connection
 from sqlalchemy.orm import Session, UOWTransaction
 
-from app.models import HistoryEntry, Item, Location
+from app.models import HistoryEntry, Item, Label, Location
 
 WRITE_LOCK_OPTION = "binsight_write_lock"
 
@@ -46,7 +46,7 @@ def open_read_session(engine: Engine) -> Iterator[Session]:
 
 def _note_what_changed(session: Session, _flush: UOWTransaction, _instances: object) -> None:
     changed = [*session.new, *session.dirty, *session.deleted]
-    if any(isinstance(record, Item | Location) for record in changed):
+    if any(isinstance(record, Item | Label | Location) for record in changed):
         session.info["home_changed"] = True
     if any(isinstance(record, HistoryEntry) for record in session.new):
         session.info["history_recorded"] = True
@@ -55,7 +55,9 @@ def _note_what_changed(session: Session, _flush: UOWTransaction, _instances: obj
 def _require_history(session: Session) -> None:
     session.flush()
     if session.info.get("home_changed") and not session.info.get("history_recorded"):
-        raise RuntimeError("An item or location changed without a history entry (decision 0009).")
+        raise RuntimeError(
+            "An item, label or location changed without a history entry (decision 0009)."
+        )
 
 
 @contextmanager
