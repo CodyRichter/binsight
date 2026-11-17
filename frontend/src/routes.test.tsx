@@ -14,20 +14,27 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function healthAnswer(status: number, body: unknown) {
+function answer(status: number, body: unknown) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { "Content-Type": "application/json" },
   });
 }
 
+const signedIn = { owner_exists: true, signed_in: true };
+const signedOut = { owner_exists: true, signed_in: false };
+const newInstall = { owner_exists: false, signed_in: false };
+
+/** Answers each request in turn; the last answer is repeated for any request after it. */
 function stubBackend(...answers: (Response | Error)[]) {
-  const fetchMock = vi.fn();
-  for (const answer of answers) {
-    if (answer instanceof Error) fetchMock.mockRejectedValueOnce(answer);
-    else fetchMock.mockResolvedValueOnce(answer);
-  }
+  let next = 0;
+  const fetchMock = vi.fn(() => {
+    const given = answers[Math.min(next++, answers.length - 1)];
+    if (given instanceof Error) return Promise.reject(given);
+    return Promise.resolve(given.clone());
+  });
   vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
 }
 
 function BrokenContent(): React.JSX.Element {
@@ -57,8 +64,8 @@ function renderRoutes(routeTree: RouteObject[], initialEntry: string) {
   );
 }
 
-test("unmatched route keeps the outer frame around the 404 message", async () => {
-  stubBackend(healthAnswer(200, { status: "ok" }));
+test("signed in, an unmatched route keeps the outer frame around the 404 message", async () => {
+  stubBackend(answer(200, signedIn));
   renderRoutes(routes, "/does-not-exist");
   expect(
     await screen.findByRole("heading", { level: 1, name: "Nothing at this address" }),
@@ -96,7 +103,7 @@ test("render error inside Frame stays inside #content while keeping the outer fr
 });
 
 test("an unreachable backend says so inside the frame, and Try again recovers", async () => {
-  stubBackend(new TypeError("Failed to fetch"), healthAnswer(200, { status: "ok" }));
+  stubBackend(new TypeError("Failed to fetch"), answer(200, signedIn));
   renderRoutes(routes, "/does-not-exist");
   expect(await screen.findByText("Can't reach Binsight")).toBeVisible();
   expect(screen.getByRole("navigation", { name: "Main" })).toBeInTheDocument();
@@ -112,7 +119,7 @@ test("an unreachable backend says so inside the frame, and Try again recovers", 
 test("a failure on the backend shows Something went wrong inside the frame", async () => {
   const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
   stubBackend(
-    healthAnswer(500, { error: { code: "internal", message: "Database failed.", details: {} } }),
+    answer(500, { error: { code: "internal", message: "Database failed.", details: {} } }),
   );
   renderRoutes(routes, "/does-not-exist");
   expect(
@@ -120,4 +127,76 @@ test("a failure on the backend shows Something went wrong inside the frame", asy
   ).toBeVisible();
   expect(screen.getByRole("navigation", { name: "Main" })).toBeInTheDocument();
   consoleError.mockRestore();
+});
+
+test("signed out, a page sends you to the Gate with one password field", async () => {
+  stubBackend(answer(200, signedOut));
+  renderRoutes(routes, "/settings");
+  expect(await screen.findByRole("button", { name: "Sign in" })).toBeVisible();
+  expect(screen.getAllByLabelText(/password/i)).toHaveLength(1);
+  expect(screen.queryByRole("navigation", { name: "Main" })).not.toBeInTheDocument();
+});
+
+test("a new install asks for the password twice", async () => {
+  stubBackend(answer(200, newInstall));
+  renderRoutes(routes, "/settings");
+  expect(await screen.findByRole("button", { name: "Set password" })).toBeVisible();
+  expect(screen.getByLabelText("Password")).toBeVisible();
+  expect(screen.getByLabelText("Repeat password")).toBeVisible();
+});
+
+test("signing in returns to the address that was asked for", async () => {
+  let signedInNow = false;
+  const fetchMock = vi.fn((path: string) => {
+    if (path === "/api/auth/sign-in") signedInNow = true;
+    return Promise.resolve(answer(200, signedInNow ? signedIn : signedOut));
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  renderRoutes(routes, "/settings");
+  await userEvent.type(await screen.findByLabelText("Password"), "correct horse");
+  await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+  expect(await screen.findByRole("heading", { level: 1, name: "Settings" })).toBeVisible();
+  expect(fetchMock).toHaveBeenCalledWith("/api/auth/sign-in", expect.anything());
+});
+
+test("a wrong password shows the backend's sentence and stays on the Gate", async () => {
+  stubBackend(
+    answer(200, signedOut),
+    answer(401, {
+      error: { code: "wrong_password", message: "That password is wrong. Try again.", details: {} },
+    }),
+  );
+  renderRoutes(routes, "/login");
+  await userEvent.type(await screen.findByLabelText("Password"), "wrong horse");
+  await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+  expect(await screen.findByText("That password is wrong. Try again.")).toBeVisible();
+  expect(screen.getByRole("button", { name: "Sign in" })).toBeVisible();
+});
+
+test("passwords that differ are caught before anything is sent", async () => {
+  const fetchMock = stubBackend(answer(200, newInstall));
+  renderRoutes(routes, "/login");
+  await userEvent.type(await screen.findByLabelText("Password"), "correct horse");
+  await userEvent.type(screen.getByLabelText("Repeat password"), "correct hose");
+  await userEvent.click(screen.getByRole("button", { name: "Set password" }));
+  expect(await screen.findByText("The passwords differ. Type them again.")).toBeVisible();
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+});
+
+test("signing out sends the page to the Gate, ready to return to it", async () => {
+  let signedInNow = true;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((path: string) => {
+      if (path === "/api/auth/sign-out") {
+        signedInNow = false;
+        return Promise.resolve(new Response(null, { status: 204 }));
+      }
+      return Promise.resolve(answer(200, signedInNow ? signedIn : signedOut));
+    }),
+  );
+  renderRoutes(routes, "/settings");
+  await userEvent.click(await screen.findByRole("button", { name: "Sign out" }));
+  expect(await screen.findByRole("button", { name: "Sign in" })).toBeVisible();
+  expect(screen.queryByRole("navigation", { name: "Main" })).not.toBeInTheDocument();
 });

@@ -4,10 +4,10 @@ The web app. A client-only React app, phone first and installable to the
 home screen, built into static files that the backend serves
 ([decision 0008](../docs/decisions/0008-frontend-served-by-backend.md)).
 
-> **Status: app shell (phase F1).** The design language's components are
-> shown at `/design` by `npm run dev`. The app's frame runs and asks the
-> backend whether it is answering; no page exists yet, so every other
-> address shows "Nothing at this address".
+> **Status: sign-in (phase F2).** The design language's components are
+> shown at `/design` by `npm run dev`. `/login` creates the owner or signs
+> in, and `/settings` signs out. Every other address shows "Nothing at this
+> address" once signed in.
 
 ## Tech stack
 
