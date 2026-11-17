@@ -1,5 +1,6 @@
 # --- Binsight runtime data (database, photos, backups) ---
 /data/
+/deploy/data/
 *.db
 *.db-wal
 *.db-shm

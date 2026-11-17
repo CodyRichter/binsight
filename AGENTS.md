@@ -171,6 +171,7 @@ the authority; this table says where to look.
 | Frontend formatting                         | Prettier                  |
 | Every route has an MCP tool of the same name, and every tool a route | `backend/tests/mcp/test_parity.py` |
 | Formatting on edit; no finishing while checks fail; no reading `.env` or the data directory | `.claude/settings.json` |
+| The container builds and starts from an empty data directory and a copy of a used one | `scripts/check_container.sh` |
 | Everything above, on every pull request     | `.github/workflows/ci.yml` |
 
 Frontend type checking, the production build and the staleness of the

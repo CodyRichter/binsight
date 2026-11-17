@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: MCP credentials in settings (phase F4).** The requirements,
+> **Status: the container (phase B5).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -17,7 +17,9 @@ what's inside. Search for anything and get its full location path, e.g.
 > an item's page shows its path, changes its quantity and lists its
 > history, which records every change. Claude Code and Claude Desktop can
 > reach the same actions through the MCP server at `/mcp`, with an MCP
-> credential as a bearer token, made and revoked in `/settings`.
+> credential as a bearer token, made and revoked in `/settings`. It runs
+> as one container from `deploy/compose.yml`, checked from an empty and a
+> used data directory by `scripts/check_container.sh`.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 
@@ -94,7 +96,7 @@ binsight/
 │   │   └── types/           Shared data shapes, including the generated ones
 │   └── e2e/                 End-to-end tests, one per flow listed above, and checks of /design
 ├── deploy/                  Container image and compose file
-├── scripts/                 setup.sh, check.sh, and the Claude Code hooks
+├── scripts/                 setup.sh, check.sh, check_container.sh, and the Claude Code hooks
 ├── .claude/                 Shared Claude Code permissions and hooks
 └── .github/                 Continuous integration and dependency updates
 ```
