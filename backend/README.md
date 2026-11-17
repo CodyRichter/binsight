@@ -25,7 +25,8 @@ Claude calls, and the frontend's built files, in one process.
 | Type checks        | mypy, strict                                     |
 
 The server is uvicorn. `segno` draws label QR codes, and
-`python-multipart` reads photo uploads.
+`python-multipart` reads photo uploads. `mcp`, Pillow, `segno` and
+`python-multipart` are added in the phase that first uses them (B4, B6, B7).
 
 ## Running it
 
