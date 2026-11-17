@@ -19,7 +19,11 @@ def _frontend_file(frontend_directory: Path, path: str) -> FileResponse:
     requested = (frontend_directory / path).resolve()
     if requested.is_file() and requested.is_relative_to(frontend_directory.resolve()):
         return FileResponse(requested)
-    return FileResponse(frontend_directory / "index.html")
+    # A page from before an upgrade asks for chunks that are gone; HTML in their place breaks it.
+    if path.startswith("assets/"):
+        raise AppError(404, "file_not_found", f"There is no built file at /{path}.")
+    # Built files have hashed names, so only the page itself must be checked for a new version.
+    return FileResponse(frontend_directory / "index.html", headers={"Cache-Control": "no-cache"})
 
 
 def add_frontend_files(app: FastAPI, frontend_directory: Path) -> None:
