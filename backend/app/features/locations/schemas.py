@@ -49,6 +49,14 @@ class LocationCreated(Location):
     history_entry_id: str
 
 
+class LocationMove(BaseModel):
+    parent_id: str
+
+
+class LocationMoved(Location):
+    history_entry_id: str
+
+
 class LocationTree(BaseModel):
     locations: list[Location]
 

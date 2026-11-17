@@ -24,3 +24,4 @@ it and mark the old one as replaced. Do not quietly work around one.
 | 0014 | [Each backend phase is followed by its frontend phase](0014-paired-phases.md) | Accepted, amended by 0015 |
 | 0015 | [A template's specimen is deleted when its real page lands](0015-specimens-end-with-their-page.md) | Accepted |
 | 0016 | [Search scores names in Python, with no index](0016-search-in-python.md) | Accepted |
+| 0017 | [The in-app scanner reads QR codes with the BarcodeDetector ponyfill](0017-scanning-in-the-browser.md) | Accepted |

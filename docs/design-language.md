@@ -394,6 +394,12 @@ toast offers Undo.
 **Task** (`/scan`, check mode). Full screen in the task frame, so nothing
 is tapped by mistake.
 
+`/scan` is the task "Scan": the scanner in the work area, held to the
+gutter, and a scanned label opens `/l/{code}` as the phone's own camera
+does. Its primary button, "Type the code", swaps the scanner for one
+"Code" field, and the button becomes "Open"; Enter does the same. Close
+goes back, or home when `/scan` was the first page.
+
 1. A `bar-height` row: Close at the gutter, then the task's name.
 2. The work area, in the column.
 3. One primary button, pinned to the bottom above the safe area, the full
@@ -572,6 +578,27 @@ summary") only on the thing's own page.
 up). One title, one choice. Picking a row acts and closes it. The move sheet
 lists recently used locations first. A sheet never opens another sheet and
 never holds more than one field.
+
+The move sheet is titled "Move to". Its one field, "Search locations or
+scan", narrows the rows by name or by code (typed loosely, as `b14`), and
+ends in a "Scan destination" icon button that swaps the rows for the
+scanner in the same sheet ("Show locations" swaps them back). Its rows are
+flat location rows: up to five recently used on this device, then the rest
+in tree order. It leaves out where the thing already is and, when a
+location is moving, the location and everything inside it. A scanned label
+that cannot be the destination says why in the scanner's line ("Already in
+Bin B-014", "Can't move into Bin B-016", "B-020 isn't on a location yet")
+and scanning carries on. Picking moves the thing on screen at once; the
+toast reads "Moved to {place}", naming a labeled place "Bin B-015", with
+Undo. Move is a default button in the header of an item's page and of every
+location's page except a site's.
+
+**Scanner** (`CameraView`). A square video of the camera, `radius-md` with a
+hairline border, and one `text-small` `muted` line under it: "Point the
+camera at a label", or what the last code led to ("That isn't a Binsight
+label"). When the camera is refused or there is none, the line says to
+allow the camera in the browser's settings. Only a label address counts as
+a code.
 
 A value shown only once, such as an MCP credential's secret, is a read-only
 text field holding what the owner will paste, with a default "Copy" button

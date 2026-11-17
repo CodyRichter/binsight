@@ -22,7 +22,7 @@ def test_the_app_page_carries_the_content_policy(client: TestClient) -> None:
     response = client.get("/settings")
     assert _has_common_headers(response.headers)
     policy = response.headers["Content-Security-Policy"]
-    assert "script-src 'self'" in policy
+    assert "script-src 'self' 'wasm-unsafe-eval';" in policy
     assert "frame-ancestors 'none'" in policy
 
 

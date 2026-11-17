@@ -26,8 +26,9 @@ UNDO_HISTORY_ENTRY = """Undo one change, putting back what it did.
 
 Use this when the owner says a change was a mistake, or straight after you made one
 yourself: entry_id is the history_entry_id the change returned, or an entry's id from
-list_history. Adding an item, adding several or by photo, naming an item and changing its
-quantity can be undone; undoing an add removes what was added. The undo is itself a new
+list_history. Adding an item, adding several or by photo, naming an item, changing its
+quantity, and moving an item or a location can be undone; undoing an add removes what was
+added. The undo is itself a new
 entry in history.
 
 Returns {"history_entry_id": ..., "undone_entry_id": ...}, or the error

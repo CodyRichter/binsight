@@ -20,6 +20,8 @@ from app.features.items.schemas import (
 from app.features.items.schemas import (
     ItemChanges,
     ItemCreated,
+    ItemMove,
+    ItemMoved,
     ItemsCreated,
     ItemUpdated,
     NewItem,
@@ -117,3 +119,19 @@ def update_item(
     change = history.RecordChange("item", item.id, before, changed)
     entry_id = history.record(session, actor, action, [change], now)
     return ItemUpdated(**shaped(session, item).model_dump(), history_entry_id=entry_id)
+
+
+def move_item(
+    session: Session, item_id: str, move: ItemMove, actor: Actor, now: datetime
+) -> ItemMoved:
+    """Move an item into another location."""
+    item = _get(session, item_id)
+    path_of(session, move.location_id)
+    if item.home_location_id == move.location_id:
+        raise AppError(409, "already_there", "That item is already there.")
+    before = {"home_location_id": item.home_location_id}
+    item.home_location_id = move.location_id
+    item.updated_at = now
+    change = history.RecordChange("item", item.id, before, {"home_location_id": move.location_id})
+    entry_id = history.record(session, actor, "item.moved", [change], now)
+    return ItemMoved(**shaped(session, item).model_dump(), history_entry_id=entry_id)

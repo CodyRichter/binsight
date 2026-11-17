@@ -13,6 +13,8 @@ from app.features.locations.schemas import (
 )  # re-exported: search shapes with it
 from app.features.locations.schemas import (
     LocationCreated,
+    LocationMove,
+    LocationMoved,
     LocationTree,
     NewLocation,
     SearchableLocation,
@@ -109,6 +111,35 @@ def create_location(
     change = history.RecordChange("location", location.id, None, new.model_dump(mode="json"))
     entry_id = history.record(session, actor, "location.created", [change], now)
     return LocationCreated(**_find(session, location.id).model_dump(), history_entry_id=entry_id)
+
+
+def _refuse_move(location: models.Location, parent_id: str, within: list[str]) -> None:
+    if location.parent_id is None:
+        raise AppError(
+            409, "site_cannot_move", "A site is a top-level place, so it can't be moved."
+        )
+    if parent_id in within:
+        raise AppError(
+            409, "move_into_itself", "A location can't be moved into itself or anything inside it."
+        )
+    if location.parent_id == parent_id:
+        raise AppError(409, "already_there", "That location is already there.")
+
+
+def move_location(
+    session: Session, location_id: str, move: LocationMove, actor: Actor, now: datetime
+) -> LocationMoved:
+    """Move a location, and everything inside it, into another location."""
+    location = _get(session, location_id)
+    _get(session, move.parent_id)
+    _refuse_move(location, move.parent_id, location_ids_within(session, location_id))
+    before = {"parent_id": location.parent_id}
+    location.parent_id = move.parent_id
+    location.updated_at = now
+    session.flush()
+    change = history.RecordChange("location", location.id, before, {"parent_id": move.parent_id})
+    entry_id = history.record(session, actor, "location.moved", [change], now)
+    return LocationMoved(**_find(session, location.id).model_dump(), history_entry_id=entry_id)
 
 
 def location_path(session: Session, location_id: str) -> list[PathStep]:

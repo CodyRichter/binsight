@@ -11,7 +11,16 @@ from app.features.history.recording import RecordChange, record
 from app.features.history.schemas import RecordType, Undone
 from app.models import Actor
 
-UNDOABLE = {"item.created", "items.created", "item.updated", "item.named"}
+UNDOABLE = {
+    "item.created",
+    "items.created",
+    "item.updated",
+    "item.named",
+    "item.moved",
+    "location.moved",
+}
+
+type Undoable = models.Item | models.Attachment | models.Location
 
 
 def _entry(session: Session, entry_id: str) -> models.HistoryEntry:
@@ -25,18 +34,33 @@ def _entry(session: Session, entry_id: str) -> models.HistoryEntry:
     return entry
 
 
-def _current(session: Session, change: models.HistoryChange) -> models.Item | models.Attachment:
+def _record(session: Session, change: models.HistoryChange) -> Undoable | None:
+    if change.record_type == "attachment":
+        return session.get(models.Attachment, change.record_id)
+    if change.record_type == "location":
+        return session.get(models.Location, change.record_id)
+    return session.get(models.Item, change.record_id)
+
+
+def _current(session: Session, change: models.HistoryChange) -> Undoable:
     # Undo reads and writes these tables directly: the one exception to features keeping to theirs.
-    current: models.Item | models.Attachment | None = (
-        session.get(models.Attachment, change.record_id)
-        if change.record_type == "attachment"
-        else session.get(models.Item, change.record_id)
-    )
+    current = _record(session, change)
     if current is None or any(
         getattr(current, key) != value for key, value in change.after.items()
     ):
         raise AppError(409, "changed_since", "That can't be undone, because it has changed since.")
     return current
+
+
+def _refuse_cycle(session: Session, location: models.Location, parent_id: str) -> None:
+    # The old parent may have been moved inside this location since.
+    above = session.get(models.Location, parent_id)
+    while above is not None:
+        if above.id == location.id:
+            raise AppError(
+                409, "changed_since", "That can't be undone, because it has changed since."
+            )
+        above = session.get(models.Location, above.parent_id) if above.parent_id else None
 
 
 def _reverse(
@@ -49,6 +73,8 @@ def _reverse(
     elif change.before is None:
         session.delete(current)
     else:
+        if isinstance(current, models.Location) and change.before.get("parent_id"):
+            _refuse_cycle(session, current, change.before["parent_id"])
         for key, value in change.before.items():
             setattr(current, key, value)
         current.updated_at = now

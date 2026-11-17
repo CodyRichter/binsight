@@ -34,6 +34,19 @@ test("a flat location row puts its type icon at the gutter", async ({ page }) =>
   expect((await box(locations.locator("li svg").first())).left).toBe(16);
 });
 
+test("a move sheet's rows are flat, touch-min plus a hairline, with the type icon at the gutter", async ({
+  page,
+}) => {
+  const { ids, names } = await siteRoomBin(page.request);
+  await open(page, `/locations/${ids.bin}`);
+  await page.getByRole("button", { name: "Move", exact: true }).click();
+  const sheet = page.getByRole("dialog", { name: "Move to" });
+  await sheet.getByRole("textbox", { name: "Search locations" }).fill(names.site);
+  const row = sheet.locator("li").first();
+  expect((await box(row)).height).toBe(49);
+  expect((await box(row.locator("svg").first())).left).toBe(16);
+});
+
 test("a tree puts the top level's toggle glyph at the gutter", async ({ page }) => {
   await siteRoomBin(page.request);
   await open(page, "/");

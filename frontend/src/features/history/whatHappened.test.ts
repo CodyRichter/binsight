@@ -35,6 +35,11 @@ test("an undo reads Undone", () => {
   expect(whatHappened(entry("history.undone", { quantity: 4 }, { quantity: 3 }))).toBe("Undone");
 });
 
+test("a move reads Moved", () => {
+  const moved = entry("item.moved", { home_location_id: "cables" }, { home_location_id: "tools" });
+  expect(whatHappened(moved)).toBe("Moved");
+});
+
 test("an action with no wording is a bug, not a blank row", () => {
-  expect(() => whatHappened(entry("item.moved", {}))).toThrow("item.moved");
+  expect(() => whatHappened(entry("location.merged", {}))).toThrow("location.merged");
 });
