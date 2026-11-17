@@ -2,6 +2,7 @@ import { ActionIcon, Button } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 import { barIconVars } from "./barControls";
+import { ErrorBoundary } from "./ErrorBoundary";
 import classes from "./TaskFrame.module.css";
 
 interface TaskFrameProps {
@@ -24,7 +25,7 @@ export function TaskFrame({ name, onClose, action, children }: TaskFrameProps) {
         </h1>
       </header>
       <main id="content" className={classes.work}>
-        {children}
+        <ErrorBoundary onGoHome={onClose}>{children}</ErrorBoundary>
       </main>
       <div className={classes.action}>
         <Button variant="primary" fullWidth onClick={action.onClick}>

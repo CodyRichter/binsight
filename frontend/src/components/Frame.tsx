@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { sizes } from "@/lib/theme/tokens";
 import { BottomBar } from "./BottomBar";
+import { ErrorBoundary } from "./ErrorBoundary";
 import type { Destination, NavSection } from "./navigation";
 import { SideNavigation } from "./SideNavigation";
 import { TopBar } from "./TopBar";
@@ -69,6 +70,8 @@ export function Frame(props: FrameProps) {
     selectionBar,
     children,
   } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
   const wide = useWide();
   const focusSearch = useFocusSearch();
   const back = useBack(parent, props.destination);
@@ -103,7 +106,15 @@ export function Frame(props: FrameProps) {
         </AppShell.Navbar>
       )}
       <AppShell.Main id="content" tabIndex={-1} className={classes.main}>
-        <div className={classes.column}>{children}</div>
+        <div className={classes.column}>
+          <ErrorBoundary
+            resetKey={`${location.pathname}${location.search}`}
+            onGoHome={() => navigate(parent)}
+            onScan={actions.onScan}
+          >
+            {children}
+          </ErrorBoundary>
+        </div>
       </AppShell.Main>
       {footer && (
         <AppShell.Footer className={classes.footer}>

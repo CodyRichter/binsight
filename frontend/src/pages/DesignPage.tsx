@@ -4,6 +4,7 @@ import {
   FieldsSpecimen,
   HeaderSpecimen,
   OverlaysSpecimen,
+  PageStatesSpecimen,
   RowsSpecimen,
   TemplatesSpecimen,
   TokensSpecimen,
@@ -21,6 +22,7 @@ export function DesignPage() {
       <RowsSpecimen />
       <HeaderSpecimen />
       <ValuesSpecimen />
+      <PageStatesSpecimen />
     </DesignFrame>
   );
 }

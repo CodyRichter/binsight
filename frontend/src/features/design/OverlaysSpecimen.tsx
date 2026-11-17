@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Group, Menu, Modal, Stack, Text, TextInput } from "@mantine/core";
+import { ActionIcon, Button, Group, Menu, TextInput } from "@mantine/core";
 import {
   IconChecklist,
   IconListDetails,
@@ -8,6 +8,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useState } from "react";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { LocationRow } from "@/components/LocationRow";
 import { Sheet } from "@/components/Sheet";
 import { showToast } from "@/lib/toast";
@@ -83,25 +84,15 @@ export function OverlaysSpecimen() {
           }
         />
       </Sheet>
-      <Modal
+      <ConfirmDialog
         opened={dialogOpen}
         title="Delete 12 blank labels?"
-        onClose={() => setDialogOpen(false)}
-      >
-        <Stack gap="md">
-          <Text size="md">
-            Their codes can never be used again. Any that are already printed will stop working.
-          </Text>
-          <Group justify="flex-end" gap="sm">
-            <Button data-autofocus onClick={() => setDialogOpen(false)}>
-              Keep them
-            </Button>
-            <Button variant="danger" onClick={() => setDialogOpen(false)}>
-              Delete forever
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+        detail="Their codes can never be used again. Any that are already printed will stop working."
+        cancelLabel="Keep them"
+        confirmLabel="Delete forever"
+        onCancel={() => setDialogOpen(false)}
+        onConfirm={() => setDialogOpen(false)}
+      />
     </Specimen>
   );
 }

@@ -420,8 +420,9 @@ from sample data; a real page copies its template's specimen.
 | First load | The frame at once. The content area stays empty `ground` until the data arrives, then fills with no layout shift. After a second, the empty state "Still loading", with no button. No spinner, no skeleton. |
 | Reload or return | What was there, updated in place. |
 | Empty | The empty state, under the header. |
-| Unknown address or code | An empty state stating the fact, with no header ("No label has the code B-9999"), and one button. |
-| Backend unreachable | The empty state "Can't reach Binsight" with a "Try again" button. Changes already on screen roll back with a refusal toast. |
+| Unknown address or code | An empty state stating the fact, with no header ("No label has the code B-9999" or "Nothing at this address"), and one button, inside the frame whenever possible. |
+| Backend unreachable | The empty state "Can't reach Binsight" with a "Try again" button, inside the frame whenever possible. Changes already on screen roll back with a refusal toast. |
+| Unexpected error (500) | The empty state "Something went wrong" with a "Try again" button, caught inside the frame's error boundary so navigation stays usable. |
 | Signed out | The Gate, then back to the address that was asked for. |
 | Long content | Names and paths wrap. A 60-character name and a six-segment path never push a row's controls off screen or overlap them. |
 
@@ -512,19 +513,21 @@ Pressed is `highlight` with an `ink` border and shows its value. Chips sit
 in one row under a List page's header, scroll sideways under 48em and wrap
 above it.
 
-**Tag** (`Badge`, outline). `text-small`, `muted`, hairline box,
-`radius-sm`. Never colored. Tapping one searches for it.
+**Tag** (`Badge`, outline, arranged by `TagList`). `text-small`, `muted`,
+hairline box, `radius-sm`. Never colored. Tapping one searches for it;
+when editable, a `touch-min` remove button sits beside the tag and a
+subtle "Add tag" button follows the list.
 
 **Toast** (`Notifications`). `inverse` background, action in `accent`, one
 at a time. Every reversible action shows one with Undo for 6 seconds; this
 replaces "Are you sure?". A refusal puts the screen back, says what is now
 true, offers Retry, and stays until dismissed. No titles, ticks or stacking.
 
-**Dialog** (`Modal`). Only for what cannot be undone: emptying deleted items
-for good, deleting blank labels, revoking an MCP credential, restoring a
-backup. The title is the question and names the thing and the number. Two
-verb buttons, the safe one first and focused: "Keep them", "Delete forever".
-The safe button carries `data-autofocus`.
+**Dialog** (`ConfirmDialog`, built on `Modal`). Only for what cannot be
+undone: emptying deleted items for good, deleting blank labels, revoking an
+MCP credential, restoring a backup. The title is the question and names
+the thing and the number. Two verb buttons, the safe one first and focused:
+"Keep them", "Delete forever". The safe button carries `data-autofocus`.
 
 ### Binsight components
 
@@ -638,8 +641,9 @@ inset ring instead of an offset outline so no gap or corner seam opens
 between the frame and the `accent` underline. Enter adds, clears and keeps
 focus, and the default Add button beside "Add several" does the same. A
 camera button adds by photo; "Add several" swaps in the multi-line field. A
-likely duplicate appears as a row beneath offering "Add to existing" and
-never blocks Enter.
+likely duplicate appears as a `DuplicateSuggestion` row beneath (`text-small`
+notice with subtle "Add to existing" at the right gutter) and never
+blocks Enter.
 
 The row `space-sm` under the bar holds "Add several" (or "Add one" while
 adding several) before the default Add button at the right edge and is
@@ -683,6 +687,17 @@ left-aligned: "Nothing matches "multimeter"", "This bin is empty", "Nothing
 is missing". A second sentence only when it adds a fact. No illustration or
 large icon. Loading is not an empty state. When standing alone without a
 page header, the statement is the page's `h1` in `text-heading`.
+
+**Page state** (`PageState`) **and error boundaries** (`ErrorBoundary`, `RouteError`).
+`PageState` wraps a page's main body for `First load` (empty `ground` for
+the first second, then "Still loading"), `Backend unreachable` ("Can't
+reach Binsight" with "Try again"), `Unknown address or code`, and `Empty`
+using `EmptyState`. `Frame` and `TaskFrame` wrap `#content` inside an
+`ErrorBoundary` rendering `RouteError` (a `text-title` heading, factual
+summary, recovery buttons, and a `ListSection` of navigation destinations on
+404 or `ValueRow` status details on 500/offline) so the sidebar, top bar
+and bottom bar stay mounted when a page throws or a route misses, with a
+router `ErrorBoundary` fallback if the frame itself fails.
 
 ## Building it with Mantine
 

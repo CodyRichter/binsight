@@ -6,6 +6,7 @@ export { GateSpecimen } from "./GateSpecimen";
 export { HeaderSpecimen } from "./HeaderSpecimen";
 export { ListSpecimen } from "./ListSpecimen";
 export { OverlaysSpecimen } from "./OverlaysSpecimen";
+export { PageStatesSpecimen } from "./PageStatesSpecimen";
 export { RecordSpecimen } from "./RecordSpecimen";
 export { RowsSpecimen } from "./RowsSpecimen";
 export { SettingsSpecimen } from "./SettingsSpecimen";

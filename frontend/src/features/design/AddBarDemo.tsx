@@ -1,6 +1,7 @@
-import { Button, Group, Stack, Text } from "@mantine/core";
+import { Stack } from "@mantine/core";
 import { useState } from "react";
 import { AddBar } from "@/components/AddBar";
+import { DuplicateSuggestion } from "@/components/DuplicateSuggestion";
 import { ItemRow } from "@/components/ItemRow";
 import { ListSection } from "@/components/ListSection";
 import { LocationRow } from "@/components/LocationRow";
@@ -72,18 +73,13 @@ export function AddBarDemo({ autoFocus }: AddBarDemoProps) {
         autoFocus={autoFocus}
         suggestion={(clearName) =>
           existing && (
-            <Group justify="space-between" gap="sm" wrap="nowrap">
-              <Text size="sm">{existing} is already here</Text>
-              <Button
-                variant="subtle"
-                onClick={() => {
-                  clearName();
-                  showToast({ message: `Added 1 more ${existing}`, onUndo: () => undefined });
-                }}
-              >
-                Add to existing
-              </Button>
-            </Group>
+            <DuplicateSuggestion
+              message={`${existing} is already here`}
+              onAccept={() => {
+                clearName();
+                showToast({ message: `Added 1 more ${existing}`, onUndo: () => undefined });
+              }}
+            />
           )
         }
       />

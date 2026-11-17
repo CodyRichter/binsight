@@ -1,0 +1,19 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--bs-space-sm);
+}
+
+.message {
+  color: var(--bs-ink);
+  font-size: var(--bs-text-small-size);
+  line-height: var(--bs-text-small-line-height);
+  font-weight: var(--bs-text-small-weight);
+}
+
+.action {
+  margin-left: auto;
+  margin-right: calc(-1 * var(--bs-space-sm));
+}
