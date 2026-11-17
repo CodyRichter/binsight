@@ -1,14 +1,17 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import APIRouter, Depends, FastAPI
 
 from app.core import health
+from app.core.cross_site import refuse_cross_site_writes
 from app.core.database import create_database_engine
 from app.core.errors import add_error_handlers
 from app.core.frontend_files import add_frontend_files
 from app.core.migrate import migrate_database
+from app.core.security_headers import add_security_headers
 from app.core.settings import Settings, load_settings
+from app.features.auth import routes as auth
 
 
 def build_app(settings: Settings) -> FastAPI:
@@ -30,8 +33,16 @@ def build_app(settings: Settings) -> FastAPI:
         redoc_url=None,
         openapi_url="/api/openapi.json",
     )
+    app.state.settings = settings
     add_error_handlers(app)
+    # Middleware added last runs first: headers go on every answer, refusals included.
+    refuse_cross_site_writes(app, settings.app_address)
+    add_security_headers(app)
     app.include_router(health.router, prefix="/api")
+    app.include_router(auth.router, prefix="/api")
+    # Every feature router goes in here, so a route is signed-in-only unless placed above.
+    signed_in = APIRouter(dependencies=[Depends(auth.require_sign_in)])
+    app.include_router(signed_in, prefix="/api")
     add_frontend_files(app, settings.frontend_directory)
     return app
 

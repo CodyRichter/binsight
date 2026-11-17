@@ -27,6 +27,15 @@ endpoint does not set them by accident. Terms are from the
 - A path's first segment is the feature that owns it. `/api/health` is the
   one exception: it belongs to `app/core/`, needs no sign-in, and is what
   the container's health check calls.
+
+## Sign-in
+
+- Every route needs a login session except `/api/health` and the four in
+  `auth`: `get_auth_status`, `create_owner`, `sign_in` and `sign_out`. A
+  request without one gets 401 `not_signed_in`.
+- The session is a cookie the browser sends itself; pages never read it.
+- A write (any method but `GET`) sent from another site is refused with
+  403 `cross_site_request`. There is no CORS.
 - No trailing slashes, and the frontend never adds one.
 - Actions that are not plain create, read, update or delete are a verb under
   the record: `POST /api/items/{id}/move`, `POST /api/locations/{id}/check`.
@@ -89,6 +98,7 @@ One shape for every error:
 | ------ | -------------------------------------------------------------- |
 | 400    | The request makes no sense as sent.                            |
 | 401    | Not signed in, or the credential is invalid or revoked.        |
+| 403    | Sent from another site.                                        |
 | 404    | No such record.                                                |
 | 409    | The request conflicts with the current state.                  |
 | 422    | A field failed validation.                                     |
@@ -100,6 +110,8 @@ One shape for every error:
   takes.
 - The actor is taken from how the request was authenticated, never from the
   request body: a session cookie is `app`, an MCP credential is `mcp`.
+- Signing in and out are not changes to the home, so `auth`'s routes write
+  no history entry and return no `history_entry_id`.
 
 ## MCP tools
 
@@ -109,7 +121,8 @@ One shape for every error:
 - Every route has an operation name in the same `verb_noun` form, and the
   tool for that action has the same name. The parity test compares the two
   lists; the few routes Claude has no use for, such as signing in, are
-  named in that test.
+  named in that test: `get_health`, `get_auth_status`, `create_owner`,
+  `sign_in` and `sign_out`.
 - A client authenticates with an MCP credential sent as a bearer token
   ([decision 0010](decisions/0010-mcp-access.md)).
 - Inputs and results use the same field names and shapes as the API.

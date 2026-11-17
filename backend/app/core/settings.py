@@ -1,6 +1,9 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Annotated
+
+from fastapi import Depends, Request
 
 BACKEND_DIRECTORY = Path(__file__).resolve().parents[2]
 
@@ -23,6 +26,10 @@ class Settings:
     def backups_directory(self) -> Path:
         return self.data_directory / "backups"
 
+    @property
+    def is_https(self) -> bool:
+        return self.app_address.startswith("https://")
+
 
 def load_settings() -> Settings:
     """Read the install's settings from the environment; the app address has no default."""
@@ -37,3 +44,11 @@ def load_settings() -> Settings:
         data_directory=Path(os.environ.get("BINSIGHT_DATA_DIRECTORY", "/data")),
         frontend_directory=BACKEND_DIRECTORY.parent / "frontend" / "dist",
     )
+
+
+def app_settings(request: Request) -> Settings:
+    settings: Settings = request.app.state.settings
+    return settings
+
+
+AppSettings = Annotated[Settings, Depends(app_settings)]
