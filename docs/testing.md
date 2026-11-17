@@ -15,7 +15,9 @@ them.
 
 The first three layers run in `scripts/check.sh`. The end-to-end tests run
 as their own step in continuous integration, and locally with
-`npm run e2e`, so the check script stays quick. Each flow's test starts in the
+`npm run e2e`, so the check script stays quick. From F5 they also run against
+the built container image with `npm run e2e:container`, all but the `/design`
+ones, which exist only in development builds. Each flow's test starts in the
 frontend phase of the [build order](build-order.md) that builds its page;
 the tests of the frame itself start in F1.
 

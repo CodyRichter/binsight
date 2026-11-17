@@ -16,7 +16,8 @@ npm run format
 `npm run typecheck`, `npm test` and `npm run build` are part of
 `scripts/check.sh`. `npm run dev` serves the app; `/design` shows every
 component and token. `npm run e2e` runs the Playwright tests, in continuous
-integration rather than the check script. There are no screenshot
+integration rather than the check script; `npm run e2e:container` runs them,
+all but `/design`, against the built container image and needs Docker. There are no screenshot
 comparisons; they broke on every intended visual change. Lint rules are in `eslint.config.mjs`. A React
 component's length is governed by the 150-line file limit, not the 40-line
 function limit.

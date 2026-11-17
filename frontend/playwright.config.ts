@@ -1,32 +1,49 @@
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig, devices, type Project } from "@playwright/test";
 import { signedInState } from "./e2e/owner";
 
 const inCi = Boolean(process.env.CI);
 const appAddress = "http://localhost:5173";
+
+const signedIn = { ...devices["Desktop Chrome"], storageState: signedInState };
+
+export const projects: Project[] = [
+  { name: "owner", testMatch: "auth.setup.ts", use: devices["Desktop Chrome"] },
+  {
+    name: "signed out",
+    testMatch: "auth.spec.ts",
+    use: devices["Desktop Chrome"],
+    dependencies: ["owner"],
+  },
+  {
+    name: "signed in",
+    testIgnore: [
+      "auth.setup.ts",
+      "auth.spec.ts",
+      "design.spec.ts",
+      "designSpacing.spec.ts",
+      "built.spec.ts",
+    ],
+    use: signedIn,
+    dependencies: ["owner"],
+  },
+  // Development builds only, so the container run leaves them out.
+  {
+    name: "design",
+    testMatch: ["design.spec.ts", "designSpacing.spec.ts"],
+    use: signedIn,
+    dependencies: ["owner"],
+  },
+];
 
 export default defineConfig({
   testDir: "e2e",
   forbidOnly: inCi,
   reporter: inCi ? [["list"], ["html", { open: "never" }]] : "list",
   use: { baseURL: appAddress },
-  projects: [
-    { name: "owner", testMatch: "auth.setup.ts", use: devices["Desktop Chrome"] },
-    {
-      name: "signed out",
-      testMatch: "auth.spec.ts",
-      use: devices["Desktop Chrome"],
-      dependencies: ["owner"],
-    },
-    {
-      name: "signed in",
-      testIgnore: ["auth.setup.ts", "auth.spec.ts"],
-      use: { ...devices["Desktop Chrome"], storageState: signedInState },
-      dependencies: ["owner"],
-    },
-  ],
+  projects,
   webServer: [
     {
       command:

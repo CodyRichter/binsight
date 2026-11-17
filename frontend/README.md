@@ -55,7 +55,9 @@ npm run dev
 ```
 
 Then open `http://localhost:5173`. `npm run e2e` starts both itself, with
-the backend on an empty data directory.
+the backend on an empty data directory. `npm run e2e:container` builds the
+container image and runs the same tests, all but `/design`, against it on
+port 18001; it needs Docker.
 
 ## Working here
 
