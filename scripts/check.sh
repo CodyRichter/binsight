@@ -18,17 +18,18 @@ step "Python formatting"
 python ruff format --check .
 
 step "Python types"
-typed=(../scripts)
-for folder in app tests; do
-  if [ -d "backend/$folder" ]; then typed+=("$folder"); fi
-done
-(cd backend && python mypy "${typed[@]}")
+(cd backend && python mypy app migrations tests ../scripts)
 
 step "Backend tests"
-if find backend/tests -name 'test_*.py' 2>/dev/null | grep -q .; then
-  (cd backend && python pytest)
-else
-  echo "skipped: no backend tests yet (added in step 1 of docs/build-order.md)"
+(cd backend && python pytest)
+
+step "Generated API types"
+generated="$(mktemp -d)/api.generated.ts"
+(cd backend && python python -m app.export_openapi) |
+  frontend/node_modules/.bin/openapi-typescript --output "$generated" >/dev/null 2>&1
+if ! diff -u frontend/src/types/api.generated.ts "$generated"; then
+  echo "frontend/src/types/api.generated.ts is stale: run 'npm run generate:types' in frontend/"
+  exit 1
 fi
 
 step "Frontend lint"

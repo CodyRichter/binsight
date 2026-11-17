@@ -74,8 +74,7 @@ their own hardware.
 
 - No real inventory data, screenshots of use, testimonials or users beyond
   the owner. Do not fabricate any.
-- The design language's components render at `/design` in development, with
-  screenshot baselines in `frontend/e2e/`.
+- The design language's components render at `/design` in development.
 
 ## Product Principles
 

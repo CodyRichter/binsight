@@ -24,7 +24,9 @@ endpoint does not set them by accident. Terms are from the
   ([decision 0008](decisions/0008-frontend-served-by-backend.md)).
 - Paths use plural nouns in kebab-case: `/api/locations`,
   `/api/saved-searches`.
-- A path's first segment is the feature that owns it.
+- A path's first segment is the feature that owns it. `/api/health` is the
+  one exception: it belongs to `app/core/`, needs no sign-in, and is what
+  the container's health check calls.
 - No trailing slashes, and the frontend never adds one.
 - Actions that are not plain create, read, update or delete are a verb under
   the record: `POST /api/items/{id}/move`, `POST /api/locations/{id}/check`.

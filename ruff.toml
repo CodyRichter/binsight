@@ -31,6 +31,9 @@ select = [
     "TID252",       # no relative imports reaching upward
 ]
 
+[lint.isort]
+known-first-party = ["app", "tests"]
+
 [lint.mccabe]
 max-complexity = 10
 

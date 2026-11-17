@@ -48,10 +48,9 @@ def folder_names(folder: Path) -> set[str]:
 
 
 def check_feature_folders_match() -> Iterator[str]:
+    # The backend is built ahead of the frontend (decision 0013), so only this direction fails.
     backend = {name.replace("_", "-") for name in folder_names(BACKEND_FEATURES)}
     frontend = folder_names(FRONTEND_FEATURES) - FRONTEND_ONLY_FEATURES
-    for name in sorted(backend - frontend):
-        yield f"feature '{name}' is in the backend but not the frontend"
     for name in sorted(frontend - backend):
         yield f"feature '{name}' is in the frontend but not the backend"
 
