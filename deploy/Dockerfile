@@ -1,14 +1,14 @@
 # syntax=docker/dockerfile:1
 # Built from the repository root: docker build -f deploy/Dockerfile .
 
-FROM node:24.22.3-slim AS frontend
+FROM node:26.13.1-slim AS frontend
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-FROM python:3.14.10-slim
+FROM python:3.15.2-slim
 ENV UV_PYTHON_DOWNLOADS=never \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy
