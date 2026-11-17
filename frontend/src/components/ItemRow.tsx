@@ -9,7 +9,8 @@ import { Thumbnail } from "./Thumbnail";
 import classes from "./ItemRow.module.css";
 
 interface ItemRowProps {
-  name: string;
+  /** Null for an item added by photo and not named yet; it reads "Unnamed". */
+  name: string | null;
   to: string;
   path?: PathSegment[];
   photoUrl?: string;
@@ -37,10 +38,10 @@ function markedName(name: string, match?: string): ReactNode {
 }
 
 function rowName(props: ItemRowProps, checkId: string): ReactNode {
-  const name = markedName(props.name, props.match);
+  const name = markedName(props.name ?? "Unnamed", props.match);
   if (!props.check) {
     return (
-      <Link className={classes.name} to={props.to}>
+      <Link className={classes.name} data-unnamed={props.name === null || undefined} to={props.to}>
         {name}
       </Link>
     );
@@ -61,7 +62,11 @@ function rowControls({ name, quantity = 1, onQuantityChange, onMove }: ItemRowPr
         </span>
       )}
       {onMove && (
-        <ActionIcon className={classes.move} aria-label={`Move ${name}`} onClick={onMove}>
+        <ActionIcon
+          className={classes.move}
+          aria-label={`Move ${name ?? "Unnamed"}`}
+          onClick={onMove}
+        >
           <IconArrowsMove aria-hidden />
         </ActionIcon>
       )}

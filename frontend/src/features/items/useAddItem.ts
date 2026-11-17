@@ -1,63 +1,59 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
-import { showToast } from "@/lib/toast";
 import type { components } from "@/types/api.generated";
-import { itemListKey, itemListsKey, type Item } from "./useItems";
+import { itemName, placeName } from "./placeName";
+import { useOptimisticAdd } from "./useOptimisticAdd";
+import type { Destination, Item } from "./useItems";
 
 type NewItem = components["schemas"]["NewItem"];
+type NewItems = components["schemas"]["NewItems"];
 type ItemCreated = components["schemas"]["ItemCreated"];
+type ItemsCreated = components["schemas"]["ItemsCreated"];
 
-const addingKey = ["items", "add"] as const;
-
-interface Home {
-  id: string;
-  path: Item["path"];
-}
-
-function adding(name: string, home: Home): Item {
+/** How an item being added shows until the backend answers. */
+export function adding(name: string | null, home: Destination | null, photoUrl?: string): Item {
   return {
     id: `adding-${crypto.randomUUID()}`,
     name,
     quantity: 1,
-    home_location_id: home.id,
-    path: home.path,
+    home_location_id: home?.id ?? null,
+    path: home?.path ?? [],
+    photo_url: photoUrl ?? null,
     created_at: new Date().toISOString(),
   };
 }
 
-/** Adds an item by name to a location: it shows at once and is taken back if refused. */
-export function useAddItem(home: Home, onSettled: () => void): (name: string) => void {
-  const queryClient = useQueryClient();
-  const lists = [itemListKey(home.id, false), itemListKey(home.id, true)];
-  const create = useMutation({
-    mutationKey: addingKey,
-    mutationFn: (name: string) =>
-      api.post<ItemCreated>("/api/items", { name, home_location_id: home.id } satisfies NewItem),
-    onMutate: async (name) => {
-      await queryClient.cancelQueries({ queryKey: itemListsKey });
-      const shown = adding(name, home);
-      for (const key of lists) {
-        queryClient.setQueryData<Item[]>(key, (items) => items && [...items, shown]);
-      }
-      return shown;
-    },
-    onError: (_error, _name, shown) => {
-      for (const key of lists) {
-        queryClient.setQueryData<Item[]>(key, (items) =>
-          items?.filter((item) => item.id !== shown?.id),
-        );
-      }
-    },
-    onSettled: () => {
-      // Reading the list while another add is on its way would drop that one from the screen.
-      if (queryClient.isMutating({ mutationKey: addingKey }) > 1) return;
-      void queryClient.invalidateQueries({ queryKey: itemListsKey });
-      onSettled();
-    },
+/** Adds an item by name to a location or the inbox: it shows at once, with Undo once added. */
+export function useAddItem(
+  home: Destination | null,
+  onSettled: () => void,
+): (name: string) => void {
+  return useOptimisticAdd({
+    home,
+    onSettled,
+    send: (name: string) =>
+      api.post<ItemCreated>("/api/items", {
+        name,
+        home_location_id: home?.id ?? null,
+      } satisfies NewItem),
+    shown: (name) => [adding(name, home)],
+    told: (created) => `Added ${itemName(created.name)} to ${placeName(home)}`,
   });
-  const add = (name: string) =>
-    create.mutate(name, {
-      onError: (error) => showToast({ message: error.message, onRetry: () => add(name) }),
-    });
-  return add;
+}
+
+/** Adds several items at once, as one change that one Undo takes back. */
+export function useAddItems(
+  home: Destination | null,
+  onSettled: () => void,
+): (names: string[]) => void {
+  return useOptimisticAdd({
+    home,
+    onSettled,
+    send: (names: string[]) =>
+      api.post<ItemsCreated>("/api/items/add-several", {
+        names,
+        home_location_id: home?.id ?? null,
+      } satisfies NewItems),
+    shown: (names) => names.map((name) => adding(name, home)),
+    told: (created) => `Added ${created.items.length} items to ${placeName(home)}`,
+  });
 }

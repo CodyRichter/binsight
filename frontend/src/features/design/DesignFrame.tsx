@@ -1,13 +1,11 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
-import { useLocation, useNavigate, useNavigation, useSearchParams } from "react-router";
+import { useNavigate } from "react-router";
 import { Frame } from "@/components/Frame";
 import type { Destination, NavSection } from "@/components/navigation";
 import { Sheet } from "@/components/Sheet";
 import { AddBarDemo } from "./AddBarDemo";
 import { sampleViews } from "./samples";
-
-const searchPage = "/design/list";
 
 interface DesignFrameProps {
   current?: Destination | null;
@@ -18,27 +16,11 @@ interface DesignFrameProps {
   children: ReactNode;
 }
 
-function useSampleSearch() {
-  const { pathname } = useLocation();
-  const [params] = useSearchParams();
-  const navigate = useNavigate();
-  const pending = useNavigation().state !== "idle";
-  const searching = pathname === searchPage;
-  return {
-    query: searching ? (params.get("q") ?? "") : "",
-    // Typing replaces the results page, so Back leaves search in one step.
-    onChange: (query: string) =>
-      navigate(`${searchPage}?q=${encodeURIComponent(query)}`, {
-        replace: searching || pending,
-        state: { focusSearch: true },
-      }),
-  };
-}
-
 export function DesignFrame({ current = "home", currentView, parent, ...props }: DesignFrameProps) {
   const [adding, setAdding] = useState(false);
   const navigate = useNavigate();
-  const search = useSampleSearch();
+  // The List template's specimen ended with its first real page, so search here goes nowhere.
+  const [query, setQuery] = useState("");
   const sections: NavSection[] = [
     {
       id: "views",
@@ -52,7 +34,7 @@ export function DesignFrame({ current = "home", currentView, parent, ...props }:
     <Frame
       navigation={{ current, inboxCount: 3 }}
       sections={sections}
-      search={search}
+      search={{ query, onChange: setQuery }}
       actions={{ onAdd: () => setAdding(true), onScan: () => navigate("/design/task") }}
       parent={parent ?? "/design"}
       destination={props.destination}

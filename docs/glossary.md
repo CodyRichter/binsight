@@ -38,6 +38,10 @@ before naming it in code.
 | **Lent to**       | The name of whoever has a lent-out item. Free text.        |
 | **Archive**       | Items whose status is `sold`, `given_away` or `thrown_away`. Still searchable. |
 | **Inbox**         | Items missing a name or a home location.                   |
+| **Add several**   | Adding several items at once by name, one per line, as one change. |
+| **Add by photo**  | Adding an item with a photo and no name; it is named later. |
+| **Likely duplicate** | An item already in the destination with the name being typed, ignoring case. |
+| **Add to existing** | Raising a likely duplicate's quantity by one instead of adding a second item. |
 | **Category**      | The one kind of thing an item is, e.g. cable, tool.        |
 | **Tag**           | A keyword on an item. An item can have many.               |
 | **Link**          | A relationship between two items: `belongs_with` or `part_of`. |

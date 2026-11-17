@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import type { APIRequestContext } from "@playwright/test";
 
 /** A name no other test in the run uses, since every test shares one backend. */
@@ -45,4 +46,18 @@ export async function makeLabels(request: APIRequestContext, count: number): Pro
 /** Claims a blank label for a location through the API. */
 export async function claim(request: APIRequestContext, code: string, locationId: string) {
   await request.post(`/api/labels/${code}/claim`, { data: { location_id: locationId } });
+}
+
+/** The photo the tests add items by, as a phone camera would hand it over. */
+export const photoFile = new URL("./fixtures/photo.jpg", import.meta.url).pathname;
+
+/** Adds an item by photo through the API, with no name, to a location or the inbox. */
+export async function addPhotoItem(request: APIRequestContext, homeId?: string): Promise<string> {
+  const response = await request.post("/api/items/add-by-photo", {
+    multipart: {
+      photo: { name: "photo.jpg", mimeType: "image/jpeg", buffer: readFileSync(photoFile) },
+      ...(homeId ? { home_location_id: homeId } : {}),
+    },
+  });
+  return ((await response.json()) as { id: string }).id;
 }

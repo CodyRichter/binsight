@@ -1,50 +1,90 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+from typing import Any
 
-from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
 from app import models
 from app.core.errors import AppError
 from app.core.identifiers import new_identifier
-from app.core.pagination import Page, decode_cursor, encode_cursor
+from app.features.attachments import service as attachments
+from app.features.attachments.service import StoredPhoto
 from app.features.history import service as history
-from app.features.items.schemas import Item, ItemChanges, ItemCreated, ItemUpdated, NewItem
-from app.features.locations import service as locations
-from app.features.locations.service import PathStep
+from app.features.items.listing import count_inbox as count_inbox
+from app.features.items.listing import list_inbox as list_inbox
+from app.features.items.listing import list_items as list_items
+from app.features.items.schemas import (
+    Item,
+    ItemChanges,
+    ItemCreated,
+    ItemsCreated,
+    ItemUpdated,
+    NewItem,
+    NewItems,
+)
+from app.features.items.shaping import path_of, shaped
 from app.models import Actor
 
 
-def _item(item: models.Item, path: list[PathStep]) -> Item:
-    return Item(
-        id=item.id,
-        name=item.name,
-        quantity=item.quantity,
-        home_location_id=item.home_location_id,
-        path=path,
-        created_at=item.created_at,
+def _fields(item: models.Item) -> dict[str, Any]:
+    return {"name": item.name, "quantity": item.quantity, "home_location_id": item.home_location_id}
+
+
+def _new(name: str | None, home_location_id: str | None, now: datetime) -> models.Item:
+    return models.Item(
+        id=new_identifier(),
+        name=name,
+        quantity=1,
+        home_location_id=home_location_id,
+        created_at=now,
+        updated_at=now,
     )
-
-
-def _path(session: Session, home_location_id: str | None) -> list[PathStep]:
-    if home_location_id is None:
-        return []
-    return locations.location_path(session, home_location_id)
 
 
 def create_item(session: Session, new: NewItem, actor: Actor, now: datetime) -> ItemCreated:
     """Add an item by name, in a location or in the inbox."""
-    path = _path(session, new.home_location_id)
-    item = models.Item(id=new_identifier(), created_at=now, updated_at=now, **new.model_dump())
+    path_of(session, new.home_location_id)
+    item = _new(new.name, new.home_location_id, now)
     session.add(item)
     session.flush()
-    after = {
-        "name": item.name,
-        "quantity": item.quantity,
-        "home_location_id": item.home_location_id,
-    }
-    change = history.RecordChange("item", item.id, None, after)
+    change = history.RecordChange("item", item.id, None, _fields(item))
     entry_id = history.record(session, actor, "item.created", [change], now)
-    return ItemCreated(**_item(item, path).model_dump(), history_entry_id=entry_id)
+    return ItemCreated(**shaped(session, item).model_dump(), history_entry_id=entry_id)
+
+
+def create_items(session: Session, new: NewItems, actor: Actor, now: datetime) -> ItemsCreated:
+    """Add several items by name at once, in the order given, as one change to undo."""
+    path_of(session, new.home_location_id)
+    # A microsecond apart, so the list shows them in the order they were typed.
+    added = [
+        _new(name, new.home_location_id, now + timedelta(microseconds=order))
+        for order, name in enumerate(new.names)
+    ]
+    session.add_all(added)
+    session.flush()
+    changes = [history.RecordChange("item", item.id, None, _fields(item)) for item in added]
+    entry_id = history.record(session, actor, "items.created", changes, now)
+    return ItemsCreated(items=[shaped(session, item) for item in added], history_entry_id=entry_id)
+
+
+def create_item_by_photo(
+    session: Session,
+    photo: StoredPhoto,
+    home_location_id: str | None,
+    actor: Actor,
+    now: datetime,
+) -> ItemCreated:
+    """Add an item from a photo alone; it waits in the inbox until it is given a name."""
+    path_of(session, home_location_id)
+    item = _new(None, home_location_id, now)
+    session.add(item)
+    session.flush()
+    attached = attachments.attach_photo(session, item.id, photo, now)
+    changes = [
+        history.RecordChange("item", item.id, None, _fields(item)),
+        history.RecordChange("attachment", photo.id, None, attached),
+    ]
+    entry_id = history.record(session, actor, "item.created", changes, now)
+    return ItemCreated(**shaped(session, item).model_dump(), history_entry_id=entry_id)
 
 
 def _get(session: Session, item_id: str) -> models.Item:
@@ -56,44 +96,20 @@ def _get(session: Session, item_id: str) -> models.Item:
 
 def get_item(session: Session, item_id: str) -> Item:
     """One item, with the full path of its home location."""
-    item = _get(session, item_id)
-    return _item(item, _path(session, item.home_location_id))
+    return shaped(session, _get(session, item_id))
 
 
 def update_item(
     session: Session, item_id: str, changes: ItemChanges, actor: Actor, now: datetime
 ) -> ItemUpdated:
-    """Change how many of an item there are."""
+    """Give an item its name, or change how many of it there are."""
     item = _get(session, item_id)
-    before = {"quantity": item.quantity}
-    item.quantity = changes.quantity
+    changed = changes.model_dump(exclude_none=True)
+    before = {field: getattr(item, field) for field in changed}
+    for field, value in changed.items():
+        setattr(item, field, value)
     item.updated_at = now
-    change = history.RecordChange("item", item.id, before, {"quantity": item.quantity})
-    entry_id = history.record(session, actor, "item.updated", [change], now)
-    path = _path(session, item.home_location_id)
-    return ItemUpdated(**_item(item, path).model_dump(), history_entry_id=entry_id)
-
-
-def list_items(
-    session: Session, location_id: str, everything_inside: bool, limit: int, cursor: str | None
-) -> Page[Item]:
-    """The items in a location, oldest first, and optionally those in every location beneath it."""
-    within = locations.location_ids_within(session, location_id)
-    homes = within if everything_inside else [location_id]
-    oldest_first = (
-        select(models.Item)
-        .where(models.Item.home_location_id.in_(homes))
-        .order_by(models.Item.created_at, models.Item.id)
-        .limit(limit + 1)
-    )
-    if cursor is not None:
-        at, identifier = decode_cursor(cursor)
-        created_at, item_id = models.Item.created_at, models.Item.id
-        newer = or_(created_at > at, and_(created_at == at, item_id > identifier))
-        oldest_first = oldest_first.where(newer)
-    rows = list(session.scalars(oldest_first))
-    last = rows[limit - 1] if len(rows) > limit else None
-    return Page(
-        items=[_item(row, _path(session, row.home_location_id)) for row in rows[:limit]],
-        next_cursor=encode_cursor(last.created_at, last.id) if last else None,
-    )
+    action = "item.named" if changed.keys() == {"name"} else "item.updated"
+    change = history.RecordChange("item", item.id, before, changed)
+    entry_id = history.record(session, actor, action, [change], now)
+    return ItemUpdated(**shaped(session, item).model_dump(), history_entry_id=entry_id)

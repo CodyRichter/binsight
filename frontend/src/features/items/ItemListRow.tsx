@@ -12,9 +12,10 @@ export function ItemListRow({ item, showPath }: ItemListRowProps) {
   const changeQuantity = useQuantity(item);
   return (
     <ItemRow
-      name={item.name ?? ""}
+      name={item.name}
       to={`/items/${item.id}`}
       path={showPath ? pathSegments(item.path) : undefined}
+      photoUrl={item.photo_url ?? undefined}
       quantity={item.quantity}
       onQuantityChange={changeQuantity}
     />

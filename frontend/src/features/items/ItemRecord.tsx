@@ -7,16 +7,24 @@ import { QuantityStepper } from "@/components/QuantityStepper";
 import { ItemHistory } from "@/features/history";
 import { pageStatusOf } from "@/lib/api/pageStatus";
 import { pathSegments } from "./pathSegments";
+import { useRename } from "./useItemChange";
 import { useItem, type Item } from "./useItems";
 import { useQuantity } from "./useQuantity";
 
 function ItemBody({ item }: { item: Item }) {
   const changeQuantity = useQuantity(item);
+  const rename = useRename(item);
   return (
     <>
       <PageLead
         header={
-          <PageHeader title={item.name ?? ""} parents={pathSegments(item.path)} thumbnail={{}} />
+          <PageHeader
+            title={item.name ?? ""}
+            untitled="Unnamed"
+            onRename={rename}
+            parents={pathSegments(item.path)}
+            thumbnail={{ photoUrl: item.photo_url ?? undefined }}
+          />
         }
       >
         <QuantityStepper value={item.quantity} onChange={changeQuantity} />

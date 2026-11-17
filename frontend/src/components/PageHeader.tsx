@@ -11,6 +11,8 @@ import classes from "./PageHeader.module.css";
 
 interface PageHeaderProps {
   title: string;
+  /** What an empty title reads, in muted text, such as "Unnamed". */
+  untitled?: string;
   onRename?: (title: string) => void;
   parents?: PathSegment[];
   code?: string;
@@ -39,11 +41,15 @@ function metaLine(lastChecked: Date | null | undefined, counts: string[]): React
 }
 
 function titleLine(props: PageHeaderProps): ReactNode {
-  const { title, code, blankCode, onRename } = props;
+  const { title, untitled, code, blankCode, onRename } = props;
   return (
     <div className={classes.title}>
       <Title order={1} tabIndex={-1}>
-        {onRename ? <EditableText value={title} label="Name" onSave={onRename} /> : title}
+        {onRename ? (
+          <EditableText value={title} label="Name" invitation={untitled} onSave={onRename} />
+        ) : (
+          title || untitled
+        )}
       </Title>
       {code && <CodeChip code={code} large blank={blankCode} />}
     </div>
@@ -63,11 +69,15 @@ function moreMenu(menu: ReactNode): ReactNode {
   );
 }
 
+function documentTitle({ title, untitled }: PageHeaderProps): string {
+  return `${title || untitled} – Binsight`;
+}
+
 export function PageHeader(props: PageHeaderProps) {
   const { parents = [], thumbnail, status, summary, actions, menu } = props;
   return (
     <header className={classes.header}>
-      <title>{`${props.title} – Binsight`}</title>
+      <title>{documentTitle(props)}</title>
       <div className={classes.top}>
         {thumbnail && <Thumbnail photoUrl={thumbnail.photoUrl} large />}
         <div className={classes.identity}>

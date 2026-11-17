@@ -36,8 +36,9 @@ def add_security_headers(app: FastAPI) -> None:
     ) -> Response:
         response = await call_next(request)
         response.headers.update(EVERY_RESPONSE)
+        # A route that says how it may be cached, such as a photo's file, keeps its own answer.
         if request.url.path.startswith("/api/"):
-            response.headers["Cache-Control"] = "no-store"
+            response.headers.setdefault("Cache-Control", "no-store")
         if _is_frontend_page(request, response):
             response.headers["Content-Security-Policy"] = PAGE_POLICY
         return response

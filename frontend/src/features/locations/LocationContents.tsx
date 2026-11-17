@@ -1,12 +1,11 @@
 import { Button, SegmentedControl } from "@mantine/core";
 import { useState } from "react";
 import { Link, useParams } from "react-router";
-import { AddBar } from "@/components/AddBar";
 import { AppFrame } from "@/components/AppFrame";
 import { EmptyState } from "@/components/EmptyState";
 import { PageLead } from "@/components/PageLead";
 import { PageState } from "@/components/PageState";
-import { ItemsSection, useAddItem, useLocationItems } from "@/features/items";
+import { ItemAdder, ItemsSection, useLocationItems } from "@/features/items";
 import { pageStatusOf } from "@/lib/api/pageStatus";
 import { AddLocationSheet } from "./AddLocationSheet";
 import { ChildLocations } from "./ChildLocations";
@@ -31,7 +30,7 @@ function LocationBody({ location, locations }: LocationBodyProps) {
   const everythingInside = scope === "inside";
   const children = childrenOf(locations, location.id);
   const items = useLocationItems(location.id, everythingInside);
-  const addItem = useAddItem(location, useRefreshLocationTree());
+  const refreshTree = useRefreshLocationTree();
   const createLocation = useCreateLocation();
   const scopes = [
     { label: `Here ${location.direct_item_count}`, value: "here" },
@@ -49,7 +48,7 @@ function LocationBody({ location, locations }: LocationBodyProps) {
           />
         }
       >
-        <AddBar onAdd={(names) => names.forEach(addItem)} />
+        <ItemAdder home={location} onSettled={refreshTree} />
         {children.length > 0 && (
           <SegmentedControl data={scopes} value={scope} onChange={setScope} />
         )}
@@ -88,7 +87,7 @@ export function LocationView({ id }: { id: string }) {
   const status = pageStatusOf(tree);
   const parent = location?.parent_id ? `/locations/${location.parent_id}` : "/";
   return (
-    <AppFrame current="home" parent={parent}>
+    <AppFrame current="home" parent={parent} addTo={location?.id}>
       <PageState
         status={status === "ready" && !location ? "notFound" : status}
         standalone

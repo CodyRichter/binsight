@@ -7,8 +7,11 @@ import {
   type RouteObject,
 } from "react-router";
 import { AppFrame } from "@/components/AppFrame";
+import { FrameAdditionsContext, type FrameAdditions } from "@/components/frameAdditions";
 import { RouteError } from "@/components/RouteError";
 import { DesignFrame } from "@/features/design";
+import { useInboxCount } from "@/features/items";
+import { AddSheet } from "@/features/locations";
 
 function page(path: string, load: () => Promise<{ Component: () => React.JSX.Element }>) {
   return { path, lazy: load };
@@ -85,9 +88,6 @@ const developmentRoutes: RouteObject[] = import.meta.env.DEV
           page("/design", async () => ({
             Component: (await import("@/pages/DesignPage")).DesignPage,
           })),
-          page("/design/list", async () => ({
-            Component: (await import("@/pages/DesignListPage")).DesignListPage,
-          })),
           page("/design/task", async () => ({
             Component: (await import("@/pages/DesignTaskPage")).DesignTaskPage,
           })),
@@ -97,8 +97,19 @@ const developmentRoutes: RouteObject[] = import.meta.env.DEV
     ]
   : [];
 
+const frameAdditions: FrameAdditions = { AddSheet, useInboxCount };
+
+function AppPages() {
+  return (
+    <FrameAdditionsContext.Provider value={frameAdditions}>
+      <Outlet />
+    </FrameAdditionsContext.Provider>
+  );
+}
+
 const appRoutes: RouteObject[] = [
   {
+    Component: AppPages,
     ErrorBoundary: AppError,
     children: [
       page("/", async () => ({ Component: (await import("@/pages/HomePage")).HomePage })),
@@ -109,6 +120,7 @@ const appRoutes: RouteObject[] = [
         Component: (await import("@/pages/LocationPage")).LocationPage,
       })),
       page("/items/:id", async () => ({ Component: (await import("@/pages/ItemPage")).ItemPage })),
+      page("/inbox", async () => ({ Component: (await import("@/pages/InboxPage")).InboxPage })),
       page("/login", async () => ({ Component: (await import("@/pages/LoginPage")).LoginPage })),
       page("/settings", async () => ({
         Component: (await import("@/pages/SettingsPage")).SettingsPage,

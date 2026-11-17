@@ -47,6 +47,10 @@
   overflow-wrap: anywhere;
 }
 
+.name[data-unnamed] {
+  color: var(--bs-muted);
+}
+
 .name::after {
   content: "";
   position: absolute;

@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: labels (phase F6).** The requirements,
+> **Status: adding quickly (phases B7 and F7).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -24,7 +24,10 @@ what's inside. Search for anything and get its full location path, e.g.
 > are made in `/settings` and download as printable PNGs with their QR
 > code. Scanning one opens `/l/{code}`: its location's page, or for a
 > blank label the tree to claim it for, with Undo; locations show their
-> code chips, and the API and MCP can do the same.
+> code chips, and the API and MCP can do the same. The add bar adds by
+> name, several at once, by photo or to an existing item, from a location's
+> page or from Add in the navigation, each with Undo; `/inbox` lists what
+> still lacks a name or a home.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 

@@ -1,6 +1,6 @@
 import { Button, Textarea } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
-import { useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useRef, useState, type ClipboardEvent, type KeyboardEvent, type ReactNode } from "react";
 import { AddByPhotoButton } from "./AddByPhotoButton";
 import { CodeChip } from "./CodeChip";
 import classes from "./AddBar.module.css";
@@ -37,6 +37,13 @@ function destinationButton(props: AddBarProps): ReactNode {
   );
 }
 
+function namesIn(text: string): string[] {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
 export function AddBar(props: AddBarProps) {
   const [several, setSeveral] = useState(false);
   const [switched, setSwitched] = useState(false);
@@ -66,11 +73,17 @@ export function AddBar(props: AddBarProps) {
     submitOne();
   }
 
+  // Pasting several lines into the one-name field switches to adding several, lines kept.
+  function pasteLines(event: ClipboardEvent<HTMLInputElement>) {
+    const pasted = event.clipboardData.getData("text");
+    if (!props.onAddSeveral || namesIn(pasted).length < 2) return;
+    event.preventDefault();
+    setLines(pasted.trim());
+    switchField();
+  }
+
   function addSeveral() {
-    const names = lines
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
+    const names = namesIn(lines);
     if (names.length === 0) return;
     props.onAddSeveral?.(names);
     setLines("");
@@ -101,6 +114,7 @@ export function AddBar(props: AddBarProps) {
             data-autofocus={props.autoFocus || undefined}
             onChange={(event) => props.onNameChange?.(event.currentTarget.value.trim())}
             onKeyDown={addOne}
+            onPaste={pasteLines}
           />
         )}
         {destinationButton(props)}

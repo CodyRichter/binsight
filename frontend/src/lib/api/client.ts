@@ -68,8 +68,11 @@ async function parseError(response: Response): Promise<ApiError> {
 function buildInit(options: ApiRequestOptions): RequestInit {
   const { method = "GET", body, signal } = options;
   const headers = new Headers();
-  let encodedBody: string | undefined;
-  if (body !== undefined) {
+  let encodedBody: string | FormData | undefined;
+  // The browser sets a form's content type itself, with the boundary between its parts.
+  if (body instanceof FormData) {
+    encodedBody = body;
+  } else if (body !== undefined) {
     headers.set("Content-Type", "application/json");
     encodedBody = JSON.stringify(body);
   }

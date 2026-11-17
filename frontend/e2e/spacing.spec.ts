@@ -1,6 +1,21 @@
 import { expect, test } from "@playwright/test";
-import { addItem, makeLabels, siteRoomBin } from "./homeData";
+import {
+  addItem,
+  addLocation,
+  addPhotoItem,
+  makeLabels,
+  siteRoomBin,
+  uniqueName,
+} from "./homeData";
 import { box, open } from "./measure";
+
+test("an item row with a path is row-min plus its hairline", async ({ page }) => {
+  const shed = uniqueName("Shed");
+  await addPhotoItem(page.request, await addLocation(page.request, shed, "site"));
+  await open(page, "/inbox");
+  const row = page.locator("#content li").filter({ hasText: shed });
+  expect((await box(row)).height).toBe(65);
+});
 
 test("a flat location row puts its type icon at the gutter", async ({ page }) => {
   const { ids } = await siteRoomBin(page.request);

@@ -3,7 +3,6 @@ import { expect, test } from "@playwright/test";
 const widths = [390, 820, 1280];
 const pages = [
   { name: "design", path: "/design" },
-  { name: "list", path: "/design/list?q=cable" },
   { name: "task", path: "/design/task" },
 ];
 
