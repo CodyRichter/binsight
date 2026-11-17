@@ -94,7 +94,7 @@ binsight/
 │   │   └── types/           Shared data shapes, including the generated ones
 │   └── e2e/                 End-to-end tests, one per flow listed above, and checks of /design
 ├── deploy/                  Container image and compose file
-├── scripts/                 setup.sh, check.sh, and the Claude Code hooks
+├── scripts/                 setup.sh, check.sh, check_container.sh, and the Claude Code hooks
 ├── .claude/                 Shared Claude Code permissions and hooks
 └── .github/                 Continuous integration and dependency updates
 ```

@@ -1,0 +1,17 @@
+services:
+  binsight:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: binsight
+    environment:
+      BINSIGHT_APP_ADDRESS: ${BINSIGHT_APP_ADDRESS:?BINSIGHT_APP_ADDRESS must be set to the address the app is reached at, such as https://binsight.example.com. It is printed on every label.}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${BINSIGHT_DATA_DIRECTORY:-./data}:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    init: true
+    restart: unless-stopped

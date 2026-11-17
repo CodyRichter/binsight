@@ -34,6 +34,15 @@ jobs:
       - name: Check
         run: scripts/check.sh
 
+  container:
+    name: container
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Container check
+        run: scripts/check_container.sh
+
   # The browser tests measure pixel spacing, so they run in this container for consistent fonts.
   e2e:
     name: e2e

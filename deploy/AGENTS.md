@@ -5,15 +5,13 @@ The intended setup is in [README.md](README.md).
 
 ## Check your work
 
-Build the image and start it against an empty data directory, then against
-a copy of an existing one:
+`scripts/check_container.sh` builds the image and starts it against an empty
+data directory, then against a copy of a used one. A deployment change is
+not done until it passes. To run the app by hand:
 
 ```
 docker compose -f deploy/compose.yml up --build
 ```
-
-A deployment change is not done until the container starts healthy in both
-cases. Say which of the two you ran.
 
 ## The shape that must not change
 
