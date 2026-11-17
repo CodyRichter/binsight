@@ -169,14 +169,14 @@ the authority; this table says where to look.
 | Frontend size limits, nesting, `any`, `console.log`, TODO markers, feature import boundaries, `fetch` outside `lib/api`, unexplained `eslint-disable`, the design language's no-exception rules | `frontend/eslint.config.mjs` |
 | Design color tokens and type styles match the document; CSS only in `src/components/` and `src/lib/theme/`, with no hex colors | `scripts/check_repo.py` |
 | Frontend formatting                         | Prettier                  |
+| Every route has an MCP tool of the same name, and every tool a route | `backend/tests/mcp/test_parity.py` |
 | Formatting on edit; no finishing while checks fail; no reading `.env` or the data directory | `.claude/settings.json` |
 | Everything above, on every pull request     | `.github/workflows/ci.yml` |
 
 Frontend type checking, the production build and the staleness of the
 generated API types run in `scripts/check.sh`, and the migration test runs
-with the backend tests. The parity test arrives in phase B4 of the build
-order, and each flow's end-to-end test in the frontend phase that builds its
-page.
+with the backend tests. Each flow's end-to-end test arrives in the frontend
+phase that builds its page.
 
 If a rule here is being broken repeatedly, add a check for it rather than
 writing the rule in stronger words.

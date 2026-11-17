@@ -122,9 +122,14 @@ One shape for every error:
   tool for that action has the same name. The parity test compares the two
   lists; the few routes Claude has no use for, such as signing in, are
   named in that test: `get_health`, `get_auth_status`, `create_owner`,
-  `sign_in` and `sign_out`.
+  `sign_in` and `sign_out`. The MCP credential routes,
+  `create_mcp_credential`, `list_mcp_credentials` and
+  `revoke_mcp_credential`, have no tool either: a credential that could make
+  credentials would make revoking one meaningless.
 - A client authenticates with an MCP credential sent as a bearer token
-  ([decision 0010](decisions/0010-mcp-access.md)).
+  ([decision 0010](decisions/0010-mcp-access.md)). A request to `/mcp`
+  without a current one, including one with only a session cookie, gets 401
+  `invalid_mcp_credential`.
 - Inputs and results use the same field names and shapes as the API.
 - Errors use the same `code` values as the API.
 - A tool that deletes, merges or changes many records returns a preview and

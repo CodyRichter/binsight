@@ -178,8 +178,9 @@ Rules:
   to a new install, by choosing a password.
 - A login session is a random secret held in a cookie and stored as a hash.
   Nothing is signed, so an install has no session secret to configure.
-- MCP credentials are stored as hashes with a created time and a revoked
-  time. The secret is shown once, when created.
+- An MCP credential has a required name, such as "Claude Desktop", so it
+  can be told apart when revoking it. Its secret is stored as a hash with a
+  created time and a revoked time, and is shown once, when created.
 
 ## Confirmation
 

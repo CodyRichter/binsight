@@ -26,3 +26,14 @@ class LoginSession(Model):
     expires_at: Mapped[datetime]
 
     owner: Mapped[Owner] = relationship()
+
+
+class McpCredential(Model):
+    __tablename__ = "mcp_credential"
+
+    id: Mapped[str] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    secret_hash: Mapped[str] = mapped_column(unique=True)
+    created_at: Mapped[datetime]
+    updated_at: Mapped[datetime]
+    revoked_at: Mapped[datetime | None]

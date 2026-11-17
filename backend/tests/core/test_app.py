@@ -51,7 +51,7 @@ def test_a_method_the_api_does_not_take_gets_the_error_shape(client: TestClient)
     assert response.json()["error"]["code"] == "method_not_allowed"
 
 
-# Routes answered without a session. B4's parity test names the same ones as having no MCP tool.
+# Routes answered without a session. The MCP parity test exempts these and the MCP credentials.
 PUBLIC_OPERATIONS = {"get_health", "get_auth_status", "create_owner", "sign_in", "sign_out"}
 
 
