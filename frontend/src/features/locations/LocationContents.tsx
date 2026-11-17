@@ -81,8 +81,8 @@ const nothingHere = {
   ),
 };
 
-export function LocationContents() {
-  const { id } = useParams();
+/** A location's page: its header, quick add, and what it holds. */
+export function LocationView({ id }: { id: string }) {
   const tree = useLocationTree();
   const location = tree.data?.find((candidate) => candidate.id === id);
   const status = pageStatusOf(tree);
@@ -101,4 +101,9 @@ export function LocationContents() {
       </PageState>
     </AppFrame>
   );
+}
+
+export function LocationContents() {
+  const { id = "" } = useParams();
+  return <LocationView id={id} />;
 }

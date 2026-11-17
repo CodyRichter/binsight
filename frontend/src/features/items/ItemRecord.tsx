@@ -15,7 +15,9 @@ function ItemBody({ item }: { item: Item }) {
   return (
     <>
       <PageLead
-        header={<PageHeader title={item.name ?? ""} parents={pathSegments(item)} thumbnail={{}} />}
+        header={
+          <PageHeader title={item.name ?? ""} parents={pathSegments(item.path)} thumbnail={{}} />
+        }
       >
         <QuantityStepper value={item.quantity} onChange={changeQuantity} />
       </PageLead>

@@ -24,6 +24,7 @@ export function ChildLocations({ locations, onAddLocation }: ChildLocationsProps
           key={location.id}
           name={location.name}
           locationType={location.type}
+          code={location.label_code ?? undefined}
           itemCount={location.item_count}
           to={`/locations/${location.id}`}
         />

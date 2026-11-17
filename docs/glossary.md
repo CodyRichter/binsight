@@ -24,6 +24,7 @@ before naming it in code.
 | **Code**        | The short permanent identifier on a label, e.g. `B-014`. Never reused. |
 | **Blank label** | A label that has been generated but not yet attached to a location. |
 | **Claim**       | Attaching a blank label to a location the first time it is scanned. |
+| **Unclaim**     | Turning a claimed label back into a blank label, to undo a claim. |
 | **Label address** | The web address a QR code holds: the app's address plus `/l/` plus the code. |
 
 ## Items

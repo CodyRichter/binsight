@@ -65,6 +65,33 @@ def test_a_label_in_use_is_refused_with_a_conflict(signed_in: TestClient) -> Non
     )
 
 
+def test_a_claimed_location_s_code_is_on_its_path_step(signed_in: TestClient) -> None:
+    signed_in.post(f"{LABELS}/blank", json={"count": 1})
+    home = _site(signed_in)
+    signed_in.post(f"{LABELS}/B-001/claim", json={"location_id": home})
+    path = signed_in.get(f"/api/locations/{home}").json()["path"]
+    assert path == [{"id": home, "name": "Home", "type": "site", "label_code": "B-001"}]
+
+
+def test_unclaiming_makes_the_label_blank_again(signed_in: TestClient) -> None:
+    signed_in.post(f"{LABELS}/blank", json={"count": 1})
+    home = _site(signed_in)
+    signed_in.post(f"{LABELS}/B-001/claim", json={"location_id": home})
+    response = signed_in.post(f"{LABELS}/b1/unclaim")
+    assert response.status_code == 200
+    assert (response.json()["location_id"], response.json()["claimed_at"]) == (None, None)
+    assert response.json()["history_entry_id"]
+    assert signed_in.get(f"/api/locations/{home}").json()["label_code"] is None
+
+
+def test_unclaiming_a_blank_or_unknown_label_is_refused(signed_in: TestClient) -> None:
+    signed_in.post(f"{LABELS}/blank", json={"count": 1})
+    blank = signed_in.post(f"{LABELS}/B-001/unclaim")
+    assert (blank.status_code, blank.json()["error"]["code"]) == (409, "label_not_claimed")
+    unknown = signed_in.post(f"{LABELS}/B-404/unclaim")
+    assert (unknown.status_code, unknown.json()["error"]["code"]) == (404, "label_not_found")
+
+
 def test_an_unknown_code_is_not_found(signed_in: TestClient) -> None:
     for path in (f"{LABELS}/B-404", f"{LABELS}/B-404/image"):
         response = signed_in.get(path)

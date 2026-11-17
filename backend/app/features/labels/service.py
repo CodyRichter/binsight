@@ -16,6 +16,7 @@ from app.features.labels.schemas import (
     LabelClaim,
     LabelClaimed,
     LabelImage,
+    LabelUnclaimed,
     NewBlankLabels,
 )
 from app.features.locations import service as locations
@@ -126,6 +127,21 @@ def claim_label(
     )
     entry_id = history.record(session, actor, "label.claimed", [change], now)
     return LabelClaimed(**_label(label).model_dump(), history_entry_id=entry_id)
+
+
+def unclaim_label(session: Session, code: str, actor: Actor, now: datetime) -> LabelUnclaimed:
+    """Turn a claimed label back into a blank one, to undo a claim made by mistake."""
+    label = _get(session, code)
+    if label.location_id is None:
+        raise AppError(409, "label_not_claimed", f"Label {label.code} is already blank.")
+    change = history.RecordChange(
+        "label", label.id, {"location_id": label.location_id}, {"location_id": None}
+    )
+    label.location_id = None
+    label.claimed_at = None
+    label.updated_at = now
+    entry_id = history.record(session, actor, "label.unclaimed", [change], now)
+    return LabelUnclaimed(**_label(label).model_dump(), history_entry_id=entry_id)
 
 
 def label_image(session: Session, code: str, app_address: str) -> LabelImage:

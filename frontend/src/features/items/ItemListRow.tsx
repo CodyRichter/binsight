@@ -14,7 +14,7 @@ export function ItemListRow({ item, showPath }: ItemListRowProps) {
     <ItemRow
       name={item.name ?? ""}
       to={`/items/${item.id}`}
-      path={showPath ? pathSegments(item) : undefined}
+      path={showPath ? pathSegments(item.path) : undefined}
       quantity={item.quantity}
       onQuantityChange={changeQuantity}
     />

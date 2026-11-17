@@ -28,6 +28,8 @@ class NewLocation(BaseModel):
 class PathStep(BaseModel):
     id: str
     name: str
+    type: LocationType
+    label_code: str | None
 
 
 class Location(BaseModel):
