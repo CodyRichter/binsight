@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, StringConstraints
+from pydantic import BaseModel, Field, StringConstraints
 
 from app.features.locations.service import PathStep
 
@@ -11,6 +11,10 @@ ItemName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1,
 class NewItem(BaseModel):
     name: ItemName
     home_location_id: str | None = None
+
+
+class ItemChanges(BaseModel):
+    quantity: int = Field(ge=0)
 
 
 class Item(BaseModel):
@@ -23,4 +27,8 @@ class Item(BaseModel):
 
 
 class ItemCreated(Item):
+    history_entry_id: str
+
+
+class ItemUpdated(Item):
     history_entry_id: str

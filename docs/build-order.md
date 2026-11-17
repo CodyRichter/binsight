@@ -61,14 +61,14 @@ Feature: `auth`.
 ### B3: Locations, items and history
 
 Create a location, list locations as a tree, add an item by name to a
-location and see it with its full path. History entries written for each,
-inside the action's transaction. Features: `locations`, `items`,
-`history`.
+location and see it with its full path, and change an item's quantity.
+History entries written for each, inside the action's transaction.
+Features: `locations`, `items`, `history`.
 
 ### F3: Locations, items and history
 
 The tree at `/`, a location's page with single add and "Add location", and
-an item's page with its name, quantity and history.
+an item's page with its name, the quantity stepper and history.
 
 ### B4: MCP
 
@@ -145,7 +145,7 @@ In this order, each as its own step shipping both sides together:
 
 1. Checks: contents checked, check mode, last-checked everywhere.
    Feature: `checks`.
-2. Item details: quantity controls, status, lent to, archive, links,
+2. Item details: status, lent to, archive, links,
    categories and tags.
 3. Views and saved searches. Feature: `views`.
 4. Attachments beyond photos: receipts, manuals, links.

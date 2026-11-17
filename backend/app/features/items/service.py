@@ -8,7 +8,7 @@ from app.core.errors import AppError
 from app.core.identifiers import new_identifier
 from app.core.pagination import Page, decode_cursor, encode_cursor
 from app.features.history import service as history
-from app.features.items.schemas import Item, ItemCreated, NewItem
+from app.features.items.schemas import Item, ItemChanges, ItemCreated, ItemUpdated, NewItem
 from app.features.locations import service as locations
 from app.features.locations.service import PathStep
 from app.models import Actor
@@ -47,12 +47,31 @@ def create_item(session: Session, new: NewItem, actor: Actor, now: datetime) -> 
     return ItemCreated(**_item(item, path).model_dump(), history_entry_id=entry_id)
 
 
-def get_item(session: Session, item_id: str) -> Item:
-    """One item, with the full path of its home location."""
+def _get(session: Session, item_id: str) -> models.Item:
     item = session.get(models.Item, item_id)
     if item is None:
         raise AppError(404, "item_not_found", "That item does not exist.")
+    return item
+
+
+def get_item(session: Session, item_id: str) -> Item:
+    """One item, with the full path of its home location."""
+    item = _get(session, item_id)
     return _item(item, _path(session, item.home_location_id))
+
+
+def update_item(
+    session: Session, item_id: str, changes: ItemChanges, actor: Actor, now: datetime
+) -> ItemUpdated:
+    """Change how many of an item there are."""
+    item = _get(session, item_id)
+    before = {"quantity": item.quantity}
+    item.quantity = changes.quantity
+    item.updated_at = now
+    change = history.RecordChange("item", item.id, before, {"quantity": item.quantity})
+    entry_id = history.record(session, actor, "item.updated", [change], now)
+    path = _path(session, item.home_location_id)
+    return ItemUpdated(**_item(item, path).model_dump(), history_entry_id=entry_id)
 
 
 def list_items(
