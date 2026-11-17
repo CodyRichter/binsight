@@ -175,7 +175,8 @@ the authority; this table says where to look.
 Frontend type checking, the production build and the staleness of the
 generated API types run in `scripts/check.sh`, and the migration test runs
 with the backend tests. The parity test arrives in phase B4 of the build
-order, and the end-to-end flow tests with the frontend wiring.
+order, and each flow's end-to-end test in the frontend phase that builds its
+page.
 
 If a rule here is being broken repeatedly, add a check for it rather than
 writing the rule in stronger words.

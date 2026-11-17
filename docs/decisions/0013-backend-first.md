@@ -1,6 +1,6 @@
 # 0013: The backend is built through the five flows before the frontend is wired
 
-Status: Accepted
+Status: Replaced by [0014](0014-paired-phases.md)
 
 ## Context
 

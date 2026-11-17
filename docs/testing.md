@@ -15,7 +15,9 @@ them.
 
 The first three layers run in `scripts/check.sh`. The end-to-end tests run
 as their own step in continuous integration, and locally with
-`npm run e2e`, so the check script stays quick.
+`npm run e2e`, so the check script stays quick. Each flow's test starts in the
+frontend phase of the [build order](build-order.md) that builds its page;
+the tests of the frame itself start in F1.
 
 There are no frontend unit tests for components by default. A component
 earns one only when it holds logic worth testing alone, such as splitting

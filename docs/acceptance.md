@@ -6,8 +6,9 @@ at phone width, that follows these steps exactly. A flow is not done until
 its test passes.
 
 The backend phase named for a flow in the [build order](build-order.md)
-makes its results reachable through the API and MCP. The end-to-end tests
-are written when the frontend is wired, and all five pass before `v0.1.0`.
+makes its results reachable through the API and MCP. The flow's end-to-end
+test starts in the frontend phase that builds its page, and all five pass
+before `v0.1.0`.
 
 "Tap" counts start once the page named in the first step is showing.
 Typing a name is not counted as a tap.

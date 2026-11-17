@@ -6,6 +6,7 @@ import {
   useRouteError,
   type RouteObject,
 } from "react-router";
+import { AppFrame } from "@/components/AppFrame";
 import { RouteError } from "@/components/RouteError";
 import { DesignFrame } from "@/features/design";
 
@@ -41,6 +42,28 @@ function DesignNotFound() {
   );
 }
 
+function AppError() {
+  const error = useRouteError();
+  const navigate = useNavigate();
+  return (
+    <AppFrame>
+      <RouteError error={error} onRetry={() => navigate(0)} onGoHome={() => navigate("/")} />
+    </AppFrame>
+  );
+}
+
+function AppNotFound() {
+  const navigate = useNavigate();
+  return (
+    <AppFrame>
+      <RouteError
+        error={{ status: 404, statusText: "Not Found", data: null, internal: true }}
+        onGoHome={() => navigate("/")}
+      />
+    </AppFrame>
+  );
+}
+
 function RootError() {
   const error = useRouteError();
   return (
@@ -48,9 +71,7 @@ function RootError() {
       <RouteError
         error={error}
         onRetry={() => window.location.reload()}
-        onGoHome={() => {
-          window.location.assign(import.meta.env.DEV ? "/design" : "/");
-        }}
+        onGoHome={() => window.location.assign("/")}
       />
     </main>
   );
@@ -82,11 +103,15 @@ const developmentRoutes: RouteObject[] = import.meta.env.DEV
           page("/design/gate", async () => ({
             Component: (await import("@/pages/DesignGatePage")).DesignGatePage,
           })),
-          page("*", async () => ({ Component: DesignNotFound })),
+          page("/design/*", async () => ({ Component: DesignNotFound })),
         ],
       },
     ]
   : [];
+
+const appRoutes: RouteObject[] = [
+  { ErrorBoundary: AppError, children: [{ path: "*", Component: AppNotFound }] },
+];
 
 function Root() {
   return (
@@ -98,7 +123,7 @@ function Root() {
 }
 
 export const routes: RouteObject[] = [
-  { Component: Root, ErrorBoundary: RootError, children: developmentRoutes },
+  { Component: Root, ErrorBoundary: RootError, children: [...developmentRoutes, ...appRoutes] },
 ];
 
 export const router = createBrowserRouter(routes);
