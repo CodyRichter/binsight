@@ -1,0 +1,36 @@
+import type { APIRequestContext } from "@playwright/test";
+
+/** A name no other test in the run uses, since every test shares one backend. */
+export function uniqueName(word: string): string {
+  return `${word} ${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+}
+
+/** Adds a location through the API, for a test about something other than adding it. */
+export async function addLocation(
+  request: APIRequestContext,
+  name: string,
+  type: string,
+  parentId: string | null = null,
+): Promise<string> {
+  const response = await request.post("/api/locations", {
+    data: { name, type, parent_id: parentId },
+  });
+  return ((await response.json()) as { id: string }).id;
+}
+
+/** Adds an item through the API to a location. */
+export async function addItem(request: APIRequestContext, name: string, homeId: string) {
+  const response = await request.post("/api/items", {
+    data: { name, home_location_id: homeId },
+  });
+  return ((await response.json()) as { id: string }).id;
+}
+
+/** A site holding a room holding a bin, each uniquely named. */
+export async function siteRoomBin(request: APIRequestContext) {
+  const names = { site: uniqueName("Home"), room: uniqueName("Garage"), bin: uniqueName("Cables") };
+  const site = await addLocation(request, names.site, "site");
+  const room = await addLocation(request, names.room, "room", site);
+  const bin = await addLocation(request, names.bin, "bin", room);
+  return { names, ids: { site, room, bin } };
+}

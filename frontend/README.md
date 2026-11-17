@@ -4,10 +4,11 @@ The web app. A client-only React app, phone first and installable to the
 home screen, built into static files that the backend serves
 ([decision 0008](../docs/decisions/0008-frontend-served-by-backend.md)).
 
-> **Status: sign-in (phase F2).** The design language's components are
-> shown at `/design` by `npm run dev`. `/login` creates the owner or signs
-> in, and `/settings` signs out. Every other address shows "Nothing at this
-> address" once signed in.
+> **Status: locations, items and history (phase F3).** The design
+> language's components are shown at `/design` by `npm run dev`. `/login`
+> creates the owner or signs in, and `/settings` signs out. `/` shows the
+> location tree and adds sites, a location's page adds locations and items
+> inside it, and an item's page changes its quantity and shows its history.
 
 ## Tech stack
 

@@ -7,14 +7,15 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: locations, items and history (phase B3).** The requirements,
+> **Status: locations, items and history (phase F3).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
 > generated API types. A new install asks for a password at `/login`, every
-> other page needs sign-in, and `/settings` signs out. The API creates
-> locations and items, lists the location tree and a location's items with
-> full paths, and records every change in history; no page shows them yet.
+> other page needs sign-in, and `/settings` signs out. `/` shows the
+> location tree, a location's page adds locations and items inside it, and
+> an item's page shows its path, changes its quantity and lists its
+> history, which records every change.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 

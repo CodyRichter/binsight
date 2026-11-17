@@ -9,6 +9,7 @@ const searchPage = "/search";
 interface AppFrameProps {
   current?: Destination | null;
   destination?: boolean;
+  parent?: string;
   children: ReactNode;
 }
 
@@ -29,9 +30,9 @@ function useSearch() {
   };
 }
 
-export function AppFrame({ current = null, destination, children }: AppFrameProps) {
+export function AppFrame({ current = null, destination, parent, children }: AppFrameProps) {
   return (
-    <Frame navigation={{ current }} search={useSearch()} destination={destination}>
+    <Frame navigation={{ current }} search={useSearch()} destination={destination} parent={parent}>
       <SessionCheck>{children}</SessionCheck>
     </Frame>
   );

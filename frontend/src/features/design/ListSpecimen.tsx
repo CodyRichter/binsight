@@ -10,14 +10,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { PageLead } from "@/components/PageLead";
 import { showToast } from "@/lib/toast";
 import { DesignFrame } from "./DesignFrame";
-import {
-  itemsInside,
-  itemUrl,
-  locationUrl,
-  pathTo,
-  sampleItems,
-  sampleLocations,
-} from "./sampleHome";
+import { itemsInside, pathTo, sampleItems, sampleLink, sampleLocations } from "./sampleHome";
 
 const filters = ["Garage", "Category", "Status", "Tag", "Last checked"];
 
@@ -69,14 +62,14 @@ export function ListSpecimen() {
               code={location.code}
               locationType={location.locationType}
               itemCount={itemsInside(location.id).length}
-              to={locationUrl(location.id)}
+              to={sampleLink}
             />
           ))}
           {items.map((item) => (
             <ItemRow
               key={item.id}
               name={item.name}
-              to={itemUrl(item.id)}
+              to={sampleLink}
               path={pathTo(item.home)}
               photoUrl={item.photoUrl}
               status={item.status}

@@ -85,14 +85,8 @@ const developmentRoutes: RouteObject[] = import.meta.env.DEV
           page("/design", async () => ({
             Component: (await import("@/pages/DesignPage")).DesignPage,
           })),
-          page("/design/browse/:location?", async () => ({
-            Component: (await import("@/pages/DesignBrowsePage")).DesignBrowsePage,
-          })),
           page("/design/list", async () => ({
             Component: (await import("@/pages/DesignListPage")).DesignListPage,
-          })),
-          page("/design/record/:item?", async () => ({
-            Component: (await import("@/pages/DesignRecordPage")).DesignRecordPage,
           })),
           page("/design/task", async () => ({
             Component: (await import("@/pages/DesignTaskPage")).DesignTaskPage,
@@ -107,6 +101,11 @@ const appRoutes: RouteObject[] = [
   {
     ErrorBoundary: AppError,
     children: [
+      page("/", async () => ({ Component: (await import("@/pages/HomePage")).HomePage })),
+      page("/locations/:id", async () => ({
+        Component: (await import("@/pages/LocationPage")).LocationPage,
+      })),
+      page("/items/:id", async () => ({ Component: (await import("@/pages/ItemPage")).ItemPage })),
       page("/login", async () => ({ Component: (await import("@/pages/LoginPage")).LoginPage })),
       page("/settings", async () => ({
         Component: (await import("@/pages/SettingsPage")).SettingsPage,
