@@ -30,20 +30,6 @@ test("sends JSON payloads with null preserved and returns parsed JSON", async ()
   expect(new Headers(init.headers).get("Content-Type")).toBe("application/json");
 });
 
-test("preserves FormData uploads without forcing Content-Type", async () => {
-  const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
-  vi.stubGlobal("fetch", fetchMock);
-  const form = new FormData();
-  form.append("file", new Blob(["abc"], { type: "image/jpeg" }), "photo.jpg");
-
-  const result = await api.post<undefined>("/api/items/1/photos", form);
-
-  expect(result).toBeUndefined();
-  const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-  expect(init.body).toBe(form);
-  expect(new Headers(init.headers).has("Content-Type")).toBe(false);
-});
-
 test("maps backend JSON errors into ApiError", async () => {
   const fetchMock = vi.fn().mockResolvedValue(
     new Response(

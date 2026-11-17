@@ -1,8 +1,3 @@
-export interface CursorPage<T> {
-  items: T[];
-  next_cursor: string | null;
-}
-
 interface ApiErrorBody {
   error?: {
     code?: string;
@@ -27,10 +22,6 @@ export class ApiError extends Error {
     this.status = status;
     this.code = code;
     this.details = details;
-  }
-
-  get isUnauthorized(): boolean {
-    return this.status === 401;
   }
 
   get isNotFound(): boolean {
@@ -77,10 +68,8 @@ async function parseError(response: Response): Promise<ApiError> {
 function buildInit(options: ApiRequestOptions): RequestInit {
   const { method = "GET", body, signal } = options;
   const headers = new Headers();
-  let encodedBody: BodyInit | undefined;
-  if (body instanceof FormData) {
-    encodedBody = body;
-  } else if (body !== undefined) {
+  let encodedBody: string | undefined;
+  if (body !== undefined) {
     headers.set("Content-Type", "application/json");
     encodedBody = JSON.stringify(body);
   }

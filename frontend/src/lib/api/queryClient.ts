@@ -27,7 +27,6 @@ export function createQueryClient(): QueryClient {
         // The backend answered, so asking again gives the same answer.
         retry: (failureCount, error) => isNetworkFailure(error) && failureCount < networkRetries,
         throwOnError: (error) => !isNetworkFailure(error) && !isSignedOut(error),
-        refetchOnWindowFocus: true,
       },
     },
   });
