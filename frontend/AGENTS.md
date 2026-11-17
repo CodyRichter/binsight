@@ -16,12 +16,8 @@ npm run format
 `npm run typecheck`, `npm test` and `npm run build` are part of
 `scripts/check.sh`. `npm run dev` serves the app; `/design` shows every
 component and token. `npm run e2e` runs the Playwright tests, in continuous
-integration rather than the check script. Its screenshots of `/design` and
-the template specimens under it are compared and made only in the CI
-container. To make new baselines, run
-`gh workflow run ci.yml --ref <branch> -f update_screenshots=true`, check
-the images in the `screenshots` artifact, and commit them to
-`e2e/__screenshots__/`. Lint rules are in `eslint.config.mjs`. A React
+integration rather than the check script. There are no screenshot
+comparisons; they broke on every intended visual change. Lint rules are in `eslint.config.mjs`. A React
 component's length is governed by the 150-line file limit, not the 40-line
 function limit.
 

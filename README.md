@@ -85,7 +85,7 @@ binsight/
 │   │   ├── lib/api/         The one client used to call the backend
 │   │   ├── lib/theme/       The Mantine theme: every design token, set once
 │   │   └── types/           Shared data shapes, including the generated ones
-│   └── e2e/                 End-to-end tests, one per flow listed above, and screenshots of /design
+│   └── e2e/                 End-to-end tests, one per flow listed above, and checks of /design
 ├── deploy/                  Container image and compose file
 ├── scripts/                 setup.sh, check.sh, and the Claude Code hooks
 ├── .claude/                 Shared Claude Code permissions and hooks

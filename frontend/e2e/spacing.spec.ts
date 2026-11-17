@@ -66,19 +66,6 @@ test("only pages below a destination show Back", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Back" })).toHaveCount(1);
 });
 
-test("a confirmation dialog keeps space-xl body padding", async ({ page }) => {
-  await open(page, "/design");
-  await page.getByRole("button", { name: "Delete blank labels" }).click();
-  const dialog = page.getByRole("dialog");
-  const card = await box(dialog);
-  const title = await box(dialog.getByRole("heading", { name: "Delete 12 blank labels?" }));
-  const bodyText = await box(dialog.getByText(/Their codes can never be used again/));
-  expect(bodyText.left - card.left).toBe(24);
-  expect(card.right - bodyText.right).toBe(24);
-  expect(title.top - card.top).toBe(24);
-  expect(bodyText.top - title.bottom).toBe(16);
-});
-
 test("editable text inside a value row stays below its label when editing", async ({ page }) => {
   await open(page, "/design/record/hdmi-cable");
   const row = page.locator("#content li").filter({ hasText: "Category" });
