@@ -24,6 +24,8 @@ function answer(status: number, body: unknown) {
 const signedIn = { owner_exists: true, signed_in: true };
 const signedOut = { owner_exists: true, signed_in: false };
 const newInstall = { owner_exists: false, signed_in: false };
+const noCredentials = { items: [], next_cursor: null };
+const credentialsPath = "/api/auth/mcp-credentials?limit=200";
 
 /** Answers each request in turn; the last answer is repeated for any request after it. */
 function stubBackend(...answers: (Response | Error)[]) {
@@ -149,6 +151,7 @@ test("signing in returns to the address that was asked for", async () => {
   let signedInNow = false;
   const fetchMock = vi.fn((path: string) => {
     if (path === "/api/auth/sign-in") signedInNow = true;
+    if (path === credentialsPath) return Promise.resolve(answer(200, noCredentials));
     return Promise.resolve(answer(200, signedInNow ? signedIn : signedOut));
   });
   vi.stubGlobal("fetch", fetchMock);
@@ -192,6 +195,7 @@ test("signing out sends the page to the Gate, ready to return to it", async () =
         signedInNow = false;
         return Promise.resolve(new Response(null, { status: 204 }));
       }
+      if (path === credentialsPath) return Promise.resolve(answer(200, noCredentials));
       return Promise.resolve(answer(200, signedInNow ? signedIn : signedOut));
     }),
   );

@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: MCP (phase B4).** The requirements,
+> **Status: MCP credentials in settings (phase F4).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -17,8 +17,7 @@ what's inside. Search for anything and get its full location path, e.g.
 > an item's page shows its path, changes its quantity and lists its
 > history, which records every change. Claude Code and Claude Desktop can
 > reach the same actions through the MCP server at `/mcp`, with an MCP
-> credential as a bearer token; the settings page for credentials comes in
-> F4.
+> credential as a bearer token, made and revoked in `/settings`.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 

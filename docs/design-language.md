@@ -385,7 +385,9 @@ is tapped by mistake.
    width of the column. A toast shows above it.
 
 **Settings** (`/settings`). Header ("Settings"), then sections of value
-rows, each with `space-xl` above its header like every section.
+rows, each with `space-xl` above its header like every section. A section
+whose action is the only way to add to it shows even when empty: "MCP
+credentials", whose action is "Add MCP credential".
 
 **Gate** (`/login`, and creating the owner on a new install). The gate
 frame: a `gate-width` column, centered across and placed in the upper
@@ -543,6 +545,13 @@ summary") only on the thing's own page.
 up). One title, one choice. Picking a row acts and closes it. The move sheet
 lists recently used locations first. A sheet never opens another sheet and
 never holds more than one field.
+
+A value shown only once, such as an MCP credential's secret, is a read-only
+text field holding what the owner will paste, with a default "Copy" button
+(left out where the browser has no clipboard), the single small line in
+settings saying it is not shown again, and a primary "Done". Copy's label
+becomes "Copied" until the sheet closes: the one narration allowed, since a
+copy changes nothing on screen.
 
 The title sits at the gutter and Close is a `touch-min` icon button with its
 glyph at the gutter, like the top bar's. The body has no side padding: rows
