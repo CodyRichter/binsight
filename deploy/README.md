@@ -62,7 +62,8 @@ repository.
 
 To back it up by hand, stop the container and copy the directory; restoring
 is putting it back. Copying the database file while the app is running can
-produce a broken copy.
+produce a broken copy. On Linux, copy with `sudo cp -a` so the files stay
+owned by uid 1000, or `chown` the restored directory again.
 
 Today `backups/` holds the copy taken before each upgrade. Scheduled
 backups, safe to take while the app runs, arrive in a later step of the

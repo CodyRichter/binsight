@@ -72,7 +72,8 @@ docker stop "$container" >/dev/null
 echo "Healthy, not root, served the app, and stored a location and an item."
 
 step "Start from a copy of a used data directory"
-cp -R "$work/empty" "$work/used"
+# Copied as root with -a, as a restore must be, so the files keep uid 1000 as their owner.
+docker run --rm --user 0 --entrypoint cp --volume "$work:/work" "$image" -a /work/empty /work/used
 rm "$work/cookies"
 container=$image-used
 start "$container" "$work/used"
