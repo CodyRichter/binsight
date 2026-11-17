@@ -38,11 +38,12 @@ export function AppFrame(props: AppFrameProps) {
   const { AddSheet, useInboxCount } = useContext(FrameAdditionsContext);
   const inboxCount = useInboxCount();
   const [adding, setAdding] = useState(false);
+  const navigate = useNavigate();
   return (
     <Frame
       navigation={{ current, inboxCount }}
       search={useSearch()}
-      actions={AddSheet && { onAdd: () => setAdding(true) }}
+      actions={{ onAdd: AddSheet && (() => setAdding(true)), onScan: () => navigate("/scan") }}
       destination={destination}
       parent={parent}
     >

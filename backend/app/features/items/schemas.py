@@ -32,6 +32,10 @@ class ItemChanges(BaseModel):
         return self
 
 
+class ItemMove(BaseModel):
+    location_id: str
+
+
 class Item(BaseModel):
     id: str
     name: str | None
@@ -52,6 +56,10 @@ class ItemsCreated(BaseModel):
 
 
 class ItemUpdated(Item):
+    history_entry_id: str
+
+
+class ItemMoved(Item):
     history_entry_id: str
 
 

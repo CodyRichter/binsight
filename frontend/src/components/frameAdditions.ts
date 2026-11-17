@@ -1,4 +1,7 @@
 import { createContext, type ComponentType } from "react";
+import type { components } from "@/types/api.generated";
+
+type Location = components["schemas"]["Location"];
 
 export interface AddSheetProps {
   opened: boolean;
@@ -9,9 +12,20 @@ export interface AddSheetProps {
   name?: string;
 }
 
-/** What the app's features add to every frame: the Add sheet and the inbox's count. */
+export interface MoveSheetProps {
+  opened: boolean;
+  onClose: () => void;
+  /** Where the thing is now, which is left out of the choices; null for the inbox. */
+  currentId: string | null;
+  /** A location being moved: it and everything inside it are left out too. */
+  movingId?: string;
+  onPick: (place: Location) => void;
+}
+
+/** What the app's features add to every frame: the Add and Move sheets and the inbox's count. */
 export interface FrameAdditions {
   AddSheet?: ComponentType<AddSheetProps>;
+  MoveSheet?: ComponentType<MoveSheetProps>;
   useInboxCount: () => number | undefined;
 }
 

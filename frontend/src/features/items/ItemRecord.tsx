@@ -1,5 +1,9 @@
+import { Button } from "@mantine/core";
+import { IconArrowsMove } from "@tabler/icons-react";
+import { useContext, useState } from "react";
 import { useParams } from "react-router";
 import { AppFrame } from "@/components/AppFrame";
+import { FrameAdditionsContext } from "@/components/frameAdditions";
 import { PageHeader } from "@/components/PageHeader";
 import { PageLead } from "@/components/PageLead";
 import { PageState } from "@/components/PageState";
@@ -8,8 +12,29 @@ import { ItemHistory } from "@/features/history";
 import { pageStatusOf } from "@/lib/api/pageStatus";
 import { pathSegments } from "./pathSegments";
 import { useRename } from "./useItemChange";
+import { useMoveItem } from "./useMoveItem";
 import { useItem, type Item } from "./useItems";
 import { useQuantity } from "./useQuantity";
+
+function MoveButton({ item }: { item: Item }) {
+  const { MoveSheet } = useContext(FrameAdditionsContext);
+  const [moving, setMoving] = useState(false);
+  const move = useMoveItem();
+  if (!MoveSheet) return null;
+  return (
+    <>
+      <Button leftSection={<IconArrowsMove aria-hidden />} onClick={() => setMoving(true)}>
+        Move
+      </Button>
+      <MoveSheet
+        opened={moving}
+        onClose={() => setMoving(false)}
+        currentId={item.home_location_id}
+        onPick={(place) => move(item, place)}
+      />
+    </>
+  );
+}
 
 function ItemBody({ item }: { item: Item }) {
   const changeQuantity = useQuantity(item);
@@ -24,6 +49,7 @@ function ItemBody({ item }: { item: Item }) {
             onRename={rename}
             parents={pathSegments(item.path)}
             thumbnail={{ photoUrl: item.photo_url ?? undefined }}
+            actions={<MoveButton item={item} />}
           />
         }
       >

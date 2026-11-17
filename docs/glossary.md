@@ -15,6 +15,8 @@ before naming it in code.
 | **Parent**        | The location that directly contains a location.            |
 | **Path**          | A location's chain of names from its site down, e.g. `Garage > Shelf 2 > Bin B-014`. |
 | **Summary**       | An optional one-line description of a location's contents, for locations not worth itemizing. |
+| **Move**          | Changing an item's home location, or a location's parent. A location moves with everything inside it. |
+| **Recently used** | The last few locations things were moved to on this device, offered first when moving. |
 
 ## Labels
 
@@ -26,6 +28,7 @@ before naming it in code.
 | **Claim**       | Attaching a blank label to a location the first time it is scanned. |
 | **Unclaim**     | Turning a claimed label back into a blank label, to undo a claim. |
 | **Label address** | The web address a QR code holds: the app's address plus `/l/` plus the code. |
+| **Scanner**     | The camera inside the app, at `/scan` and in the move sheet, reading labels' QR codes. |
 
 ## Items
 

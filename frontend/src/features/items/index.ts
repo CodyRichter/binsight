@@ -6,3 +6,4 @@ export { ItemsSection } from "./ItemsSection";
 export { useInboxCount } from "./useInbox";
 export { useLocationItems, type Destination, type Item } from "./useItems";
 export { pathSegments } from "./pathSegments";
+export { placeName } from "./placeName";

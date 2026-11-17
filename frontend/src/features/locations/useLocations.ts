@@ -8,12 +8,13 @@ type LocationTree = components["schemas"]["LocationTree"];
 type NewLocation = components["schemas"]["NewLocation"];
 type LocationCreated = components["schemas"]["LocationCreated"];
 
-const locationTreeKey = ["locations"] as const;
+export const locationTreeKey = ["locations"] as const;
 
 /** Every location in the home, read once and shared by the tree and each location's page. */
-export function useLocationTree() {
+export function useLocationTree(enabled = true) {
   return useQuery({
     queryKey: locationTreeKey,
+    enabled,
     queryFn: ({ signal }) => api.get<LocationTree>("/api/locations", signal),
     select: (tree) => tree.locations,
   });

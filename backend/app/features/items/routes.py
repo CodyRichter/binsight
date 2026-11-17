@@ -14,6 +14,8 @@ from app.features.items.schemas import (
     Item,
     ItemChanges,
     ItemCreated,
+    ItemMove,
+    ItemMoved,
     ItemsCreated,
     ItemUpdated,
     NewItem,
@@ -87,3 +89,8 @@ def get_item(item_id: str, session: ReadSession) -> Item:
 @router.patch("/{item_id}", operation_id="update_item", responses=refusals(404, 422))
 def update_item(item_id: str, body: ItemChanges, session: WriteSession) -> ItemUpdated:
     return service.update_item(session, item_id, body, Actor.app, clock.now())
+
+
+@router.post("/{item_id}/move", operation_id="move_item", responses=refusals(404, 409, 422))
+def move_item(item_id: str, body: ItemMove, session: WriteSession) -> ItemMoved:
+    return service.move_item(session, item_id, body, Actor.app, clock.now())

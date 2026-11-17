@@ -110,8 +110,13 @@ One shape for every error:
   takes: `POST /api/history/{entry_id}/undo`. Undo is refused with 409
   `already_undone`, `changed_since` when a record no longer holds what the
   entry left it as, or `undo_not_supported` for an action undo does not
-  cover yet. It covers adding items and changing an item's name or
-  quantity.
+  cover yet. It covers adding items, changing an item's name or
+  quantity, and moving an item or a location; undoing a location's move is
+  refused with `changed_since` when its old parent has since been moved
+  inside it.
+- A move is refused with 409 `already_there` when the thing is already in
+  that location, `move_into_itself` when a location would go into itself
+  or anything inside it, and `site_cannot_move` for a site.
 - A photo is uploaded as `multipart/form-data` with one `photo` part,
   JPEG, PNG or WebP, at most 20 MB; anything else is refused with 422
   `unsupported_photo` or `photo_too_large`. The photo is stored before the

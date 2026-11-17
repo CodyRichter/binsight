@@ -159,6 +159,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/locations/{location_id}/move": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Move Location */
+        post: operations["move_location"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/items": {
         parameters: {
             query?: never;
@@ -261,6 +278,23 @@ export interface paths {
         head?: never;
         /** Update Item */
         patch: operations["update_item"];
+        trace?: never;
+    };
+    "/api/items/{item_id}/move": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Move Item */
+        post: operations["move_item"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/labels/blank": {
@@ -580,6 +614,33 @@ export interface components {
             /** History Entry Id */
             history_entry_id: string;
         };
+        /** ItemMove */
+        ItemMove: {
+            /** Location Id */
+            location_id: string;
+        };
+        /** ItemMoved */
+        ItemMoved: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Home Location Id */
+            home_location_id: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Photo Url */
+            photo_url: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
         /** ItemResult */
         ItemResult: {
             /**
@@ -693,6 +754,33 @@ export interface components {
         };
         /** LocationCreated */
         LocationCreated: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            type: components["schemas"]["LocationType"];
+            /** Parent Id */
+            parent_id: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Label Code */
+            label_code: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Direct Item Count */
+            direct_item_count: number;
+            /** Item Count */
+            item_count: number;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** LocationMove */
+        LocationMove: {
+            /** Parent Id */
+            parent_id: string;
+        };
+        /** LocationMoved */
+        LocationMoved: {
             /** Id */
             id: string;
             /** Name */
@@ -1250,6 +1338,59 @@ export interface operations {
             };
         };
     };
+    move_location: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                location_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LocationMove"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LocationMoved"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     list_items: {
         parameters: {
             query: {
@@ -1555,6 +1696,59 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    move_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemMove"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemMoved"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -11,7 +11,8 @@ EVERY_RESPONSE = {
 PAGE_POLICY = "; ".join(
     [
         "default-src 'self'",
-        "script-src 'self'",
+        # The in-app scanner decodes QR codes with WebAssembly (decision 0017).
+        "script-src 'self' 'wasm-unsafe-eval'",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: blob:",
         "object-src 'none'",

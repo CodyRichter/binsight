@@ -1,4 +1,5 @@
 import { MantineProvider } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import { RouterProvider, createMemoryRouter, type RouteObject } from "react-router";
@@ -21,13 +22,15 @@ export function renderRoutes(routeTree: RouteObject[], initialEntry: string) {
   queryClient.setDefaultOptions({
     queries: { ...queryClient.getDefaultOptions().queries, retry: false },
   });
-  return render(
+  const rendered = render(
     <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver}>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={memoryRouter} />
       </QueryClientProvider>
+      <Notifications />
     </MantineProvider>,
   );
+  return { ...rendered, router: memoryRouter };
 }
 
 /** Answers each API path with its own body, signed in. */
