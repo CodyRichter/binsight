@@ -6,8 +6,10 @@ from sqlalchemy.orm import Session
 
 from app.core.database import open_read_session, open_write_session
 from app.core.errors import AppError
+from app.features.history import service as history
 from app.features.items import service
-from app.models import HistoryEntry, Item, LocationType
+from app.features.items.schemas import ItemChanges
+from app.models import Actor, HistoryEntry, Item, LocationType
 from tests import builders
 
 
@@ -134,3 +136,23 @@ def test_an_item_and_its_history_are_kept_or_lost_together(migrated_engine: Engi
     with open_read_session(migrated_engine) as session:
         assert session.scalar(select(func.count(Item.id))) == 0
         assert session.scalar(select(func.count(HistoryEntry.id))) == 0
+
+
+def test_changing_the_quantity_is_recorded_with_before_and_after(migrated_engine: Engine) -> None:
+    with open_write_session(migrated_engine) as session:
+        created = builders.item(session, "HDMI cable")
+        changes = ItemChanges(quantity=4)
+        service.update_item(session, created.id, changes, Actor.app, _minute(1))
+    with open_read_session(migrated_engine) as session:
+        assert service.get_item(session, created.id).quantity == 4
+        newest = history.list_item_history(session, created.id, 50, None).items[0]
+    assert newest.action == "item.updated"
+    assert [(change.before, change.after) for change in newest.changes] == [
+        ({"quantity": 1}, {"quantity": 4})
+    ]
+
+
+def test_changing_an_unknown_item_is_refused(migrated_engine: Engine) -> None:
+    with pytest.raises(AppError) as refusal, open_write_session(migrated_engine) as session:
+        service.update_item(session, "made-up", ItemChanges(quantity=2), Actor.app, builders.NOW)
+    assert refusal.value.code == "item_not_found"

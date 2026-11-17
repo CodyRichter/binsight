@@ -61,3 +61,27 @@ def test_a_blank_name_is_refused_in_the_error_shape(signed_in: TestClient) -> No
     response = signed_in.post(ITEMS, json={"name": "  "})
     assert response.status_code == 422
     assert list(response.json()["error"]["details"]["fields"]) == ["name"]
+
+
+def test_changing_the_quantity_answers_with_the_item_and_its_history_entry(
+    signed_in: TestClient,
+) -> None:
+    created = signed_in.post(ITEMS, json={"name": "HDMI cable"}).json()
+    response = signed_in.patch(f"{ITEMS}/{created['id']}", json={"quantity": 3})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["quantity"] == 3
+    assert body["history_entry_id"] not in ("", created["history_entry_id"])
+
+
+def test_a_negative_quantity_is_refused(signed_in: TestClient) -> None:
+    created = signed_in.post(ITEMS, json={"name": "HDMI cable"}).json()
+    response = signed_in.patch(f"{ITEMS}/{created['id']}", json={"quantity": -1})
+    assert response.status_code == 422
+    assert list(response.json()["error"]["details"]["fields"]) == ["quantity"]
+
+
+def test_changing_an_unknown_item_is_not_found(signed_in: TestClient) -> None:
+    response = signed_in.patch(f"{ITEMS}/made-up", json={"quantity": 2})
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "item_not_found"
