@@ -12,6 +12,9 @@ from app.core.migrate import migrate_database
 from app.core.security_headers import add_security_headers
 from app.core.settings import Settings, load_settings
 from app.features.auth import routes as auth
+from app.features.history import routes as history
+from app.features.items import routes as items
+from app.features.locations import routes as locations
 
 
 def build_app(settings: Settings) -> FastAPI:
@@ -42,6 +45,9 @@ def build_app(settings: Settings) -> FastAPI:
     app.include_router(auth.router, prefix="/api")
     # Every feature router goes in here, so a route is signed-in-only unless placed above.
     signed_in = APIRouter(dependencies=[Depends(auth.require_sign_in)])
+    signed_in.include_router(locations.router)
+    signed_in.include_router(items.router)
+    signed_in.include_router(history.router)
     app.include_router(signed_in, prefix="/api")
     add_frontend_files(app, settings.frontend_directory)
     return app

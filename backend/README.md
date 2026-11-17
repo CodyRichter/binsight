@@ -3,10 +3,12 @@
 The FastAPI application: the web API the frontend calls, the MCP server
 Claude calls, and the frontend's built files, in one process.
 
-> **Status: sign-in (phase B2).** The app starts, opens SQLite with the
-> agreed settings, migrates the database and serves the frontend's files.
-> `auth` creates the owner and signs devices in; every other API route
-> needs a session.
+> **Status: locations, items and history (phase B3).** The app starts,
+> opens SQLite with the agreed settings, migrates the database and serves
+> the frontend's files. `auth` creates the owner and signs devices in; every
+> other API route needs a session. `locations` creates locations and lists
+> the tree, `items` adds items by name and lists a location's items with
+> their paths, and `history` records each change in the same transaction.
 
 ## Tech stack
 

@@ -5,6 +5,9 @@ import pytest
 from sqlalchemy import Engine, text
 
 from app.core.database import open_read_session, open_write_session
+from app.models import Item, Location
+from tests import builders
+from tests.builders import NOW
 
 
 def _make_table(engine: Engine) -> None:
@@ -74,3 +77,29 @@ def test_a_write_session_rolls_back_when_the_action_raises(engine: Engine) -> No
     with pytest.raises(RuntimeError, match="refused"):
         _insert_then_refuse(engine)
     assert _note_count(engine) == 0
+
+
+def _add_item_without_history(engine: Engine) -> None:
+    with open_write_session(engine) as session:
+        session.add(Item(id="unrecorded", name="Drill", created_at=NOW, updated_at=NOW))
+
+
+def _rename_without_history(engine: Engine, location_id: str) -> None:
+    with open_write_session(engine) as session:
+        session.get_one(Location, location_id).name = "Attic"
+
+
+def test_an_item_added_without_history_is_refused(migrated_engine: Engine) -> None:
+    with pytest.raises(RuntimeError, match="without a history entry"):
+        _add_item_without_history(migrated_engine)
+    with open_read_session(migrated_engine) as session:
+        assert session.get(Item, "unrecorded") is None
+
+
+def test_a_location_changed_without_history_is_refused(migrated_engine: Engine) -> None:
+    with open_write_session(migrated_engine) as session:
+        home = builders.location(session, "Home")
+    with pytest.raises(RuntimeError, match="without a history entry"):
+        _rename_without_history(migrated_engine, home.id)
+    with open_read_session(migrated_engine) as session:
+        assert session.get_one(Location, home.id).name == "Home"

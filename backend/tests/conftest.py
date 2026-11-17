@@ -51,3 +51,9 @@ def migrated_engine(settings: Settings) -> Iterator[Engine]:
     migrate_database(database_engine, settings)
     yield database_engine
     database_engine.dispose()
+
+
+@pytest.fixture
+def signed_in(client: TestClient) -> TestClient:
+    client.post("/api/auth/owner", json={"password": "correct horse"})
+    return client
