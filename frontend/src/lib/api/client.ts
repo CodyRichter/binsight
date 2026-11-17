@@ -87,14 +87,22 @@ function buildInit(options: ApiRequestOptions): RequestInit {
   return { method, headers, body: encodedBody, credentials: "same-origin", signal };
 }
 
+// Binsight never sends these itself; they come from a proxy in front of it that got no answer.
+const gatewayStatuses = new Set([502, 503, 504]);
+
+function unreachable(cause: unknown): ApiError {
+  return new ApiError(0, "network_error", "Can't reach Binsight.", { cause });
+}
+
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
   const target = normalizePath(path);
   let response: Response;
   try {
     response = await fetch(target, buildInit(options));
   } catch (error) {
-    throw new ApiError(0, "network_error", "Can't reach Binsight.", { cause: error });
+    throw unreachable(error);
   }
+  if (gatewayStatuses.has(response.status)) throw unreachable(response.statusText);
   if (!response.ok) throw await parseError(response);
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;

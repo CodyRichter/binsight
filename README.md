@@ -7,12 +7,13 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: backend foundation.** The requirements, data model, conventions
-> and checks are in place, and the frontend has its toolchain and the design
-> language as working components, shown at `/design` in development. The
-> backend starts, migrates its database and serves the frontend, with
-> generated API types; no user action exists yet. The backend is built next,
-> before the frontend is wired; see the [build order](docs/build-order.md).
+> **Status: app shell.** The requirements, data model, conventions and
+> checks are in place, and the frontend has the design language as working
+> components, shown at `/design` in development. The backend starts,
+> migrates its database and serves the frontend, with generated API types,
+> and the frontend's frame talks to it; no user action or page exists yet.
+> Each backend phase is now followed by its frontend phase; see the
+> [build order](docs/build-order.md).
 
 ## Documents
 

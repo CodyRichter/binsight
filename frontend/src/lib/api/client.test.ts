@@ -80,3 +80,12 @@ test("maps fetch rejection into network ApiError", async () => {
   expect((caught as ApiError).isNetworkError).toBe(true);
   expect((caught as ApiError).message).toBe("Can't reach Binsight.");
 });
+
+test("a proxy that gets no answer from Binsight counts as unreachable", async () => {
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("", { status: 502 })));
+
+  await expect(api.get("/api/health")).rejects.toMatchObject({
+    isNetworkError: true,
+    message: "Can't reach Binsight.",
+  });
+});

@@ -6,9 +6,12 @@ export default defineConfig({
   resolve: {
     alias: { "@": "/src" },
   },
+  server: {
+    proxy: { "/api": "http://localhost:8000", "/mcp": "http://localhost:8000" },
+  },
   test: {
     environment: "jsdom",
-    include: ["src/**/*.test.tsx"],
+    include: ["src/**/*.test.{ts,tsx}"],
     setupFiles: ["src/lib/testing/setup.ts"],
     restoreMocks: true,
   },

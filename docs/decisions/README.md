@@ -20,4 +20,5 @@ it and mark the old one as replaced. Do not quietly work around one.
 | 0010 | [Claude reaches the MCP server from local clients](0010-mcp-access.md) | Accepted |
 | 0011 | [The interface follows one design language](0011-design-language.md) | Accepted |
 | 0012 | [The frame has three widths and one column, and text starts at 14px](0012-three-width-frame.md) | Accepted |
-| 0013 | [The backend is built through the five flows before the frontend is wired](0013-backend-first.md) | Accepted |
+| 0013 | [The backend is built through the five flows before the frontend is wired](0013-backend-first.md) | Replaced by 0014 |
+| 0014 | [Each backend phase is followed by its frontend phase](0014-paired-phases.md) | Accepted |

@@ -4,9 +4,10 @@ The web app. A client-only React app, phone first and installable to the
 home screen, built into static files that the backend serves
 ([decision 0008](../docs/decisions/0008-frontend-served-by-backend.md)).
 
-> **Status: foundations.** The toolchain, the Mantine theme and the design
-> language's components are in place, shown at `/design` by `npm run dev`.
-> No application behavior yet.
+> **Status: app shell (phase F1).** The design language's components are
+> shown at `/design` by `npm run dev`. The app's frame runs and asks the
+> backend whether it is answering; no page exists yet, so every other
+> address shows "Nothing at this address".
 
 ## Tech stack
 
@@ -26,8 +27,8 @@ home screen, built into static files that the backend serves
 
 Installed so far: Vite, React, React Router, Mantine (core, hooks,
 notifications), Tabler icons, the two Atkinson Hyperlegible font families,
-TypeScript, ESLint, Prettier, Vitest with React Testing Library, and
-Playwright. TanStack Query is added by the step that first uses it.
+TanStack Query, TypeScript, ESLint, Prettier, Vitest with React Testing
+Library, and Playwright.
 
 ## Layout
 
@@ -35,6 +36,24 @@ The folder tree is in the [root README](../README.md#repository-layout),
 with the lists of [features](../README.md#features) and
 [pages](../README.md#pages) below it. Feature folders use the same names as
 the backend.
+
+## Running it with the backend
+
+In development the backend and Vite run side by side, and Vite passes
+`/api` and `/mcp` on to the backend, so there is no cross-origin setup. In
+two terminals:
+
+```
+# in backend/
+BINSIGHT_APP_ADDRESS=http://localhost:5173 BINSIGHT_DATA_DIRECTORY=../data \
+  uv run uvicorn app.main:create_app --factory --port 8000
+
+# in frontend/
+npm run dev
+```
+
+Then open `http://localhost:5173`. `npm run e2e` starts both itself, with
+the backend on an empty data directory.
 
 ## Working here
 
