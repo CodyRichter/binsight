@@ -89,10 +89,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/locations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Locations */
+        get: operations["list_locations"];
+        put?: never;
+        /** Create Location */
+        post: operations["create_location"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/locations/{location_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Location */
+        get: operations["get_location"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Items */
+        get: operations["list_items"];
+        put?: never;
+        /** Create Item */
+        post: operations["create_item"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Item */
+        get: operations["get_item"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List History */
+        get: operations["list_history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * Actor
+         * @enum {string}
+         */
+        Actor: "app" | "mcp";
         /** AuthStatus */
         AuthStatus: {
             /** Owner Exists */
@@ -115,6 +207,11 @@ export interface components {
         ErrorResponse: {
             error: components["schemas"]["ErrorBody"];
         };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
         /** Health */
         Health: {
             /**
@@ -123,10 +220,180 @@ export interface components {
              */
             status: "ok";
         };
+        /** HistoryChange */
+        HistoryChange: {
+            /**
+             * Record Type
+             * @enum {string}
+             */
+            record_type: "item" | "location";
+            /** Record Id */
+            record_id: string;
+            /** Before */
+            before: {
+                [key: string]: unknown;
+            } | null;
+            /** After */
+            after: {
+                [key: string]: unknown;
+            };
+        };
+        /** HistoryEntry */
+        HistoryEntry: {
+            /** Id */
+            id: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            actor: components["schemas"]["Actor"];
+            /** Action */
+            action: string;
+            /** Changes */
+            changes: components["schemas"]["HistoryChange"][];
+        };
+        /** Item */
+        Item: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Home Location Id */
+            home_location_id: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ItemCreated */
+        ItemCreated: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Home Location Id */
+            home_location_id: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** Location */
+        Location: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            type: components["schemas"]["LocationType"];
+            /** Parent Id */
+            parent_id: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Direct Item Count */
+            direct_item_count: number;
+            /** Item Count */
+            item_count: number;
+        };
+        /** LocationCreated */
+        LocationCreated: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            type: components["schemas"]["LocationType"];
+            /** Parent Id */
+            parent_id: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Direct Item Count */
+            direct_item_count: number;
+            /** Item Count */
+            item_count: number;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** LocationTree */
+        LocationTree: {
+            /** Locations */
+            locations: components["schemas"]["Location"][];
+        };
+        /**
+         * LocationType
+         * @enum {string}
+         */
+        LocationType: "site" | "room" | "furniture" | "shelf" | "bin" | "drawer" | "box";
+        /** NewItem */
+        NewItem: {
+            /** Name */
+            name: string;
+            /** Home Location Id */
+            home_location_id?: string | null;
+        };
+        /** NewLocation */
+        NewLocation: {
+            /** Name */
+            name: string;
+            type: components["schemas"]["LocationType"];
+            /** Parent Id */
+            parent_id?: string | null;
+            /** Summary */
+            summary?: string | null;
+        };
+        /** Page[HistoryEntry] */
+        Page_HistoryEntry_: {
+            /** Items */
+            items: components["schemas"]["HistoryEntry"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /** Page[Item] */
+        Page_Item_: {
+            /** Items */
+            items: components["schemas"]["Item"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
         /** Password */
         Password: {
             /** Password */
             password: string;
+        };
+        /** PathStep */
+        PathStep: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
         };
     };
     responses: never;
@@ -285,6 +552,284 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    list_locations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LocationTree"];
+                };
+            };
+        };
+    };
+    create_location: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewLocation"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LocationCreated"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_location: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                location_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Location"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_items: {
+        parameters: {
+            query: {
+                location_id: string;
+                everything_inside?: boolean;
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_Item_"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    create_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewItem"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemCreated"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Item"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_history: {
+        parameters: {
+            query: {
+                item_id: string;
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_HistoryEntry_"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
             };
         };
     };
