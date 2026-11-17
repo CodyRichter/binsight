@@ -14,10 +14,13 @@ import {
 } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import classes from "./mantine.module.css";
+import { sizes } from "./tokens";
 
 const touchMin = "var(--bs-touch-min)";
 
 const overlay = { backgroundOpacity: 1, color: "var(--bs-scrim)", blur: 0 };
+
+const closeButton = { size: sizes["touch-min"], iconSize: 24 };
 
 export const components = {
   Button: Button.extend({
@@ -56,19 +59,34 @@ export const components = {
   }),
   Switch: Switch.extend({
     defaultProps: { radius: "sm" },
-    classNames: { body: classes.checkboxBody, label: classes.controlLabel },
+    classNames: {
+      body: classes.checkboxBody,
+      input: classes.switchInput,
+      track: classes.switchTrack,
+      thumb: classes.switchThumb,
+      label: classes.controlLabel,
+    },
+    vars: () => ({
+      root: {
+        "--switch-height": "24px",
+        "--switch-width": "44px",
+        "--switch-thumb-size": "16px",
+        "--switch-track-label-padding": "2.5px",
+      },
+    }),
   }),
   SegmentedControl: SegmentedControl.extend({
     vars: () => ({ root: { "--sc-color": "var(--bs-inverse)" } }),
     classNames: {
       root: classes.segmented,
+      input: classes.segmentedInput,
       indicator: classes.segmentedIndicator,
       label: classes.segmentedLabel,
     },
   }),
   Chip: Chip.extend({
     defaultProps: { variant: "outline", radius: "md" },
-    classNames: { label: classes.chip, iconWrapper: classes.chipIcon },
+    classNames: { input: classes.chipInput, label: classes.chip, iconWrapper: classes.chipIcon },
   }),
   Badge: Badge.extend({
     defaultProps: { variant: "outline" },
@@ -79,19 +97,33 @@ export const components = {
     classNames: { dropdown: classes.menu, item: classes.menuItem, divider: classes.menuDivider },
   }),
   Modal: Modal.extend({
-    defaultProps: { radius: "lg", shadow: "md", padding: "xl", overlayProps: overlay },
+    defaultProps: {
+      radius: "lg",
+      shadow: "md",
+      padding: "xl",
+      overlayProps: overlay,
+      closeButtonProps: closeButton,
+    },
     classNames: {
       header: classes.overlayHeader,
       title: classes.overlayTitle,
       content: classes.overlayContent,
+      close: classes.overlayClose,
     },
   }),
   Drawer: Drawer.extend({
-    defaultProps: { radius: "lg", shadow: "md", padding: "lg", overlayProps: overlay },
+    defaultProps: {
+      radius: "lg",
+      shadow: "md",
+      padding: "lg",
+      overlayProps: overlay,
+      closeButtonProps: closeButton,
+    },
     classNames: {
       header: classes.overlayHeader,
       title: classes.overlayTitle,
       content: classes.overlayContent,
+      close: classes.overlayClose,
     },
   }),
   Notifications: Notifications.extend({

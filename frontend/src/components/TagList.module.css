@@ -1,0 +1,47 @@
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--bs-space-sm) var(--bs-space-lg);
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--bs-space-sm);
+}
+
+.interactive {
+  text-decoration: none;
+}
+
+.interactive:hover {
+  background: var(--bs-hover);
+}
+
+.remove {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--bs-radius-sm);
+  background: none;
+  color: var(--bs-muted);
+  cursor: pointer;
+}
+
+/* Keep horizontal hit expansion within the item/list gaps so it never covers adjacent tags. */
+.remove::after {
+  content: "";
+  position: absolute;
+  inset: -10px -8px;
+}
+
+.remove:hover {
+  background: var(--bs-hover);
+  color: var(--bs-ink);
+}

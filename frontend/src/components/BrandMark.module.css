@@ -1,0 +1,19 @@
+.mark {
+  display: block;
+  flex: none;
+}
+
+.body {
+  fill: light-dark(var(--bs-ink), var(--bs-inverse));
+  stroke: light-dark(transparent, var(--bs-control-border));
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+}
+
+.lid {
+  fill: var(--bs-accent);
+}
+
+.label {
+  fill: var(--bs-label);
+}

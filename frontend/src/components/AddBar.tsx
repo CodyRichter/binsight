@@ -1,6 +1,7 @@
 import { ActionIcon, Button, Textarea } from "@mantine/core";
 import { IconCamera, IconPlus } from "@tabler/icons-react";
 import { useRef, useState, type ChangeEvent, type KeyboardEvent, type ReactNode } from "react";
+import { barIconVars } from "./barControls";
 import { CodeChip } from "./CodeChip";
 import classes from "./AddBar.module.css";
 
@@ -44,16 +45,25 @@ export function AddBar(props: AddBarProps) {
     event.currentTarget.value = "";
   }
 
-  function addOne(event: KeyboardEvent<HTMLInputElement>) {
-    const name = event.currentTarget.value.trim();
-    if (event.key !== "Enter" || !name) return;
+  function submitOne() {
+    const name = nameInput.current?.value.trim() ?? "";
+    if (!name) return;
     props.onAdd([name]);
     clearName();
   }
 
+  function addOne(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.nativeEvent.isComposing || event.key !== "Enter") return;
+    submitOne();
+  }
+
   function addSeveral() {
-    const names = lines.split("\n").map((line) => line.trim());
-    props.onAdd(names.filter(Boolean));
+    const names = lines
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+    if (names.length === 0) return;
+    props.onAdd(names);
     setLines("");
   }
 
@@ -84,10 +94,19 @@ export function AddBar(props: AddBarProps) {
             onKeyDown={addOne}
           />
         )}
-        <button type="button" className={classes.destination} onClick={props.onChangeDestination}>
+        <button
+          type="button"
+          className={classes.destination}
+          aria-label={`Add to ${props.destinationCode ?? props.destinationName ?? "Inbox"}, change destination`}
+          onClick={props.onChangeDestination}
+        >
           to {destination(props.destinationCode, props.destinationName)}
         </button>
-        <ActionIcon aria-label="Add by photo" onClick={() => photoInput.current?.click()}>
+        <ActionIcon
+          aria-label="Add by photo"
+          vars={barIconVars}
+          onClick={() => photoInput.current?.click()}
+        >
           <IconCamera aria-hidden />
         </ActionIcon>
         <input
@@ -103,10 +122,10 @@ export function AddBar(props: AddBarProps) {
       </div>
       {!several && props.suggestion?.(clearName)}
       <div className={classes.below}>
-        {several && <Button onClick={addSeveral}>Add</Button>}
         <Button variant="subtle" onClick={switchField}>
           {several ? "Add one" : "Add several"}
         </Button>
+        <Button onClick={several ? addSeveral : submitOne}>Add</Button>
       </div>
     </div>
   );

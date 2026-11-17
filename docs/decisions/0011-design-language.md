@@ -39,5 +39,5 @@ over-explaining.
   where one would be convenient.
 - A new kind of component or page needs a change to the document first.
 - The token values exist in the document and in the theme, and must be
-  changed together. `scripts/check_repo.py` fails when the color tables
-  differ.
+  changed together. `scripts/check_repo.py` fails when the color or type
+  tables differ.

@@ -45,5 +45,15 @@ test("Escape discards what was typed", async () => {
   await user.click(screen.getByRole("button", { name: "Quantity 3, type a number" }));
   await user.keyboard("7{Escape}");
   expect(onChange).not.toHaveBeenCalled();
-  expect(screen.getByRole("button", { name: "Quantity 3, type a number" })).toBeInTheDocument();
+  const button = screen.getByRole("button", { name: "Quantity 3, type a number" });
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveFocus();
+});
+
+test("Enter returns focus to the quantity button", async () => {
+  const { user, onChange } = renderStepper(3);
+  await user.click(screen.getByRole("button", { name: "Quantity 3, type a number" }));
+  await user.keyboard("5{Enter}");
+  expect(onChange).toHaveBeenCalledOnce();
+  expect(screen.getByRole("button", { name: "Quantity 3, type a number" })).toHaveFocus();
 });

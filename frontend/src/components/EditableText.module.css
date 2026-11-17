@@ -1,29 +1,35 @@
-.text,
-.field {
+/* At rest the text takes only its line height; the tap area reaches past it without covering labels. */
+.text {
+  position: relative;
+  z-index: 0;
   display: block;
-  width: calc(100% + 2 * var(--bs-space-sm));
-  min-height: var(--bs-touch-min);
-  margin: 0 calc(-1 * var(--bs-space-sm));
-  padding: var(--bs-space-xs) var(--bs-space-sm);
-  border: 1.5px solid transparent;
-  border-radius: var(--bs-radius-sm);
+  width: 100%;
+  padding: 0;
+  border: 0;
   background: none;
   color: var(--bs-ink);
   font: inherit;
   text-align: left;
-}
-
-.text {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   cursor: text;
 }
 
-textarea.field {
-  resize: vertical;
+.text::before {
+  content: "";
+  position: absolute;
+  inset: min(0px, (100% - var(--bs-touch-min)) / 2) 0;
 }
 
-.text:hover {
+.text::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: calc(-1 * var(--bs-space-xs) / 2) calc(-1 * var(--bs-space-xs));
+  border-radius: var(--bs-radius-sm);
+}
+
+.text:hover::after {
   background: var(--bs-hover);
 }
 
@@ -32,8 +38,30 @@ textarea.field {
 }
 
 .field {
-  border-color: var(--bs-control-border);
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--bs-touch-min);
+  margin: 0;
+  padding: var(--bs-space-sm) var(--bs-space-md);
+  border: 1.5px solid var(--bs-control-border);
+  border-radius: var(--bs-radius-md);
   background: var(--bs-surface);
+  color: var(--bs-ink);
+  font: inherit;
+}
+
+.field:focus {
+  outline: none;
+  border-color: var(--bs-ink);
+}
+
+.field:focus-visible {
   outline: 2px solid var(--bs-focus);
-  outline-offset: 1px;
+  outline-offset: 2px;
+}
+
+textarea.field {
+  padding: var(--bs-space-md);
+  resize: vertical;
 }

@@ -1,4 +1,5 @@
-import { Checkbox } from "@mantine/core";
+import { ActionIcon, Checkbox } from "@mantine/core";
+import { IconArrowsMove } from "@tabler/icons-react";
 import { useId, type ReactNode } from "react";
 import { Link } from "react-router";
 import { Path, type PathSegment } from "./Path";
@@ -16,6 +17,7 @@ interface ItemRowProps {
   lentTo?: string;
   quantity?: number;
   onQuantityChange?: (quantity: number) => void;
+  onMove?: () => void;
   match?: string;
   selected?: boolean;
   check?: { checked: boolean; onChange: (checked: boolean) => void };
@@ -50,12 +52,32 @@ function rowName(props: ItemRowProps, checkId: string): ReactNode {
   );
 }
 
+function rowControls({ name, quantity = 1, onQuantityChange, onMove }: ItemRowProps): ReactNode {
+  return (
+    <>
+      {quantity > 1 && onQuantityChange && (
+        <span className={classes.quantity}>
+          <QuantityStepper value={quantity} onChange={onQuantityChange} />
+        </span>
+      )}
+      {onMove && (
+        <ActionIcon className={classes.move} aria-label={`Move ${name}`} onClick={onMove}>
+          <IconArrowsMove aria-hidden />
+        </ActionIcon>
+      )}
+    </>
+  );
+}
+
 export function ItemRow(props: ItemRowProps) {
-  const { path, photoUrl, status = "in_place", lentTo, quantity = 1 } = props;
-  const { onQuantityChange, check } = props;
+  const { path, photoUrl, status = "in_place", lentTo, check } = props;
   const checkId = useId();
   return (
-    <li className={classes.row} data-selected={props.selected || undefined}>
+    <li
+      className={classes.row}
+      data-selected={props.selected || undefined}
+      data-movable={props.onMove ? true : undefined}
+    >
       {check ? (
         <Checkbox
           id={checkId}
@@ -75,9 +97,7 @@ export function ItemRow(props: ItemRowProps) {
           </div>
         )}
       </div>
-      {quantity > 1 && onQuantityChange && (
-        <QuantityStepper value={quantity} onChange={onQuantityChange} />
-      )}
+      {rowControls(props)}
     </li>
   );
 }

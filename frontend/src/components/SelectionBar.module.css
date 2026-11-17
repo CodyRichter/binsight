@@ -1,0 +1,26 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--bs-space-xs) var(--bs-space-sm);
+  min-height: var(--bs-nav-height);
+  padding: var(--bs-space-xs) calc(var(--bs-space-lg) - (var(--bs-touch-min) - 24px) / 2)
+    var(--bs-space-xs) var(--bs-space-lg);
+}
+
+.count {
+  flex: 1;
+  min-width: fit-content;
+  font-size: var(--bs-text-body-strong-size);
+  line-height: var(--bs-text-body-strong-line-height);
+  font-weight: var(--bs-text-body-strong-weight);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--bs-space-sm);
+}

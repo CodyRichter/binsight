@@ -1,5 +1,5 @@
 import { IconMinus, IconPlus } from "@tabler/icons-react";
-import { useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import classes from "./QuantityStepper.module.css";
 
 interface QuantityStepperProps {
@@ -9,6 +9,21 @@ interface QuantityStepperProps {
 
 export function QuantityStepper({ value, onChange }: QuantityStepperProps) {
   const [typing, setTyping] = useState(false);
+  const [digits, setDigits] = useState(String(value).length);
+  const numberRef = useRef<HTMLButtonElement>(null);
+  const restoreFocus = useRef(false);
+
+  useEffect(() => {
+    if (!typing && restoreFocus.current) {
+      restoreFocus.current = false;
+      numberRef.current?.focus();
+    }
+  }, [typing]);
+
+  function startTyping() {
+    setDigits(String(value).length);
+    setTyping(true);
+  }
 
   function finishTyping(typed: string) {
     setTyping(false);
@@ -17,8 +32,18 @@ export function QuantityStepper({ value, onChange }: QuantityStepperProps) {
   }
 
   function handleKey(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter") finishTyping(event.currentTarget.value);
-    if (event.key === "Escape") setTyping(false);
+    if (event.nativeEvent.isComposing) return;
+    if (event.key === "Enter") {
+      event.preventDefault();
+      restoreFocus.current = true;
+      event.currentTarget.blur();
+    }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      restoreFocus.current = true;
+      event.currentTarget.value = String(value);
+      event.currentTarget.blur();
+    }
   }
 
   return (
@@ -35,20 +60,23 @@ export function QuantityStepper({ value, onChange }: QuantityStepperProps) {
       {typing ? (
         <input
           className={classes.typed}
+          style={{ "--digits": Math.max(2, digits) } as CSSProperties}
           aria-label="Quantity"
           inputMode="numeric"
           defaultValue={value}
           autoFocus
           onFocus={(event) => event.currentTarget.select()}
+          onChange={(event) => setDigits(event.currentTarget.value.length)}
           onBlur={(event) => finishTyping(event.currentTarget.value)}
           onKeyDown={handleKey}
         />
       ) : (
         <button
+          ref={numberRef}
           type="button"
           className={classes.number}
           aria-label={`Quantity ${value}, type a number`}
-          onClick={() => setTyping(true)}
+          onClick={startTyping}
         >
           {value}
         </button>

@@ -1,0 +1,59 @@
+.frame {
+  --task-action-height: calc(var(--bs-touch-min) + 2 * var(--bs-space-lg));
+  min-height: 100dvh;
+  padding: env(safe-area-inset-top) 0 calc(var(--task-action-height) + env(safe-area-inset-bottom));
+}
+
+.bar,
+.work,
+.action {
+  width: 100%;
+  max-width: var(--bs-content-max);
+  margin-inline: auto;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--bs-space-sm);
+  height: var(--bs-bar-height);
+  padding-inline: calc(var(--bs-space-lg) - (40px - 24px) / 2) var(--bs-space-lg);
+  border-bottom: 1px solid var(--bs-hairline);
+}
+
+.bar :global(.mantine-ActionIcon-root) {
+  position: relative;
+  overflow: visible;
+}
+
+.bar :global(.mantine-ActionIcon-root)::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+}
+
+.work {
+  padding-bottom: var(--bs-space-2xl);
+}
+
+.name {
+  margin: 0;
+  font-size: var(--bs-text-heading-size);
+  line-height: var(--bs-text-heading-line-height);
+  font-weight: var(--bs-text-heading-weight);
+}
+
+.name:focus {
+  outline: none;
+}
+
+.action {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: var(--bs-space-lg) var(--bs-space-lg)
+    calc(var(--bs-space-lg) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--bs-hairline);
+  background: var(--bs-ground);
+}

@@ -1,7 +1,9 @@
 import { Textarea, TextInput } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
+import { DuplicateSuggestion } from "@/components/DuplicateSuggestion";
 import { EditableText } from "@/components/EditableText";
+import { showToast } from "@/lib/toast";
 import { AddBarDemo } from "./AddBarDemo";
 import { Specimen } from "./Specimen";
 
@@ -36,6 +38,12 @@ export function FieldsSpecimen() {
         onSave={setEmptySummary}
       />
       <AddBarDemo />
+      <DuplicateSuggestion
+        message="AA batteries is in Bin B-014"
+        onAccept={() =>
+          showToast({ message: "Added 1 more AA batteries", onUndo: () => undefined })
+        }
+      />
     </Specimen>
   );
 }

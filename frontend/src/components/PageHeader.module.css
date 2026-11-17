@@ -2,19 +2,49 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--bs-space-sm);
-  padding: var(--bs-space-lg);
+  gap: var(--bs-space-lg);
+  padding: var(--bs-space-lg) var(--bs-space-lg) 0;
+}
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--bs-space-md);
+  align-self: stretch;
+}
+
+.identity {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--bs-space-xs);
+  min-width: 0;
+}
+
+/* Keep Path above Title and Title above Summary so expanded hit areas never steal text taps. */
+.identity > nav {
+  position: relative;
+  z-index: 2;
 }
 
 .title {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--bs-space-sm) var(--bs-space-md);
+  gap: var(--bs-space-xs) var(--bs-space-md);
 }
 
 .title > h1 {
+  min-width: 0;
+  max-width: 100%;
   text-wrap: balance;
+}
+
+.title > h1:focus {
+  outline: none;
 }
 
 .meta {
@@ -27,6 +57,8 @@
 .count {
   color: var(--bs-muted);
   font-size: var(--bs-text-small-size);
+  line-height: var(--bs-text-small-line-height);
+  font-weight: var(--bs-text-small-weight);
   font-variant-numeric: tabular-nums;
 }
 
@@ -34,5 +66,4 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--bs-space-sm);
-  margin-top: var(--bs-space-sm);
 }

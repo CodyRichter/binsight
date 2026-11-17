@@ -48,10 +48,22 @@ test("a missing item says so", () => {
   expect(screen.getByText("Missing")).toBeInTheDocument();
 });
 
+test("a lent out item without a name reads Lent out", () => {
+  renderRow({ status: "lent_out" });
+  expect(screen.getByText("Lent out")).toBeInTheDocument();
+});
+
 test("in check mode a tap on the name ticks the box", async () => {
   const onChange = vi.fn();
   const { user } = renderRow({ check: { checked: false, onChange } });
   await user.click(screen.getByText("AA batteries"));
   expect(onChange).toHaveBeenCalledWith(true);
   expect(screen.getByRole("checkbox", { name: "AA batteries" })).toBeInTheDocument();
+});
+
+test("Move on the row moves that item in one tap", async () => {
+  const onMove = vi.fn();
+  const { user } = renderRow({ onMove });
+  await user.click(screen.getByRole("button", { name: "Move AA batteries" }));
+  expect(onMove).toHaveBeenCalledOnce();
 });

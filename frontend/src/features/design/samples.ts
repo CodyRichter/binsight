@@ -1,6 +1,6 @@
 import { IconClock, IconPin, IconUser, IconZoomQuestion } from "@tabler/icons-react";
 import type { PathSegment } from "@/components/Path";
-import type { ViewLink } from "@/components/navigation";
+import type { NavItem } from "@/components/navigation";
 import samplePhoto from "./sample-photo.svg";
 
 export { samplePhoto };
@@ -11,7 +11,7 @@ export function daysAgo(days: number): Date {
   return new Date(Date.now() - days * day);
 }
 
-export const sampleViews: ViewLink[] = [
+export const sampleViews: NavItem[] = [
   { name: "Lent out", to: "/views/lent-out", count: 2, icon: IconUser },
   { name: "Missing", to: "/views/missing", count: 1, icon: IconZoomQuestion },
   { name: "Not checked in a long time", to: "/views/not-checked", count: 9, icon: IconClock },

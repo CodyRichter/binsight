@@ -1,6 +1,5 @@
 import {
   ActionIcon,
-  Badge,
   Button,
   Checkbox,
   Chip,
@@ -11,8 +10,9 @@ import {
 } from "@mantine/core";
 import { IconArrowsMove, IconCheck, IconDotsVertical, IconScan } from "@tabler/icons-react";
 import { useState } from "react";
-import { Specimen } from "./Specimen";
 import { QuantityStepper } from "@/components/QuantityStepper";
+import { TagList } from "@/components/TagList";
+import { Specimen } from "./Specimen";
 
 const scopes = [
   { label: "Here 6", value: "here" },
@@ -60,9 +60,8 @@ export function ControlsSpecimen() {
         </Chip>
         <Chip>Category</Chip>
         <Chip>Status</Chip>
-        <Badge>hdmi</Badge>
-        <Badge>usb-c</Badge>
       </Group>
+      <TagList tags={["hdmi", "usb-c"]} tagHref={(tag) => `/design/list?q=${tag}`} />
       <Group gap="sm">
         <QuantityStepper value={quantity} onChange={setQuantity} />
         <QuantityStepper value={single} onChange={setSingle} />

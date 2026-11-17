@@ -19,3 +19,4 @@ it and mark the old one as replaced. Do not quietly work around one.
 | 0009 | [One transaction per action, with history recorded inside it](0009-transactions-and-history.md) | Accepted |
 | 0010 | [Claude reaches the MCP server from local clients](0010-mcp-access.md) | Accepted |
 | 0011 | [The interface follows one design language](0011-design-language.md) | Accepted |
+| 0012 | [The frame has three widths and one column, and text starts at 14px](0012-three-width-frame.md) | Accepted |

@@ -50,14 +50,14 @@ export const fontFamilies = {
 } as const;
 
 export const typeStyles = {
-  "text-title": { size: "24px", lineHeight: "28px", weight: 700 },
-  "text-heading": { size: "18px", lineHeight: "24px", weight: 700 },
-  "text-body-strong": { size: "16px", lineHeight: "24px", weight: 650 },
-  "text-body": { size: "16px", lineHeight: "24px", weight: 400 },
-  "text-small": { size: "14px", lineHeight: "20px", weight: 400 },
-  "text-nav": { size: "12px", lineHeight: "16px", weight: 500 },
-  code: { size: "14px", lineHeight: "20px", weight: 700 },
-  "code-lg": { size: "22px", lineHeight: "32px", weight: 700 },
+  "text-title": { size: "1.5rem", lineHeight: "1.75rem", weight: 700 },
+  "text-heading": { size: "1.125rem", lineHeight: "1.5rem", weight: 700 },
+  "text-body-strong": { size: "1rem", lineHeight: "1.5rem", weight: 650 },
+  "text-body": { size: "1rem", lineHeight: "1.5rem", weight: 400 },
+  "text-small": { size: "0.875rem", lineHeight: "1.25rem", weight: 400 },
+  "text-nav": { size: "0.875rem", lineHeight: "1rem", weight: 500 },
+  code: { size: "0.875rem", lineHeight: "1.25rem", weight: 700 },
+  "code-lg": { size: "1.375rem", lineHeight: "2rem", weight: 700 },
 } as const;
 
 export const space = {
@@ -78,9 +78,25 @@ export const sizes = {
   "nav-height": "64px",
   "content-max": "720px",
   "nav-width": "264px",
+  "gate-width": "360px",
 } as const;
 
-export const fontSizes = { xs: "12px", sm: "14px", md: "16px", lg: "18px", xl: "24px" } as const;
+// Mantine requires an xs size; it matches sm so that no text is smaller than 14px.
+export const fontSizes = {
+  xs: typeStyles["text-small"].size,
+  sm: typeStyles["text-small"].size,
+  md: typeStyles["text-body"].size,
+  lg: typeStyles["text-heading"].size,
+  xl: typeStyles["text-title"].size,
+} as const;
+
+export const lineHeights = {
+  xs: typeStyles["text-small"].lineHeight,
+  sm: typeStyles["text-small"].lineHeight,
+  md: typeStyles["text-body"].lineHeight,
+  lg: typeStyles["text-heading"].lineHeight,
+  xl: typeStyles["text-title"].lineHeight,
+} as const;
 
 export function token(name: ColorToken): string {
   return `var(--bs-${name})`;

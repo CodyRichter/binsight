@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "frontend/src/components/AddBar.module.css"
+        ],
+        "createdAt": "2026-11-16T20:11:56.979Z",
+        "reason": "docs/design-language.md Add bar: 'the only field with an accent underline' — a bottom underline required by the settled design language (decision 0011), predates this session"
+      }
+    ]
+  }
+}

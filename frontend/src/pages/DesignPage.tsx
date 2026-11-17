@@ -4,7 +4,9 @@ import {
   FieldsSpecimen,
   HeaderSpecimen,
   OverlaysSpecimen,
+  PageStatesSpecimen,
   RowsSpecimen,
+  TemplatesSpecimen,
   TokensSpecimen,
   ValuesSpecimen,
 } from "@/features/design";
@@ -12,6 +14,7 @@ import {
 export function DesignPage() {
   return (
     <DesignFrame>
+      <TemplatesSpecimen />
       <TokensSpecimen />
       <ControlsSpecimen />
       <FieldsSpecimen />
@@ -19,6 +22,7 @@ export function DesignPage() {
       <RowsSpecimen />
       <HeaderSpecimen />
       <ValuesSpecimen />
+      <PageStatesSpecimen />
     </DesignFrame>
   );
 }

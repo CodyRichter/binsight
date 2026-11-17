@@ -5,6 +5,7 @@ import { CheckedStamp } from "./CheckedStamp";
 import { CodeChip } from "./CodeChip";
 import { EditableText } from "./EditableText";
 import { Path, type PathSegment } from "./Path";
+import { StatusBadge, type Status } from "./StatusBadge";
 import { Thumbnail } from "./Thumbnail";
 import classes from "./PageHeader.module.css";
 
@@ -14,6 +15,7 @@ interface PageHeaderProps {
   parents?: PathSegment[];
   code?: string;
   thumbnail?: { photoUrl?: string };
+  status?: { status: Status; lentTo?: string };
   summary?: { value: string; onSave: (summary: string) => void };
   lastChecked?: Date | null;
   counts?: string[];
@@ -38,7 +40,7 @@ function metaLine(lastChecked: Date | null | undefined, counts: string[]): React
 function titleLine(title: string, code?: string, onRename?: (title: string) => void): ReactNode {
   return (
     <div className={classes.title}>
-      <Title order={1}>
+      <Title order={1} tabIndex={-1}>
         {onRename ? <EditableText value={title} label="Name" onSave={onRename} /> : title}
       </Title>
       {code && <CodeChip code={code} large />}
@@ -60,21 +62,27 @@ function moreMenu(menu: ReactNode): ReactNode {
 }
 
 export function PageHeader(props: PageHeaderProps) {
-  const { title, parents = [], code, thumbnail, summary, actions, menu } = props;
+  const { title, parents = [], code, thumbnail, status, summary, actions, menu } = props;
   return (
     <header className={classes.header}>
-      {thumbnail && <Thumbnail photoUrl={thumbnail.photoUrl} large />}
-      {parents.length > 0 && <Path segments={parents} linked />}
-      {titleLine(title, code, props.onRename)}
-      {summary && (
-        <EditableText
-          value={summary.value}
-          label="Summary"
-          invitation="Add a summary"
-          onSave={summary.onSave}
-        />
-      )}
-      {metaLine(props.lastChecked, props.counts ?? [])}
+      <title>{`${title} – Binsight`}</title>
+      <div className={classes.top}>
+        {thumbnail && <Thumbnail photoUrl={thumbnail.photoUrl} large />}
+        <div className={classes.identity}>
+          {parents.length > 0 && <Path segments={parents} linked />}
+          {titleLine(title, code, props.onRename)}
+          {status && <StatusBadge {...status} />}
+          {summary && (
+            <EditableText
+              value={summary.value}
+              label="Summary"
+              invitation="Add a summary"
+              onSave={summary.onSave}
+            />
+          )}
+          {metaLine(props.lastChecked, props.counts ?? [])}
+        </div>
+      </div>
       {(actions || menu) && (
         <div className={classes.actions}>
           {actions}

@@ -1,25 +1,50 @@
+/* Drawn 40px high inside the 56px bar so focus rings clear both edges; ::after restores touch-min. */
 .bar {
   display: flex;
   align-items: center;
-  gap: var(--bs-space-xs);
+  gap: var(--bs-space-sm);
   height: 100%;
-  padding: 0 var(--bs-space-xs);
+  padding: 0 calc(var(--bs-space-lg) - (40px - 24px) / 2);
+}
+
+.bar :global(.mantine-ActionIcon-root),
+.bar :global(.mantine-Button-root) {
+  position: relative;
+  overflow: visible;
+}
+
+.bar :global(.mantine-ActionIcon-root)::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+}
+
+.bar :global(.mantine-Button-root)::after {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
 }
 
 .search {
   flex: 1;
   min-width: 0;
-  margin: 0 var(--bs-space-xs);
+  padding-block: 4px;
+}
+
+.search:first-child {
+  margin-left: calc((40px - 24px) / 2);
+}
+
+.search input[type="search"]::-webkit-search-cancel-button {
+  display: none;
 }
 
 @media (min-width: 62em) {
   .bar {
-    gap: var(--bs-space-sm);
-    padding: 0 var(--bs-space-xl);
+    padding: 0 var(--bs-space-lg);
   }
 
-  .search {
-    max-width: 520px;
-    margin: 0 auto 0 0;
+  .search:first-child {
+    margin-left: 0;
   }
 }

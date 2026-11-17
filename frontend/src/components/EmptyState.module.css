@@ -6,6 +6,17 @@
   padding: var(--bs-space-xl) var(--bs-space-lg);
 }
 
+.heading {
+  margin: 0;
+  font-size: var(--bs-text-heading-size);
+  line-height: var(--bs-text-heading-line-height);
+  font-weight: var(--bs-text-heading-weight);
+}
+
+.heading:focus {
+  outline: none;
+}
+
 .empty > p {
   max-width: 40ch;
 }

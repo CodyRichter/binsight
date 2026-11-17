@@ -12,6 +12,8 @@ export function LocationTreeDemo() {
         to="/design"
         locationType="room"
         itemCount={148}
+        tree
+        depth={0}
         expanded={garageOpen}
         onToggle={() => setGarageOpen(!garageOpen)}
       />
@@ -23,6 +25,7 @@ export function LocationTreeDemo() {
             locationType="bin"
             code="B-014"
             itemCount={6}
+            tree
             depth={1}
           />
           <LocationRow
@@ -30,6 +33,7 @@ export function LocationTreeDemo() {
             to="/design"
             locationType="furniture"
             itemCount={22}
+            tree
             depth={1}
             expanded={workbenchOpen}
             onToggle={() => setWorkbenchOpen(!workbenchOpen)}
@@ -40,6 +44,7 @@ export function LocationTreeDemo() {
               to="/design"
               locationType="drawer"
               itemCount={22}
+              tree
               depth={2}
             />
           )}

@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import classes from "./EditableText.module.css";
 
 interface EditableTextProps {
@@ -13,6 +13,15 @@ type Field = HTMLInputElement | HTMLTextAreaElement;
 
 export function EditableText({ value, label, invitation, multiline, onSave }: EditableTextProps) {
   const [editing, setEditing] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const restoreFocus = useRef(false);
+
+  useEffect(() => {
+    if (!editing && restoreFocus.current) {
+      restoreFocus.current = false;
+      buttonRef.current?.focus();
+    }
+  }, [editing]);
 
   function save(typed: string) {
     setEditing(false);
@@ -20,8 +29,15 @@ export function EditableText({ value, label, invitation, multiline, onSave }: Ed
   }
 
   function handleKey(event: KeyboardEvent<Field>) {
-    if (event.key === "Enter" && !multiline) event.currentTarget.blur();
+    if (event.nativeEvent.isComposing) return;
+    if (event.key === "Enter" && !multiline) {
+      event.preventDefault();
+      restoreFocus.current = true;
+      event.currentTarget.blur();
+    }
     if (event.key === "Escape") {
+      event.preventDefault();
+      restoreFocus.current = true;
       event.currentTarget.value = value;
       event.currentTarget.blur();
     }
@@ -44,6 +60,7 @@ export function EditableText({ value, label, invitation, multiline, onSave }: Ed
   if (!value && !invitation) return null;
   return (
     <button
+      ref={buttonRef}
       type="button"
       className={classes.text}
       data-empty={!value || undefined}

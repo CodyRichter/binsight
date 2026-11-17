@@ -79,6 +79,34 @@ const pageStyleRules = [
   },
 ];
 
+const layoutRules = [
+  {
+    selector:
+      "JSXOpeningElement[name.name=/^(Stack|Box|Group|Flex|Grid|SimpleGrid|Container|Space|Center)$/]",
+    message: `Components own all spacing; a page arranges them: ${design("Vertical rhythm")}`,
+  },
+  {
+    selector:
+      "JSXAttribute[name.name=/^(gap|rowGap|columnGap|m|mx|my|mt|mb|ml|mr|ms|me|p|px|py|pt|pb|pl|pr|ps|pe)$/]",
+    message: `Components own all spacing; a page arranges them: ${design("Vertical rhythm")}`,
+  },
+];
+
+const templateSpecimens = [
+  "AddLocationSheet",
+  "BrowseSpecimen",
+  "DesignFrame",
+  "ListSpecimen",
+  "LocationContents",
+  "LocationHeader",
+  "LocationSpecimen",
+  "LocationsSpecimen",
+  "MoveSheet",
+  "RecordSpecimen",
+  "SettingsSpecimen",
+  "TaskSpecimen",
+].map((name) => `src/features/design/${name}.tsx`);
+
 export default tseslint.config(
   { ignores: ["dist/", "node_modules/", "src/types/api.generated.ts"] },
   js.configs.recommended,
@@ -147,6 +175,13 @@ export default tseslint.config(
           ],
         },
       ],
+    },
+  },
+  // Pages and the template specimens a real page copies set no spacing of their own.
+  {
+    files: ["src/pages/**", ...templateSpecimens],
+    rules: {
+      "no-restricted-syntax": ["error", ...hexColorRules, ...pageStyleRules, ...layoutRules],
     },
   },
 );

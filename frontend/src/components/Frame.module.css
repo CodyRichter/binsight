@@ -2,6 +2,51 @@
   --app-shell-border-color: var(--bs-hairline);
 }
 
-.content {
+.skip {
+  position: fixed;
+  top: var(--bs-space-sm);
+  left: var(--bs-space-sm);
+  z-index: 1000;
+  padding: var(--bs-space-md) var(--bs-space-lg);
+  border-radius: var(--bs-radius-md);
+  background: var(--bs-inverse);
+  color: var(--bs-on-inverse);
+  font-size: var(--bs-text-body-strong-size);
+  line-height: var(--bs-text-body-strong-line-height);
+  font-weight: var(--bs-text-body-strong-weight);
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip:focus {
+  transform: none;
+}
+
+.header {
+  padding-top: env(safe-area-inset-top);
+}
+
+.main:focus {
+  outline: none;
+}
+
+.footer {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.column {
+  width: 100%;
   max-width: var(--bs-content-max);
+  height: 100%;
+}
+
+.main > .column {
+  height: auto;
+  padding-bottom: var(--bs-space-2xl);
+}
+
+@media (width >= 48em) and (width < 62em) {
+  .column {
+    margin-inline: auto;
+  }
 }
