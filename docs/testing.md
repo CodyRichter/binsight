@@ -28,10 +28,10 @@ drift.
 
 | Test              | Fails when                                               | Exists from |
 | ----------------- | -------------------------------------------------------- | ----------- |
-| Repository layout | Backend and frontend feature folders differ, a feature is missing from the README table or lacks its three files, a feature imports another's internals, an `AGENTS.md` exceeds 200 lines, or a Python file or function exceeds its size limit. | Now (`scripts/check_repo.py`) |
-| Generated types   | The committed frontend types differ from what the backend's contract generates. | Step 1 |
-| Migrations        | A model changed without a migration, or a migration fails against a database that has rows in it. | Step 1 |
-| Parity            | A route's operation name has no MCP tool of the same name, or a tool has no route. | Step 1 |
+| Repository layout | A frontend feature folder has no backend one, a feature is missing from the README table or lacks its three files, a feature imports another's internals, an `AGENTS.md` exceeds 200 lines, or a Python file or function exceeds its size limit. | Now (`scripts/check_repo.py`) |
+| Generated types   | The committed frontend types differ from what the backend's contract generates. | B1 |
+| Migrations        | A model changed without a migration, or a migration fails against a database that has rows in it. | B1 |
+| Parity            | A route's operation name has no MCP tool of the same name, or a tool has no route. | B4 |
 
 ## Test data
 

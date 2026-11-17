@@ -3,8 +3,9 @@
 The FastAPI application: the web API the frontend calls, the MCP server
 Claude calls, and the frontend's built files, in one process.
 
-> **Status: foundations.** Tooling is set up; no application code yet. This
-> describes the intended stack.
+> **Status: foundation (phase B1).** The app starts, opens SQLite with the
+> agreed settings, migrates the database and serves the frontend's files.
+> No feature exists yet.
 
 ## Tech stack
 
@@ -22,8 +23,27 @@ Claude calls, and the frontend's built files, in one process.
 | Lint and format    | ruff                                             |
 | Type checks        | mypy, strict                                     |
 
-Only the last three are installed so far. The rest are added by the step
-that first uses them.
+The server is uvicorn. `segno` draws label QR codes, and
+`python-multipart` reads photo uploads.
+
+## Running it
+
+From `backend/`, with a data directory of your choosing:
+
+```
+BINSIGHT_APP_ADDRESS=http://localhost:8000 BINSIGHT_DATA_DIRECTORY=../data \
+  uv run uvicorn app.main:create_app --factory
+```
+
+The API is under `/api`, its generated description at `/api/docs`. Every
+other path serves `../frontend/dist`, so run `npm run build` there first.
+After changing a route or schema, run `npm run generate:types` in
+`frontend/` and commit the result.
+
+New migrations are written with `uv run alembic revision --autogenerate`,
+with the same two settings pointing at a scratch data directory. The app
+applies them itself at startup, after copying the database into
+`backups/`. Migrations only go forward; to go back, restore that copy.
 
 ## Layout
 

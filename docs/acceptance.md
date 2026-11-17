@@ -5,9 +5,9 @@ steps and results. Each flow has one end-to-end test in `frontend/e2e/`, run
 at phone width, that follows these steps exactly. A flow is not done until
 its test passes.
 
-A flow's test is started at the step named for it in the
-[build order](build-order.md) and is complete by step 6. A result that
-depends on a later step joins the test at that step.
+The backend phase named for a flow in the [build order](build-order.md)
+makes its results reachable through the API and MCP. The end-to-end tests
+are written when the frontend is wired, and all five pass before `v0.1.0`.
 
 "Tap" counts start once the page named in the first step is showing.
 Typing a name is not counted as a tap.

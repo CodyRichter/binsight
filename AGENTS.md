@@ -165,17 +165,17 @@ the authority; this table says where to look.
 | Python lint, formatting, type hints present, parameters, nesting, complexity, commented-out code, TODO markers, `print` | `ruff.toml` |
 | Python type hints correct                   | mypy, set up in `backend/pyproject.toml` |
 | Python file and function length             | `scripts/check_repo.py`   |
-| Feature folders match on both sides and are in the README; each has its three files; a feature imports another only through its service; no `utils` files; `AGENTS.md` length | `scripts/check_repo.py` |
+| Every frontend feature folder has a backend one, and all are in the README; each has its three files; a feature imports another only through its service; no `utils` files; `AGENTS.md` length | `scripts/check_repo.py` |
 | Frontend size limits, nesting, `any`, `console.log`, TODO markers, feature import boundaries, `fetch` outside `lib/api`, unexplained `eslint-disable`, the design language's no-exception rules | `frontend/eslint.config.mjs` |
 | Design color tokens and type styles match the document; CSS only in `src/components/` and `src/lib/theme/`, with no hex colors | `scripts/check_repo.py` |
 | Frontend formatting                         | Prettier                  |
 | Formatting on edit; no finishing while checks fail; no reading `.env` or the data directory | `.claude/settings.json` |
 | Everything above, on every pull request     | `.github/workflows/ci.yml` |
 
-Frontend type checking and the production build run in `scripts/check.sh`.
-Added with the first code, in step 1 of the build order: generated API
-types, the migration test, the parity test, and the end-to-end tests in
-continuous integration.
+Frontend type checking, the production build and the staleness of the
+generated API types run in `scripts/check.sh`, and the migration test runs
+with the backend tests. The parity test arrives in phase B4 of the build
+order, and the end-to-end flow tests with the frontend wiring.
 
 If a rule here is being broken repeatedly, add a check for it rather than
 writing the rule in stronger words.
