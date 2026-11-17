@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useLocation, useNavigate, useNavigation, useSearchParams } from "react-router";
-import { BackendCheck } from "./BackendCheck";
+import { SessionCheck } from "./SessionCheck";
 import { Frame } from "./Frame";
 import type { Destination } from "./navigation";
 
@@ -32,7 +32,7 @@ function useSearch() {
 export function AppFrame({ current = null, destination, children }: AppFrameProps) {
   return (
     <Frame navigation={{ current }} search={useSearch()} destination={destination}>
-      <BackendCheck>{children}</BackendCheck>
+      <SessionCheck>{children}</SessionCheck>
     </Frame>
   );
 }

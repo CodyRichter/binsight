@@ -4,3 +4,4 @@ src/types/api.generated.ts
 .impeccable/
 test-results/
 playwright-report/
+playwright/

@@ -110,8 +110,22 @@ const developmentRoutes: RouteObject[] = import.meta.env.DEV
   : [];
 
 const appRoutes: RouteObject[] = [
-  { ErrorBoundary: AppError, children: [{ path: "*", Component: AppNotFound }] },
+  {
+    ErrorBoundary: AppError,
+    children: [
+      page("/login", async () => ({ Component: (await import("@/pages/LoginPage")).LoginPage })),
+      page("/settings", async () => ({
+        Component: (await import("@/pages/SettingsPage")).SettingsPage,
+      })),
+      { path: "*", Component: AppNotFound },
+    ],
+  },
 ];
+
+// Pages load on first visit; until then the ground shows, as on any first load.
+function NothingYet() {
+  return null;
+}
 
 function Root() {
   return (
@@ -123,7 +137,12 @@ function Root() {
 }
 
 export const routes: RouteObject[] = [
-  { Component: Root, ErrorBoundary: RootError, children: [...developmentRoutes, ...appRoutes] },
+  {
+    Component: Root,
+    HydrateFallback: NothingYet,
+    ErrorBoundary: RootError,
+    children: [...developmentRoutes, ...appRoutes],
+  },
 ];
 
 export const router = createBrowserRouter(routes);

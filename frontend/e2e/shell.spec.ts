@@ -1,9 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
-
-async function open(page: Page, path: string) {
-  await page.setViewportSize({ width: 390, height: 900 });
-  await page.goto(path);
-}
+import { expect, test } from "@playwright/test";
+import { openAtPhoneWidth as open } from "./owner";
 
 test("an unknown address renders inside the frame", async ({ page }) => {
   await open(page, "/anything");

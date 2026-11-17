@@ -61,3 +61,6 @@ Thumbs.db
 # --- Local agent and tool state ---
 .claude/settings.local.json
 graphify-out/
+
+# --- Playwright: the signed-in owner kept between test projects ---
+/frontend/playwright/.auth/
