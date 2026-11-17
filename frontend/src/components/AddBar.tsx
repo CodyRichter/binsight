@@ -1,16 +1,17 @@
-import { ActionIcon, Button, Textarea } from "@mantine/core";
-import { IconCamera, IconPlus } from "@tabler/icons-react";
-import { useRef, useState, type ChangeEvent, type KeyboardEvent, type ReactNode } from "react";
-import { barIconVars } from "./barControls";
+import { Button, Textarea } from "@mantine/core";
+import { IconPlus } from "@tabler/icons-react";
+import { useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { AddByPhotoButton } from "./AddByPhotoButton";
 import { CodeChip } from "./CodeChip";
 import classes from "./AddBar.module.css";
 
 interface AddBarProps {
   destinationCode?: string;
   destinationName?: string;
-  onChangeDestination: () => void;
+  onChangeDestination?: () => void;
   onAdd: (names: string[]) => void;
-  onAddByPhoto: (photo: File) => void;
+  onAddSeveral?: (names: string[]) => void;
+  onAddByPhoto?: (photo: File) => void;
   onNameChange?: (name: string) => void;
   suggestion?: (clearName: () => void) => ReactNode;
   autoFocus?: boolean;
@@ -21,11 +22,25 @@ function destination(code?: string, name?: string) {
   return name ?? "Inbox";
 }
 
+function destinationButton(props: AddBarProps): ReactNode {
+  if (!props.onChangeDestination) return null;
+  const where = props.destinationCode ?? props.destinationName ?? "Inbox";
+  return (
+    <button
+      type="button"
+      className={classes.destination}
+      aria-label={`Add to ${where}, change destination`}
+      onClick={props.onChangeDestination}
+    >
+      to {destination(props.destinationCode, props.destinationName)}
+    </button>
+  );
+}
+
 export function AddBar(props: AddBarProps) {
   const [several, setSeveral] = useState(false);
   const [switched, setSwitched] = useState(false);
   const [lines, setLines] = useState("");
-  const photoInput = useRef<HTMLInputElement>(null);
   const nameInput = useRef<HTMLInputElement>(null);
 
   function clearName() {
@@ -37,12 +52,6 @@ export function AddBar(props: AddBarProps) {
   function switchField() {
     setSeveral(!several);
     setSwitched(true);
-  }
-
-  function addPhoto(event: ChangeEvent<HTMLInputElement>) {
-    const photo = event.currentTarget.files?.[0];
-    if (photo) props.onAddByPhoto(photo);
-    event.currentTarget.value = "";
   }
 
   function submitOne() {
@@ -63,7 +72,7 @@ export function AddBar(props: AddBarProps) {
       .map((line) => line.trim())
       .filter(Boolean);
     if (names.length === 0) return;
-    props.onAdd(names);
+    props.onAddSeveral?.(names);
     setLines("");
   }
 
@@ -94,37 +103,16 @@ export function AddBar(props: AddBarProps) {
             onKeyDown={addOne}
           />
         )}
-        <button
-          type="button"
-          className={classes.destination}
-          aria-label={`Add to ${props.destinationCode ?? props.destinationName ?? "Inbox"}, change destination`}
-          onClick={props.onChangeDestination}
-        >
-          to {destination(props.destinationCode, props.destinationName)}
-        </button>
-        <ActionIcon
-          aria-label="Add by photo"
-          vars={barIconVars}
-          onClick={() => photoInput.current?.click()}
-        >
-          <IconCamera aria-hidden />
-        </ActionIcon>
-        <input
-          ref={photoInput}
-          className={classes.photoInput}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          tabIndex={-1}
-          aria-hidden
-          onChange={addPhoto}
-        />
+        {destinationButton(props)}
+        {props.onAddByPhoto && <AddByPhotoButton onAddByPhoto={props.onAddByPhoto} />}
       </div>
       {!several && props.suggestion?.(clearName)}
       <div className={classes.below}>
-        <Button variant="subtle" onClick={switchField}>
-          {several ? "Add one" : "Add several"}
-        </Button>
+        {props.onAddSeveral && (
+          <Button variant="subtle" onClick={switchField}>
+            {several ? "Add one" : "Add several"}
+          </Button>
+        )}
         <Button onClick={several ? addSeveral : submitOne}>Add</Button>
       </div>
     </div>

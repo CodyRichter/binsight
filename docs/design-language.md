@@ -374,7 +374,7 @@ same page as `/locations/{id}`.
    quantity stepper under it, in the page lead.
 2. Sections of value rows: "Details", then others only when they hold a
    value or are being added to.
-3. Section "History", last.
+3. Section "History", last: a list of history rows, newest first.
 
 **Task** (`/scan`, check mode). Full screen in the task frame, so nothing
 is tapped by mistake.
@@ -615,6 +615,13 @@ the type icon sits at the gutter. The list says which it is. The toggle
 expands in place; the rest of the row opens the location. No summary in the
 tree.
 
+**History row.** One change to the thing, in a Record page's History
+section. A line saying what happened in `text-body` ("Added", "Quantity
+changed from 3 to 4"), and under it one `text-small`, `muted` line: when, in
+words as the checked stamp says it, then who ("You" for the app, "Claude"
+for MCP). Full width, hairline below, at least `row-min` high, and its text
+wraps. Not tappable: no icon, no badge, no chevron.
+
 **Value row.** A name and its value, for the Record and Settings templates.
 The name in bold `text-small` above the value, `space-xs` apart, with
 `space-sm` above and below; the value as editable text or one control. An
@@ -628,8 +635,10 @@ section is left out, unless it is the page's main list. The one list of a
 List page, and of `/`, has no header: the page title names it. A list with
 no header has `space-lg` above and a hairline above its first row.
 
-The Locations section's action is "Add location". It opens a sheet with one
-field, the name. The new location's type follows from its parent: a site at
+The Locations section's action is "Add location". On `/`, and on a location
+with no locations inside it, there is no Locations section to hold it, so
+"Add location" is a default button in the page header instead. Either way
+it opens a sheet with one field, the name. The new location's type follows from its parent: a site at
 the top, a room inside a site, a bin anywhere else. Its page changes it.
 
 **Add bar.** The quick-add field, and the only field with an `accent`
@@ -642,7 +651,10 @@ when its text field is focused, the bar uses a flush `focus` border and 1px
 inset ring instead of an offset outline so no gap or corner seam opens
 between the frame and the `accent` underline. Enter adds, clears and keeps
 focus, and the default Add button beside "Add several" does the same. A
-camera button adds by photo; "Add several" swaps in the multi-line field. A
+camera button adds by photo; "Add several" swaps in the multi-line field.
+The destination, the camera and "Add several" are each present only where
+the page supports them; without "Add several" the row under the bar holds
+Add alone. A
 likely duplicate appears as a `DuplicateSuggestion` row beneath (`text-small`
 notice with subtle "Add to existing" at the right gutter) and never
 blocks Enter.

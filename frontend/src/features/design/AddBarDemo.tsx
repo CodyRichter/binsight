@@ -68,6 +68,7 @@ export function AddBarDemo({ autoFocus }: AddBarDemoProps) {
         destinationName={destination?.name}
         onChangeDestination={() => setChoosing(true)}
         onAdd={(names) => add(names.map((name) => ({ name })))}
+        onAddSeveral={(names) => add(names.map((name) => ({ name })))}
         onAddByPhoto={(photo) => add([{ name: photo.name, photoUrl: URL.createObjectURL(photo) }])}
         onNameChange={setTyped}
         autoFocus={autoFocus}
