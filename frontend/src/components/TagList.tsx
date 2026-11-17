@@ -6,39 +6,22 @@ import classes from "./TagList.module.css";
 interface TagListProps {
   tags: string[];
   tagHref?: (tag: string) => string;
-  onSelectTag?: (tag: string) => void;
   onRemoveTag?: (tag: string) => void;
   onAddTag?: () => void;
 }
 
-function renderTag(
-  tag: string,
-  tagHref?: (tag: string) => string,
-  onSelectTag?: (tag: string) => void,
-) {
-  if (tagHref) {
-    return (
-      <Badge component={Link} to={tagHref(tag)} className={classes.interactive}>
-        {tag}
-      </Badge>
-    );
-  }
-  if (onSelectTag) {
-    return (
-      <Badge component="button" type="button" onClick={() => onSelectTag(tag)}>
-        {tag}
-      </Badge>
-    );
-  }
-  return <Badge>{tag}</Badge>;
-}
-
-export function TagList({ tags, tagHref, onSelectTag, onRemoveTag, onAddTag }: TagListProps) {
+export function TagList({ tags, tagHref, onRemoveTag, onAddTag }: TagListProps) {
   return (
     <div className={classes.list}>
       {tags.map((tag) => (
         <span key={tag} className={classes.item}>
-          {renderTag(tag, tagHref, onSelectTag)}
+          {tagHref ? (
+            <Badge component={Link} to={tagHref(tag)} className={classes.interactive}>
+              {tag}
+            </Badge>
+          ) : (
+            <Badge>{tag}</Badge>
+          )}
           {onRemoveTag && (
             <button
               type="button"

@@ -2,13 +2,13 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--bs-space-sm);
+  gap: var(--bs-space-sm) var(--bs-space-lg);
 }
 
 .item {
   display: inline-flex;
   align-items: center;
-  gap: var(--bs-space-xs);
+  gap: var(--bs-space-sm);
 }
 
 .interactive {
@@ -24,8 +24,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 28px;
   padding: 0;
   border: 0;
   border-radius: var(--bs-radius-sm);
@@ -34,10 +34,11 @@
   cursor: pointer;
 }
 
+/* Keep horizontal hit expansion within the item/list gaps so it never covers adjacent tags. */
 .remove::after {
   content: "";
   position: absolute;
-  inset: calc((24px - var(--bs-touch-min)) / 2);
+  inset: -10px -8px;
 }
 
 .remove:hover {

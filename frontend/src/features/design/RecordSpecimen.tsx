@@ -1,6 +1,6 @@
-import { Button, Menu } from "@mantine/core";
+import { Button, Menu, TextInput } from "@mantine/core";
 import { IconTrash } from "@tabler/icons-react";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EditableText } from "@/components/EditableText";
@@ -30,7 +30,7 @@ export function RecordSpecimen() {
   const [serial, setSerial] = useState("");
   const [notes, setNotes] = useState("");
 
-  function addTag(event: React.FormEvent<HTMLFormElement>) {
+  function addTag(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = newTag.trim().toLowerCase();
     if (trimmed && !tags.includes(trimmed)) setTags([...tags, trimmed]);
@@ -113,17 +113,15 @@ export function RecordSpecimen() {
         onClose={() => setTagSheetOpen(false)}
         onSubmit={addTag}
       >
-        <EditableText
-          value={newTag}
+        <TextInput
           label="Tag"
-          invitation="Type a tag"
-          onSave={(value) => {
-            if (value.trim() && !tags.includes(value.trim().toLowerCase())) {
-              setTags([...tags, value.trim().toLowerCase()]);
-            }
-            setTagSheetOpen(false);
-          }}
+          data-autofocus
+          value={newTag}
+          onChange={(event) => setNewTag(event.currentTarget.value)}
         />
+        <Button type="submit" variant="primary">
+          Add tag
+        </Button>
       </Sheet>
       <ConfirmDialog
         opened={deleteOpen}
