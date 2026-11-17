@@ -74,3 +74,30 @@ jobs:
           path: |
             frontend/playwright-report/
             frontend/test-results/
+
+  # Needs Docker for the app, so it runs on the runner itself; the fonts are bundled with the app.
+  e2e-container:
+    name: e2e against the container
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install
+        run: npm ci && npx playwright install --with-deps chromium
+      - name: Browser tests against the container
+        run: npm run e2e:container
+      - uses: actions/upload-artifact@v7.0.2
+        if: ${{ failure() }}
+        with:
+          name: playwright-report-container
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/

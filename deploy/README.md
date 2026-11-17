@@ -74,7 +74,9 @@ backups, safe to take while the app runs, arrive in a later step of the
 `scripts/check_container.sh` builds the image and starts it from an empty
 data directory and from a copy of a used one. It needs Docker, `curl` and
 `jq`, and uses port 18000 and its own temporary directories, so it does not
-touch `deploy/.env` or `deploy/data/`.
+touch `deploy/.env` or `deploy/data/`. From `frontend/`, `npm run e2e:container`
+builds the image and runs the browser tests against it on port 18001, with
+its own empty data directory.
 
 ## Working here
 

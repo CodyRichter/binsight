@@ -7,7 +7,9 @@ The intended setup is in [README.md](README.md).
 
 `scripts/check_container.sh` builds the image and starts it against an empty
 data directory, then against a copy of a used one. A deployment change is
-not done until it passes. To run the app by hand:
+not done until it passes, and until `npm run e2e:container`, run from
+`frontend/`, passes the browser tests against the image. To run the app by
+hand:
 
 ```
 docker compose -f deploy/compose.yml up --build
