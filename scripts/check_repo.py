@@ -44,7 +44,7 @@ def repository_files(suffix: str = "") -> Iterator[Path]:
 def folder_names(folder: Path) -> set[str]:
     if not folder.is_dir():
         return set()
-    return {child.name for child in folder.iterdir() if child.is_dir()}
+    return {child.name for child in folder.iterdir() if child.is_dir()} - SKIPPED_DIRS
 
 
 def check_feature_folders_match() -> Iterator[str]:

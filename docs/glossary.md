@@ -74,6 +74,7 @@ before naming it in code.
 | Term               | Meaning                                                   |
 | ------------------ | --------------------------------------------------------- |
 | **Owner**          | The one person who uses the app.                          |
+| **Login session**  | What keeps one device signed in: a secret in a cookie, ended by signing out. |
 | **MCP credential** | The revocable secret Claude uses to reach the MCP server. |
 | **App address**    | The permanent web address of an install.                  |
 | **Data directory** | The one folder holding the database, attachments and backups. |

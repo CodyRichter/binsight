@@ -55,5 +55,11 @@ def read_session(request: Request) -> Iterator[Session]:
         yield session
 
 
+def write_session(request: Request) -> Iterator[Session]:
+    with open_write_session(request.app.state.engine) as session:
+        yield session
+
+
 # "function" scope ends the transaction before the response is sent.
 ReadSession = Annotated[Session, Depends(read_session, scope="function")]
+WriteSession = Annotated[Session, Depends(write_session, scope="function")]

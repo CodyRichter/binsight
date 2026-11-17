@@ -3,9 +3,10 @@
 The FastAPI application: the web API the frontend calls, the MCP server
 Claude calls, and the frontend's built files, in one process.
 
-> **Status: foundation (phase B1).** The app starts, opens SQLite with the
+> **Status: sign-in (phase B2).** The app starts, opens SQLite with the
 > agreed settings, migrates the database and serves the frontend's files.
-> No feature exists yet.
+> `auth` creates the owner and signs devices in; every other API route
+> needs a session.
 
 ## Tech stack
 
