@@ -54,6 +54,15 @@ def list_items(
     return _oldest_first(session, models.Item.home_location_id.in_(homes), limit, cursor)
 
 
+def list_items_in(session: Session, location_ids: list[str] | None) -> list[Item]:
+    """Every item still owned in these locations, or in the whole home when given None."""
+    query = select(models.Item).where(_not_deleted(), _not_archived())
+    if location_ids is not None:
+        query = query.where(models.Item.home_location_id.in_(location_ids))
+    query = query.order_by(models.Item.created_at, models.Item.id)
+    return [shaped(session, row) for row in session.scalars(query)]
+
+
 def _not_deleted() -> ColumnElement[bool]:
     return models.Item.deleted_at.is_(None)
 

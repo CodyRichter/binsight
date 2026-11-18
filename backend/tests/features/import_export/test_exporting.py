@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 from app.core.settings import Settings
 from app.main import build_app
 from tests.builders import AcceptanceHome
-from tests.photos import PDF
+from tests.photos import PDF, photo
 
 
 def _export(signed_in: TestClient) -> zipfile.ZipFile:
@@ -46,6 +46,19 @@ def test_the_export_holds_the_data_as_json_and_csv_with_every_file(
     assert {row["location"] for row in items} == {"Home > Garage > Shelf 2 > Cables"}
     places = {row["location"]: row for row in _csv_rows(archive, "locations.csv")}
     assert places["Home > Garage > Shelf 2 > Cables"]["label_code"] == "B-014"
+
+
+@pytest.mark.usefixtures("home")
+def test_an_item_never_named_stays_out_of_the_csv_but_not_the_json(
+    signed_in: TestClient,
+) -> None:
+    files = {"photo": ("thing.jpg", photo(), "image/jpeg")}
+    added = signed_in.post("/api/items/add-by-photo", files=files).json()
+    archive = _export(signed_in)
+    document = json.loads(archive.read("binsight.json"))
+    assert added["id"] in {row["id"] for row in document["items"]}
+    names = {row["name"] for row in _csv_rows(archive, "items.csv")}
+    assert names == {"HDMI cable", "USB-C charger"}
 
 
 @pytest.mark.usefixtures("home")

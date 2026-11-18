@@ -73,8 +73,10 @@ There is no `PUT`.
   `next_cursor` set to `null` on the last page.
 - Counts shown in the interface come from dedicated count fields, not from
   fetching every page.
-- The location tree is the one exception: it is returned whole, because the
+- The location tree is one exception: it is returned whole, because the
   tree view needs all of it and a home has a few hundred locations at most.
+  The insurance list and the contents sheet are the others: each is one
+  document printed whole, so it is answered whole.
 
 ## Errors
 
@@ -192,8 +194,9 @@ One shape for every error:
   `attachment_not_found`.
 - `GET /api/export` answers with a zip, `binsight-export-{date}.zip`:
   `binsight.json` (a `format_version`, now 1, and every stored row of the
-  home's tables, history included), `items.csv` in the import's columns,
-  `locations.csv`, and every photo and file at its stored path. It is
+  home's tables, history included), `items.csv` in the import's columns
+  (leaving out items never named, which only `binsight.json` holds, since
+  the import would refuse them), `locations.csv`, and every photo and file at its stored path. It is
   written from one read session to a temporary file and deleted once sent.
 - `POST /api/import` takes one `csv` part, UTF-8 text with a header row, at
   most 5 MB (else 422 `unsupported_file` or `file_too_large`). The columns,
@@ -210,6 +213,16 @@ One shape for every error:
   `details.rows` lists up to 50 `{row, column, message}`, counting the
   header as row 1. One history entry, `items.imported`, holds every item
   and location made, so one undo takes the import back.
+- `GET /api/insurance-list` (optionally `?location_id=`, which takes in
+  everything inside it) answers with every item still owned: not deleted,
+  sold, given away or thrown away. Items come by path, then name, each with
+  its details, `photo_urls` (every photo) and `receipts` (every file by
+  name and every web link). `total_cents` adds each price times its
+  quantity; `items_without_price` counts the rest.
+- `GET /api/contents-sheet/{location_id}` answers with the location and
+  `groups`: the location itself, then every location inside it, parents
+  first, each with its path, label code and the items still owned kept
+  directly in it.
 - The actor is taken from how the request was authenticated, never from the
   request body: a session cookie is `app`, an MCP credential is `mcp`.
 - Signing in and out are not changes to the home, so `auth`'s routes write

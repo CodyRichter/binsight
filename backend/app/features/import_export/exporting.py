@@ -70,7 +70,8 @@ def _item_rows(tables: ExportTables, places: list[Location]) -> list[dict[str, A
             "price": _price(row["price_cents"]),
         }
         for row in tables["items"]
-        if row["deleted_at"] is None
+        # An item added by photo and never named would be refused if imported back.
+        if row["deleted_at"] is None and row["name"] is not None
     ]
 
 

@@ -53,3 +53,21 @@ def test_bad_rows_are_refused_on_the_first_call(claude: Claude) -> None:
     refused = claude.refusal("import_items", csv_text="name,quantity\nDrill,lots\n")
     assert refused["code"] == "import_rows_invalid"
     assert refused["details"]["rows"][0]["column"] == "quantity"
+
+
+def test_claude_reads_the_insurance_list_by_label_code(
+    claude: Claude, signed_in: TestClient, home: AcceptanceHome
+) -> None:
+    signed_in.patch(f"/api/items/{home.hdmi_cable}", json={"price_cents": 500})
+    listing = claude.call("get_insurance_list", location_id="B-014")
+    assert (listing["title"], listing["total_cents"], listing["items_without_price"]) == (
+        "Cables",
+        1500,
+        1,
+    )
+    assert claude.call("get_insurance_list")["item_count"] == 2
+
+
+def test_claude_reads_a_contents_sheet(claude: Claude, home: AcceptanceHome) -> None:
+    sheet = claude.call("get_contents_sheet", location_id=home.shelf)
+    assert [group["label_code"] for group in sheet["groups"]] == [None, "B-014", "B-015"]

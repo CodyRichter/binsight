@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: export and import (Breadth 5a).** The requirements,
+> **Status: insurance list and contents sheets (Breadth 5b).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -49,7 +49,8 @@ what's inside. Search for anything and get its full location path, e.g.
 > location's page gives it a photo, each with Undo. `/settings` downloads
 > everything as one zip, data and files, and imports items from a CSV file
 > into the locations it names, with Undo; Claude can do both, asking first
-> before an import.
+> before an import. `/insurance` and each location's insurance list and
+> contents sheet are pages made to print, which Claude can read too.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 
@@ -158,7 +159,7 @@ plan for all of them; a folder that exists must be listed here.
 | `search`        | Global fuzzy search and filters                             |
 | `views`         | Built-in views and pinned saved searches                    |
 | `history`       | Change history, undo, restoring deleted items, MCP confirmations |
-| `import_export` | CSV import, full export, insurance export, contents sheets  |
+| `import_export` | CSV import, full export, insurance list, contents sheets    |
 | `backups`       | Scheduled backups and restore                               |
 | `scan`          | Frontend only: the in-app scanner used for scan-to-move     |
 | `design`        | Frontend only, development builds: the design language rendered |
@@ -179,6 +180,9 @@ The frontend folder for `import_export` is named `import-export`.
 | `/inbox`            | Items still missing a name or location                  |
 | `/scan`             | The in-app scanner                                      |
 | `/settings`         | Labels, export, backups, MCP credentials                |
+| `/insurance`        | The insurance list of the whole home, to print          |
+| `/locations/{id}/insurance` | The insurance list of one location, to print   |
+| `/locations/{id}/sheet` | A location's contents sheet, to print               |
 | `/login`            | Sign in, and creating the owner on a new install        |
 | `/design`           | Development builds only: every component and token      |
 

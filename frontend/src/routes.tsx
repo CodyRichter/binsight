@@ -9,42 +9,10 @@ import {
 import { AppFrame } from "@/components/AppFrame";
 import { FrameAdditionsContext, type FrameAdditions } from "@/components/frameAdditions";
 import { RouteError } from "@/components/RouteError";
-import { DesignFrame } from "@/features/design";
+import { developmentRoutes, page } from "@/developmentRoutes";
 import { useInboxCount } from "@/features/items";
 import { AddSheet, MoveSheet } from "@/features/locations";
 import { useViewsSection } from "@/features/views";
-
-function page(path: string, load: () => Promise<{ Component: () => React.JSX.Element }>) {
-  return { path, lazy: load };
-}
-
-function DesignShellError() {
-  const error = useRouteError();
-  const navigate = useNavigate();
-  return (
-    <DesignFrame>
-      <RouteError
-        error={error}
-        onRetry={() => navigate(0)}
-        onGoHome={() => navigate("/design")}
-        onScan={() => navigate("/scan")}
-      />
-    </DesignFrame>
-  );
-}
-
-function DesignNotFound() {
-  const navigate = useNavigate();
-  return (
-    <DesignFrame>
-      <RouteError
-        error={{ status: 404, statusText: "Not Found", data: null, internal: true }}
-        onGoHome={() => navigate("/design")}
-        onScan={() => navigate("/scan")}
-      />
-    </DesignFrame>
-  );
-}
 
 function AppError() {
   const error = useRouteError();
@@ -81,20 +49,6 @@ function RootError() {
   );
 }
 
-const developmentRoutes: RouteObject[] = import.meta.env.DEV
-  ? [
-      {
-        ErrorBoundary: DesignShellError,
-        children: [
-          page("/design", async () => ({
-            Component: (await import("@/pages/DesignPage")).DesignPage,
-          })),
-          page("/design/*", async () => ({ Component: DesignNotFound })),
-        ],
-      },
-    ]
-  : [];
-
 const frameAdditions: FrameAdditions = { AddSheet, MoveSheet, useInboxCount, useViewsSection };
 
 function AppPages() {
@@ -117,6 +71,14 @@ const appRoutes: RouteObject[] = [
       page("/locations/:id", async () => ({
         Component: (await import("@/pages/LocationPage")).LocationPage,
       })),
+      page("/locations/:id/sheet", async () => ({
+        Component: (await import("@/pages/ContentsSheetPage")).ContentsSheetPage,
+      })),
+      ...["/insurance", "/locations/:id/insurance"].map((path) =>
+        page(path, async () => ({
+          Component: (await import("@/pages/InsurancePage")).InsurancePage,
+        })),
+      ),
       page("/items/:id", async () => ({ Component: (await import("@/pages/ItemPage")).ItemPage })),
       page("/views", async () => ({ Component: (await import("@/pages/ViewsPage")).ViewsPage })),
       page("/views/:view", async () => ({
