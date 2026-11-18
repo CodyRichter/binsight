@@ -19,3 +19,17 @@ export async function open(page: Page, path: string) {
   await page.goto(path);
   await page.evaluate(() => document.fonts.ready);
 }
+
+/** Waits until nothing on the page is moving, so a sheet that just opened is measured where it rests. */
+export async function settled(page: Page) {
+  // A transition can be cancelled and replaced, so poll rather than await each one's end.
+  await page.waitForFunction(() =>
+    document
+      .getAnimations()
+      .every(
+        (animation) =>
+          animation.playState !== "running" ||
+          animation.effect?.getTiming().iterations === Infinity,
+      ),
+  );
+}
