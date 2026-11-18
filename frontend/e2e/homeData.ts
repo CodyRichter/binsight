@@ -61,3 +61,29 @@ export async function addPhotoItem(request: APIRequestContext, homeId?: string):
   });
   return ((await response.json()) as { id: string }).id;
 }
+
+/** Makes an MCP credential through the API, giving back its secret. */
+export async function mcpSecret(request: APIRequestContext): Promise<string> {
+  const response = await request.post("/api/auth/mcp-credentials", {
+    data: { name: uniqueName("Claude Code") },
+  });
+  return ((await response.json()) as { secret: string }).secret;
+}
+
+/** Calls one MCP tool as Claude does, giving back its structured result. */
+export async function callTool(
+  request: APIRequestContext,
+  secret: string,
+  name: string,
+  args: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const response = await request.post("/mcp", {
+    data: { jsonrpc: "2.0", id: 1, method: "tools/call", params: { name, arguments: args } },
+    headers: { Authorization: `Bearer ${secret}`, Accept: "application/json, text/event-stream" },
+  });
+  const body = (await response.json()) as {
+    result: { isError: boolean; structuredContent: Record<string, unknown> };
+  };
+  if (body.result.isError) throw new Error(`${name} refused: ${JSON.stringify(body.result)}`);
+  return body.result.structuredContent;
+}

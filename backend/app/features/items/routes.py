@@ -14,8 +14,10 @@ from app.features.items.schemas import (
     Item,
     ItemChanges,
     ItemCreated,
+    ItemDeleted,
     ItemMove,
     ItemMoved,
+    ItemRestored,
     ItemsCreated,
     ItemUpdated,
     NewItem,
@@ -94,3 +96,13 @@ def update_item(item_id: str, body: ItemChanges, session: WriteSession) -> ItemU
 @router.post("/{item_id}/move", operation_id="move_item", responses=refusals(404, 409, 422))
 def move_item(item_id: str, body: ItemMove, session: WriteSession) -> ItemMoved:
     return service.move_item(session, item_id, body, Actor.app, clock.now())
+
+
+@router.delete("/{item_id}", operation_id="delete_item", responses=refusals(404, 409))
+def delete_item(item_id: str, session: WriteSession) -> ItemDeleted:
+    return service.delete_item(session, item_id, Actor.app, clock.now())
+
+
+@router.post("/{item_id}/restore", operation_id="restore_item", responses=refusals(404, 409))
+def restore_item(item_id: str, session: WriteSession) -> ItemRestored:
+    return service.restore_item(session, item_id, Actor.app, clock.now())

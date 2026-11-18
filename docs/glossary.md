@@ -67,6 +67,7 @@ before naming it in code.
 | **Actor**         | Who made a change: `app` (the owner in the interface) or `mcp` (Claude). |
 | **Undo**          | Reversing a history entry.                                 |
 | **Delete**        | Removing an item or location from view. Deleted things can be restored. Different from archive. |
+| **Restore**       | Bringing a deleted item back into view, where it was.      |
 | **Preview**       | What an MCP tool returns in place of acting, when the action deletes, merges or changes many records. |
 | **Confirmation**  | The single-use token returned with a preview, sent back to make the action happen. |
 

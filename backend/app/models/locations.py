@@ -39,7 +39,7 @@ class Location(Model):
     # Counted here so the locations feature never queries the item table (decision 0003).
     direct_item_count: Mapped[int] = column_property(
         select(func.count(Item.id))
-        .where(Item.home_location_id == id)
+        .where(Item.home_location_id == id, Item.deleted_at.is_(None))
         .correlate_except(Item)
         .scalar_subquery()
     )

@@ -273,7 +273,8 @@ export interface paths {
         get: operations["get_item"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete Item */
+        delete: operations["delete_item"];
         options?: never;
         head?: never;
         /** Update Item */
@@ -291,6 +292,23 @@ export interface paths {
         put?: never;
         /** Move Item */
         post: operations["move_item"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/{item_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore Item */
+        post: operations["restore_item"];
         delete?: never;
         options?: never;
         head?: never;
@@ -584,6 +602,8 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+            /** Deleted At */
+            deleted_at: string | null;
         };
         /** ItemChanges */
         ItemChanges: {
@@ -611,6 +631,32 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+            /** Deleted At */
+            deleted_at: string | null;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** ItemDeleted */
+        ItemDeleted: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Home Location Id */
+            home_location_id: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Photo Url */
+            photo_url: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Deleted At */
+            deleted_at: string | null;
             /** History Entry Id */
             history_entry_id: string;
         };
@@ -638,6 +684,32 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+            /** Deleted At */
+            deleted_at: string | null;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** ItemRestored */
+        ItemRestored: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Home Location Id */
+            home_location_id: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Photo Url */
+            photo_url: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Deleted At */
+            deleted_at: string | null;
             /** History Entry Id */
             history_entry_id: string;
         };
@@ -671,6 +743,8 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+            /** Deleted At */
+            deleted_at: string | null;
             /** History Entry Id */
             history_entry_id: string;
         };
@@ -1670,6 +1744,55 @@ export interface operations {
             };
         };
     };
+    delete_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDeleted"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     update_item: {
         parameters: {
             query?: never;
@@ -1763,6 +1886,55 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    restore_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemRestored"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

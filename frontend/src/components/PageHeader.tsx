@@ -7,6 +7,7 @@ import { EditableText } from "./EditableText";
 import { Path, type PathSegment } from "./Path";
 import { StatusBadge, type Status } from "./StatusBadge";
 import { Thumbnail } from "./Thumbnail";
+import { timeAgo } from "./timeAgo";
 import classes from "./PageHeader.module.css";
 
 interface PageHeaderProps {
@@ -22,18 +23,21 @@ interface PageHeaderProps {
   summary?: { value: string; onSave: (summary: string) => void };
   lastChecked?: Date | null;
   counts?: string[];
+  /** When the page's item was deleted; it reads "Deleted {time ago}" under the title. */
+  deletedAt?: Date;
   actions?: ReactNode;
   menu?: ReactNode;
 }
 
-function metaLine(lastChecked: Date | null | undefined, counts: string[]): ReactNode {
-  if (lastChecked === undefined && counts.length === 0) return null;
+function metaLine({ lastChecked, counts = [], deletedAt }: PageHeaderProps): ReactNode {
+  const words = deletedAt ? [...counts, `Deleted ${timeAgo(deletedAt)}`] : counts;
+  if (lastChecked === undefined && words.length === 0) return null;
   return (
     <div className={classes.meta}>
       {lastChecked !== undefined && <CheckedStamp lastChecked={lastChecked} />}
-      {counts.map((count) => (
-        <span key={count} className={classes.count}>
-          {count}
+      {words.map((word) => (
+        <span key={word} className={classes.count}>
+          {word}
         </span>
       ))}
     </div>
@@ -92,7 +96,7 @@ export function PageHeader(props: PageHeaderProps) {
               onSave={summary.onSave}
             />
           )}
-          {metaLine(props.lastChecked, props.counts ?? [])}
+          {metaLine(props)}
         </div>
       </div>
       {(actions || menu) && (

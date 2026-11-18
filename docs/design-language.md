@@ -386,7 +386,12 @@ toast offers Undo.
 
 1. Header: the 96px thumbnail, with the path, the title and the status
    badge beside it; up to two default buttons and More under both. The
-   quantity stepper under it, in the page lead.
+   quantity stepper under it, in the page lead. More holds "Delete item",
+   which goes to the item's location (or `/inbox`) with the toast
+   "Deleted {name}" and Undo. A deleted item's page reads "Deleted {time
+   ago}" as a `muted` `text-small` line under the title, has the default
+   button "Restore" in place of Move, and has no More; restoring says
+   "Restored {name}" with Undo.
 2. Sections of value rows: "Details", then others only when they hold a
    value or are being added to.
 3. Section "History", last: a list of history rows, newest first.

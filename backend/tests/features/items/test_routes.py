@@ -28,6 +28,7 @@ def test_creating_an_item_answers_with_it_and_its_history_entry(signed_in: TestC
         "path": [{"id": home, "name": "Home", "type": "site", "label_code": None}],
         "photo_url": None,
         "created_at": body["created_at"],
+        "deleted_at": None,
         "history_entry_id": body["history_entry_id"],
     }
 
