@@ -1,0 +1,62 @@
+.frame {
+  min-height: 100dvh;
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  background: var(--bs-surface);
+}
+
+.bar,
+.paper {
+  width: 100%;
+  max-width: var(--bs-content-max);
+  margin-inline: auto;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--bs-space-sm);
+  height: var(--bs-bar-height);
+  padding-inline: calc(var(--bs-space-lg) - (40px - 24px) / 2) var(--bs-space-lg);
+  border-bottom: 1px solid var(--bs-hairline);
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--bs-text-heading-size);
+  line-height: var(--bs-text-heading-line-height);
+  font-weight: var(--bs-text-heading-weight);
+}
+
+.paper {
+  padding-bottom: var(--bs-space-2xl);
+}
+
+@media print {
+  :global(body) {
+    background: var(--bs-surface);
+  }
+
+  .frame {
+    min-height: 0;
+    padding: 0;
+  }
+
+  .bar {
+    display: none;
+  }
+
+  .paper {
+    max-width: none;
+    padding-bottom: 0;
+  }
+
+  /* A row never splits across two sheets, and a section's header stays with its first row. */
+  .paper :global(li) {
+    break-inside: avoid;
+  }
+
+  .paper :global(h2) {
+    break-after: avoid;
+  }
+}

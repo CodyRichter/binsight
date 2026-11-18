@@ -97,6 +97,8 @@ before naming it in code.
 | **Data directory** | The one folder holding the database, attachments and backups. |
 | **Export**         | One zip of everything in the home: the data as JSON and CSV, with every photo and file. |
 | **Import**         | Adding items, and the locations they name, from a CSV file, as one change to undo. |
+| **Insurance list** | A printable list of every item still owned, in the home or one location, with its photos, serial number, price and receipts, and their total. The requirements' "insurance export". |
+| **Contents sheet** | A printable page of what a location holds, grouped by the location inside it each thing is kept in. |
 
 ## Words not to use
 

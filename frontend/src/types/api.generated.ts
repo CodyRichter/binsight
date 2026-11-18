@@ -898,6 +898,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/insurance-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Insurance List */
+        get: operations["get_insurance_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/contents-sheet/{location_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Contents Sheet */
+        get: operations["get_contents_sheet"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1032,6 +1066,15 @@ export interface components {
             /** Missing Item Ids */
             missing_item_ids?: string[];
         };
+        /**
+         * ContentsSheet
+         * @description A location and everything in it, grouped by the location each item is kept in.
+         */
+        ContentsSheet: {
+            location: components["schemas"]["Location"];
+            /** Groups */
+            groups: components["schemas"]["SheetGroup"][];
+        };
         /** ErrorBody */
         ErrorBody: {
             /** Code */
@@ -1108,6 +1151,57 @@ export interface components {
         InboxCount: {
             /** Count */
             count: number;
+        };
+        /**
+         * InsuranceList
+         * @description Every item still owned in the home or one location, with what a claim would ask for.
+         */
+        InsuranceList: {
+            /** Title */
+            title: string;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /**
+             * Made At
+             * Format: date-time
+             */
+            made_at: string;
+            /** Item Count */
+            item_count: number;
+            /** Total Cents */
+            total_cents: number;
+            /** Items Without Price */
+            items_without_price: number;
+            /** Items */
+            items: components["schemas"]["InsuredItem"][];
+        };
+        /** InsuredItem */
+        InsuredItem: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string | null;
+            /** Quantity */
+            quantity: number;
+            status: components["schemas"]["ItemStatus"];
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Brand */
+            brand: string | null;
+            /** Model */
+            model: string | null;
+            /** Serial Number */
+            serial_number: string | null;
+            /** Purchase Date */
+            purchase_date: string | null;
+            /** Price Cents */
+            price_cents: number | null;
+            /** Order Link */
+            order_link: string | null;
+            /** Photo Urls */
+            photo_urls: string[];
+            /** Receipts */
+            receipts: components["schemas"]["Receipt"][];
         };
         /** Item */
         Item: {
@@ -2240,6 +2334,16 @@ export interface components {
             /** Label Code */
             label_code: string | null;
         };
+        /**
+         * Receipt
+         * @description A file or web link attached to an item, by its name, or a link by its address if unnamed.
+         */
+        Receipt: {
+            /** Name */
+            name: string;
+            /** Url */
+            url: string;
+        };
         /** SavedSearch */
         SavedSearch: {
             /** Location Id */
@@ -2354,6 +2458,30 @@ export interface components {
             next_cursor: string | null;
             /** Count */
             count: number;
+        };
+        /**
+         * SheetGroup
+         * @description One location on a contents sheet, with the items kept directly in it.
+         */
+        SheetGroup: {
+            /** Location Id */
+            location_id: string;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Label Code */
+            label_code: string | null;
+            /** Items */
+            items: components["schemas"]["SheetItem"][];
+        };
+        /** SheetItem */
+        SheetItem: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string | null;
+            /** Quantity */
+            quantity: number;
+            status: components["schemas"]["ItemStatus"];
         };
         /** Tag */
         Tag: {
@@ -5089,6 +5217,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_insurance_list: {
+        parameters: {
+            query?: {
+                location_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InsuranceList"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_contents_sheet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                location_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContentsSheet"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

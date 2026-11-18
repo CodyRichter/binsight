@@ -28,6 +28,7 @@ from app.features.items.listing import get_items as get_items
 from app.features.items.listing import list_categories as list_categories
 from app.features.items.listing import list_inbox as list_inbox
 from app.features.items.listing import list_items as list_items
+from app.features.items.listing import list_items_in as list_items_in
 from app.features.items.listing import list_tags as list_tags
 from app.features.items.listing import searchable_items as searchable_items
 from app.features.items.records import item_record, live_item

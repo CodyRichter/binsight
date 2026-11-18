@@ -1,5 +1,6 @@
 import { Button } from "@mantine/core";
 import { useRef, useState, type ChangeEvent } from "react";
+import { Link } from "react-router";
 import { ListSection } from "@/components/ListSection";
 import { ValueRow } from "@/components/ValueRow";
 import { exportAddress } from "@/lib/api/exportAddress";
@@ -23,6 +24,11 @@ export function ExportImportSection() {
         <ValueRow name="Export everything">
           <Button component="a" href={exportAddress()} download>
             Download
+          </Button>
+        </ValueRow>
+        <ValueRow name="Insurance list">
+          <Button component={Link} to="/insurance">
+            Open
           </Button>
         </ValueRow>
         <ValueRow name="Import from CSV">

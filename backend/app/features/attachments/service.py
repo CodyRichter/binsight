@@ -148,15 +148,24 @@ def get_item_attachment(session: Session, item_id: str, attachment_id: str) -> A
     return _shaped(attachment)
 
 
-def list_item_attachments(session: Session, item_id: str) -> list[Attachment]:
-    """An item's attachments: its photos first, then its files and links, in the order added."""
+def attachments_by_item(session: Session, item_ids: list[str]) -> dict[str, list[Attachment]]:
+    """Each of these items' attachments, photos first and then in the order added."""
     photos_first = case((models.Attachment.kind == AttachmentKind.photo, 0), else_=1)
     query = (
         select(models.Attachment)
-        .where(models.Attachment.item_id == item_id)
+        .where(models.Attachment.item_id.in_(item_ids))
         .order_by(photos_first, models.Attachment.position, models.Attachment.id)
     )
-    return [_shaped(attachment) for attachment in session.scalars(query)]
+    found: dict[str, list[Attachment]] = {item_id: [] for item_id in item_ids}
+    for attachment in session.scalars(query):
+        if attachment.item_id is not None:
+            found[attachment.item_id].append(_shaped(attachment))
+    return found
+
+
+def list_item_attachments(session: Session, item_id: str) -> list[Attachment]:
+    """An item's attachments: its photos first, then its files and links, in the order added."""
+    return attachments_by_item(session, [item_id])[item_id]
 
 
 def count_item_photos(session: Session, item_id: str) -> int:

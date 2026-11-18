@@ -340,7 +340,7 @@ pinned saved search with `pin`, all with their counts); then
 
 ### Page templates
 
-Every page is one of six templates. "Header" is the page header component.
+Every page is one of seven templates. "Header" is the page header component.
 
 **Browse** (`/`, `/l/{code}`, `/locations/{id}`, `/views`)
 
@@ -352,7 +352,8 @@ Every page is one of six templates. "Header" is the page header component.
    site); More holds "Add location" when there is no Locations section,
    "Download label", "Check mode", then "Add photo" ("Replace photo" when
    it has one), which opens the camera, and "Remove photo" when it has
-   one. "Contents checked" says "Contents checked" with Undo; a photo says
+   one, then "Contents sheet" and "Insurance list", which open the
+   location's print pages. "Contents checked" says "Contents checked" with Undo; a photo says
    "Added a photo to {place}" or "Removed the photo", with Undo.
 2. The add bar, on a location only. The page's one accent.
 3. "Here / Everything inside", only when the location contains other
@@ -505,14 +506,49 @@ first, each named by its location or "Blank" and holding the code chip
 (dashed while blank) and a default "Download" button. "Show more" loads the
 next page.
 
-"Export and import", after "Labels", has two value rows. "Export
+"Export and import", after "Labels", has three value rows. "Export
 everything" holds a default "Download" button that downloads the zip.
+"Insurance list" holds a default "Open" button that opens `/insurance`.
 "Import from CSV" holds a default "Choose file" button that opens the file
 picker; the import runs at once and says "Imported {n} items into {m} new
 locations" (or just "Imported {n} items"), with Undo. A file with rows that
 can't be imported opens the "Can't import" sheet: one value row per
 problem, named "Row {n}" and holding "{column}: {message}", then a primary
 "Close". Any other refusal is the usual toast with Retry.
+
+**Print** (`/insurance`, `/locations/{id}/insurance`,
+`/locations/{id}/sheet`). A page made to be printed, outside the frame: no
+navigation, top bar or bottom bar, on `surface` at `content-max`.
+
+1. On screen only, a `bar-height` row: Close at the gutter, which goes back
+   (or to the location, or `/settings`, when opened from its address), the
+   page's name, and the primary button "Print", which opens the browser's
+   print dialog.
+2. The page header: the path above, the title, the large code chip, the
+   checked stamp and counts. No buttons and no More.
+3. Sections of print item rows.
+
+Printed, the bar is left out, the colors are the light ones even in dark
+mode, a row never splits across two sheets, and a section's header stays
+with its first row.
+
+"Insurance list" is titled with the location's name, or "Everything" at
+`/insurance`, and its counts are "{n} items", "Total {price}" (each price
+times its quantity), "{n} items have no price" when any lack one, and
+"Made {date}". One section, "Items", holds every item still owned, by
+path, then name; each row lists Where (the path, or Inbox), Brand, Model,
+Serial number, Purchase date, Price, Order link and Receipts (every file
+and web link by name), leaving out those not entered, then every photo.
+"Contents sheet" is titled with the location's name, shows its label
+under the header so the paper scans like the bin, and has one section per
+location: the location itself, then each one inside it, parents first,
+titled by its path below the sheet's location, with its code chip and a
+count; an empty one is its header with 0. Rows on both read "{quantity} ×
+{name}", with "In use", "Lent out" or "Missing" after the name.
+
+**Print item row** (`PrintItem`). An item on a printed page: the quantity
+and name, a muted status word, then its details as `text-small` name and
+value pairs and its photos at 96px. No controls.
 
 **Gate** (`/login`, and creating the owner on a new install). The gate
 frame: a `gate-width` column, centered across and placed in the upper
@@ -531,6 +567,9 @@ primary button.
 | `/inbox`          | List     | Inbox    |
 | `/scan`           | Task     | None     |
 | `/settings`       | Settings | Settings |
+| `/insurance`      | Print    | None     |
+| `/locations/{id}/insurance` | Print | None |
+| `/locations/{id}/sheet` | Print | None |
 | `/login`          | Gate     | None     |
 
 Check mode is a Task that opens over a location's page and has no address.

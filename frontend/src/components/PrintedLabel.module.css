@@ -1,0 +1,6 @@
+.label {
+  display: block;
+  width: calc(2 * var(--bs-touch-min));
+  height: auto;
+  margin: var(--bs-space-lg) var(--bs-space-lg) 0;
+}

@@ -16,6 +16,7 @@ from app.mcp.lending_tools import add_lending_tools
 from app.mcp.link_tools import add_link_tools
 from app.mcp.location_tools import add_location_tools
 from app.mcp.move_tools import add_move_tools
+from app.mcp.print_tools import add_print_tools
 from app.mcp.saved_search_tools import add_saved_search_tools
 from app.mcp.search_tools import add_search_tools
 from app.mcp.status_tools import add_status_tools
@@ -61,6 +62,7 @@ def add_mcp_server(app: FastAPI) -> MCPServer:
     add_lending_tools(server, app)
     add_view_tools(server, app)
     add_import_export_tools(server, app)
+    add_print_tools(server, app)
     add_saved_search_tools(server, app)
     mcp_app = server.streamable_http_app(
         streamable_http_path="/mcp",
