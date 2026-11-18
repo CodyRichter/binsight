@@ -1,5 +1,6 @@
+import sqlite3
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from pathlib import Path
 from sqlite3 import Connection as SqliteConnection
 from typing import Annotated
@@ -35,6 +36,15 @@ def create_database_engine(database_path: Path) -> Engine:
     event.listen(engine, "connect", _configure_connection)
     event.listen(engine, "begin", _begin)
     return engine
+
+
+def copy_database(database_path: Path, copy_path: Path) -> None:
+    """Copy the database with SQLite's backup command, which is safe while the app is running."""
+    with (
+        closing(sqlite3.connect(database_path)) as source,
+        closing(sqlite3.connect(copy_path)) as copy,
+    ):
+        source.backup(copy)
 
 
 @contextmanager

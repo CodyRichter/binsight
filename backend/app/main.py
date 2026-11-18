@@ -1,9 +1,10 @@
+import asyncio
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import APIRouter, Depends, FastAPI
 
-from app.core import health
+from app.core import clock, health
 from app.core.cross_site import refuse_cross_site_writes
 from app.core.database import create_database_engine
 from app.core.errors import add_error_handlers
@@ -13,6 +14,8 @@ from app.core.security_headers import add_security_headers
 from app.core.settings import Settings, load_settings
 from app.features.attachments import routes as attachments
 from app.features.auth import routes as auth
+from app.features.backups import routes as backups
+from app.features.backups import service as backup_schedule
 from app.features.checks import routes as checks
 from app.features.history import routes as history
 from app.features.import_export import routes as import_export
@@ -41,6 +44,7 @@ def _signed_in_routes() -> APIRouter:
     signed_in.include_router(views.router)
     signed_in.include_router(views.saved_searches_router)
     signed_in.include_router(import_export.router)
+    signed_in.include_router(backups.router)
     return signed_in
 
 
@@ -53,8 +57,12 @@ def build_app(settings: Settings) -> FastAPI:
         engine = create_database_engine(settings.database_path)
         migrate_database(engine, settings)
         app.state.engine = engine
+        # Taken before the app answers, so an install is never without a backup once started.
+        await asyncio.to_thread(backup_schedule.take_backup_if_due, settings, clock.now())
+        schedule = asyncio.create_task(backup_schedule.run_schedule(settings))
         async with mcp_server.session_manager.run():
             yield
+        schedule.cancel()
         engine.dispose()
 
     app = FastAPI(

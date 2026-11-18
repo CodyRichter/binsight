@@ -516,6 +516,13 @@ can't be imported opens the "Can't import" sheet: one value row per
 problem, named "Row {n}" and holding "{column}: {message}", then a primary
 "Close". Any other refusal is the usual toast with Retry.
 
+"Backups", after "Export and import", has the action "Back up now". Its
+value rows are the backups kept, newest first, each named by when it was
+taken in the owner's date and time format ("Nov 18, 2026, 3:00 AM") and
+holding its size ("12.4 MB"). Backing up adds the new row at the top with
+no toast, since there is nothing to undo. Restoring is not in the app; it
+is done on the server.
+
 **Print** (`/insurance`, `/locations/{id}/insurance`,
 `/locations/{id}/sheet`). A page made to be printed, outside the frame: no
 navigation, top bar or bottom bar, on `surface` at `content-max`.
@@ -705,7 +712,7 @@ naming an item says "Named {name}".
 
 **Dialog** (`ConfirmDialog`, built on `Modal`). Only for what cannot be
 undone: emptying deleted items for good, deleting blank labels, revoking an
-MCP credential, restoring a backup. The title is the question and names
+MCP credential. The title is the question and names
 the thing and the number. Two verb buttons, the safe one first and focused:
 "Keep them", "Delete forever". The safe button carries `data-autofocus`.
 

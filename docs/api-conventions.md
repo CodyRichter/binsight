@@ -75,8 +75,9 @@ There is no `PUT`.
   fetching every page.
 - The location tree is one exception: it is returned whole, because the
   tree view needs all of it and a home has a few hundred locations at most.
-  The insurance list and the contents sheet are the others: each is one
-  document printed whole, so it is answered whole.
+  The insurance list and the contents sheet are others: each is one
+  document printed whole, so it is answered whole. The backups list is the
+  last: at most 14 are kept.
 
 ## Errors
 
@@ -223,6 +224,11 @@ One shape for every error:
   `groups`: the location itself, then every location inside it, parents
   first, each with its path, label code and the items still owned kept
   directly in it.
+- `GET /api/backups` answers with `backups`, newest first, each with its
+  `name` (its folder in `backups/`), `taken_at` and `size` in bytes.
+  `POST /api/backups` takes one now and answers 201 with it. Neither is a
+  change to the home, so neither writes history; restoring is done on the
+  server, as `deploy/README.md` describes, and has no route.
 - The actor is taken from how the request was authenticated, never from the
   request body: a session cookie is `app`, an MCP credential is `mcp`.
 - Signing in and out are not changes to the home, so `auth`'s routes write

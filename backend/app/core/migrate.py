@@ -1,6 +1,3 @@
-import sqlite3
-from contextlib import closing
-
 from alembic import command
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
@@ -8,6 +5,7 @@ from alembic.script import ScriptDirectory
 from sqlalchemy import Connection, Engine
 
 from app.core import clock
+from app.core.database import copy_database
 from app.core.settings import BACKEND_DIRECTORY, Settings
 
 
@@ -26,9 +24,7 @@ def _copy_database(settings: Settings, revision: str) -> None:
     settings.backups_directory.mkdir(parents=True, exist_ok=True)
     stamp = clock.now().strftime("%Y%m%dT%H%M%SZ")
     copy_path = settings.backups_directory / f"before-upgrade-from-{revision}-{stamp}.db"
-    source = closing(sqlite3.connect(settings.database_path))
-    with source as source_connection, closing(sqlite3.connect(copy_path)) as copy_connection:
-        source_connection.backup(copy_connection)
+    copy_database(settings.database_path, copy_path)
 
 
 def _upgrade_and_check(connection: Connection, config: Config) -> None:
