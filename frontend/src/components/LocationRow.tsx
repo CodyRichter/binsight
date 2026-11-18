@@ -2,6 +2,7 @@ import { ActionIcon } from "@mantine/core";
 import { IconChevronDown, IconChevronRight, IconPlus } from "@tabler/icons-react";
 import type { CSSProperties, ReactNode } from "react";
 import { Link } from "react-router";
+import { CheckedStamp } from "./CheckedStamp";
 import { CodeChip } from "./CodeChip";
 import { markedText, type Mark } from "./markedText";
 import { locationTypeIcons, type LocationType } from "./locationTypeIcons";
@@ -14,6 +15,8 @@ type LocationRowProps = {
   itemCount: number;
   /** The parts of the name a search matched. */
   marks?: Mark[];
+  /** When its contents were last checked; shown only once stale, as in a view's rows. */
+  lastChecked?: Date | null;
   onAddInside?: () => void;
 } & ({ to: string; onPick?: never } | { onPick: () => void; to?: never }) &
   (
@@ -58,6 +61,9 @@ export function LocationRow(props: LocationRowProps) {
         </button>
       )}
       {code && <CodeChip code={code} />}
+      {props.lastChecked !== undefined && (
+        <CheckedStamp lastChecked={props.lastChecked} onlyStale />
+      )}
       <span className={classes.count}>{itemCount}</span>
       {props.onAddInside && (
         <ActionIcon

@@ -62,3 +62,9 @@ def decode_offset(cursor: str) -> int:
     if not isinstance(offset, int) or isinstance(offset, bool) or offset < 0:
         raise _invalid_cursor()
     return offset
+
+
+def counted_page[T](rows: list[T], start: int, limit: int) -> Page[T]:
+    """One page of a list already read in full, for one that is grouped or sorted in Python."""
+    end = start + limit
+    return Page(items=rows[start:end], next_cursor=encode_offset(end) if end < len(rows) else None)

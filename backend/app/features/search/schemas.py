@@ -2,8 +2,14 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
-from app.features.items.service import Item
+from app.features.items.service import Item, ItemFilters
 from app.features.locations.service import Location
+
+
+class Search(ItemFilters):
+    """What to search for: the words typed, and the filters that keep results."""
+
+    query: str = Field(default="", max_length=200)
 
 
 class Mark(BaseModel):

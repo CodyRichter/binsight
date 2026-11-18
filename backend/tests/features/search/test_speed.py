@@ -1,10 +1,12 @@
 import time
+from datetime import date
 
 from sqlalchemy import Engine
 
 from app import models
 from app.core.database import open_read_session, open_write_session
 from app.features.search import service
+from app.features.search.schemas import Search
 from tests import builders
 
 WORDS = [
@@ -42,7 +44,9 @@ def test_a_search_over_five_thousand_items_is_quick(migrated_engine: Engine) -> 
         )
     with open_read_session(migrated_engine) as session:
         started = time.perf_counter()
-        found = service.search_home(session, "chager cabel", 50, None)
+        found = service.search_home(
+            session, Search(query="chager cabel"), date(2026, 11, 16), 50, None
+        )
         elapsed = time.perf_counter() - started
     assert found.count > 0
     # Measured near 20 ms (decision 0016); the bound only catches a large regression.

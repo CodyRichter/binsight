@@ -39,7 +39,13 @@ export function stubPaths(bodies: Record<string, unknown>) {
     "fetch",
     vi.fn((path: string) => {
       const route = path.split("?")[0];
-      const known = { "/api/auth/status": signedIn, "/api/items/inbox/count": { count: 0 } };
+      const known = {
+        "/api/auth/status": signedIn,
+        "/api/items/inbox/count": { count: 0 },
+        // Every frame's navigation counts the views and pinned searches.
+        "/api/views": { items: [], next_cursor: null },
+        "/api/saved-searches": { items: [], next_cursor: null },
+      };
       return Promise.resolve(answer(200, { ...known, ...bodies }[route]));
     }),
   );
