@@ -56,6 +56,7 @@ test("a category search is saved, pinned into the navigation, deleted and undone
   await page.getByRole("button", { name: "More", exact: true }).click();
   await page.getByRole("menuitem", { name: "Delete saved search" }).click();
   await expect(page).toHaveURL(/\/views$/);
-  await page.getByRole("status").getByRole("button", { name: "Undo" }).click();
+  const deleted = page.getByRole("status").filter({ hasText: `Deleted ${saved}` });
+  await deleted.getByRole("button", { name: "Undo" }).click();
   await expect(page.getByRole("main").getByRole("link", { name: saved })).toBeVisible();
 });
