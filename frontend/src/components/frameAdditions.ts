@@ -1,5 +1,6 @@
 import { createContext, type ComponentType } from "react";
 import type { components } from "@/types/api.generated";
+import type { NavSection } from "./navigation";
 
 type Location = components["schemas"]["Location"];
 
@@ -26,14 +27,17 @@ export interface MoveSheetProps {
   onPick: (place: Location) => void;
 }
 
-/** What the app's features add to every frame: the Add and Move sheets and the inbox's count. */
+/** What the app's features add to every frame: the Add and Move sheets, and what the navigation counts. */
 export interface FrameAdditions {
   AddSheet?: ComponentType<AddSheetProps>;
   MoveSheet?: ComponentType<MoveSheetProps>;
   useInboxCount: () => number | undefined;
+  /** The navigation's Views section, given the view showing and whether /views is. */
+  useViewsSection: (currentView: string | undefined, onViews: boolean) => NavSection | undefined;
 }
 
 // The frame lives in components, which cannot reach features, so routes.tsx provides these.
 export const FrameAdditionsContext = createContext<FrameAdditions>({
   useInboxCount: () => undefined,
+  useViewsSection: () => undefined,
 });

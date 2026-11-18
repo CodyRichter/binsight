@@ -187,3 +187,21 @@ def get_locations(session: Session, location_ids: list[str]) -> list[Location]:
     """The locations with these identifiers, in the order given, with their paths and counts."""
     found = {location.id: location for location in _tree(session)}
     return [found[location_id] for location_id in location_ids]
+
+
+def locations_not_checked_since(session: Session, cutoff: datetime) -> list[Location]:
+    """Locations with items, checked never or not since the cutoff, the longest unchecked first."""
+    stale = [
+        location
+        for location in _tree(session)
+        if location.direct_item_count > 0
+        and (location.last_checked_at is None or location.last_checked_at < cutoff)
+    ]
+    # Never checked is older than any check.
+    return sorted(
+        stale,
+        key=lambda location: (
+            location.last_checked_at is not None,
+            location.last_checked_at or cutoff,
+        ),
+    )

@@ -29,9 +29,21 @@ UNDOABLE = {
     "item.unlinked",
     "location.checked",
     "location.moved",
+    "saved_search.created",
+    "saved_search.renamed",
+    "saved_search.pinned",
+    "saved_search.unpinned",
+    "saved_search.deleted",
 }
 
-type Undoable = models.Item | models.Attachment | models.Location | models.Check | models.ItemLink
+type Undoable = (
+    models.Item
+    | models.Attachment
+    | models.Location
+    | models.Check
+    | models.ItemLink
+    | models.SavedSearch
+)
 
 
 def _entry(session: Session, entry_id: str) -> models.HistoryEntry:
@@ -54,6 +66,8 @@ def _record(session: Session, change: models.HistoryChange) -> Undoable | None:
         return session.get(models.Check, change.record_id)
     if change.record_type == "link":
         return session.get(models.ItemLink, change.record_id)
+    if change.record_type == "saved_search":
+        return session.get(models.SavedSearch, change.record_id)
     return session.get(models.Item, change.record_id)
 
 
@@ -109,8 +123,14 @@ def _refuse_cycle(session: Session, location: models.Location, parent_id: str) -
         above = session.get(models.Location, above.parent_id) if above.parent_id else None
 
 
-def _relink(session: Session, change: models.HistoryChange, now: datetime) -> None:
+def _recreate(session: Session, change: models.HistoryChange, now: datetime) -> None:
     removed: dict[str, Any] = change.before or {}
+    if change.record_type == "saved_search":
+        session.add(
+            models.SavedSearch(id=change.record_id, **removed, created_at=now, updated_at=now)
+        )
+        return
+    # The same two items may have been linked again since, which a second link would duplicate.
     same = select(models.ItemLink.id).filter_by(**removed)
     if session.scalar(same) is not None:
         raise AppError(409, "changed_since", "That can't be undone, because it has changed since.")
@@ -120,10 +140,12 @@ def _relink(session: Session, change: models.HistoryChange, now: datetime) -> No
 def _reverse(
     session: Session, settings: Settings, change: models.HistoryChange, now: datetime
 ) -> RecordChange:
-    if change.record_type == "link" and not change.after:
-        _relink(session, change, now)
+    record_type = cast(RecordType, change.record_type)
+    # Only links and saved searches are removed outright; their removal records nothing after.
+    if not change.after:
+        _recreate(session, change, now)
         session.flush()
-        return RecordChange("link", change.record_id, {}, change.before or {})
+        return RecordChange(record_type, change.record_id, {}, change.before or {})
     current = _current(session, change)
     after: dict[str, Any] = change.after
     if change.before is None and isinstance(current, models.Attachment):
@@ -139,7 +161,6 @@ def _reverse(
     # A record that was created is now gone, so it has nothing after.
     undone_to = change.before or {}
     session.flush()
-    record_type = cast(RecordType, change.record_type)
     return RecordChange(record_type, change.record_id, after, undone_to)
 
 

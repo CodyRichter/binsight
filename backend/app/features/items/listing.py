@@ -1,9 +1,25 @@
+from datetime import date, timedelta
+
 from sqlalchemy import ColumnElement, and_, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app import models
-from app.core.pagination import Page, decode_cursor, decode_offset, encode_cursor, encode_offset
-from app.features.items.schemas import Category, InboxCount, Item, SearchableItem, Tag
+from app.core.pagination import (
+    Page,
+    counted_page,
+    decode_cursor,
+    decode_offset,
+    encode_cursor,
+)
+from app.features.items.schemas import (
+    Category,
+    InboxCount,
+    Item,
+    ItemFilters,
+    SearchableItem,
+    Tag,
+    Warranty,
+)
 from app.features.items.shaping import shaped
 from app.features.locations import service as locations
 
@@ -72,11 +88,44 @@ def _details(item: models.Item) -> str:
     return " ".join(detail for detail in details if detail)
 
 
-def searchable_items(session: Session) -> list[SearchableItem]:
-    """Every named item's identifier, name, details and tags, for search to score."""
+# "Ending soon" is the same 30 days the warranty view looks ahead.
+SOON = timedelta(days=30)
+
+
+def _warranty(warranty: Warranty, today: date) -> ColumnElement[bool]:
+    ends = models.Item.warranty_ends
+    if warranty == "active":
+        return ends >= today
+    if warranty == "ending_soon":
+        return ends.between(today, today + SOON)
+    return ends < today
+
+
+def _filtered(session: Session, filters: ItemFilters, today: date) -> list[ColumnElement[bool]]:
+    kept: list[ColumnElement[bool]] = []
+    if filters.location_id is not None:
+        within = locations.location_ids_within(session, filters.location_id)
+        kept.append(models.Item.home_location_id.in_(within))
+    if filters.category is not None:
+        named = select(models.Category.id).where(
+            func.lower(models.Category.name) == filters.category.lower()
+        )
+        kept.append(models.Item.category_id.in_(named))
+    if filters.tag is not None:
+        tagged = select(models.ItemTag.item_id).where(models.ItemTag.tag == filters.tag)
+        kept.append(models.Item.id.in_(tagged))
+    if filters.status is not None:
+        kept.append(models.Item.status == filters.status)
+    if filters.warranty is not None:
+        kept.append(_warranty(filters.warranty, today))
+    return kept
+
+
+def searchable_items(session: Session, filters: ItemFilters, today: date) -> list[SearchableItem]:
+    """Every named item the filters keep, with its name, details and tags, for search to score."""
     query = (
         select(models.Item)
-        .where(models.Item.name.is_not(None), _not_deleted())
+        .where(models.Item.name.is_not(None), _not_deleted(), *_filtered(session, filters, today))
         .options(selectinload(models.Item.tag_rows))
     )
     return [
@@ -84,11 +133,6 @@ def searchable_items(session: Session) -> list[SearchableItem]:
         for item in session.scalars(query)
         if item.name is not None
     ]
-
-
-def counted_page[T](rows: list[T], start: int, limit: int) -> Page[T]:
-    end = start + limit
-    return Page(items=rows[start:end], next_cursor=encode_offset(end) if end < len(rows) else None)
 
 
 def list_categories(session: Session, limit: int, cursor: str | None) -> Page[Category]:

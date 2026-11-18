@@ -142,3 +142,25 @@ def test_items_with_photos_survive_upgrades_that_rebuild_the_item_table(
     with engine.connect() as connection:
         owner = connection.execute(text("SELECT item_id FROM attachment")).scalar()
     assert owner == "drill"
+
+
+def test_items_lent_before_saved_searches_keep_their_loans(settings: Settings) -> None:
+    settings.data_directory.mkdir()
+    engine = create_database_engine(settings.database_path)
+    config = Config()
+    config.set_main_option("script_location", str(BACKEND_DIRECTORY / "migrations"))
+    with engine.begin() as connection:
+        config.attributes["connection"] = connection
+        command.upgrade(config, "0010")
+        connection.execute(
+            text(
+                "INSERT INTO item (id, name, quantity, status, lent_to, lent_at, created_at,"
+                " updated_at) VALUES ('drill', 'Drill', 1, 'lent_out', 'Sam',"
+                " '2026-11-16 12:00:00', '2026-11-16 12:00:00', '2026-11-16 12:00:00')"
+            )
+        )
+    migrate_database(engine, settings)
+    with engine.connect() as connection:
+        row = connection.execute(text("SELECT status, lent_to FROM item WHERE id = 'drill'")).one()
+        saved = connection.execute(text("SELECT count(*) FROM saved_search")).scalar()
+    assert (tuple(row), saved) == (("lent_out", "Sam"), 0)

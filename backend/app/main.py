@@ -19,6 +19,7 @@ from app.features.items import routes as items
 from app.features.labels import routes as labels
 from app.features.locations import routes as locations
 from app.features.search import routes as search
+from app.features.views import routes as views
 from app.mcp.server import add_mcp_server
 
 
@@ -34,6 +35,8 @@ def _signed_in_routes() -> APIRouter:
     signed_in.include_router(attachments.router)
     signed_in.include_router(search.router)
     signed_in.include_router(checks.router)
+    signed_in.include_router(views.router)
+    signed_in.include_router(views.saved_searches_router)
     return signed_in
 
 

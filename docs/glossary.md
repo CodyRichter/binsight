@@ -78,8 +78,11 @@ before naming it in code.
 | **Search**       | Finding items and locations across the whole home from typed words or a label code. |
 | **Search result** | One item or location a search found, with the parts of its name that matched (its **marks**). |
 | **Typo tolerance** | Search still matching a word typed with a letter wrong, missing, extra or swapped. |
-| **View**         | A built-in list across the whole home, e.g. lent out, missing. |
+| **Filter**       | A condition a search keeps items to: location (and everything inside it), category, tag, status or warranty. |
+| **View**         | A built-in list across the whole home: Lent out, Missing, Warranty expiring soon, Return window closing, Recently added, Recently moved, Not checked in a long time, Possible duplicates, Archive. |
+| **Possible duplicates** | Items sharing a name, ignoring case, anywhere in the home. |
 | **Saved search** | A search the owner has kept and may pin.                    |
+| **Pin**          | Putting a saved search first on `/views` and in the navigation. |
 
 ## Access and running
 

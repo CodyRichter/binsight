@@ -1,11 +1,13 @@
 import re
 from dataclasses import dataclass
+from datetime import date
 from typing import Literal
 
 from sqlalchemy.orm import Session
 
 from app.core.pagination import decode_offset, encode_offset
 from app.features.items import service as items
+from app.features.items.service import ItemFilters
 from app.features.labels import service as labels
 from app.features.locations import service as locations
 from app.features.search.matching import (
@@ -16,7 +18,9 @@ from app.features.search.matching import (
     match_vocabulary,
     words,
 )
-from app.features.search.schemas import ItemResult, LocationResult, Mark, SearchResults
+from app.features.search.schemas import ItemResult, LocationResult, Mark
+from app.features.search.schemas import Search as Search  # re-exported: saved searches hold one
+from app.features.search.schemas import SearchResults as SearchResults
 
 # A name counts double against other words, so a bin called "Cables" beats one that mentions them.
 NAME_WEIGHT = 2
@@ -45,12 +49,22 @@ class _Candidate:
     code_number: int | None
 
 
-def _candidates(session: Session) -> list[_Candidate]:
+def _candidates(session: Session, filters: ItemFilters, today: date) -> list[_Candidate]:
     found = [
         _Candidate("item", item.id, words(item.name), item.name, words(item.details), None)
-        for item in items.searchable_items(session)
+        for item in items.searchable_items(session, filters, today)
     ]
+    # Locations have no category, tag, status or warranty, so those filters leave them out.
+    if not filters.only_location():
+        return found
+    within = (
+        set(locations.location_ids_within(session, filters.location_id))
+        if filters.location_id
+        else None
+    )
     for location in locations.searchable_locations(session):
+        if within is not None and location.id not in within:
+            continue
         code = labels.label_number(location.label_code) if location.label_code else None
         details = words(location.summary or "")
         name = words(location.name)
@@ -79,11 +93,18 @@ def _score(
     return _Found(candidate.kind, candidate.id, candidate.name_text, total, spans)
 
 
-def _ranked(session: Session, query: str) -> list[_Found]:
+def _everything_kept(candidates: list[_Candidate]) -> list[_Found]:
+    found = [_Found(each.kind, each.id, each.name_text, 0, []) for each in candidates]
+    return sorted(found, key=lambda each: (each.kind != "item", each.name.lower(), each.id))
+
+
+def _ranked(session: Session, query: str, filters: ItemFilters, today: date) -> list[_Found]:
     query_words = [word.text for word in words(CODE_HYPHEN.sub(r"\1", query))]
-    if not query_words:
+    if not query_words and not filters.any_set():
         return []
-    candidates = _candidates(session)
+    candidates = _candidates(session, filters, today)
+    if not query_words:
+        return _everything_kept(candidates)
     vocabulary = {word.text for each in candidates for word in each.name + each.details}
     found = match_vocabulary(query_words, vocabulary)
     codes = [labels.label_number(word) for word in query_words]
@@ -109,10 +130,13 @@ def _shaped(session: Session, page: list[_Found]) -> list[ItemResult | LocationR
     ]
 
 
-def search_home(session: Session, query: str, limit: int, cursor: str | None) -> SearchResults:
-    """Find items and locations by name or details, in any word order, despite typos, or by code."""
+def search_home(
+    session: Session, search: Search, today: date, limit: int, cursor: str | None
+) -> SearchResults:
+    """Find items and locations by name, details or code, despite typos, kept to the filters."""
     start = decode_offset(cursor) if cursor else 0
-    ranked = _ranked(session, query)
+    filters = ItemFilters.model_validate(search.model_dump(exclude={"query"}))
+    ranked = _ranked(session, search.query, filters, today)
     end = start + limit
     return SearchResults(
         results=_shaped(session, ranked[start:end]),

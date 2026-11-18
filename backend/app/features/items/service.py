@@ -36,6 +36,9 @@ from app.features.items.schemas import (
     NewItem,
     NewItems,
 )
+from app.features.items.schemas import (
+    ItemFilters as ItemFilters,
+)  # re-exported: search filters with it
 from app.features.items.shaping import path_of, shaped
 from app.features.items.statuses import change_item_status as change_item_status
 from app.features.items.statuses import items_to_mark_missing as items_to_mark_missing
@@ -45,6 +48,11 @@ from app.features.items.statuses import mark_item_found as mark_item_found
 from app.features.items.statuses import mark_item_missing as mark_item_missing
 from app.features.items.statuses import mark_items_missing as mark_items_missing
 from app.features.items.statuses import return_item as return_item
+from app.features.items.views import ItemView as ItemView
+from app.features.items.views import count_items_in_order as count_items_in_order
+from app.features.items.views import count_view_items as count_view_items
+from app.features.items.views import list_items_in_order as list_items_in_order
+from app.features.items.views import list_view_items as list_view_items
 from app.models import Actor
 
 

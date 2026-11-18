@@ -1,3 +1,5 @@
+from datetime import date
+
 from sqlalchemy import Engine
 
 from app.core.database import open_read_session, open_write_session
@@ -6,11 +8,12 @@ from app.features.items.schemas import ItemChanges
 from app.features.locations import service as locations
 from app.features.locations.schemas import NewLocation
 from app.features.search import service
-from app.features.search.schemas import ItemResult, LocationResult, SearchResults
+from app.features.search.schemas import ItemResult, LocationResult, Search, SearchResults
 from app.models import Actor, LocationType
 from tests import builders
 from tests.builders import AcceptanceHome
 
+TODAY = date(2026, 11, 16)
 PATH_TO_CABLES = ["Home", "Garage", "Shelf 2", "Cables"]
 
 
@@ -23,7 +26,7 @@ def _search(
     engine: Engine, query: str, limit: int = 50, cursor: str | None = None
 ) -> SearchResults:
     with open_read_session(engine) as session:
-        return service.search_home(session, query, limit, cursor)
+        return service.search_home(session, Search(query=query), TODAY, limit, cursor)
 
 
 def _names(results: SearchResults) -> list[str | None]:
@@ -127,3 +130,39 @@ def test_a_name_ranks_above_a_word_in_another_item_s_details(migrated_engine: En
     with open_write_session(migrated_engine) as session:
         items.update_item(session, home.usb_c_charger, changes, Actor.app, builders.NOW)
     assert _names(_search(migrated_engine, "hdmi cable")) == ["HDMI cable", "USB-C charger"]
+
+
+def _filtered(engine: Engine, query: str = "", **filters: str) -> list[str | None]:
+    with open_read_session(engine) as session:
+        search = Search.model_validate({"query": query, **filters})
+        found = service.search_home(session, search, TODAY, 50, None)
+    return _names(found)
+
+
+def test_filters_keep_only_the_items_that_match_every_one(migrated_engine: Engine) -> None:
+    home = _home(migrated_engine)
+    with open_write_session(migrated_engine) as session:
+        tagged = ItemChanges(category="Cables", tags=["4k"], warranty_ends=TODAY)
+        items.update_item(session, home.hdmi_cable, tagged, Actor.app, builders.NOW)
+    assert _filtered(migrated_engine, category="CABLES") == ["HDMI cable"]
+    assert _filtered(migrated_engine, tag="4K") == ["HDMI cable"]
+    assert _filtered(migrated_engine, status="in_place", warranty="ending_soon") == ["HDMI cable"]
+    assert _filtered(migrated_engine, warranty="ended") == []
+    assert _filtered(migrated_engine, "charger", category="Cables") == []
+
+
+def test_a_location_filter_keeps_everything_inside_it(migrated_engine: Engine) -> None:
+    home = _home(migrated_engine)
+    assert _filtered(migrated_engine, location_id=home.shelf) == [
+        "HDMI cable",
+        "USB-C charger",
+        "Cables",
+        "Shelf 2",
+        "Tools",
+    ]
+    assert _filtered(migrated_engine, "cables", location_id=home.tools) == []
+
+
+def test_no_words_and_no_filters_find_nothing(migrated_engine: Engine) -> None:
+    _home(migrated_engine)
+    assert _filtered(migrated_engine) == []

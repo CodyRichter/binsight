@@ -190,7 +190,16 @@ Rules:
 
 ## Saved search
 
-- A name, the search text and filters, and whether it is pinned.
+| Field       | Notes                                                        |
+| ----------- | ------------------------------------------------------------ |
+| `name`      | Required, at most 100 characters.                           |
+| `query`     | The words searched for; may be empty when a filter is set.  |
+| `location_id`, `category`, `tag`, `status`, `warranty` | The filters, each null when not used. |
+| `pinned`    | Pinned searches are listed first and shown in the navigation. |
+
+- Saved searches are listed pinned first, then by name.
+- Deleting one removes its row; the history entry keeps its fields, so undo
+  puts the same saved search back.
 
 ## Owner and access
 

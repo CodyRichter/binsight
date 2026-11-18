@@ -195,6 +195,25 @@ class Tag(BaseModel):
     item_count: int
 
 
+Warranty = Literal["active", "ending_soon", "ended"]
+
+
+class ItemFilters(BaseModel):
+    """Which items a search keeps; a filter left out keeps every item."""
+
+    location_id: str | None = None
+    category: DetailText | None = None
+    tag: TagName | None = None
+    status: ItemStatus | None = None
+    warranty: Warranty | None = None
+
+    def any_set(self) -> bool:
+        return any(value is not None for value in self.model_dump().values())
+
+    def only_location(self) -> bool:
+        return self.model_dump(exclude_none=True).keys() <= {"location_id"}
+
+
 @dataclass(frozen=True)
 class SearchableItem:
     """What search scores an item on: its name, and the words of its details and tags."""

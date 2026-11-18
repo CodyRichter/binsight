@@ -63,6 +63,22 @@ def lent_to_names(session: Session) -> list[str]:
     return list(dict.fromkeys(str(each) for each in session.scalars(query)))
 
 
+def recently_moved_item_ids(session: Session, since: datetime) -> list[str]:
+    """The items moved since a moment, most recently first, each once, leaving out undone moves."""
+    query = (
+        select(models.HistoryChange.record_id)
+        .join(models.HistoryEntry, models.HistoryEntry.id == models.HistoryChange.entry_id)
+        .where(
+            models.HistoryEntry.action == "item.moved",
+            models.HistoryEntry.undone_by.is_(None),
+            models.HistoryEntry.at >= since,
+            models.HistoryChange.record_type == "item",
+        )
+        .order_by(models.HistoryEntry.at.desc(), models.HistoryEntry.id.desc())
+    )
+    return list(dict.fromkeys(session.scalars(query)))
+
+
 def undo(
     session: Session, settings: Settings, entry_id: str, actor: Actor, now: datetime
 ) -> Undone:

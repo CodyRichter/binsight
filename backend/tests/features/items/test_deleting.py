@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from datetime import date
 
 import pytest
 from fastapi.testclient import TestClient
@@ -11,6 +12,7 @@ from app.features.items import service
 from app.features.items.schemas import ItemChanges, ItemMove
 from app.features.locations import service as locations
 from app.features.search import service as search
+from app.features.search.schemas import Search
 from app.models import Actor, HistoryEntry
 from tests import builders
 from tests.builders import AcceptanceHome
@@ -52,7 +54,9 @@ def test_a_deleted_item_is_not_found_by_search(
 ) -> None:
     _delete(migrated_engine, home.hdmi_cable)
     with open_read_session(migrated_engine) as session:
-        found = search.search_home(session, "hdmi", 50, None).results
+        found = search.search_home(
+            session, Search(query="hdmi"), date(2026, 11, 16), 50, None
+        ).results
     assert found == []
 
 

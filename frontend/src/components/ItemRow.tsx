@@ -17,6 +17,8 @@ type ItemRowProps = {
   photoUrl?: string;
   status?: Status;
   lentTo?: string;
+  /** Since when it has had its status, read after the badge: "Lent 2 days ago". */
+  since?: string;
   /** When the item's home was last checked; shown only once stale, as in search results. */
   lastChecked?: Date | null;
   quantity?: number;
@@ -58,12 +60,14 @@ function rowName(props: ItemRowProps, checkId: string): ReactNode {
   );
 }
 
-function metaLine({ path, status = "in_place", lentTo, lastChecked }: ItemRowProps): ReactNode {
+function metaLine(props: ItemRowProps): ReactNode {
+  const { path, status = "in_place", lentTo, since, lastChecked } = props;
   if (!path && status === "in_place" && lastChecked === undefined) return null;
   return (
     <div className={classes.meta}>
       {path && <Path segments={path} />}
       <StatusBadge status={status} lentTo={lentTo} />
+      {since && <span className={classes.since}>{since}</span>}
       {lastChecked !== undefined && <CheckedStamp lastChecked={lastChecked} onlyStale />}
     </div>
   );

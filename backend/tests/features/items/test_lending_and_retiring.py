@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -13,7 +13,7 @@ from app.features.items import service
 from app.features.items.schemas import Item, ItemLending, ItemStatusChange
 from app.features.locations import service as locations
 from app.features.search import service as search
-from app.features.search.schemas import ItemResult
+from app.features.search.schemas import ItemResult, Search
 from app.models import Actor, ItemStatus
 from tests import builders
 from tests.builders import AcceptanceHome
@@ -101,7 +101,9 @@ def test_a_sold_item_leaves_its_location_but_is_still_found(
     with open_read_session(migrated_engine) as session:
         listed = service.list_items(session, home.cables, False, 50, None).items
         cables = locations.get_location(session, home.cables)
-        found = search.search_home(session, "hdmi", 50, None).results
+        found = search.search_home(
+            session, Search(query="hdmi"), date(2026, 11, 16), 50, None
+        ).results
     sold = _item(migrated_engine, home.hdmi_cable)
     assert (sold.status, sold.retired_at, sold.home_location_id) == ("sold", LATER, home.cables)
     assert [each.name for each in listed] == ["USB-C charger"]
@@ -179,7 +181,9 @@ def test_a_lent_to_name_is_searchable_and_offered_again(
     _lend(migrated_engine, home.usb_c_charger, "Alex", minute=1)
     _lend(migrated_engine, home.hdmi_cable, "Sam", minute=2)
     with open_read_session(migrated_engine) as session:
-        found = search.search_home(session, "alex", 50, None).results
+        found = search.search_home(
+            session, Search(query="alex"), date(2026, 11, 16), 50, None
+        ).results
         names = service.list_lent_to_names(session, 50, None).items
     assert [each.item.name for each in found if isinstance(each, ItemResult)] == ["USB-C charger"]
     assert [each.name for each in names] == ["Sam", "Alex"]

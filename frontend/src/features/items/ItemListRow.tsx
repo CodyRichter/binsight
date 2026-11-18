@@ -9,6 +9,8 @@ interface ItemListRowProps {
   item: Item;
   showPath: boolean;
   marks?: Mark[];
+  /** Since when it has had its status, as a view of lent or archived items shows. */
+  since?: string;
   onMove?: () => void;
 }
 
@@ -23,7 +25,7 @@ interface Shown {
 }
 
 /** An item in a list, with its quantity changed on screen at once wherever the list came from. */
-export function ItemListRow({ item, showPath, marks, onMove }: ItemListRowProps) {
+export function ItemListRow({ item, showPath, marks, since, onMove }: ItemListRowProps) {
   const [shown, setShown] = useState<Shown>();
   const changeQuantity = useQuantity(item, (quantity) =>
     setShown({ from: item.quantity, quantity }),
@@ -37,6 +39,7 @@ export function ItemListRow({ item, showPath, marks, onMove }: ItemListRowProps)
       photoUrl={item.photo_url ?? undefined}
       status={item.status}
       lentTo={item.lent_to ?? undefined}
+      since={since}
       lastChecked={showPath && item.home_location_id ? lastChecked(item) : undefined}
       quantity={quantity}
       onQuantityChange={changeQuantity}

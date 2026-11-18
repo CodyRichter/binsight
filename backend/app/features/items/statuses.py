@@ -5,9 +5,8 @@ from sqlalchemy.orm import Session
 
 from app import models
 from app.core.errors import AppError
-from app.core.pagination import Page, decode_offset
+from app.core.pagination import Page, counted_page, decode_offset
 from app.features.history import service as history
-from app.features.items.listing import counted_page
 from app.features.items.records import live_item
 from app.features.items.schemas import (
     Item,

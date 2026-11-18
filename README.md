@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: status, lending and links (Breadth 2b).** The requirements,
+> **Status: views and saved searches (Breadth 3).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -39,7 +39,12 @@ what's inside. Search for anything and get its full location path, e.g.
 > search finds too. An item is marked in use, lent to someone and
 > returned, or sold, given away or thrown away into the archive, which
 > leaves its location's contents but stays in search; and items are linked
-> as belonging together or as parts of a whole, each with Undo.
+> as belonging together or as parts of a whole, each with Undo. `/views`
+> lists the built-in views across the home with their counts, such as Lent
+> out, Warranty expiring soon, Not checked in a long time and the Archive;
+> search filters by location, category, tag, status and warranty; and a
+> search is saved, pinned into the navigation, renamed and deleted, each
+> with Undo, through the API and MCP as well.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 

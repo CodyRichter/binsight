@@ -36,7 +36,7 @@ export function useItemSearch(query: string) {
     // Search's own key, so its results are refreshed together with search's.
     queryKey: ["search", "items", query],
     queryFn: ({ signal }) =>
-      api.get<SearchResults>(`/api/search?${new URLSearchParams({ q: query })}`, signal),
+      api.get<SearchResults>(`/api/search?${new URLSearchParams({ query })}`, signal),
     placeholderData: keepPreviousData,
     enabled: query.trim() !== "",
     select: (found) => found.results.flatMap((result) => ("item" in result ? [result.item] : [])),

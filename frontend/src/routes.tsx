@@ -12,6 +12,7 @@ import { RouteError } from "@/components/RouteError";
 import { DesignFrame } from "@/features/design";
 import { useInboxCount } from "@/features/items";
 import { AddSheet, MoveSheet } from "@/features/locations";
+import { useViewsSection } from "@/features/views";
 
 function page(path: string, load: () => Promise<{ Component: () => React.JSX.Element }>) {
   return { path, lazy: load };
@@ -94,7 +95,7 @@ const developmentRoutes: RouteObject[] = import.meta.env.DEV
     ]
   : [];
 
-const frameAdditions: FrameAdditions = { AddSheet, MoveSheet, useInboxCount };
+const frameAdditions: FrameAdditions = { AddSheet, MoveSheet, useInboxCount, useViewsSection };
 
 function AppPages() {
   return (
@@ -117,6 +118,10 @@ const appRoutes: RouteObject[] = [
         Component: (await import("@/pages/LocationPage")).LocationPage,
       })),
       page("/items/:id", async () => ({ Component: (await import("@/pages/ItemPage")).ItemPage })),
+      page("/views", async () => ({ Component: (await import("@/pages/ViewsPage")).ViewsPage })),
+      page("/views/:view", async () => ({
+        Component: (await import("@/pages/ViewPage")).ViewPage,
+      })),
       page("/inbox", async () => ({ Component: (await import("@/pages/InboxPage")).InboxPage })),
       page("/search", async () => ({ Component: (await import("@/pages/SearchPage")).SearchPage })),
       page("/scan", async () => ({ Component: (await import("@/pages/ScanPage")).ScanPage })),

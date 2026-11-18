@@ -114,8 +114,9 @@ One shape for every error:
   cover yet. It covers adding items, changing an item's name, quantity,
   category, tags or details, moving an item or a location, deleting or restoring an item,
   marking an item missing or found, changing its status, lending and
-  returning it, linking items and removing a link, and checking a
-  location; undoing a removed link is refused with `changed_since` once the
+  returning it, linking items and removing a link, checking a
+  location, and saving, renaming, pinning, unpinning and deleting a saved
+  search; undoing a removed link is refused with `changed_since` once the
   same link has been made again; undoing a location's move is refused with `changed_since` when its
   old parent has since been moved inside it, and any other change to an
   item that has since been deleted is refused with `changed_since`.
@@ -155,6 +156,22 @@ One shape for every error:
   from this item's side: `belongs_with`, `part_of`, or `part` when the
   linked item is part of this one. `DELETE /api/item-links/{id}` removes a
   link.
+- `GET /api/search` takes `query` and the filters `location_id` (that
+  location and everything inside it), `category` (a name, ignoring case),
+  `tag`, `status` and `warranty` (`active`, `ending_soon` within 30 days,
+  or `ended`). An item must match every filter given; locations are left
+  out when any filter but `location_id` is given. With a filter and no
+  words, every item it keeps is listed by name. An unknown location is 404.
+- `GET /api/views` lists the built-in views with their counts, and `GET
+  /api/views/{view}` one view's rows, each `kind` `item`, or `location` for
+  `not-checked`. An unknown view is 422. Dates count from the server's day
+  in UTC.
+- `POST /api/saved-searches` keeps a search (`name`, `query` and the
+  filters); `PATCH /api/saved-searches/{id}` changes `name` or `pinned`,
+  refused with 409 `nothing_changed` when neither would change; `DELETE`
+  removes it. `GET /api/saved-searches/{id}/results` runs it. Each saved
+  search carries `count`, what it finds now. Over MCP,
+  `delete_saved_search` goes through the confirmation step.
 - A move is refused with 409 `already_there` when the thing is already in
   that location, `move_into_itself` when a location would go into itself
   or anything inside it, and `site_cannot_move` for a site.

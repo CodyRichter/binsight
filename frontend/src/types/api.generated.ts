@@ -673,6 +673,94 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/views": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Views */
+        get: operations["list_views"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/views/{view}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List View Rows */
+        get: operations["list_view_rows"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/saved-searches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Saved Searches */
+        get: operations["list_saved_searches"];
+        put?: never;
+        /** Create Saved Search */
+        post: operations["create_saved_search"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/saved-searches/{saved_search_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Saved Search */
+        get: operations["get_saved_search"];
+        put?: never;
+        post?: never;
+        /** Delete Saved Search */
+        delete: operations["delete_saved_search"];
+        options?: never;
+        head?: never;
+        /** Update Saved Search */
+        patch: operations["update_saved_search"];
+        trace?: never;
+    };
+    "/api/saved-searches/{saved_search_id}/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Saved Search Rows */
+        get: operations["list_saved_search_rows"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -749,7 +837,7 @@ export interface components {
              * Record Type
              * @enum {string}
              */
-            record_type: "attachment" | "check" | "item" | "label" | "link" | "location";
+            record_type: "attachment" | "check" | "item" | "label" | "link" | "location" | "saved_search";
             /** Record Id */
             record_id: string;
             /** Before */
@@ -1755,6 +1843,32 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** NewSavedSearch */
+        NewSavedSearch: {
+            /** Location Id */
+            location_id?: string | null;
+            /** Category */
+            category?: string | null;
+            /** Tag */
+            tag?: string | null;
+            status?: components["schemas"]["ItemStatus"] | null;
+            /** Warranty */
+            warranty?: ("active" | "ending_soon" | "ended") | null;
+            /**
+             * Query
+             * @default
+             */
+            query: string;
+            /** Name */
+            name: string;
+        };
+        /** Page[Annotated[Union[ViewItem, ViewLocation], FieldInfo(annotation=NoneType, required=True, discriminator='kind')]] */
+        Page_Annotated_Union_ViewItem__ViewLocation___FieldInfo_annotation_NoneType__required_True__discriminator__kind____: {
+            /** Items */
+            items: (components["schemas"]["ViewItem"] | components["schemas"]["ViewLocation"])[];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
         /** Page[Category] */
         Page_Category_: {
             /** Items */
@@ -1804,10 +1918,24 @@ export interface components {
             /** Next Cursor */
             next_cursor: string | null;
         };
+        /** Page[SavedSearch] */
+        Page_SavedSearch_: {
+            /** Items */
+            items: components["schemas"]["SavedSearch"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
         /** Page[Tag] */
         Page_Tag_: {
             /** Items */
             items: components["schemas"]["Tag"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /** Page[ViewSummary] */
+        Page_ViewSummary_: {
+            /** Items */
+            items: components["schemas"]["ViewSummary"][];
             /** Next Cursor */
             next_cursor: string | null;
         };
@@ -1825,6 +1953,112 @@ export interface components {
             type: components["schemas"]["LocationType"];
             /** Label Code */
             label_code: string | null;
+        };
+        /** SavedSearch */
+        SavedSearch: {
+            /** Location Id */
+            location_id?: string | null;
+            /** Category */
+            category?: string | null;
+            /** Tag */
+            tag?: string | null;
+            status?: components["schemas"]["ItemStatus"] | null;
+            /** Warranty */
+            warranty?: ("active" | "ending_soon" | "ended") | null;
+            /**
+             * Query
+             * @default
+             */
+            query: string;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Pinned */
+            pinned: boolean;
+            /** Count */
+            count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** SavedSearchChanges */
+        SavedSearchChanges: {
+            /** Name */
+            name?: string | null;
+            /** Pinned */
+            pinned?: boolean | null;
+        };
+        /** SavedSearchCreated */
+        SavedSearchCreated: {
+            /** Location Id */
+            location_id?: string | null;
+            /** Category */
+            category?: string | null;
+            /** Tag */
+            tag?: string | null;
+            status?: components["schemas"]["ItemStatus"] | null;
+            /** Warranty */
+            warranty?: ("active" | "ending_soon" | "ended") | null;
+            /**
+             * Query
+             * @default
+             */
+            query: string;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Pinned */
+            pinned: boolean;
+            /** Count */
+            count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** SavedSearchDeleted */
+        SavedSearchDeleted: {
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** SavedSearchUpdated */
+        SavedSearchUpdated: {
+            /** Location Id */
+            location_id?: string | null;
+            /** Category */
+            category?: string | null;
+            /** Tag */
+            tag?: string | null;
+            status?: components["schemas"]["ItemStatus"] | null;
+            /** Warranty */
+            warranty?: ("active" | "ending_soon" | "ended") | null;
+            /**
+             * Query
+             * @default
+             */
+            query: string;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Pinned */
+            pinned: boolean;
+            /** Count */
+            count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** History Entry Id */
+            history_entry_id: string;
         };
         /** SearchResults */
         SearchResults: {
@@ -1861,6 +2095,33 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** ViewItem */
+        ViewItem: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "item";
+            item: components["schemas"]["Item"];
+        };
+        /** ViewLocation */
+        ViewLocation: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "location";
+            location: components["schemas"]["Location"];
+        };
+        /** ViewSummary */
+        ViewSummary: {
+            /** View */
+            view: ("lent-out" | "missing" | "warranty-ending" | "return-closing" | "recently-added" | "possible-duplicates" | "archive") | ("recently-moved" | "not-checked");
+            /** Title */
+            title: string;
+            /** Count */
+            count: number;
         };
     };
     responses: never;
@@ -3678,7 +3939,12 @@ export interface operations {
     search_home: {
         parameters: {
             query?: {
-                q?: string;
+                location_id?: string | null;
+                category?: string | null;
+                tag?: string | null;
+                status?: components["schemas"]["ItemStatus"] | null;
+                warranty?: ("active" | "ending_soon" | "ended") | null;
+                query?: string;
                 limit?: number;
                 cursor?: string | null;
             };
@@ -3699,6 +3965,15 @@ export interface operations {
             };
             /** @description Bad Request */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3752,6 +4027,358 @@ export interface operations {
             };
             /** @description Conflict */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_views: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ViewSummary_"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_view_rows: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                view: ("lent-out" | "missing" | "warranty-ending" | "return-closing" | "recently-added" | "possible-duplicates" | "archive") | ("recently-moved" | "not-checked");
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_Annotated_Union_ViewItem__ViewLocation___FieldInfo_annotation_NoneType__required_True__discriminator__kind____"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_saved_searches: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_SavedSearch_"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    create_saved_search: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewSavedSearch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedSearchCreated"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_saved_search: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                saved_search_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedSearch"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_saved_search: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                saved_search_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedSearchDeleted"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_saved_search: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                saved_search_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavedSearchChanges"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedSearchUpdated"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_saved_search_rows: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                saved_search_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchResults"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

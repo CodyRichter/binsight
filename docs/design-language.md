@@ -323,7 +323,8 @@ column, then Scan and Add when available.
 a `bar-height` band so it lines up with the top bar; primary links (`Home`,
 and `Inbox` with its count when present); extensible grouped sections
 separated by a hairline (such as `Views`, with its header linking to
-`/views` and each view entry underneath; omitted when empty); then
+`/views` and underneath each built-in view that lists something, then each
+pinned saved search with `pin`, all with their counts); then
 `Settings`, pinned to the bottom while the entries above it scroll.
 
 - An entry is `text-body`; the current one is `text-body-strong` on
@@ -360,8 +361,14 @@ Every page is one of six templates. "Header" is the page header component.
 
 `/` is titled "Locations" and shows the sites as one list with no section
 header; the navigation item stays "Home". `/views` is a header ("Views")
-and one list of views, each a row with its count. `/l/{code}` shows the
-same page as `/locations/{id}`.
+and one list of view rows, every built-in view in this order with its
+count: Lent out (`user`), Missing (`zoom-question`), Warranty expiring soon
+(`shield-check`), Return window closing (`receipt-refund`), Recently added
+(`square-plus`), Recently moved (`arrows-move`), Not checked in a long time
+(`clock`), Possible duplicates (`copy`) and Archive (`archive`). Then
+section "Saved searches" with its count, pinned ones first (`pin`, the rest
+`search`), left out when there are none. `/l/{code}` shows the same page
+as `/locations/{id}`.
 
 A blank label's `/l/{code}` has its own layout. The header holds the title
 "Blank label", the large dashed code chip, and the default button "Add
@@ -385,7 +392,35 @@ toast offers Undo.
    name are marked. With nothing found, the empty state reads "Nothing
    matches "{query}"" with the default button "Add "{query}"", which opens
    the Add sheet with that name in the add bar. With no query yet, the
-   title is "Search" and nothing is listed.
+   title is "Search" and nothing is listed until a filter is set, when the
+   items it keeps are listed by name and the empty state reads "Nothing
+   matches".
+   `/search` has the chips Location, Category, Tag, Status and Warranty.
+   Tapping one not pressed opens its sheet ("Filter by location", the move
+   sheet's rows; "Filter by category" and "Filter by tag", name rows with
+   their counts; "Filter by status" and "Filter by warranty", the fixed
+   words); picking presses it, showing "In {place}", the category, the tag,
+   the status's word, or "Warranty ending soon". Tapping a pressed chip
+   clears it. Once there are words or a filter, the header's default
+   button "Save search" opens the "Save search" sheet: one field "Name",
+   starting as the words, and a primary "Save". It says "Saved {name}"
+   with Undo.
+   `/views/{view}` lists a built-in view: item rows with their paths, or
+   for Not checked in a long time flat location rows with their stale
+   stamp, the longest unchecked first. Lent out and Archive rows add how
+   long ago after the badge, `muted` `text-small`. The count reads "3
+   items" or "4 locations". The empty states: "Nothing is lent out",
+   "Nothing is missing", "No warranties end in the next 30 days", "No
+   return windows close in the next 30 days", "Nothing added in the last
+   30 days", "Nothing moved in the last 30 days", "Everything was checked
+   in the last year", "No possible duplicates", "The archive is empty".
+   A saved search at `/views/{id}` is titled with its name, counts its
+   results and lists them as `/search` does, without chips. Its default
+   button is "Pin" (`pin`) or "Unpin" (`pinned-off`), saying "Pinned
+   {name}" or "Unpinned {name}"; More holds "Rename…", which opens the
+   "Rename" sheet (field "Name", primary "Rename") and says "Renamed to
+   {name}", and "Delete saved search", which goes back to `/views` and says
+   "Deleted {name}". Each offers Undo.
 
 **Record** (`/items/{id}`)
 
@@ -590,7 +625,8 @@ full height.
 **Filter chip** (`Chip`). Drawn 40px high, with a `touch-min` tap area.
 Pressed is `highlight` with an `ink` border and shows its value. Chips sit
 in one row under a List page's header, scroll sideways under 48em and wrap
-above it.
+above it. Tapping an unpressed chip opens a sheet to pick its value;
+tapping a pressed one clears it.
 
 **Tag** (`Badge`, outline, arranged by `TagList`). `text-small`, `muted`,
 hairline box, `radius-sm`. Never colored. Tapping one searches for it;
@@ -745,6 +781,9 @@ expands in place; the rest of the row opens the location. No summary in the
 tree. On `/search` the matched parts of its name are marked with
 `highlight`, as in an item row.
 
+In a view's rows the row adds the checked stamp after the code chip, only
+once stale.
+
 On the claim page only, a row can end with an "Add location inside {name}"
 icon button (`IconPlus`, `touch-min`), which opens the one-field "Add
 location" sheet.
@@ -755,6 +794,11 @@ changed from 3 to 4"), and under it one `text-small`, `muted` line: when, in
 words as the checked stamp says it, then who ("You" for the app, "Claude"
 for MCP). Full width, hairline below, at least `row-min` high, and its text
 wraps. Not tappable: no icon, no badge, no chevron.
+
+**View row** (`ViewRow`). A view or saved search on `/views`: a 20px
+`muted` icon at the gutter, the name in `text-body`, and its count in
+`muted` `text-small` at the right. `touch-min` high, hairline below; the
+whole row opens it.
 
 **Name row** (`NameRow`). A category or tag in a sheet: its name in
 `text-body`, and how many items have it in `muted` `text-small` at the
