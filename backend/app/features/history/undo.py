@@ -15,6 +15,7 @@ from app.models import Actor
 UNDOABLE = {
     "item.created",
     "items.created",
+    "items.imported",
     "item.updated",
     "item.named",
     "item.moved",
@@ -126,6 +127,38 @@ def _refuse_cycle(session: Session, location: models.Location, parent_id: str) -
         above = session.get(models.Location, above.parent_id) if above.parent_id else None
 
 
+def _remove_location(session: Session, location: models.Location) -> None:
+    # Anything put in it since, or a label stuck on it, means it has changed.
+    held = (
+        select(models.Item.id).where(models.Item.home_location_id == location.id),
+        select(models.Location.id).where(models.Location.parent_id == location.id),
+        select(models.Label.id).where(models.Label.location_id == location.id),
+        select(models.Check.id).where(models.Check.location_id == location.id),
+        select(models.Attachment.id).where(models.Attachment.location_id == location.id),
+    )
+    if any(session.scalar(query) is not None for query in held):
+        raise _changed_since()
+    session.delete(location)
+
+
+def _depth(session: Session, location_id: str) -> int:
+    location = session.get(models.Location, location_id)
+    return (
+        0
+        if location is None or location.parent_id is None
+        else 1 + _depth(session, location.parent_id)
+    )
+
+
+def _undo_order(session: Session, change: models.HistoryChange) -> tuple[int, int]:
+    # Photos go before the items they belong to, and items before new locations, deepest first.
+    if change.record_type == "attachment":
+        return (0, 0)
+    if change.record_type == "location" and change.before is None:
+        return (2, -_depth(session, change.record_id))
+    return (1, 0)
+
+
 def _changed_since() -> AppError:
     return AppError(409, "changed_since", "That can't be undone, because it has changed since.")
 
@@ -178,6 +211,8 @@ def _reverse(
     after: dict[str, Any] = change.after
     if change.before is None and isinstance(current, models.Attachment):
         attachments.forget_attachment(session, settings, current.id)
+    elif change.before is None and isinstance(current, models.Location):
+        _remove_location(session, current)
     elif change.before is None:
         session.delete(current)
     else:
@@ -196,8 +231,7 @@ def undo(
     session: Session, settings: Settings, entry_id: str, actor: Actor, now: datetime
 ) -> Undone:
     entry = _entry(session, entry_id)
-    # Photos go before the items they belong to.
-    ordered = sorted(entry.changes, key=lambda change: change.record_type != "attachment")
+    ordered = sorted(entry.changes, key=lambda change: _undo_order(session, change))
     reversed_changes = [_reverse(session, settings, change, now) for change in ordered]
     undo_id = record(session, actor, "history.undone", reversed_changes, now)
     session.flush()

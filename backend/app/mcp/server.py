@@ -9,6 +9,7 @@ from app.mcp.category_and_tag_tools import add_category_and_tag_tools
 from app.mcp.check_tools import add_check_tools
 from app.mcp.delete_tools import add_delete_tools
 from app.mcp.history_tools import add_history_tools
+from app.mcp.import_export_tools import add_import_export_tools
 from app.mcp.item_tools import add_item_tools
 from app.mcp.label_tools import add_label_tools
 from app.mcp.lending_tools import add_lending_tools
@@ -38,7 +39,8 @@ owner's confirmation first: see delete_item. Items carry photos, files such as r
 manuals, and web links: see list_item_attachments and get_attachment_file. Every item and
 location carries last_checked_at, when the owner last confirmed that location's contents
 (null if never); say how old it is, so old information is recognizably old, and use
-check_location when the owner confirms a bin's contents."""
+check_location when the owner confirms a bin's contents. A list of things can be brought in
+at once with import_items, which asks first."""
 
 
 def add_mcp_server(app: FastAPI) -> MCPServer:
@@ -58,6 +60,7 @@ def add_mcp_server(app: FastAPI) -> MCPServer:
     add_link_tools(server, app)
     add_lending_tools(server, app)
     add_view_tools(server, app)
+    add_import_export_tools(server, app)
     add_saved_search_tools(server, app)
     mcp_app = server.streamable_http_app(
         streamable_http_path="/mcp",

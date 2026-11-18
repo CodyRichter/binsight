@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: attachments (Breadth 4).** The requirements,
+> **Status: export and import (Breadth 5a).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -46,7 +46,10 @@ what's inside. Search for anything and get its full location path, e.g.
 > search is saved, pinned into the navigation, renamed and deleted, each
 > with Undo, through the API and MCP as well. An item's page attaches
 > photos, files such as receipts and manuals, and web links, and a
-> location's page gives it a photo, each with Undo.
+> location's page gives it a photo, each with Undo. `/settings` downloads
+> everything as one zip, data and files, and imports items from a CSV file
+> into the locations it names, with Undo; Claude can do both, asking first
+> before an import.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 

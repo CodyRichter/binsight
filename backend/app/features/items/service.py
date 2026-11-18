@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app import models
 from app.core.errors import AppError
 from app.core.identifiers import new_identifier
+from app.core.table_rows import ExportTables, table_rows
 from app.features.attachments import service as attachments
 from app.features.attachments.service import StoredFile
 from app.features.history import service as history
@@ -18,6 +19,7 @@ from app.features.items.attachments import (
 )
 from app.features.items.attachments import remove_item_attachment as remove_item_attachment
 from app.features.items.details import apply_changes
+from app.features.items.importing import make_item as make_item
 from app.features.items.links import link_items as link_items
 from app.features.items.links import list_item_links as list_item_links
 from app.features.items.links import unlink_items as unlink_items
@@ -29,6 +31,9 @@ from app.features.items.listing import list_items as list_items
 from app.features.items.listing import list_tags as list_tags
 from app.features.items.listing import searchable_items as searchable_items
 from app.features.items.records import item_record, live_item
+from app.features.items.schemas import (
+    ImportedItem as ImportedItem,
+)  # re-exported: an import adds items with it
 from app.features.items.schemas import (
     Item as Item,
 )  # re-exported: search shapes its results with it
@@ -188,3 +193,13 @@ def restore_item(session: Session, item_id: str, actor: Actor, now: datetime) ->
         raise AppError(409, "not_deleted", "That item has not been deleted.")
     entry_id = _set_deleted_at(session, item, None, actor, now)
     return ItemRestored(**shaped(session, item).model_dump(), history_entry_id=entry_id)
+
+
+def export_tables(session: Session) -> ExportTables:
+    """Every item, tag, category and link between items as stored, for the export."""
+    return {
+        "items": table_rows(session, models.Item),
+        "item_tags": table_rows(session, models.ItemTag),
+        "categories": table_rows(session, models.Category),
+        "item_links": table_rows(session, models.ItemLink),
+    }

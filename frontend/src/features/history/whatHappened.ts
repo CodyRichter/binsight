@@ -5,6 +5,7 @@ type Change = HistoryEntry["changes"][number];
 const fixedWords: Record<string, string> = {
   "item.created": "Added",
   "items.created": "Added",
+  "items.imported": "Imported",
   "item.moved": "Moved",
   "item.deleted": "Deleted",
   "item.restored": "Restored",

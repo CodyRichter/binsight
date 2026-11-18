@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app import models
 from app.core.errors import AppError
 from app.core.identifiers import new_identifier
+from app.core.table_rows import ExportTables, table_rows
 from app.features.attachments import service as attachments
 from app.features.attachments.service import StoredFile
 from app.features.history import service as history
@@ -19,9 +20,11 @@ from app.features.locations.schemas import (
     LocationMoved,
     LocationPhotoChanged,
     LocationTree,
-    NewLocation,
     SearchableLocation,
 )
+from app.features.locations.schemas import (
+    NewLocation as NewLocation,
+)  # re-exported: an import makes the locations its file names
 from app.features.locations.schemas import (
     PathStep as PathStep,
 )  # re-exported: items reach locations only through this file
@@ -105,10 +108,8 @@ def get_location(session: Session, location_id: str) -> Location:
     return _find(session, location_id)
 
 
-def create_location(
-    session: Session, new: NewLocation, actor: Actor, now: datetime
-) -> LocationCreated:
-    """Add a site, or a location inside another one."""
+def make_location(session: Session, new: NewLocation, now: datetime) -> history.RecordChange:
+    """Add a location, leaving the caller to record it with the rest of its action."""
     if new.parent_id is not None:
         _get(session, new.parent_id)
     location = models.Location(
@@ -116,9 +117,18 @@ def create_location(
     )
     session.add(location)
     session.flush()
-    change = history.RecordChange("location", location.id, None, new.model_dump(mode="json"))
+    return history.RecordChange("location", location.id, None, new.model_dump(mode="json"))
+
+
+def create_location(
+    session: Session, new: NewLocation, actor: Actor, now: datetime
+) -> LocationCreated:
+    """Add a site, or a location inside another one."""
+    change = make_location(session, new, now)
     entry_id = history.record(session, actor, "location.created", [change], now)
-    return LocationCreated(**_find(session, location.id).model_dump(), history_entry_id=entry_id)
+    return LocationCreated(
+        **_find(session, change.record_id).model_dump(), history_entry_id=entry_id
+    )
 
 
 def _refuse_move(location: models.Location, parent_id: str, within: list[str]) -> None:
@@ -264,3 +274,8 @@ def locations_not_checked_since(session: Session, cutoff: datetime) -> list[Loca
             location.last_checked_at or cutoff,
         ),
     )
+
+
+def export_tables(session: Session) -> ExportTables:
+    """Every location as stored, for the export."""
+    return {"locations": table_rows(session, models.Location)}

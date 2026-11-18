@@ -209,6 +209,14 @@ Rules:
 - Deleting one removes its row; the history entry keeps its fields, so undo
   puts the same saved search back.
 
+## Export
+
+- The export holds every stored row of the home's tables, and leaves out
+  the owner, login sessions, MCP credentials and confirmations: they are
+  secrets for signing in, not the household's things.
+- An import only adds: it makes items and the locations they name, never
+  changes or removes what is there.
+
 ## Owner and access
 
 - One owner record, with a password hash. It is created on the first visit

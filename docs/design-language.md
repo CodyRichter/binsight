@@ -505,6 +505,15 @@ first, each named by its location or "Blank" and holding the code chip
 (dashed while blank) and a default "Download" button. "Show more" loads the
 next page.
 
+"Export and import", after "Labels", has two value rows. "Export
+everything" holds a default "Download" button that downloads the zip.
+"Import from CSV" holds a default "Choose file" button that opens the file
+picker; the import runs at once and says "Imported {n} items into {m} new
+locations" (or just "Imported {n} items"), with Undo. A file with rows that
+can't be imported opens the "Can't import" sheet: one value row per
+problem, named "Row {n}" and holding "{column}: {message}", then a primary
+"Close". Any other refusal is the usual toast with Retry.
+
 **Gate** (`/login`, and creating the owner on a new install). The gate
 frame: a `gate-width` column, centered across and placed in the upper
 third, holding Binsight in `text-title`, one or two fields, and one

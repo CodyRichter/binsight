@@ -190,6 +190,26 @@ One shape for every error:
   old. `GET /api/attachments/{id}/file` serves a photo or file inline
   with its own type and filename; a web link has no file, so it is 404
   `attachment_not_found`.
+- `GET /api/export` answers with a zip, `binsight-export-{date}.zip`:
+  `binsight.json` (a `format_version`, now 1, and every stored row of the
+  home's tables, history included), `items.csv` in the import's columns,
+  `locations.csv`, and every photo and file at its stored path. It is
+  written from one read session to a temporary file and deleted once sent.
+- `POST /api/import` takes one `csv` part, UTF-8 text with a header row, at
+  most 5 MB (else 422 `unsupported_file` or `file_too_large`). The columns,
+  in any order, are `name` (the only one required), `quantity`, `location`,
+  `category`, `tags` (separated by `;`), `notes`, `brand`, `model`,
+  `serial_number`, `purchase_date`, `price` (such as `12.50`),
+  `order_link`, `warranty_ends`, `return_ends`, `status` and `lent_to`;
+  any other column refuses the file. `location` is a path such as
+  `Garage > Shelf 3 > Bin 7`: each step matches by name under the one
+  before, ignoring case, or by a claimed label code; missing steps are made,
+  a new top level as a site and the rest as bins; an empty one is the
+  inbox. Every row is checked before anything is written, and any problem
+  refuses the whole file with 422 `import_rows_invalid`, whose
+  `details.rows` lists up to 50 `{row, column, message}`, counting the
+  header as row 1. One history entry, `items.imported`, holds every item
+  and location made, so one undo takes the import back.
 - The actor is taken from how the request was authenticated, never from the
   request body: a session cookie is `app`, an MCP credential is `mcp`.
 - Signing in and out are not changes to the home, so `auth`'s routes write
@@ -214,7 +234,8 @@ One shape for every error:
   `invalid_mcp_credential`.
 - Inputs and results use the same field names and shapes as the API. A
   photo or file goes to a tool as base64 text; a photo or image comes back
-  as image content, and a PDF as an embedded `application/pdf` resource.
+  as image content, a PDF as an embedded `application/pdf` resource, and
+  the export as an embedded `application/zip` resource.
 - Errors use the same `code` values as the API.
 - A tool that deletes, merges or changes many records returns a preview and
   a confirmation token first, and acts only when called again with the same
@@ -222,7 +243,8 @@ One shape for every error:
   otherwise the call is refused with 409 `confirmation_invalid` or
   `confirmation_expired`. `delete_item` is one of these; the app has no
   confirmation step, since its delete offers Undo. So are
-  `remove_item_attachment` and `remove_location_photo`.
+  `remove_item_attachment` and `remove_location_photo`, and `import_items`,
+  whose token is tied to the CSV text's hash.
   Adding several items is not one of these: it only creates, and one undo
   removes the whole batch.
 - A location can be named by its code wherever a location identifier is

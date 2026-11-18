@@ -9,6 +9,7 @@ from app.core.errors import AppError
 from app.core.identifiers import new_identifier
 from app.core.settings import Settings
 from app.core.stored_files import remove_after_commit
+from app.core.table_rows import ExportTables, table_rows
 from app.features.attachments.schemas import (
     Attachment as Attachment,
 )  # re-exported: items and locations reach attachments only through this file
@@ -226,3 +227,8 @@ def forget_attachment(session: Session, settings: Settings, attachment_id: str) 
     session.delete(attachment)
     if attachment.path is not None:
         remove_after_commit(session, settings.data_directory / attachment.path)
+
+
+def export_tables(session: Session) -> ExportTables:
+    """Every photo, file and web link's record as stored, for the export."""
+    return {"attachments": table_rows(session, models.Attachment)}
