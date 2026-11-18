@@ -54,20 +54,46 @@ One container, one process, one port, one volume.
 data/                    The mounted volume
 ├── binsight.db          The SQLite database
 ├── attachments/         Photos and files
-└── backups/             Copies of the database
+└── backups/             Daily backups, and the copy taken before each upgrade
 ```
 
 Everything Binsight stores is in this directory, and it is not part of the
 repository.
 
-To back it up by hand, stop the container and copy the directory; restoring
-is putting it back. Copying the database file while the app is running can
-produce a broken copy. On Linux, copy with `sudo cp -a` so the files stay
-owned by uid 1000, or `chown` the restored directory again.
+## Backups
 
-Today `backups/` holds the copy taken before each upgrade. Scheduled
-backups, safe to take while the app runs, arrive in a later step of the
-[build order](../docs/build-order.md); until then, back up by hand.
+Binsight backs itself up when it starts and then once a day while it runs,
+keeping the newest 14. Each backup is a folder, `backups/{time}/`, such as
+`backups/20261118T030000Z/`, holding a copy of `binsight.db` taken with
+SQLite's own backup command and `attachments/` as hard links to the stored
+files, which never change, so they take no extra space. "Back up now" in
+`/settings` takes one at once. The copies taken before upgrades,
+`backups/before-upgrade-*.db`, are kept until removed by hand.
+
+These backups are on the same disk as everything else. They protect against
+mistakes, not a failed disk: copy the data directory to another machine as
+well. Stop the container first, since copying the database file while the
+app runs can produce a broken copy, and on Linux copy with `sudo cp -a` so
+the files keep uid 1000 as their owner and the hard links stay links.
+
+## Restoring
+
+Restoring puts one backup's database and files back in place of the
+current ones. Everything changed since that backup is lost.
+
+1. Stop the app: `docker compose -f deploy/compose.yml down`.
+2. In the data directory, move the current `binsight.db` and
+   `attachments/` aside, for example into a folder named `replaced/`, and
+   delete any `binsight.db-wal` and `binsight.db-shm` beside them. Those
+   belong to the database being replaced and would damage the restored one.
+3. Copy the chosen backup's `binsight.db` and `attachments/` into the data
+   directory: `sudo cp -a backups/{time}/binsight.db backups/{time}/attachments .`
+4. Start the app: `docker compose -f deploy/compose.yml up -d`. A backup
+   from an older version is upgraded on start, as after any upgrade.
+5. Sign in and check the app. Then delete the folder from step 2.
+
+A data directory copied off the machine is restored the same way: stop the
+app, put the whole directory back, and start it.
 
 ## Checking it
 

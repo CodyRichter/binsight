@@ -45,7 +45,7 @@ test("a location's contents sheet lists its items grouped by the bin they are in
   const csv = `name,quantity,location\nJam,6,${site} > Shelf A\nCider,2,${site}\n`;
   const siteId = await imported(page.request, site, csv);
   await openAtPhoneWidth(page, `/locations/${siteId}`);
-  await page.getByRole("button", { name: "More" }).click();
+  await page.getByRole("button", { name: "More", exact: true }).click();
   await page.getByRole("menuitem", { name: "Contents sheet" }).click();
   await expect(page).toHaveURL(new RegExp(`/locations/${siteId}/sheet$`));
   await expect(page.getByRole("heading", { level: 1, name: site })).toBeVisible();

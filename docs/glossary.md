@@ -95,6 +95,7 @@ before naming it in code.
 | **MCP credential** | The revocable secret Claude uses to reach the MCP server. |
 | **App address**    | The permanent web address of an install.                  |
 | **Data directory** | The one folder holding the database, attachments and backups. |
+| **Backup**         | A copy of the database and every stored file, taken daily into the data directory; the newest 14 are kept. Restoring one is done on the server, not in the app. |
 | **Export**         | One zip of everything in the home: the data as JSON and CSV, with every photo and file. |
 | **Import**         | Adding items, and the locations they name, from a CSV file, as one change to undo. |
 | **Insurance list** | A printable list of every item still owned, in the home or one location, with its photos, serial number, price and receipts, and their total. The requirements' "insurance export". |

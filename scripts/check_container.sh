@@ -66,10 +66,12 @@ wait_until_healthy "$container"
 [ "$(docker exec "$container" id -u)" != 0 ] || fail "The container runs as root."
 curl --silent --fail "$address/" | grep --quiet '<div id="root">' || fail "/ did not return the app."
 api --data "{\"password\": \"$password\"}" "$address/api/auth/owner" >/dev/null
+backups=$(api "$address/api/backups" | jq '.backups | length')
+[ "$backups" = 1 ] || fail "Expected the first backup on starting, found $backups."
 location_id=$(api --data '{"name": "Home", "type": "site"}' "$address/api/locations" | jq -r .id)
 api --data "{\"name\": \"HDMI cable\", \"home_location_id\": \"$location_id\"}" "$address/api/items" >/dev/null
 docker stop "$container" >/dev/null
-echo "Healthy, not root, served the app, and stored a location and an item."
+echo "Healthy, not root, served the app, took the first backup, and stored a location and an item."
 
 step "Start from a copy of a used data directory"
 # Copied as root with -a, as a restore must be, so the files keep uid 1000 as their owner.

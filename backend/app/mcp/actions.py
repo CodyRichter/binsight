@@ -72,6 +72,14 @@ async def run_action(
     return await _run(app, open_session, action, _answer)
 
 
+async def run_data_directory_action(
+    app: FastAPI, action: Callable[[Settings], BaseModel]
+) -> CallToolResult:
+    """Run a service call on the data directory itself, with no session, in a worker thread."""
+    settings: Settings = app.state.settings
+    return await anyio.to_thread.run_sync(lambda: _answer(action(settings)))
+
+
 async def run_image_action(
     app: FastAPI, open_session: OpenSession, action: Callable[[Session], bytes], mime_type: str
 ) -> CallToolResult:

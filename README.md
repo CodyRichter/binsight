@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: insurance list and contents sheets (Breadth 5b).** The requirements,
+> **Status: scheduled backups (Breadth 6).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -51,6 +51,9 @@ what's inside. Search for anything and get its full location path, e.g.
 > into the locations it names, with Undo; Claude can do both, asking first
 > before an import. `/insurance` and each location's insurance list and
 > contents sheet are pages made to print, which Claude can read too.
+> Binsight backs up its database and files on starting and daily, keeping
+> 14, listed in `/settings` with "Back up now", and through MCP; restoring
+> is done on the server, as [deploy/README.md](deploy/README.md) describes.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 

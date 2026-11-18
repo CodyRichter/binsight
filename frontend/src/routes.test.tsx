@@ -27,6 +27,7 @@ const settingsLists: Record<string, unknown> = {
   [credentialsPath]: noCredentials,
   "/api/labels?": { items: [], next_cursor: null },
   "/api/locations": { locations: [] },
+  "/api/backups": { backups: [] },
 };
 
 /** Answers each request in turn; the last answer is repeated for any request after it. */
