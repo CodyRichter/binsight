@@ -4,7 +4,7 @@ import { expect, test, vi } from "vitest";
 import { renderWithTheme } from "@/lib/testing/renderWithTheme";
 import { ItemRow } from "./ItemRow";
 
-function renderRow(props: Partial<ComponentProps<typeof ItemRow>> = {}) {
+function renderRow(props: Partial<Omit<ComponentProps<typeof ItemRow>, "to" | "onPick">> = {}) {
   return renderWithTheme(
     <ul>
       <ItemRow name="AA batteries" to="/items/1" {...props} />
@@ -80,4 +80,23 @@ test("a row shows its home's checked stamp only once it is stale", () => {
 test("a row whose home was never checked says so", () => {
   renderRow({ lastChecked: null });
   expect(screen.getByText("Never checked")).toBeInTheDocument();
+});
+
+test("a row in a sheet picks its item instead of opening it", () => {
+  const onPick = vi.fn();
+  renderWithTheme(
+    <ul>
+      <ItemRow name="Drill" onPick={onPick} />
+    </ul>,
+  );
+  screen.getByRole("button", { name: "Drill" }).click();
+  expect(onPick).toHaveBeenCalled();
+  expect(screen.queryByRole("link")).not.toBeInTheDocument();
+});
+
+test("a linked item's row removes the link, named for the item", () => {
+  const onRemoveLink = vi.fn();
+  renderRow({ onRemoveLink });
+  screen.getByRole("button", { name: "Remove link to AA batteries" }).click();
+  expect(onRemoveLink).toHaveBeenCalled();
 });

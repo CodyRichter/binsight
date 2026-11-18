@@ -34,6 +34,9 @@ def shaped(session: Session, item: models.Item) -> Item:
         order_link=item.order_link,
         warranty_ends=item.warranty_ends,
         return_ends=item.return_ends,
+        lent_to=item.lent_to,
+        lent_at=item.lent_at,
+        retired_at=item.retired_at,
         path=path_of(session, item.home_location_id),
         last_checked_at=(
             locations.last_checked_at(session, item.home_location_id)

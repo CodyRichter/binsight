@@ -23,7 +23,13 @@ export function useMarkMissing(): (item: Item) => void {
   const undo = useUndo();
   const { mutate } = useMutation({
     mutationFn: (item: Item) => api.post<ItemMarked>(`/api/items/${item.id}/mark-missing`),
-    onMutate: (item) => queryClient.setQueryData(itemKey(item.id), { ...item, status: "missing" }),
+    onMutate: (item) =>
+      queryClient.setQueryData(itemKey(item.id), {
+        ...item,
+        status: "missing",
+        lent_to: null,
+        lent_at: null,
+      }),
     onSuccess: (marked) =>
       showToast({
         message: `Marked ${itemName(marked.name)} missing`,

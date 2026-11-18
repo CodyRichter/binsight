@@ -36,6 +36,7 @@ export function ItemListRow({ item, showPath, marks, onMove }: ItemListRowProps)
       path={showPath ? pathSegments(item.path) : undefined}
       photoUrl={item.photo_url ?? undefined}
       status={item.status}
+      lentTo={item.lent_to ?? undefined}
       lastChecked={showPath && item.home_location_id ? lastChecked(item) : undefined}
       quantity={quantity}
       onQuantityChange={changeQuantity}

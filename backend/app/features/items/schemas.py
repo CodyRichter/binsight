@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Annotated, Self
+from typing import Annotated, Literal, Self
 
 from pydantic import AfterValidator, BaseModel, Field, StringConstraints, model_validator
 
 from app.features.locations.service import PathStep
-from app.models import ItemStatus
+from app.models import ItemStatus, LinkKind
 
 ItemName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
 
@@ -84,6 +84,9 @@ class Item(BaseModel):
     order_link: str | None
     warranty_ends: date | None
     return_ends: date | None
+    lent_to: str | None
+    lent_at: datetime | None
+    retired_at: datetime | None
     path: list[PathStep]
     last_checked_at: datetime | None
     photo_url: str | None
@@ -125,6 +128,56 @@ class ItemDeleted(Item):
 
 
 class ItemRestored(Item):
+    history_entry_id: str
+
+
+class ItemStatusChange(BaseModel):
+    """A status to set directly; lending, returning, missing and found have their own."""
+
+    status: Literal["in_place", "in_use", "sold", "given_away", "thrown_away"]
+
+
+class ItemLending(BaseModel):
+    lent_to: ItemName
+
+
+class ItemStatusChanged(Item):
+    history_entry_id: str
+
+
+class ItemLent(Item):
+    history_entry_id: str
+
+
+class ItemReturned(Item):
+    history_entry_id: str
+
+
+class LentToName(BaseModel):
+    name: str
+
+
+class ItemLinkNew(BaseModel):
+    """A link from this item: it belongs with the other, or it is part of the other."""
+
+    other_item_id: str
+    kind: LinkKind
+
+
+class LinkedItem(BaseModel):
+    """An item linked to this one; "part" means the linked item is part of this one."""
+
+    link_id: str
+    kind: Literal["belongs_with", "part_of", "part"]
+    item: Item
+
+
+class ItemLinked(BaseModel):
+    link_id: str
+    history_entry_id: str
+
+
+class ItemUnlinked(BaseModel):
     history_entry_id: str
 
 

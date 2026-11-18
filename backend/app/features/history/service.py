@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import and_, or_, select
+from sqlalchemy import ColumnElement, and_, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app import models
@@ -16,9 +16,13 @@ from app.models import Actor
 def list_item_history(
     session: Session, item_id: str, limit: int, cursor: str | None
 ) -> Page[HistoryEntry]:
-    """List the changes made to one item, newest first."""
-    touching_item = select(models.HistoryChange.entry_id).where(
-        models.HistoryChange.record_type == "item", models.HistoryChange.record_id == item_id
+    """List the changes made to one item, and links made to it or removed, newest first."""
+    change = models.HistoryChange
+    touching_item = select(change.entry_id).where(
+        or_(
+            and_(change.record_type == "item", change.record_id == item_id),
+            and_(change.record_type == "link", _names_item(item_id)),
+        )
     )
     newest_first = (
         select(models.HistoryEntry)
@@ -38,6 +42,25 @@ def list_item_history(
         items=[HistoryEntry.model_validate(row, from_attributes=True) for row in entries[:limit]],
         next_cursor=encode_cursor(last.at, last.id) if last else None,
     )
+
+
+def _names_item(item_id: str) -> ColumnElement[bool]:
+    # A link change holds both items' identifiers, after when made and before when removed.
+    sides = (models.HistoryChange.before, models.HistoryChange.after)
+    ends = ("$.item_id", "$.other_item_id")
+    return or_(*(func.json_extract(side, end) == item_id for side in sides for end in ends))
+
+
+def lent_to_names(session: Session) -> list[str]:
+    """Every name an item has been lent to, most recently lent first, each once."""
+    name = func.json_extract(models.HistoryChange.after, "$.lent_to")
+    query = (
+        select(name)
+        .join(models.HistoryEntry, models.HistoryEntry.id == models.HistoryChange.entry_id)
+        .where(models.HistoryEntry.action == "item.lent", name.is_not(None))
+        .order_by(models.HistoryEntry.at.desc())
+    )
+    return list(dict.fromkeys(str(each) for each in session.scalars(query)))
 
 
 def undo(

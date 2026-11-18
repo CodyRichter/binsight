@@ -38,6 +38,11 @@
 }
 
 .name {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
   color: var(--bs-ink);
   cursor: pointer;
   font-size: var(--bs-text-body-strong-size);

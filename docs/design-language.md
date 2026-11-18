@@ -224,7 +224,8 @@ value row is 64px (8, 20, 4, 24, 8) plus its hairline.
   and buttons, 20px in menus and tree rows, 16px beside `text-small`.
 - An icon repeats a word that is also on screen. The exceptions, which may
   stand alone with an `aria-label`: Back, Search, Scan, Add, Close, More,
-  Camera, Move (on an item row), and a stepper's plus and minus.
+  Camera, Move (on an item row), Remove link (on a linked item's row), and
+  a stepper's plus and minus.
 - Icons are `ink`, `muted`, or the color of the status they sit in.
 - Location type icons: site `home` or `building-warehouse`, room `door`,
   furniture `armchair`, shelf `layout-rows`, bin `box`, drawer `archive`,
@@ -390,16 +391,25 @@ toast offers Undo.
 
 1. Header: the 96px thumbnail, with the path, the title and the status
    badge beside it; up to two default buttons and More under both. The
-   quantity stepper under it, in the page lead. More holds "Delete item",
-   which goes to the item's location (or `/inbox`) with the toast
-   "Deleted {name}" and Undo. A deleted item's page reads "Deleted {time
-   ago}" as a `muted` `text-small` line under the title, has the default
-   button "Restore" in place of Move, and has no More; restoring says
-   "Restored {name}" with Undo. The second button is "Mark missing", which
-   says "Marked {name} missing" with Undo, or "Mark found" on a missing
-   item: it opens the move sheet titled "Where is it now?" with the item's
-   home first as "Where it was", and picking says "Found {name} in
-   {place}" with Undo.
+   quantity stepper under it, in the page lead. The first button is Move.
+   The second follows the status: "Mark missing" in place, which says
+   "Marked {name} missing"; "Mark found" when missing, which opens the move
+   sheet titled "Where is it now?" with the item's home first as "Where it
+   was" and says "Found {name} in {place}"; "Mark returned" when lent out,
+   which says "Returned {name}"; and "Back in place" when in use or
+   archived, which says "{name} is back in place". More holds "Lend…",
+   which opens the Lent to sheet and says "Lent {name} to {person}"; "Mark
+   in use" (not while in use), which says "Marked {name} in use"; "Sold",
+   "Given away" and "Thrown away", which say "Marked {name} sold" and so
+   on; none of these four while archived; then "Link an item", which opens
+   the link sheet; then "Delete item", which goes to the item's location
+   (or `/inbox`) with the toast "Deleted {name}". Every one offers Undo. A
+   lent-out, archived or deleted item's page reads when, as a `muted`
+   `text-small` line under the title: "Lent 2 weeks ago", "Sold 3 days
+   ago", "Deleted {time ago}". A deleted item's page has the default button
+   "Restore" in place of Move, and no More; restoring says "Restored
+   {name}" with Undo. History says "Lent to {person}", "Returned", "Marked
+   in use", "Back in place", "Sold", "Given away" or "Thrown away".
 2. Sections of value rows: "Details", then others only when they hold a
    value or are being added to. Details lists Category, Tags, Notes,
    Brand, Model, Serial number, Purchase date, Price, Order link,
@@ -414,6 +424,12 @@ toast offers Undo.
    Undo, and history says "{Detail} changed", "Tagged {tag}", "Tag {tag}
    removed", or "Details changed" for several at once. A deleted item's
    page has no Details section.
+   Then "Belongs with", "Part of" and "Parts", each only when it has
+   linked items: item rows, each ending in a "Remove link" icon button that
+   says "Removed link to {name}" with Undo. Linking says "Linked {name}".
+   Both items' history says "Linked: belongs with", "Linked: part of" or
+   "Linked: a part" from its own side, or "Link removed"; history keeps no
+   names, so the sections say which item. A deleted item's page has none.
 3. Section "History", last: a list of history rows, newest first.
 
 **Task** (`/scan`, check mode). Full screen in the task frame, so nothing
@@ -618,6 +634,14 @@ count; when the typed name matches none, the first row is "Make
 the field while the item has one. The tag sheet is titled "Add tag": one
 field, "Tag", a primary "Add", and name rows of the tags in use that the
 item lacks, narrowed as it is typed.
+
+The Lent to sheet is titled "Lent to": one field, "Name", a primary
+"Lend", and name rows of the names items were lent to before, most recent
+first, narrowed as it is typed. The link sheet is titled "Link an item":
+one field, "Search items", over item rows found as it is typed, leaving out
+the item itself and what it is already linked to. Picking a row swaps them
+in place for three name rows: "Belongs with {name}", "Part of {name}" and
+"{name} is a part of this".
 
 The move sheet is titled "Move to". Its one field, "Search locations or
 scan", narrows the rows by name or by code (typed loosely, as `b14`), and

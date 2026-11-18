@@ -85,6 +85,34 @@ def test_items_from_before_details_keep_their_fields_and_have_none_yet(
     assert tuple(row) == ("Drill", 2, "missing", None, None)
 
 
+def test_items_from_before_lending_keep_their_status_and_are_not_lent(
+    settings: Settings,
+) -> None:
+    settings.data_directory.mkdir()
+    engine = create_database_engine(settings.database_path)
+    config = Config()
+    config.set_main_option("script_location", str(BACKEND_DIRECTORY / "migrations"))
+    with engine.begin() as connection:
+        config.attributes["connection"] = connection
+        command.upgrade(config, "0009")
+        connection.execute(
+            text(
+                "INSERT INTO item (id, name, quantity, status, brand, created_at, updated_at)"
+                " VALUES ('drill', 'Drill', 1, 'missing', 'Makita', '2026-11-16 12:00:00',"
+                " '2026-11-16 12:00:00')"
+            )
+        )
+        connection.execute(text("INSERT INTO item_tag (item_id, tag) VALUES ('drill', '18v')"))
+    migrate_database(engine, settings)
+    with engine.connect() as connection:
+        row = connection.execute(
+            text("SELECT status, brand, lent_to, retired_at FROM item WHERE id = 'drill'")
+        ).one()
+        tags = connection.execute(text("SELECT tag FROM item_tag WHERE item_id = 'drill'")).all()
+    assert tuple(row) == ("missing", "Makita", None, None)
+    assert [tuple(tag) for tag in tags] == [("18v",)]
+
+
 def test_items_with_photos_survive_upgrades_that_rebuild_the_item_table(
     settings: Settings,
 ) -> None:

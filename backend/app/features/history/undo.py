@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from typing import Any, cast
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import models
@@ -21,11 +22,16 @@ UNDOABLE = {
     "item.restored",
     "item.marked_missing",
     "item.found",
+    "item.status_changed",
+    "item.lent",
+    "item.returned",
+    "item.linked",
+    "item.unlinked",
     "location.checked",
     "location.moved",
 }
 
-type Undoable = models.Item | models.Attachment | models.Location | models.Check
+type Undoable = models.Item | models.Attachment | models.Location | models.Check | models.ItemLink
 
 
 def _entry(session: Session, entry_id: str) -> models.HistoryEntry:
@@ -46,11 +52,15 @@ def _record(session: Session, change: models.HistoryChange) -> Undoable | None:
         return session.get(models.Location, change.record_id)
     if change.record_type == "check":
         return session.get(models.Check, change.record_id)
+    if change.record_type == "link":
+        return session.get(models.ItemLink, change.record_id)
     return session.get(models.Item, change.record_id)
 
 
 DATED_FIELDS = {
     "deleted_at": datetime.fromisoformat,
+    "lent_at": datetime.fromisoformat,
+    "retired_at": datetime.fromisoformat,
     "purchase_date": date.fromisoformat,
     "warranty_ends": date.fromisoformat,
     "return_ends": date.fromisoformat,
@@ -99,9 +109,21 @@ def _refuse_cycle(session: Session, location: models.Location, parent_id: str) -
         above = session.get(models.Location, above.parent_id) if above.parent_id else None
 
 
+def _relink(session: Session, change: models.HistoryChange, now: datetime) -> None:
+    removed: dict[str, Any] = change.before or {}
+    same = select(models.ItemLink.id).filter_by(**removed)
+    if session.scalar(same) is not None:
+        raise AppError(409, "changed_since", "That can't be undone, because it has changed since.")
+    session.add(models.ItemLink(id=change.record_id, **removed, created_at=now, updated_at=now))
+
+
 def _reverse(
     session: Session, settings: Settings, change: models.HistoryChange, now: datetime
 ) -> RecordChange:
+    if change.record_type == "link" and not change.after:
+        _relink(session, change, now)
+        session.flush()
+        return RecordChange("link", change.record_id, {}, change.before or {})
     current = _current(session, change)
     after: dict[str, Any] = change.after
     if change.before is None and isinstance(current, models.Attachment):

@@ -13,6 +13,22 @@ const fixedWords: Record<string, string> = {
   // An item's history shows a check only when the check marked it missing.
   "location.checked": "Marked missing in a check",
   "history.undone": "Undone",
+  "item.returned": "Returned",
+  "item.unlinked": "Link removed",
+};
+
+const statusWords: Record<string, string> = {
+  in_place: "Back in place",
+  in_use: "Marked in use",
+  sold: "Sold",
+  given_away: "Given away",
+  thrown_away: "Thrown away",
+};
+
+const linkedWords = {
+  belongs_with: "Linked: belongs with",
+  part_of: "Linked: part of",
+  part: "Linked: a part",
 };
 
 const detailNames: Record<string, string> = {
@@ -54,13 +70,23 @@ function changedFields(change: Change): string {
   return `Named ${change.after.name}`;
 }
 
+// History stores identifiers only, so a link reads from this item's side, without the other's name.
+function linked(entry: HistoryEntry, itemId: string): string {
+  const [link] = entry.changes;
+  if (link.after.kind === "belongs_with") return linkedWords.belongs_with;
+  return link.after.item_id === itemId ? linkedWords.part_of : linkedWords.part;
+}
+
 /** The line a history row says for an entry: "Added", "Quantity changed from 3 to 4". */
-export function whatHappened(entry: HistoryEntry): string {
+export function whatHappened(entry: HistoryEntry, itemId: string): string {
   const words = fixedWords[entry.action];
   if (words) return words;
+  if (entry.action === "item.linked") return linked(entry, itemId);
   const [change] = entry.changes.filter((each) => each.record_type === "item");
   if (entry.action === "item.updated" || entry.action === "item.named") {
     return changedFields(change);
   }
+  if (entry.action === "item.lent") return `Lent to ${change.after.lent_to}`;
+  if (entry.action === "item.status_changed") return statusWords[String(change.after.status)];
   throw new Error(`History has no wording for ${entry.action}`);
 }

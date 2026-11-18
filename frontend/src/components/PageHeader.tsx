@@ -23,14 +23,14 @@ interface PageHeaderProps {
   summary?: { value: string; onSave: (summary: string) => void };
   lastChecked?: Date | null;
   counts?: string[];
-  /** When the page's item was deleted; it reads "Deleted {time ago}" under the title. */
-  deletedAt?: Date;
+  /** Since when the page's thing has been as it is, read under the title: "Deleted 2 days ago". */
+  since?: { words: string; at: Date };
   actions?: ReactNode;
   menu?: ReactNode;
 }
 
-function metaLine({ lastChecked, counts = [], deletedAt }: PageHeaderProps): ReactNode {
-  const words = deletedAt ? [...counts, `Deleted ${timeAgo(deletedAt)}`] : counts;
+function metaLine({ lastChecked, counts = [], since }: PageHeaderProps): ReactNode {
+  const words = since ? [...counts, `${since.words} ${timeAgo(since.at)}`] : counts;
   if (lastChecked === undefined && words.length === 0) return null;
   return (
     <div className={classes.meta}>

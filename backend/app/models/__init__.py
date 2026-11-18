@@ -5,11 +5,13 @@ from app.models.categories import Category
 from app.models.checks import Check
 from app.models.confirmations import Confirmation
 from app.models.history import Actor, HistoryChange, HistoryEntry
-from app.models.items import Item, ItemStatus, ItemTag
+from app.models.items import ARCHIVED, Item, ItemStatus, ItemTag
 from app.models.labels import Label
+from app.models.links import ItemLink, LinkKind
 from app.models.locations import Location, LocationType
 
 __all__ = [
+    "ARCHIVED",
     "Actor",
     "Attachment",
     "AttachmentKind",
@@ -19,9 +21,11 @@ __all__ = [
     "HistoryChange",
     "HistoryEntry",
     "Item",
+    "ItemLink",
     "ItemStatus",
     "ItemTag",
     "Label",
+    "LinkKind",
     "Location",
     "LocationType",
     "LoginSession",

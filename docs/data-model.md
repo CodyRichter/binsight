@@ -105,6 +105,11 @@ Rules:
   but do not count toward that location's contents.
 - Setting `lent_to` sets status to `lent_out`. Clearing it sets status back
   to `in_place`. The two never disagree.
+- Leaving `lent_out` clears `lent_to` and `lent_at`. Entering the archive
+  sets `retired_at` to the moment it happened; moving between archive
+  statuses keeps it, and leaving the archive clears it.
+- An archived item cannot be lent or marked missing; it is put back in
+  place first. A missing item is put back only by marking it found.
 - Changing status never clears `home_location`.
 - Marking a `missing` item found asks for its home location, which may be
   the same one.
@@ -126,6 +131,13 @@ Rules:
 - Joins two different items with a kind: `belongs_with` (either direction
   means the same) or `part_of` (the first is part of the second).
 - The same pair has at most one link of each kind.
+- A `belongs_with` link is stored with the smaller identifier first, so
+  either direction is the same row.
+- `part_of` never makes a cycle: an item cannot be part of one of its own
+  parts.
+- Removing a link deletes its row; the history entry keeps both items'
+  identifiers, so undo puts the same link back and both items' history
+  shows it.
 - Deleting or archiving an item leaves its links in place.
 
 ## Attachment

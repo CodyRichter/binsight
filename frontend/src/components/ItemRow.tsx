@@ -1,5 +1,5 @@
 import { ActionIcon, Checkbox } from "@mantine/core";
-import { IconArrowsMove } from "@tabler/icons-react";
+import { IconArrowsMove, IconUnlink } from "@tabler/icons-react";
 import { useId, type ReactNode } from "react";
 import { Link } from "react-router";
 import { CheckedStamp } from "./CheckedStamp";
@@ -10,10 +10,9 @@ import { StatusBadge, type Status } from "./StatusBadge";
 import { Thumbnail } from "./Thumbnail";
 import classes from "./ItemRow.module.css";
 
-interface ItemRowProps {
+type ItemRowProps = {
   /** Null for an item added by photo and not named yet; it reads "Unnamed". */
   name: string | null;
-  to: string;
   path?: PathSegment[];
   photoUrl?: string;
   status?: Status;
@@ -23,17 +22,31 @@ interface ItemRowProps {
   quantity?: number;
   onQuantityChange?: (quantity: number) => void;
   onMove?: () => void;
+  /** On a linked item's row: removes the link, not the item. */
+  onRemoveLink?: () => void;
   /** The parts of the name a search matched. */
   marks?: Mark[];
   selected?: boolean;
   check?: { checked: boolean; onChange: (checked: boolean) => void };
-}
+} & (
+  | { to: string; onPick?: never }
+  // In a sheet the row picks the item instead of opening it.
+  | { onPick: () => void; to?: never }
+);
 
 function rowName(props: ItemRowProps, checkId: string): ReactNode {
   const name = markedText(props.name ?? "Unnamed", props.marks, classes.match);
+  const unnamed = props.name === null || undefined;
+  if (props.to === undefined) {
+    return (
+      <button type="button" className={classes.name} data-unnamed={unnamed} onClick={props.onPick}>
+        {name}
+      </button>
+    );
+  }
   if (!props.check) {
     return (
-      <Link className={classes.name} data-unnamed={props.name === null || undefined} to={props.to}>
+      <Link className={classes.name} data-unnamed={unnamed} to={props.to}>
         {name}
       </Link>
     );
@@ -56,7 +69,8 @@ function metaLine({ path, status = "in_place", lentTo, lastChecked }: ItemRowPro
   );
 }
 
-function rowControls({ name, quantity = 1, onQuantityChange, onMove }: ItemRowProps): ReactNode {
+function rowControls(props: ItemRowProps): ReactNode {
+  const { name, quantity = 1, onQuantityChange, onMove, onRemoveLink } = props;
   return (
     <>
       {quantity > 1 && onQuantityChange && (
@@ -73,6 +87,15 @@ function rowControls({ name, quantity = 1, onQuantityChange, onMove }: ItemRowPr
           <IconArrowsMove aria-hidden />
         </ActionIcon>
       )}
+      {onRemoveLink && (
+        <ActionIcon
+          className={classes.move}
+          aria-label={`Remove link to ${name ?? "Unnamed"}`}
+          onClick={onRemoveLink}
+        >
+          <IconUnlink aria-hidden />
+        </ActionIcon>
+      )}
     </>
   );
 }
@@ -84,7 +107,7 @@ export function ItemRow(props: ItemRowProps) {
     <li
       className={classes.row}
       data-selected={props.selected || undefined}
-      data-movable={props.onMove ? true : undefined}
+      data-movable={props.onMove || props.onRemoveLink ? true : undefined}
     >
       {check ? (
         <Checkbox
