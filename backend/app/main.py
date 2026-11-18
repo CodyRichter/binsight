@@ -13,12 +13,27 @@ from app.core.security_headers import add_security_headers
 from app.core.settings import Settings, load_settings
 from app.features.attachments import routes as attachments
 from app.features.auth import routes as auth
+from app.features.checks import routes as checks
 from app.features.history import routes as history
 from app.features.items import routes as items
 from app.features.labels import routes as labels
 from app.features.locations import routes as locations
 from app.features.search import routes as search
 from app.mcp.server import add_mcp_server
+
+
+def _signed_in_routes() -> APIRouter:
+    # Every feature router goes in here, so a route is signed-in-only unless added in build_app.
+    signed_in = APIRouter(dependencies=[Depends(auth.require_sign_in)])
+    signed_in.include_router(auth.mcp_credentials_router)
+    signed_in.include_router(locations.router)
+    signed_in.include_router(items.router)
+    signed_in.include_router(labels.router)
+    signed_in.include_router(history.router)
+    signed_in.include_router(attachments.router)
+    signed_in.include_router(search.router)
+    signed_in.include_router(checks.router)
+    return signed_in
 
 
 def build_app(settings: Settings) -> FastAPI:
@@ -48,16 +63,7 @@ def build_app(settings: Settings) -> FastAPI:
     add_security_headers(app)
     app.include_router(health.router, prefix="/api")
     app.include_router(auth.router, prefix="/api")
-    # Every feature router goes in here, so a route is signed-in-only unless placed above.
-    signed_in = APIRouter(dependencies=[Depends(auth.require_sign_in)])
-    signed_in.include_router(auth.mcp_credentials_router)
-    signed_in.include_router(locations.router)
-    signed_in.include_router(items.router)
-    signed_in.include_router(labels.router)
-    signed_in.include_router(history.router)
-    signed_in.include_router(attachments.router)
-    signed_in.include_router(search.router)
-    app.include_router(signed_in, prefix="/api")
+    app.include_router(_signed_in_routes(), prefix="/api")
     mcp_server = add_mcp_server(app)
     add_frontend_files(app, settings.frontend_directory)
     return app

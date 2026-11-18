@@ -67,3 +67,17 @@ test("Move on the row moves that item in one tap", async () => {
   await user.click(screen.getByRole("button", { name: "Move AA batteries" }));
   expect(onMove).toHaveBeenCalledOnce();
 });
+
+test("a row shows its home's checked stamp only once it is stale", () => {
+  const twoYearsAgo = new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000);
+  const { unmount } = renderRow({ lastChecked: new Date() });
+  expect(screen.queryByText(/checked/i)).not.toBeInTheDocument();
+  unmount();
+  renderRow({ lastChecked: twoYearsAgo });
+  expect(screen.getByText("Checked 2 years ago")).toBeInTheDocument();
+});
+
+test("a row whose home was never checked says so", () => {
+  renderRow({ lastChecked: null });
+  expect(screen.getByText("Never checked")).toBeInTheDocument();
+});

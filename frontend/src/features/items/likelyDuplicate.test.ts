@@ -12,6 +12,8 @@ function item(id: string, name: string | null): Item {
     photo_url: null,
     created_at: "2026-11-16T12:00:00Z",
     deleted_at: null,
+    status: "in_place",
+    last_checked_at: null,
   };
 }
 

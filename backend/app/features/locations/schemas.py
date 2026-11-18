@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Annotated, Self
 
 from pydantic import BaseModel, StringConstraints, model_validator
@@ -43,6 +44,7 @@ class Location(BaseModel):
     path: list[PathStep]
     direct_item_count: int
     item_count: int
+    last_checked_at: datetime | None
 
 
 class LocationCreated(Location):

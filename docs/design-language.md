@@ -344,7 +344,11 @@ Every page is one of six templates. "Header" is the page header component.
 
 1. Header: the parent path; the title and large code chip; the summary; the
    checked stamp and counts; up to two default buttons and More. A
-   location's photo is not shown large here.
+   location's photo is not shown large here. On a location the buttons are
+   "Contents checked" and Move ("Add location" in place of Move on a
+   site); More holds "Add location" when there is no Locations section,
+   "Download label" and "Check mode". "Contents checked" says "Contents
+   checked" with Undo.
 2. The add bar, on a location only. The page's one accent.
 3. "Here / Everything inside", only when the location contains other
    locations.
@@ -391,7 +395,11 @@ toast offers Undo.
    "Deleted {name}" and Undo. A deleted item's page reads "Deleted {time
    ago}" as a `muted` `text-small` line under the title, has the default
    button "Restore" in place of Move, and has no More; restoring says
-   "Restored {name}" with Undo.
+   "Restored {name}" with Undo. The second button is "Mark missing", which
+   says "Marked {name} missing" with Undo, or "Mark found" on a missing
+   item: it opens the move sheet titled "Where is it now?" with the item's
+   home first as "Where it was", and picking says "Found {name} in
+   {place}" with Undo.
 2. Sections of value rows: "Details", then others only when they hold a
    value or are being added to.
 3. Section "History", last: a list of history rows, newest first.
@@ -442,6 +450,12 @@ primary button.
 | `/login`          | Gate     | None     |
 
 Check mode is a Task that opens over a location's page and has no address.
+Its name is "Check {name}"; the work area holds the location's add bar, then
+its items with checkboxes, and something added there starts ticked. The
+primary button is "Contents checked". With items unticked it first asks
+"Mark {n} unchecked items missing?" ("Keep checking", "Mark missing");
+either way it returns to the location's page, saying "Contents checked" or
+"Marked {n} items missing", with one Undo.
 
 `/design` exists only in development builds and is outside the templates:
 it renders every token and component, in the frame, for checking the

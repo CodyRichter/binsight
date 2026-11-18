@@ -12,6 +12,10 @@ interface ItemListRowProps {
   onMove?: () => void;
 }
 
+function lastChecked(item: Item): Date | null {
+  return item.last_checked_at ? new Date(item.last_checked_at) : null;
+}
+
 interface Shown {
   // The quantity the server last said, so a newer answer replaces what was shown.
   from: number;
@@ -31,6 +35,8 @@ export function ItemListRow({ item, showPath, marks, onMove }: ItemListRowProps)
       to={`/items/${item.id}`}
       path={showPath ? pathSegments(item.path) : undefined}
       photoUrl={item.photo_url ?? undefined}
+      status={item.status}
+      lastChecked={showPath && item.home_location_id ? lastChecked(item) : undefined}
       quantity={quantity}
       onQuantityChange={changeQuantity}
       marks={marks}

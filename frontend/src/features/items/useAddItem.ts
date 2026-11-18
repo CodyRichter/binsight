@@ -20,6 +20,8 @@ export function adding(name: string | null, home: Destination | null, photoUrl?:
     photo_url: photoUrl ?? null,
     created_at: new Date().toISOString(),
     deleted_at: null,
+    status: "in_place",
+    last_checked_at: null,
   };
 }
 

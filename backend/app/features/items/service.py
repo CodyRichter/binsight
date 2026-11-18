@@ -21,6 +21,9 @@ from app.features.items.schemas import (
     ItemChanges,
     ItemCreated,
     ItemDeleted,
+    ItemFound,
+    ItemMarkedFound,
+    ItemMarkedMissing,
     ItemMove,
     ItemMoved,
     ItemRestored,
@@ -30,7 +33,7 @@ from app.features.items.schemas import (
     NewItems,
 )
 from app.features.items.shaping import path_of, shaped
-from app.models import Actor
+from app.models import Actor, ItemStatus
 
 
 def _fields(item: models.Item) -> dict[str, Any]:
@@ -177,3 +180,67 @@ def restore_item(session: Session, item_id: str, actor: Actor, now: datetime) ->
         raise AppError(409, "not_deleted", "That item has not been deleted.")
     entry_id = _set_deleted_at(session, item, None, actor, now)
     return ItemRestored(**shaped(session, item).model_dump(), history_entry_id=entry_id)
+
+
+def _status_change(item: models.Item, status: ItemStatus, now: datetime) -> history.RecordChange:
+    before = {"status": item.status.value}
+    item.status = status
+    item.updated_at = now
+    return history.RecordChange("item", item.id, before, {"status": status.value})
+
+
+def _in_place(session: Session, item_id: str) -> models.Item:
+    item = _live(session, item_id)
+    if item.status == ItemStatus.missing:
+        raise AppError(409, "already_missing", "That item is already marked missing.")
+    return item
+
+
+def mark_item_missing(
+    session: Session, item_id: str, actor: Actor, now: datetime
+) -> ItemMarkedMissing:
+    """Mark an item missing: it isn't where it should be. It keeps its home location."""
+    item = _in_place(session, item_id)
+    change = _status_change(item, ItemStatus.missing, now)
+    entry_id = history.record(session, actor, "item.marked_missing", [change], now)
+    return ItemMarkedMissing(**shaped(session, item).model_dump(), history_entry_id=entry_id)
+
+
+def _markable(session: Session, location_id: str, item_ids: list[str]) -> list[models.Item]:
+    items = [_in_place(session, item_id) for item_id in item_ids]
+    if any(item.home_location_id != location_id for item in items):
+        raise AppError(
+            422, "not_in_location", "Only items directly in that location can be marked missing."
+        )
+    return items
+
+
+def items_to_mark_missing(session: Session, location_id: str, item_ids: list[str]) -> list[Item]:
+    """The items a check would mark missing, refused as marking them would be."""
+    return [shaped(session, item) for item in _markable(session, location_id, item_ids)]
+
+
+def mark_items_missing(
+    session: Session, location_id: str, item_ids: list[str], now: datetime
+) -> list[history.RecordChange]:
+    """Mark items in a location missing, for a change that records its own history entry."""
+    items = _markable(session, location_id, item_ids)
+    return [_status_change(item, ItemStatus.missing, now) for item in items]
+
+
+def mark_item_found(
+    session: Session, item_id: str, found: ItemFound, actor: Actor, now: datetime
+) -> ItemMarkedFound:
+    """Mark a missing item found, where it is now, which may be its old home."""
+    item = _live(session, item_id)
+    if item.status != ItemStatus.missing:
+        raise AppError(409, "not_missing", "That item isn't marked missing.")
+    path_of(session, found.location_id)
+    before = {"status": item.status.value, "home_location_id": item.home_location_id}
+    item.status = ItemStatus.in_place
+    item.home_location_id = found.location_id
+    item.updated_at = now
+    after = {"status": ItemStatus.in_place.value, "home_location_id": found.location_id}
+    change = history.RecordChange("item", item.id, before, after)
+    entry_id = history.record(session, actor, "item.found", [change], now)
+    return ItemMarkedFound(**shaped(session, item).model_dump(), history_entry_id=entry_id)

@@ -51,11 +51,13 @@ def _path(session: Session, location: models.Location) -> list[PathStep]:
 
 
 def _tree(session: Session) -> list[Location]:
-    rows = list(
-        session.scalars(
-            select(models.Location).order_by(models.Location.created_at, models.Location.id)
-        )
+    # Counts and last checked are computed on load, so rows already in the session are reloaded.
+    query = (
+        select(models.Location)
+        .order_by(models.Location.created_at, models.Location.id)
+        .execution_options(populate_existing=True)
     )
+    rows = list(session.scalars(query))
     children: defaultdict[str, list[models.Location]] = defaultdict(list)
     for row in rows:
         if row.parent_id is not None:
@@ -75,6 +77,7 @@ def _tree(session: Session) -> list[Location]:
             path=_path(session, row),
             direct_item_count=row.direct_item_count,
             item_count=item_count(row),
+            last_checked_at=row.last_checked_at,
         )
         for row in rows
     ]
@@ -145,6 +148,14 @@ def move_location(
 def location_path(session: Session, location_id: str) -> list[PathStep]:
     """The names from a location's site down to the location itself."""
     return _path(session, _get(session, location_id))
+
+
+def last_checked_at(session: Session, location_id: str) -> datetime | None:
+    """When a location's contents were last checked, or None if never."""
+    location = session.get(models.Location, location_id, populate_existing=True)
+    if location is None:
+        raise _not_found()
+    return location.last_checked_at
 
 
 def location_ids_within(session: Session, location_id: str) -> list[str]:

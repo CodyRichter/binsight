@@ -19,6 +19,10 @@ export interface MoveSheetProps {
   currentId: string | null;
   /** A location being moved: it and everything inside it are left out too. */
   movingId?: string;
+  /** The sheet's title; "Move to" when left out. */
+  title?: string;
+  /** Offers where the thing is now first, as "Where it was", for an item found again. */
+  offerCurrent?: boolean;
   onPick: (place: Location) => void;
 }
 

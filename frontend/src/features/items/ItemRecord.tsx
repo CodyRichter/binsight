@@ -17,6 +17,7 @@ import { useItem, type Item } from "./useItems";
 import { useQuantity } from "./useQuantity";
 import { useDeleteItem } from "./useDeleteItem";
 import { useRestoreItem } from "./useRestoreItem";
+import { StatusButton } from "./StatusButton";
 
 function MoveButton({ item }: { item: Item }) {
   const { MoveSheet } = useContext(FrameAdditionsContext);
@@ -75,7 +76,17 @@ function ItemBody({ item }: { item: Item }) {
             parents={pathSegments(item.path)}
             thumbnail={{ photoUrl: item.photo_url ?? undefined }}
             deletedAt={item.deleted_at ? new Date(item.deleted_at) : undefined}
-            actions={deleted ? <RestoreButton item={item} /> : <MoveButton item={item} />}
+            status={{ status: item.status }}
+            actions={
+              deleted ? (
+                <RestoreButton item={item} />
+              ) : (
+                <>
+                  <MoveButton item={item} />
+                  <StatusButton item={item} />
+                </>
+              )
+            }
             menu={deleted ? undefined : <DeleteMenuItem item={item} />}
           />
         }

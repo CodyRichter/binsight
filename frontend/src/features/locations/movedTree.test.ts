@@ -12,6 +12,7 @@ function place(id: string, path: string[], parentId: string | null): Location {
     label_code: null,
     path: path.map((step) => ({ id: step, name: step, type: "bin", label_code: null })),
     direct_item_count: 0,
+    last_checked_at: null,
     item_count: 0,
   };
 }

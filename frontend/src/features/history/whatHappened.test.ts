@@ -53,3 +53,15 @@ test("deleting and restoring read Deleted and Restored", () => {
     "Restored",
   );
 });
+
+test("missing and found read Marked missing and Found", () => {
+  const marked = entry("item.marked_missing", { status: "in_place" }, { status: "missing" });
+  const found = entry("item.found", { status: "missing" }, { status: "in_place" });
+  expect(whatHappened(marked)).toBe("Marked missing");
+  expect(whatHappened(found)).toBe("Found");
+});
+
+test("a check that marked the item missing says so", () => {
+  const checked = entry("location.checked", { status: "in_place" }, { status: "missing" });
+  expect(whatHappened(checked)).toBe("Marked missing in a check");
+});

@@ -2,6 +2,7 @@ import { ActionIcon, Checkbox } from "@mantine/core";
 import { IconArrowsMove } from "@tabler/icons-react";
 import { useId, type ReactNode } from "react";
 import { Link } from "react-router";
+import { CheckedStamp } from "./CheckedStamp";
 import { markedText, type Mark } from "./markedText";
 import { Path, type PathSegment } from "./Path";
 import { QuantityStepper } from "./QuantityStepper";
@@ -17,6 +18,8 @@ interface ItemRowProps {
   photoUrl?: string;
   status?: Status;
   lentTo?: string;
+  /** When the item's home was last checked; shown only once stale, as in search results. */
+  lastChecked?: Date | null;
   quantity?: number;
   onQuantityChange?: (quantity: number) => void;
   onMove?: () => void;
@@ -42,6 +45,17 @@ function rowName(props: ItemRowProps, checkId: string): ReactNode {
   );
 }
 
+function metaLine({ path, status = "in_place", lentTo, lastChecked }: ItemRowProps): ReactNode {
+  if (!path && status === "in_place" && lastChecked === undefined) return null;
+  return (
+    <div className={classes.meta}>
+      {path && <Path segments={path} />}
+      <StatusBadge status={status} lentTo={lentTo} />
+      {lastChecked !== undefined && <CheckedStamp lastChecked={lastChecked} onlyStale />}
+    </div>
+  );
+}
+
 function rowControls({ name, quantity = 1, onQuantityChange, onMove }: ItemRowProps): ReactNode {
   return (
     <>
@@ -64,7 +78,7 @@ function rowControls({ name, quantity = 1, onQuantityChange, onMove }: ItemRowPr
 }
 
 export function ItemRow(props: ItemRowProps) {
-  const { path, photoUrl, status = "in_place", lentTo, check } = props;
+  const { photoUrl, check } = props;
   const checkId = useId();
   return (
     <li
@@ -84,12 +98,7 @@ export function ItemRow(props: ItemRowProps) {
       )}
       <div className={classes.main}>
         {rowName(props, checkId)}
-        {(path || status !== "in_place") && (
-          <div className={classes.meta}>
-            {path && <Path segments={path} />}
-            <StatusBadge status={status} lentTo={lentTo} />
-          </div>
-        )}
+        {metaLine(props)}
       </div>
       {rowControls(props)}
     </li>

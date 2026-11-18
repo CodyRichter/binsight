@@ -26,7 +26,7 @@ function DesignShellError() {
         error={error}
         onRetry={() => navigate(0)}
         onGoHome={() => navigate("/design")}
-        onScan={() => navigate("/design/task")}
+        onScan={() => navigate("/scan")}
       />
     </DesignFrame>
   );
@@ -39,7 +39,7 @@ function DesignNotFound() {
       <RouteError
         error={{ status: 404, statusText: "Not Found", data: null, internal: true }}
         onGoHome={() => navigate("/design")}
-        onScan={() => navigate("/design/task")}
+        onScan={() => navigate("/scan")}
       />
     </DesignFrame>
   );
@@ -87,9 +87,6 @@ const developmentRoutes: RouteObject[] = import.meta.env.DEV
         children: [
           page("/design", async () => ({
             Component: (await import("@/pages/DesignPage")).DesignPage,
-          })),
-          page("/design/task", async () => ({
-            Component: (await import("@/pages/DesignTaskPage")).DesignTaskPage,
           })),
           page("/design/*", async () => ({ Component: DesignNotFound })),
         ],

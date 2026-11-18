@@ -2,6 +2,19 @@ import type { HistoryEntry } from "./useItemHistory";
 
 type Change = HistoryEntry["changes"][number];
 
+const fixedWords: Record<string, string> = {
+  "item.created": "Added",
+  "items.created": "Added",
+  "item.moved": "Moved",
+  "item.deleted": "Deleted",
+  "item.restored": "Restored",
+  "item.marked_missing": "Marked missing",
+  "item.found": "Found",
+  // An item's history shows a check only when the check marked it missing.
+  "location.checked": "Marked missing in a check",
+  "history.undone": "Undone",
+};
+
 function changedFields(change: Change): string {
   if ("quantity" in change.after) {
     return `Quantity changed from ${change.before?.quantity} to ${change.after.quantity}`;
@@ -11,14 +24,11 @@ function changedFields(change: Change): string {
 
 /** The line a history row says for an entry: "Added", "Quantity changed from 3 to 4". */
 export function whatHappened(entry: HistoryEntry): string {
+  const words = fixedWords[entry.action];
+  if (words) return words;
   const [change] = entry.changes.filter((each) => each.record_type === "item");
-  if (entry.action === "item.created" || entry.action === "items.created") return "Added";
   if (entry.action === "item.updated" || entry.action === "item.named") {
     return changedFields(change);
   }
-  if (entry.action === "item.moved") return "Moved";
-  if (entry.action === "item.deleted") return "Deleted";
-  if (entry.action === "item.restored") return "Restored";
-  if (entry.action === "history.undone") return "Undone";
   throw new Error(`History has no wording for ${entry.action}`);
 }
