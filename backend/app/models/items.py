@@ -9,7 +9,15 @@ from app.models.base import Model
 
 class ItemStatus(StrEnum):
     in_place = "in_place"
+    in_use = "in_use"
+    lent_out = "lent_out"
     missing = "missing"
+    sold = "sold"
+    given_away = "given_away"
+    thrown_away = "thrown_away"
+
+
+ARCHIVED = (ItemStatus.sold, ItemStatus.given_away, ItemStatus.thrown_away)
 
 
 class ItemTag(Model):
@@ -24,6 +32,9 @@ class Item(Model):
     __table_args__ = (
         CheckConstraint("quantity >= 0", name="quantity_not_negative"),
         CheckConstraint("price_cents >= 0", name="price_not_negative"),
+        CheckConstraint(
+            "(status = 'lent_out') = (lent_to IS NOT NULL)", name="lent_to_only_when_lent_out"
+        ),
     )
 
     id: Mapped[str] = mapped_column(primary_key=True)
@@ -49,6 +60,9 @@ class Item(Model):
     order_link: Mapped[str | None]
     warranty_ends: Mapped[date | None]
     return_ends: Mapped[date | None]
+    lent_to: Mapped[str | None]
+    lent_at: Mapped[datetime | None]
+    retired_at: Mapped[datetime | None]
     created_at: Mapped[datetime]
     updated_at: Mapped[datetime]
     deleted_at: Mapped[datetime | None]

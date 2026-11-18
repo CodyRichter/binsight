@@ -113,7 +113,10 @@ One shape for every error:
   entry left it as, or `undo_not_supported` for an action undo does not
   cover yet. It covers adding items, changing an item's name, quantity,
   category, tags or details, moving an item or a location, deleting or restoring an item,
-  marking an item missing or found, and checking a location; undoing a location's move is refused with `changed_since` when its
+  marking an item missing or found, changing its status, lending and
+  returning it, linking items and removing a link, and checking a
+  location; undoing a removed link is refused with `changed_since` once the
+  same link has been made again; undoing a location's move is refused with `changed_since` when its
   old parent has since been moved inside it, and any other change to an
   item that has since been deleted is refused with `changed_since`.
 - `PATCH /api/items/{id}` changes only the fields given. A detail given as
@@ -136,6 +139,22 @@ One shape for every error:
   `already_missing`, and `POST /api/items/{id}/mark-found`, which takes the
   `location_id` where it turned up, with 409 `not_missing`. Over MCP,
   `check_location` with missing items goes through the confirmation step.
+- `POST /api/items/{id}/status` sets `in_place`, `in_use`, `sold`,
+  `given_away` or `thrown_away`. It is refused with 409 `status_unchanged`
+  for the status the item already has, and `use_mark_found` for a missing
+  item put back in place, since found asks where it turned up. `POST
+  /api/items/{id}/lend` takes `lent_to`, a name; lending again changes the
+  name. `POST /api/items/{id}/return` is refused with 409 `not_lent`.
+  Lending or marking missing an archived item is refused with 409
+  `item_archived`. `GET /api/items/lent-to-names` lists the names lent to
+  before, most recent first.
+- `POST /api/items/{id}/links` takes `other_item_id` and `kind`
+  (`belongs_with`, or `part_of` when this item is the part), and is refused
+  with 422 `same_item` or `part_cycle`, or 409 `already_linked`. `GET
+  /api/items/{id}/links` lists the linked items with each link's `kind`
+  from this item's side: `belongs_with`, `part_of`, or `part` when the
+  linked item is part of this one. `DELETE /api/item-links/{id}` removes a
+  link.
 - A move is refused with 409 `already_there` when the thing is already in
   that location, `move_into_itself` when a location would go into itself
   or anything inside it, and `site_cannot_move` for a site.

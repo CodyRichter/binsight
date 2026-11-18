@@ -1,100 +1,28 @@
-import { Button, Menu } from "@mantine/core";
-import { IconArrowBackUp, IconArrowsMove, IconTrash } from "@tabler/icons-react";
-import { useContext, useState } from "react";
 import { useParams } from "react-router";
 import { AppFrame } from "@/components/AppFrame";
-import { FrameAdditionsContext } from "@/components/frameAdditions";
-import { PageHeader } from "@/components/PageHeader";
 import { PageLead } from "@/components/PageLead";
 import { PageState } from "@/components/PageState";
 import { QuantityStepper } from "@/components/QuantityStepper";
 import { ItemHistory } from "@/features/history";
 import { pageStatusOf } from "@/lib/api/pageStatus";
-import { pathSegments } from "./pathSegments";
-import { useRename } from "./useItemChange";
-import { useMoveItem } from "./useMoveItem";
 import { useItem, type Item } from "./useItems";
 import { useQuantity } from "./useQuantity";
-import { useDeleteItem } from "./useDeleteItem";
-import { useRestoreItem } from "./useRestoreItem";
-import { StatusButton } from "./StatusButton";
 import { ItemDetails } from "./ItemDetails";
-
-function MoveButton({ item }: { item: Item }) {
-  const { MoveSheet } = useContext(FrameAdditionsContext);
-  const [moving, setMoving] = useState(false);
-  const move = useMoveItem();
-  if (!MoveSheet) return null;
-  return (
-    <>
-      <Button leftSection={<IconArrowsMove aria-hidden />} onClick={() => setMoving(true)}>
-        Move
-      </Button>
-      <MoveSheet
-        opened={moving}
-        onClose={() => setMoving(false)}
-        currentId={item.home_location_id}
-        onPick={(place) => move(item, place)}
-      />
-    </>
-  );
-}
-
-function RestoreButton({ item }: { item: Item }) {
-  const restore = useRestoreItem();
-  return (
-    <Button leftSection={<IconArrowBackUp aria-hidden />} onClick={() => restore(item)}>
-      Restore
-    </Button>
-  );
-}
-
-function DeleteMenuItem({ item }: { item: Item }) {
-  const deleteItem = useDeleteItem();
-  return (
-    <Menu.Item
-      color="danger"
-      leftSection={<IconTrash aria-hidden size={20} />}
-      onClick={() => deleteItem(item)}
-    >
-      Delete item
-    </Menu.Item>
-  );
-}
+import { ItemHeader } from "./ItemHeader";
+import { ItemLinks } from "./ItemLinks";
+import { useItemLinks } from "./useItemLinks";
 
 function ItemBody({ item }: { item: Item }) {
   const changeQuantity = useQuantity(item);
-  const rename = useRename(item);
   const deleted = item.deleted_at !== null;
+  const links = useItemLinks(item.id, !deleted).data?.items ?? [];
   return (
     <>
-      <PageLead
-        header={
-          <PageHeader
-            title={item.name ?? ""}
-            untitled="Unnamed"
-            onRename={rename}
-            parents={pathSegments(item.path)}
-            thumbnail={{ photoUrl: item.photo_url ?? undefined }}
-            deletedAt={item.deleted_at ? new Date(item.deleted_at) : undefined}
-            status={{ status: item.status }}
-            actions={
-              deleted ? (
-                <RestoreButton item={item} />
-              ) : (
-                <>
-                  <MoveButton item={item} />
-                  <StatusButton item={item} />
-                </>
-              )
-            }
-            menu={deleted ? undefined : <DeleteMenuItem item={item} />}
-          />
-        }
-      >
+      <PageLead header={<ItemHeader item={item} linkedIds={links.map((each) => each.item.id)} />}>
         <QuantityStepper value={item.quantity} onChange={changeQuantity} />
       </PageLead>
       {!deleted && <ItemDetails item={item} />}
+      {!deleted && <ItemLinks item={item} links={links} />}
       <ItemHistory itemId={item.id} />
     </>
   );

@@ -4,7 +4,7 @@ import { renderWithTheme } from "@/lib/testing/renderWithTheme";
 import { PageHeader } from "./PageHeader";
 
 test("a deleted item's header says when it was deleted", () => {
-  renderWithTheme(<PageHeader title="HDMI cable" deletedAt={new Date()} />);
+  renderWithTheme(<PageHeader title="HDMI cable" since={{ words: "Deleted", at: new Date() }} />);
   expect(screen.getByText("Deleted today")).toBeInTheDocument();
 });
 

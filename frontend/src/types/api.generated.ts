@@ -262,6 +262,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/items/lent-to-names": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Lent To Names */
+        get: operations["list_lent_to_names"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/items/{item_id}": {
         parameters: {
             query?: never;
@@ -344,6 +361,92 @@ export interface paths {
         /** Mark Item Found */
         post: operations["mark_item_found"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/{item_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Change Item Status */
+        post: operations["change_item_status"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/{item_id}/lend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Lend Item */
+        post: operations["lend_item"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/{item_id}/return": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Return Item */
+        post: operations["return_item"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/{item_id}/links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Item Links */
+        get: operations["list_item_links"];
+        put?: never;
+        /** Link Items */
+        post: operations["link_items"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/item-links/{link_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Unlink Items */
+        delete: operations["unlink_items"];
         options?: never;
         head?: never;
         patch?: never;
@@ -646,7 +749,7 @@ export interface components {
              * Record Type
              * @enum {string}
              */
-            record_type: "attachment" | "check" | "item" | "label" | "location";
+            record_type: "attachment" | "check" | "item" | "label" | "link" | "location";
             /** Record Id */
             record_id: string;
             /** Before */
@@ -713,6 +816,12 @@ export interface components {
             warranty_ends: string | null;
             /** Return Ends */
             return_ends: string | null;
+            /** Lent To */
+            lent_to: string | null;
+            /** Lent At */
+            lent_at: string | null;
+            /** Retired At */
+            retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -792,6 +901,12 @@ export interface components {
             warranty_ends: string | null;
             /** Return Ends */
             return_ends: string | null;
+            /** Lent To */
+            lent_to: string | null;
+            /** Lent At */
+            lent_at: string | null;
+            /** Retired At */
+            retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -841,6 +956,12 @@ export interface components {
             warranty_ends: string | null;
             /** Return Ends */
             return_ends: string | null;
+            /** Lent To */
+            lent_to: string | null;
+            /** Lent At */
+            lent_at: string | null;
+            /** Retired At */
+            retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -861,6 +982,82 @@ export interface components {
         ItemFound: {
             /** Location Id */
             location_id: string;
+        };
+        /** ItemLending */
+        ItemLending: {
+            /** Lent To */
+            lent_to: string;
+        };
+        /** ItemLent */
+        ItemLent: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Home Location Id */
+            home_location_id: string | null;
+            status: components["schemas"]["ItemStatus"];
+            /** Category */
+            category: string | null;
+            /** Tags */
+            tags: string[];
+            /** Notes */
+            notes: string | null;
+            /** Brand */
+            brand: string | null;
+            /** Model */
+            model: string | null;
+            /** Serial Number */
+            serial_number: string | null;
+            /** Purchase Date */
+            purchase_date: string | null;
+            /** Price Cents */
+            price_cents: number | null;
+            /** Order Link */
+            order_link: string | null;
+            /** Warranty Ends */
+            warranty_ends: string | null;
+            /** Return Ends */
+            return_ends: string | null;
+            /** Lent To */
+            lent_to: string | null;
+            /** Lent At */
+            lent_at: string | null;
+            /** Retired At */
+            retired_at: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Last Checked At */
+            last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Deleted At */
+            deleted_at: string | null;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /**
+         * ItemLinkNew
+         * @description A link from this item: it belongs with the other, or it is part of the other.
+         */
+        ItemLinkNew: {
+            /** Other Item Id */
+            other_item_id: string;
+            kind: components["schemas"]["LinkKind"];
+        };
+        /** ItemLinked */
+        ItemLinked: {
+            /** Link Id */
+            link_id: string;
+            /** History Entry Id */
+            history_entry_id: string;
         };
         /** ItemMarkedFound */
         ItemMarkedFound: {
@@ -895,6 +1092,12 @@ export interface components {
             warranty_ends: string | null;
             /** Return Ends */
             return_ends: string | null;
+            /** Lent To */
+            lent_to: string | null;
+            /** Lent At */
+            lent_at: string | null;
+            /** Retired At */
+            retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -944,6 +1147,12 @@ export interface components {
             warranty_ends: string | null;
             /** Return Ends */
             return_ends: string | null;
+            /** Lent To */
+            lent_to: string | null;
+            /** Lent At */
+            lent_at: string | null;
+            /** Retired At */
+            retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -998,6 +1207,12 @@ export interface components {
             warranty_ends: string | null;
             /** Return Ends */
             return_ends: string | null;
+            /** Lent To */
+            lent_to: string | null;
+            /** Lent At */
+            lent_at: string | null;
+            /** Retired At */
+            retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -1047,6 +1262,12 @@ export interface components {
             warranty_ends: string | null;
             /** Return Ends */
             return_ends: string | null;
+            /** Lent To */
+            lent_to: string | null;
+            /** Lent At */
+            lent_at: string | null;
+            /** Retired At */
+            retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -1074,11 +1295,137 @@ export interface components {
             /** Marks */
             marks: components["schemas"]["Mark"][];
         };
+        /** ItemReturned */
+        ItemReturned: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Home Location Id */
+            home_location_id: string | null;
+            status: components["schemas"]["ItemStatus"];
+            /** Category */
+            category: string | null;
+            /** Tags */
+            tags: string[];
+            /** Notes */
+            notes: string | null;
+            /** Brand */
+            brand: string | null;
+            /** Model */
+            model: string | null;
+            /** Serial Number */
+            serial_number: string | null;
+            /** Purchase Date */
+            purchase_date: string | null;
+            /** Price Cents */
+            price_cents: number | null;
+            /** Order Link */
+            order_link: string | null;
+            /** Warranty Ends */
+            warranty_ends: string | null;
+            /** Return Ends */
+            return_ends: string | null;
+            /** Lent To */
+            lent_to: string | null;
+            /** Lent At */
+            lent_at: string | null;
+            /** Retired At */
+            retired_at: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Last Checked At */
+            last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Deleted At */
+            deleted_at: string | null;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
         /**
          * ItemStatus
          * @enum {string}
          */
-        ItemStatus: "in_place" | "missing";
+        ItemStatus: "in_place" | "in_use" | "lent_out" | "missing" | "sold" | "given_away" | "thrown_away";
+        /**
+         * ItemStatusChange
+         * @description A status to set directly; lending, returning, missing and found have their own.
+         */
+        ItemStatusChange: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "in_place" | "in_use" | "sold" | "given_away" | "thrown_away";
+        };
+        /** ItemStatusChanged */
+        ItemStatusChanged: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Home Location Id */
+            home_location_id: string | null;
+            status: components["schemas"]["ItemStatus"];
+            /** Category */
+            category: string | null;
+            /** Tags */
+            tags: string[];
+            /** Notes */
+            notes: string | null;
+            /** Brand */
+            brand: string | null;
+            /** Model */
+            model: string | null;
+            /** Serial Number */
+            serial_number: string | null;
+            /** Purchase Date */
+            purchase_date: string | null;
+            /** Price Cents */
+            price_cents: number | null;
+            /** Order Link */
+            order_link: string | null;
+            /** Warranty Ends */
+            warranty_ends: string | null;
+            /** Return Ends */
+            return_ends: string | null;
+            /** Lent To */
+            lent_to: string | null;
+            /** Lent At */
+            lent_at: string | null;
+            /** Retired At */
+            retired_at: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Last Checked At */
+            last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Deleted At */
+            deleted_at: string | null;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** ItemUnlinked */
+        ItemUnlinked: {
+            /** History Entry Id */
+            history_entry_id: string;
+        };
         /** ItemUpdated */
         ItemUpdated: {
             /** Id */
@@ -1112,6 +1459,12 @@ export interface components {
             warranty_ends: string | null;
             /** Return Ends */
             return_ends: string | null;
+            /** Lent To */
+            lent_to: string | null;
+            /** Lent At */
+            lent_at: string | null;
+            /** Retired At */
+            retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -1185,6 +1538,30 @@ export interface components {
             created_at: string;
             /** History Entry Id */
             history_entry_id: string;
+        };
+        /** LentToName */
+        LentToName: {
+            /** Name */
+            name: string;
+        };
+        /**
+         * LinkKind
+         * @enum {string}
+         */
+        LinkKind: "belongs_with" | "part_of";
+        /**
+         * LinkedItem
+         * @description An item linked to this one; "part" means the linked item is part of this one.
+         */
+        LinkedItem: {
+            /** Link Id */
+            link_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "belongs_with" | "part_of" | "part";
+            item: components["schemas"]["Item"];
         };
         /** Location */
         Location: {
@@ -1403,6 +1780,20 @@ export interface components {
         Page_Label_: {
             /** Items */
             items: components["schemas"]["Label"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /** Page[LentToName] */
+        Page_LentToName_: {
+            /** Items */
+            items: components["schemas"]["LentToName"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /** Page[LinkedItem] */
+        Page_LinkedItem_: {
+            /** Items */
+            items: components["schemas"]["LinkedItem"][];
             /** Next Cursor */
             next_cursor: string | null;
         };
@@ -2137,6 +2528,47 @@ export interface operations {
             };
         };
     };
+    list_lent_to_names: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_LentToName_"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     get_item: {
         parameters: {
             query?: never;
@@ -2470,6 +2902,306 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_item_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemStatusChange"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemStatusChanged"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    lend_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemLending"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemLent"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    return_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemReturned"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_item_links: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_LinkedItem_"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    link_items: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemLinkNew"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemLinked"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    unlink_items: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                link_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemUnlinked"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

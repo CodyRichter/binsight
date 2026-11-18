@@ -13,7 +13,7 @@ def _oldest_first(
 ) -> Page[Item]:
     query = (
         select(models.Item)
-        .where(which, _not_deleted())
+        .where(which, _not_deleted(), _not_archived())
         .order_by(models.Item.created_at, models.Item.id)
         .limit(limit + 1)
     )
@@ -42,24 +42,33 @@ def _not_deleted() -> ColumnElement[bool]:
     return models.Item.deleted_at.is_(None)
 
 
+def _not_archived() -> ColumnElement[bool]:
+    # Archived items keep their home for the record but are no longer among its contents.
+    return models.Item.status.not_in(models.ARCHIVED)
+
+
 def _in_inbox() -> ColumnElement[bool]:
     return or_(models.Item.name.is_(None), models.Item.home_location_id.is_(None))
 
 
 def list_inbox(session: Session, limit: int, cursor: str | None) -> Page[Item]:
-    """The items still missing a name or a home location, oldest first."""
+    """The items still missing a name or a home location, oldest first, leaving out the archive."""
     return _oldest_first(session, _in_inbox(), limit, cursor)
 
 
 def count_inbox(session: Session) -> InboxCount:
     """How many items are missing a name or a home location."""
-    query = select(func.count()).select_from(models.Item).where(_in_inbox(), _not_deleted())
+    query = (
+        select(func.count())
+        .select_from(models.Item)
+        .where(_in_inbox(), _not_deleted(), _not_archived())
+    )
     count = session.scalar(query)
     return InboxCount(count=count or 0)
 
 
 def _details(item: models.Item) -> str:
-    details = [item.brand, item.model, item.serial_number, item.notes, *item.tags]
+    details = [item.brand, item.model, item.serial_number, item.notes, item.lent_to, *item.tags]
     return " ".join(detail for detail in details if detail)
 
 
@@ -77,7 +86,7 @@ def searchable_items(session: Session) -> list[SearchableItem]:
     ]
 
 
-def _counted_page[T](rows: list[T], start: int, limit: int) -> Page[T]:
+def counted_page[T](rows: list[T], start: int, limit: int) -> Page[T]:
     end = start + limit
     return Page(items=rows[start:end], next_cursor=encode_offset(end) if end < len(rows) else None)
 
@@ -93,7 +102,7 @@ def list_categories(session: Session, limit: int, cursor: str | None) -> Page[Ca
         .order_by(func.lower(models.Category.name))
     )
     rows = [Category(name=name, item_count=total) for name, total in session.execute(query)]
-    return _counted_page(rows, decode_offset(cursor) if cursor else 0, limit)
+    return counted_page(rows, decode_offset(cursor) if cursor else 0, limit)
 
 
 def list_tags(session: Session, limit: int, cursor: str | None) -> Page[Tag]:
@@ -107,7 +116,7 @@ def list_tags(session: Session, limit: int, cursor: str | None) -> Page[Tag]:
         .order_by(models.ItemTag.tag)
     )
     rows = [Tag(name=name, item_count=total) for name, total in session.execute(query)]
-    return _counted_page(rows, decode_offset(cursor) if cursor else 0, limit)
+    return counted_page(rows, decode_offset(cursor) if cursor else 0, limit)
 
 
 def get_items(session: Session, item_ids: list[str]) -> list[Item]:

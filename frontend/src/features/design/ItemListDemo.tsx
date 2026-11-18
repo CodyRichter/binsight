@@ -66,6 +66,22 @@ export function ItemListDemo() {
           status="missing"
         />
       </ListSection>
+      <ListSection title="Belongs with">
+        <ItemRow
+          name="18V drill"
+          to="/design"
+          path={binPath}
+          status="in_use"
+          onRemoveLink={() => undefined}
+        />
+        <ItemRow
+          name="Old drill charger"
+          to="/design"
+          path={binPath}
+          status="sold"
+          onRemoveLink={() => undefined}
+        />
+      </ListSection>
       <ListSection title="Check mode" count={checking.length}>
         {checking.map((name) => (
           <ItemRow

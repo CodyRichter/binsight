@@ -13,7 +13,7 @@ export function ItemHistory({ itemId }: { itemId: string }) {
         {history.data?.map((entry) => (
           <HistoryRow
             key={entry.id}
-            happened={whatHappened(entry)}
+            happened={whatHappened(entry, itemId)}
             at={new Date(entry.at)}
             actor={entry.actor}
           />

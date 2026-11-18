@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, column_property, mapped_column
 
 from app.models.base import Model
 from app.models.checks import Check
-from app.models.items import Item
+from app.models.items import ARCHIVED, Item
 from app.models.labels import Label
 
 
@@ -38,9 +38,10 @@ class Location(Model):
     updated_at: Mapped[datetime]
 
     # Counted here so the locations feature never queries the item table (decision 0003).
+    # Archived items keep their home for the record but are not among its contents.
     direct_item_count: Mapped[int] = column_property(
         select(func.count(Item.id))
-        .where(Item.home_location_id == id, Item.deleted_at.is_(None))
+        .where(Item.home_location_id == id, Item.deleted_at.is_(None), Item.status.not_in(ARCHIVED))
         .correlate_except(Item)
         .scalar_subquery()
     )

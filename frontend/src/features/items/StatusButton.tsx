@@ -1,8 +1,9 @@
 import { Button } from "@mantine/core";
-import { IconMapPin, IconZoomQuestion } from "@tabler/icons-react";
+import { IconArrowBack, IconHome, IconMapPin, IconZoomQuestion } from "@tabler/icons-react";
 import { useContext, useState } from "react";
 import { FrameAdditionsContext } from "@/components/frameAdditions";
 import { useMarkFound, useMarkMissing } from "./useMarkMissing";
+import { useReturn, useStatusChange } from "./useStatusChange";
 import type { Item } from "./useItems";
 
 function MarkFoundButton({ item }: { item: Item }) {
@@ -27,10 +28,26 @@ function MarkFoundButton({ item }: { item: Item }) {
   );
 }
 
-/** "Mark missing" on an item's page, or "Mark found" once it is missing. */
+/** The header's second button, for what the item's status most likely needs next. */
 export function StatusButton({ item }: { item: Item }) {
   const markMissing = useMarkMissing();
+  const returnItem = useReturn();
+  const changeStatus = useStatusChange();
   if (item.status === "missing") return <MarkFoundButton item={item} />;
+  if (item.status === "lent_out") {
+    return (
+      <Button leftSection={<IconArrowBack aria-hidden />} onClick={() => returnItem(item)}>
+        Mark returned
+      </Button>
+    );
+  }
+  if (item.status !== "in_place") {
+    return (
+      <Button leftSection={<IconHome aria-hidden />} onClick={() => changeStatus(item, "in_place")}>
+        Back in place
+      </Button>
+    );
+  }
   return (
     <Button leftSection={<IconZoomQuestion aria-hidden />} onClick={() => markMissing(item)}>
       Mark missing

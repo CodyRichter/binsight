@@ -10,6 +10,9 @@ from app.features.attachments import service as attachments
 from app.features.attachments.service import StoredPhoto
 from app.features.history import service as history
 from app.features.items.details import apply_changes
+from app.features.items.links import link_items as link_items
+from app.features.items.links import list_item_links as list_item_links
+from app.features.items.links import unlink_items as unlink_items
 from app.features.items.listing import count_inbox as count_inbox
 from app.features.items.listing import get_items as get_items
 from app.features.items.listing import list_categories as list_categories
@@ -17,6 +20,7 @@ from app.features.items.listing import list_inbox as list_inbox
 from app.features.items.listing import list_items as list_items
 from app.features.items.listing import list_tags as list_tags
 from app.features.items.listing import searchable_items as searchable_items
+from app.features.items.records import item_record, live_item
 from app.features.items.schemas import (
     Item as Item,
 )  # re-exported: search shapes its results with it
@@ -24,9 +28,6 @@ from app.features.items.schemas import (
     ItemChanges,
     ItemCreated,
     ItemDeleted,
-    ItemFound,
-    ItemMarkedFound,
-    ItemMarkedMissing,
     ItemMove,
     ItemMoved,
     ItemRestored,
@@ -36,7 +37,15 @@ from app.features.items.schemas import (
     NewItems,
 )
 from app.features.items.shaping import path_of, shaped
-from app.models import Actor, ItemStatus
+from app.features.items.statuses import change_item_status as change_item_status
+from app.features.items.statuses import items_to_mark_missing as items_to_mark_missing
+from app.features.items.statuses import lend_item as lend_item
+from app.features.items.statuses import list_lent_to_names as list_lent_to_names
+from app.features.items.statuses import mark_item_found as mark_item_found
+from app.features.items.statuses import mark_item_missing as mark_item_missing
+from app.features.items.statuses import mark_items_missing as mark_items_missing
+from app.features.items.statuses import return_item as return_item
+from app.models import Actor
 
 
 def _fields(item: models.Item) -> dict[str, Any]:
@@ -101,30 +110,16 @@ def create_item_by_photo(
     return ItemCreated(**shaped(session, item).model_dump(), history_entry_id=entry_id)
 
 
-def _get(session: Session, item_id: str) -> models.Item:
-    item = session.get(models.Item, item_id)
-    if item is None:
-        raise AppError(404, "item_not_found", "That item does not exist.")
-    return item
-
-
-def _live(session: Session, item_id: str) -> models.Item:
-    item = _get(session, item_id)
-    if item.deleted_at is not None:
-        raise AppError(409, "item_deleted", "That item has been deleted. Restore it first.")
-    return item
-
-
 def get_item(session: Session, item_id: str) -> Item:
     """One item, with the full path of its home location, even when it has been deleted."""
-    return shaped(session, _get(session, item_id))
+    return shaped(session, item_record(session, item_id))
 
 
 def update_item(
     session: Session, item_id: str, changes: ItemChanges, actor: Actor, now: datetime
 ) -> ItemUpdated:
     """Change an item's name, quantity, category, tags or details, as one change to undo."""
-    item = _live(session, item_id)
+    item = live_item(session, item_id)
     action, change = apply_changes(session, item, changes, now)
     entry_id = history.record(session, actor, action, [change], now)
     return ItemUpdated(**shaped(session, item).model_dump(), history_entry_id=entry_id)
@@ -134,7 +129,7 @@ def move_item(
     session: Session, item_id: str, move: ItemMove, actor: Actor, now: datetime
 ) -> ItemMoved:
     """Move an item into another location."""
-    item = _live(session, item_id)
+    item = live_item(session, item_id)
     path_of(session, move.location_id)
     if item.home_location_id == move.location_id:
         raise AppError(409, "already_there", "That item is already there.")
@@ -148,7 +143,7 @@ def move_item(
 
 def preview_delete_item(session: Session, item_id: str) -> Item:
     """The item that deleting would take out of view, refused as deleting it would be."""
-    return shaped(session, _live(session, item_id))
+    return shaped(session, live_item(session, item_id))
 
 
 def _set_deleted_at(
@@ -165,79 +160,15 @@ def _set_deleted_at(
 
 def delete_item(session: Session, item_id: str, actor: Actor, now: datetime) -> ItemDeleted:
     """Take an item out of view; it can be restored."""
-    item = _live(session, item_id)
+    item = live_item(session, item_id)
     entry_id = _set_deleted_at(session, item, now, actor, now)
     return ItemDeleted(**shaped(session, item).model_dump(), history_entry_id=entry_id)
 
 
 def restore_item(session: Session, item_id: str, actor: Actor, now: datetime) -> ItemRestored:
     """Bring a deleted item back where it was."""
-    item = _get(session, item_id)
+    item = item_record(session, item_id)
     if item.deleted_at is None:
         raise AppError(409, "not_deleted", "That item has not been deleted.")
     entry_id = _set_deleted_at(session, item, None, actor, now)
     return ItemRestored(**shaped(session, item).model_dump(), history_entry_id=entry_id)
-
-
-def _status_change(item: models.Item, status: ItemStatus, now: datetime) -> history.RecordChange:
-    before = {"status": item.status.value}
-    item.status = status
-    item.updated_at = now
-    return history.RecordChange("item", item.id, before, {"status": status.value})
-
-
-def _in_place(session: Session, item_id: str) -> models.Item:
-    item = _live(session, item_id)
-    if item.status == ItemStatus.missing:
-        raise AppError(409, "already_missing", "That item is already marked missing.")
-    return item
-
-
-def mark_item_missing(
-    session: Session, item_id: str, actor: Actor, now: datetime
-) -> ItemMarkedMissing:
-    """Mark an item missing: it isn't where it should be. It keeps its home location."""
-    item = _in_place(session, item_id)
-    change = _status_change(item, ItemStatus.missing, now)
-    entry_id = history.record(session, actor, "item.marked_missing", [change], now)
-    return ItemMarkedMissing(**shaped(session, item).model_dump(), history_entry_id=entry_id)
-
-
-def _markable(session: Session, location_id: str, item_ids: list[str]) -> list[models.Item]:
-    items = [_in_place(session, item_id) for item_id in item_ids]
-    if any(item.home_location_id != location_id for item in items):
-        raise AppError(
-            422, "not_in_location", "Only items directly in that location can be marked missing."
-        )
-    return items
-
-
-def items_to_mark_missing(session: Session, location_id: str, item_ids: list[str]) -> list[Item]:
-    """The items a check would mark missing, refused as marking them would be."""
-    return [shaped(session, item) for item in _markable(session, location_id, item_ids)]
-
-
-def mark_items_missing(
-    session: Session, location_id: str, item_ids: list[str], now: datetime
-) -> list[history.RecordChange]:
-    """Mark items in a location missing, for a change that records its own history entry."""
-    items = _markable(session, location_id, item_ids)
-    return [_status_change(item, ItemStatus.missing, now) for item in items]
-
-
-def mark_item_found(
-    session: Session, item_id: str, found: ItemFound, actor: Actor, now: datetime
-) -> ItemMarkedFound:
-    """Mark a missing item found, where it is now, which may be its old home."""
-    item = _live(session, item_id)
-    if item.status != ItemStatus.missing:
-        raise AppError(409, "not_missing", "That item isn't marked missing.")
-    path_of(session, found.location_id)
-    before = {"status": item.status.value, "home_location_id": item.home_location_id}
-    item.status = ItemStatus.in_place
-    item.home_location_id = found.location_id
-    item.updated_at = now
-    after = {"status": ItemStatus.in_place.value, "home_location_id": found.location_id}
-    change = history.RecordChange("item", item.id, before, after)
-    entry_id = history.record(session, actor, "item.found", [change], now)
-    return ItemMarkedFound(**shaped(session, item).model_dump(), history_entry_id=entry_id)

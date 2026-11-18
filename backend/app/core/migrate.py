@@ -5,7 +5,7 @@ from alembic import command
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 from alembic.script import ScriptDirectory
-from sqlalchemy import Engine
+from sqlalchemy import Connection, Engine
 
 from app.core import clock
 from app.core.settings import BACKEND_DIRECTORY, Settings
@@ -31,6 +31,26 @@ def _copy_database(settings: Settings, revision: str) -> None:
         source_connection.backup(copy_connection)
 
 
+def _upgrade_and_check(connection: Connection, config: Config) -> None:
+    with connection.begin():
+        config.attributes["connection"] = connection
+        command.upgrade(config, "head")
+        broken = connection.exec_driver_sql("PRAGMA foreign_key_check").all()
+        if broken:
+            raise RuntimeError(f"The upgrade left rows pointing at nothing: {broken}")
+
+
+def _upgrade(engine: Engine, config: Config) -> None:
+    with engine.connect() as connection:
+        # SQLite alters a table by rebuilding it, which foreign keys refuse under rows pointing at
+        # it. The pragma is ignored inside a transaction, so it is set before one begins.
+        connection.connection.cursor().execute("PRAGMA foreign_keys=OFF")
+        try:
+            _upgrade_and_check(connection, config)
+        finally:
+            connection.connection.cursor().execute("PRAGMA foreign_keys=ON")
+
+
 def migrate_database(engine: Engine, settings: Settings) -> None:
     """Bring the database to the current schema, copying it first if it already has data."""
     config = _alembic_config()
@@ -39,6 +59,4 @@ def migrate_database(engine: Engine, settings: Settings) -> None:
         return
     if current is not None:
         _copy_database(settings, current)
-    with engine.begin() as connection:
-        config.attributes["connection"] = connection
-        command.upgrade(config, "head")
+    _upgrade(engine, config)

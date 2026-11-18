@@ -1,6 +1,6 @@
 import type { Item } from "./useItems";
 
-/** The details of an item that has none yet: what a newly added item holds. */
+/** The details of an item that has none yet: what a newly added item holds, not lent or retired. */
 export const noDetails = {
   category: null,
   tags: [],
@@ -13,4 +13,7 @@ export const noDetails = {
   order_link: null,
   warranty_ends: null,
   return_ends: null,
+  lent_to: null,
+  lent_at: null,
+  retired_at: null,
 } satisfies Partial<Item>;
