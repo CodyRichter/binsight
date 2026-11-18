@@ -1,15 +1,17 @@
-import { IconPackage } from "@tabler/icons-react";
+import { IconPackage, type Icon } from "@tabler/icons-react";
 import { locationTypeIcons, type LocationType } from "./locationTypeIcons";
 import classes from "./Thumbnail.module.css";
 
 interface ThumbnailProps {
   photoUrl?: string;
   locationType?: LocationType;
+  /** In place of the item or location icon, for an attachment that is not a photo. */
+  icon?: Icon;
   large?: boolean;
 }
 
-export function Thumbnail({ photoUrl, locationType, large = false }: ThumbnailProps) {
-  const TypeIcon = locationType ? locationTypeIcons[locationType] : IconPackage;
+export function Thumbnail({ photoUrl, locationType, icon, large = false }: ThumbnailProps) {
+  const TypeIcon = icon ?? (locationType ? locationTypeIcons[locationType] : IconPackage);
   return (
     <span className={classes.thumbnail} data-large={large || undefined}>
       {photoUrl ? (

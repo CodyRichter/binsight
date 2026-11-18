@@ -11,7 +11,7 @@ from app.features.attachments import service
 from app.features.items import service as items
 from app.models import Actor
 from tests import builders
-from tests.photos import ORIENTATION_TAG, photo
+from tests.photos import ORIENTATION_TAG, PDF, photo
 
 
 def _stored_image(settings: Settings, path: str) -> Image.Image:
@@ -77,4 +77,32 @@ def test_an_item_s_photo_url_names_its_first_photo(
         item = items.create_item_by_photo(session, stored, None, Actor.app, builders.NOW)
     with open_read_session(migrated_engine) as session:
         assert service.photo_url(session, item.id) == f"/api/attachments/{stored.id}/file"
-        assert service.photo_file(session, settings, stored.id).read_bytes()
+        assert service.attachment_file(session, settings, stored.id).path.read_bytes()
+
+
+@pytest.mark.parametrize(
+    ("raw", "content_type", "extension"),
+    [(PDF, "application/pdf", "pdf"), (photo("PNG"), "image/png", "png")],
+)
+def test_a_file_is_stored_exactly_as_sent_by_what_its_bytes_are(
+    settings: Settings, raw: bytes, content_type: str, extension: str
+) -> None:
+    with service.saved_file(settings, raw, "receipt.jpg") as stored:
+        pass
+    assert (stored.content_type, stored.size) == (content_type, len(raw))
+    assert stored.path == f"attachments/{stored.id}.{extension}"
+    assert (settings.data_directory / stored.path).read_bytes() == raw
+
+
+@pytest.mark.parametrize("raw", [b"plain text", photo("GIF")])
+def test_a_file_that_is_not_a_pdf_or_image_is_refused(settings: Settings, raw: bytes) -> None:
+    with pytest.raises(AppError) as refused, service.saved_file(settings, raw, "notes.pdf"):
+        pass
+    assert (refused.value.status, refused.value.code) == (422, "unsupported_file")
+
+
+def test_a_file_over_50_mb_is_refused(settings: Settings) -> None:
+    too_large = PDF + b"x" * service.MAX_FILE_BYTES
+    with pytest.raises(AppError) as refused, service.saved_file(settings, too_large, None):
+        pass
+    assert refused.value.code == "file_too_large"

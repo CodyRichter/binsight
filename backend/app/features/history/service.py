@@ -16,12 +16,13 @@ from app.models import Actor
 def list_item_history(
     session: Session, item_id: str, limit: int, cursor: str | None
 ) -> Page[HistoryEntry]:
-    """List the changes made to one item, and links made to it or removed, newest first."""
+    """List the changes made to one item, its links and its attachments, newest first."""
     change = models.HistoryChange
     touching_item = select(change.entry_id).where(
         or_(
             and_(change.record_type == "item", change.record_id == item_id),
-            and_(change.record_type == "link", _names_item(item_id)),
+            and_(change.record_type == "link", _names_item(item_id, LINK_ENDS)),
+            and_(change.record_type == "attachment", _names_item(item_id, ("$.item_id",))),
         )
     )
     newest_first = (
@@ -44,10 +45,12 @@ def list_item_history(
     )
 
 
-def _names_item(item_id: str) -> ColumnElement[bool]:
-    # A link change holds both items' identifiers, after when made and before when removed.
+LINK_ENDS = ("$.item_id", "$.other_item_id")
+
+
+def _names_item(item_id: str, ends: tuple[str, ...]) -> ColumnElement[bool]:
+    # A link or attachment change holds its item's identifier, after when made, before when removed.
     sides = (models.HistoryChange.before, models.HistoryChange.after)
-    ends = ("$.item_id", "$.other_item_id")
     return or_(*(func.json_extract(side, end) == item_id for side in sides for end in ends))
 
 

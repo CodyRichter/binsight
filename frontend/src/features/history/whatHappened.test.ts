@@ -128,3 +128,15 @@ test("a link reads from each item's own side", () => {
   expect(whatHappened(link("item.linked", null, together), "charger")).toBe("Linked: belongs with");
   expect(whatHappened(link("item.unlinked", together, {}), "drill")).toBe("Link removed");
 });
+
+test("attaching a file reads Attached and its name", () => {
+  const file = entry("item.file_attached", null, { kind: "file", filename: "Receipt.pdf" });
+  expect(whatHappened(file, "item")).toBe("Attached Receipt.pdf");
+});
+
+test("removing an attachment reads Removed and its name, or what it was", () => {
+  const named = entry("item.attachment_removed", { kind: "file", filename: "Manual.pdf" });
+  expect(whatHappened(named, "item")).toBe("Removed Manual.pdf");
+  const link = entry("item.attachment_removed", { kind: "link", filename: null });
+  expect(whatHappened(link, "item")).toBe("Removed a link");
+});

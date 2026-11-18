@@ -67,7 +67,8 @@ test("pasting three lines into the add field adds three items, and one Undo take
 test("a photo adds an Unnamed item that waits in the inbox until it is named", async ({ page }) => {
   const { code } = await cablesBin(page);
   await openAtPhoneWidth(page, `/l/${code}`);
-  await page.locator('input[type="file"]').setInputFiles(photoFile);
+  // The add bar's camera input; the header's photo input for the bin is the other one.
+  await page.locator('input[type="file"][aria-hidden="true"]').setInputFiles(photoFile);
   await expect(page.getByText(`Added a photo to Bin ${code}`)).toBeVisible();
   const unnamed = itemRows(page).filter({ hasText: "Unnamed" });
   await expect(unnamed.locator("img")).toBeVisible();

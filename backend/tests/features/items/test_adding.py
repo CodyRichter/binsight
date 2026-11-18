@@ -112,6 +112,6 @@ def test_a_photo_is_kept_with_its_item(settings: Settings, migrated_engine: Engi
         url = service.get_item(session, item_id).photo_url
         assert url is not None
         stored_id = url.split("/")[3]
-        stored = attachments.photo_file(session, settings, stored_id)
+        stored = attachments.attachment_file(session, settings, stored_id).path
     assert stored.exists()
     assert list(settings.attachments_directory.iterdir()) == [stored]

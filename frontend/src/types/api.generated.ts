@@ -176,6 +176,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/locations/{location_id}/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set Location Photo */
+        post: operations["set_location_photo"];
+        /** Remove Location Photo */
+        delete: operations["remove_location_photo"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/items": {
         parameters: {
             query?: never;
@@ -486,6 +504,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/items/{item_id}/attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Item Attachments */
+        get: operations["list_item_attachments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/{item_id}/photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Item Photo */
+        post: operations["add_item_photo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/{item_id}/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Attach File */
+        post: operations["attach_file"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/{item_id}/web-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Attach Web Link */
+        post: operations["attach_web_link"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/{item_id}/attachments/{attachment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Item Attachment */
+        delete: operations["remove_item_attachment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/labels/blank": {
         parameters: {
             query?: never;
@@ -770,6 +873,78 @@ export interface components {
          * @enum {string}
          */
         Actor: "app" | "mcp";
+        /** Attachment */
+        Attachment: {
+            /** Id */
+            id: string;
+            kind: components["schemas"]["AttachmentKind"];
+            /** Filename */
+            filename: string | null;
+            /** Url */
+            url: string | null;
+            /** Content Type */
+            content_type: string | null;
+            /** Size */
+            size: number | null;
+            /** File Url */
+            file_url: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** AttachmentAdded */
+        AttachmentAdded: {
+            /** Id */
+            id: string;
+            kind: components["schemas"]["AttachmentKind"];
+            /** Filename */
+            filename: string | null;
+            /** Url */
+            url: string | null;
+            /** Content Type */
+            content_type: string | null;
+            /** Size */
+            size: number | null;
+            /** File Url */
+            file_url: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /**
+         * AttachmentKind
+         * @enum {string}
+         */
+        AttachmentKind: "photo" | "file" | "link";
+        /** AttachmentRemoved */
+        AttachmentRemoved: {
+            /** Id */
+            id: string;
+            kind: components["schemas"]["AttachmentKind"];
+            /** Filename */
+            filename: string | null;
+            /** Url */
+            url: string | null;
+            /** Content Type */
+            content_type: string | null;
+            /** Size */
+            size: number | null;
+            /** File Url */
+            file_url: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
         /** AuthStatus */
         AuthStatus: {
             /** Owner Exists */
@@ -790,6 +965,21 @@ export interface components {
             photo: string;
             /** Home Location Id */
             home_location_id?: string | null;
+        };
+        /** Body_add_item_photo */
+        Body_add_item_photo: {
+            /** Photo */
+            photo: string;
+        };
+        /** Body_attach_file */
+        Body_attach_file: {
+            /** File */
+            file: string;
+        };
+        /** Body_set_location_photo */
+        Body_set_location_photo: {
+            /** Photo */
+            photo: string;
         };
         /** Category */
         Category: {
@@ -1672,6 +1862,8 @@ export interface components {
             item_count: number;
             /** Last Checked At */
             last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
         };
         /** LocationChecked */
         LocationChecked: {
@@ -1694,6 +1886,8 @@ export interface components {
             item_count: number;
             /** Last Checked At */
             last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
             /** Marked Missing */
             marked_missing: components["schemas"]["Item"][];
             /** History Entry Id */
@@ -1720,6 +1914,8 @@ export interface components {
             item_count: number;
             /** Last Checked At */
             last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
             /** History Entry Id */
             history_entry_id: string;
         };
@@ -1749,6 +1945,34 @@ export interface components {
             item_count: number;
             /** Last Checked At */
             last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** LocationPhotoChanged */
+        LocationPhotoChanged: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            type: components["schemas"]["LocationType"];
+            /** Parent Id */
+            parent_id: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Label Code */
+            label_code: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Direct Item Count */
+            direct_item_count: number;
+            /** Item Count */
+            item_count: number;
+            /** Last Checked At */
+            last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
             /** History Entry Id */
             history_entry_id: string;
         };
@@ -1862,10 +2086,24 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** NewWebLink */
+        NewWebLink: {
+            /** Url */
+            url: string;
+            /** Name */
+            name?: string | null;
+        };
         /** Page[Annotated[Union[ViewItem, ViewLocation], FieldInfo(annotation=NoneType, required=True, discriminator='kind')]] */
         Page_Annotated_Union_ViewItem__ViewLocation___FieldInfo_annotation_NoneType__required_True__discriminator__kind____: {
             /** Items */
             items: (components["schemas"]["ViewItem"] | components["schemas"]["ViewLocation"])[];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /** Page[Attachment] */
+        Page_Attachment_: {
+            /** Items */
+            items: components["schemas"]["Attachment"][];
             /** Next Cursor */
             next_cursor: string | null;
         };
@@ -2546,6 +2784,90 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_location_photo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                location_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_set_location_photo"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LocationPhotoChanged"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    remove_location_photo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                location_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LocationPhotoChanged"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -3549,6 +3871,267 @@ export interface operations {
             };
         };
     };
+    list_item_attachments: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_Attachment_"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_item_photo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_add_item_photo"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttachmentAdded"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    attach_file: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_attach_file"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttachmentAdded"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    attach_web_link: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewWebLink"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttachmentAdded"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    remove_item_attachment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+                attachment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttachmentRemoved"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     create_blank_labels: {
         parameters: {
             query?: never;
@@ -3914,6 +4497,9 @@ export interface operations {
                 };
                 content: {
                     "image/jpeg": unknown;
+                    "image/png": unknown;
+                    "image/webp": unknown;
+                    "application/pdf": unknown;
                 };
             };
             /** @description Not Found */

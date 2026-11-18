@@ -27,6 +27,11 @@ UNDOABLE = {
     "item.returned",
     "item.linked",
     "item.unlinked",
+    "item.photo_added",
+    "item.file_attached",
+    "item.web_link_attached",
+    "item.attachment_removed",
+    "location.photo_changed",
     "location.checked",
     "location.moved",
     "saved_search.created",
@@ -108,7 +113,7 @@ def _current(session: Session, change: models.HistoryChange) -> Undoable:
         or _deleted_since(current, change)
         or any(_as_recorded(getattr(current, key)) != value for key, value in change.after.items())
     ):
-        raise AppError(409, "changed_since", "That can't be undone, because it has changed since.")
+        raise _changed_since()
     return current
 
 
@@ -117,10 +122,35 @@ def _refuse_cycle(session: Session, location: models.Location, parent_id: str) -
     above = session.get(models.Location, parent_id)
     while above is not None:
         if above.id == location.id:
-            raise AppError(
-                409, "changed_since", "That can't be undone, because it has changed since."
-            )
+            raise _changed_since()
         above = session.get(models.Location, above.parent_id) if above.parent_id else None
+
+
+def _changed_since() -> AppError:
+    return AppError(409, "changed_since", "That can't be undone, because it has changed since.")
+
+
+def _recreate_link(
+    session: Session, record_id: str, removed: dict[str, Any], now: datetime
+) -> None:
+    # The same two items may have been linked again since, which a second link would duplicate.
+    same = select(models.ItemLink.id).filter_by(**removed)
+    if session.scalar(same) is not None:
+        raise _changed_since()
+    session.add(models.ItemLink(id=record_id, **removed, created_at=now, updated_at=now))
+
+
+def _recreate_attachment(
+    session: Session, record_id: str, removed: dict[str, Any], now: datetime
+) -> None:
+    # A location has one photo, and it may have been given another since.
+    location_id = removed["location_id"]
+    other = select(models.Attachment.id).where(models.Attachment.location_id == location_id)
+    if location_id is not None and session.scalar(other) is not None:
+        raise _changed_since()
+    kind = models.AttachmentKind(removed["kind"])
+    fields = {**removed, "kind": kind}
+    session.add(models.Attachment(id=record_id, **fields, created_at=now, updated_at=now))
 
 
 def _recreate(session: Session, change: models.HistoryChange, now: datetime) -> None:
@@ -129,19 +159,17 @@ def _recreate(session: Session, change: models.HistoryChange, now: datetime) -> 
         session.add(
             models.SavedSearch(id=change.record_id, **removed, created_at=now, updated_at=now)
         )
-        return
-    # The same two items may have been linked again since, which a second link would duplicate.
-    same = select(models.ItemLink.id).filter_by(**removed)
-    if session.scalar(same) is not None:
-        raise AppError(409, "changed_since", "That can't be undone, because it has changed since.")
-    session.add(models.ItemLink(id=change.record_id, **removed, created_at=now, updated_at=now))
+    elif change.record_type == "attachment":
+        _recreate_attachment(session, change.record_id, removed, now)
+    else:
+        _recreate_link(session, change.record_id, removed, now)
 
 
 def _reverse(
     session: Session, settings: Settings, change: models.HistoryChange, now: datetime
 ) -> RecordChange:
     record_type = cast(RecordType, change.record_type)
-    # Only links and saved searches are removed outright; their removal records nothing after.
+    # Links, saved searches and attachments are removed outright, so nothing is recorded after.
     if not change.after:
         _recreate(session, change, now)
         session.flush()
@@ -149,7 +177,7 @@ def _reverse(
     current = _current(session, change)
     after: dict[str, Any] = change.after
     if change.before is None and isinstance(current, models.Attachment):
-        attachments.forget_photo(session, settings, current.id)
+        attachments.forget_attachment(session, settings, current.id)
     elif change.before is None:
         session.delete(current)
     else:

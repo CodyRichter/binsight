@@ -8,18 +8,25 @@ from app.features.attachments import service
 
 router = APIRouter(prefix="/attachments")
 
-# A photo's file never changes once stored, so the browser can keep it.
-PHOTO_CACHING = {"Cache-Control": "private, max-age=31536000, immutable"}
+# A stored file never changes, so the browser can keep it.
+FILE_CACHING = {"Cache-Control": "private, max-age=31536000, immutable"}
+SERVED_TYPES = ("image/jpeg", "image/png", "image/webp", "application/pdf")
 
 
 @router.get(
     "/{attachment_id}/file",
     operation_id="get_attachment_file",
     response_class=FileResponse,
-    responses={200: {"content": {"image/jpeg": {}}}, **refusals(404)},
+    responses={200: {"content": {kind: {} for kind in SERVED_TYPES}}, **refusals(404)},
 )
 def get_attachment_file(
     attachment_id: str, session: ReadSession, settings: AppSettings
 ) -> FileResponse:
-    path = service.photo_file(session, settings, attachment_id)
-    return FileResponse(path, media_type="image/jpeg", headers=PHOTO_CACHING)
+    file = service.attachment_file(session, settings, attachment_id)
+    return FileResponse(
+        file.path,
+        media_type=file.content_type,
+        headers=FILE_CACHING,
+        filename=file.filename,
+        content_disposition_type="inline",
+    )

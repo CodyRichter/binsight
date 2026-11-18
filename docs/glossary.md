@@ -50,6 +50,8 @@ before naming it in code.
 | **Link**          | A relationship between two items: `belongs_with` or `part_of`. |
 | **Attachment**    | A photo, file or web link stored against an item or location. |
 | **Photo**         | An attachment that is an image shown as the item's or location's picture. |
+| **File**          | An attachment that is a PDF or image kept as it was sent, such as a receipt or a manual. |
+| **Web link**      | An attachment that is a web address, such as a manual's page; not a Link between items. |
 
 ## Keeping it true
 

@@ -179,6 +179,17 @@ One shape for every error:
   JPEG, PNG or WebP, at most 20 MB; anything else is refused with 422
   `unsupported_photo` or `photo_too_large`. The photo is stored before the
   write transaction starts, and deleted again if that transaction fails.
+- A file is uploaded the same way with one `file` part: a PDF, JPEG, PNG
+  or WebP, judged by its bytes rather than its name, at most 50 MB, or
+  422 `unsupported_file` or `file_too_large`. An item's attachments are
+  under `/api/items/{id}`: `GET attachments`, `POST photos`, `POST files`,
+  `POST web-links` (`url`, an http(s) address, and an optional `name`) and
+  `DELETE attachments/{attachment_id}`, which refuses an unnamed item's
+  only photo with 409 `photo_names_item`. A location's one photo is
+  `POST` or `DELETE /api/locations/{id}/photo`, a new one replacing the
+  old. `GET /api/attachments/{id}/file` serves a photo or file inline
+  with its own type and filename; a web link has no file, so it is 404
+  `attachment_not_found`.
 - The actor is taken from how the request was authenticated, never from the
   request body: a session cookie is `app`, an MCP credential is `mcp`.
 - Signing in and out are not changes to the home, so `auth`'s routes write
@@ -202,14 +213,16 @@ One shape for every error:
   without a current one, including one with only a session cookie, gets 401
   `invalid_mcp_credential`.
 - Inputs and results use the same field names and shapes as the API. A
-  photo goes to a tool as base64 text, and comes back as image content.
+  photo or file goes to a tool as base64 text; a photo or image comes back
+  as image content, and a PDF as an embedded `application/pdf` resource.
 - Errors use the same `code` values as the API.
 - A tool that deletes, merges or changes many records returns a preview and
   a confirmation token first, and acts only when called again with the same
   inputs and the token. A token works once and expires after ten minutes;
   otherwise the call is refused with 409 `confirmation_invalid` or
   `confirmation_expired`. `delete_item` is one of these; the app has no
-  confirmation step, since its delete offers Undo.
+  confirmation step, since its delete offers Undo. So are
+  `remove_item_attachment` and `remove_location_photo`.
   Adding several items is not one of these: it only creates, and one undo
   removes the whole batch.
 - A location can be named by its code wherever a location identifier is

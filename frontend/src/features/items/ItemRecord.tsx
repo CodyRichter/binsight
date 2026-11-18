@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams } from "react-router";
 import { AppFrame } from "@/components/AppFrame";
 import { PageLead } from "@/components/PageLead";
@@ -7,6 +8,7 @@ import { ItemHistory } from "@/features/history";
 import { pageStatusOf } from "@/lib/api/pageStatus";
 import { useItem, type Item } from "./useItems";
 import { useQuantity } from "./useQuantity";
+import { ItemAttachments } from "./ItemAttachments";
 import { ItemDetails } from "./ItemDetails";
 import { ItemHeader } from "./ItemHeader";
 import { ItemLinks } from "./ItemLinks";
@@ -16,12 +18,22 @@ function ItemBody({ item }: { item: Item }) {
   const changeQuantity = useQuantity(item);
   const deleted = item.deleted_at !== null;
   const links = useItemLinks(item.id, !deleted).data?.items ?? [];
+  const [attaching, setAttaching] = useState(false);
   return (
     <>
-      <PageLead header={<ItemHeader item={item} linkedIds={links.map((each) => each.item.id)} />}>
+      <PageLead
+        header={
+          <ItemHeader
+            item={item}
+            linkedIds={links.map((each) => each.item.id)}
+            onAttach={() => setAttaching(true)}
+          />
+        }
+      >
         <QuantityStepper value={item.quantity} onChange={changeQuantity} />
       </PageLead>
       {!deleted && <ItemDetails item={item} />}
+      {!deleted && <ItemAttachments item={item} attaching={attaching} onAttaching={setAttaching} />}
       {!deleted && <ItemLinks item={item} links={links} />}
       <ItemHistory itemId={item.id} />
     </>

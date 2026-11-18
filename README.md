@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: views and saved searches (Breadth 3).** The requirements,
+> **Status: attachments (Breadth 4).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -44,7 +44,9 @@ what's inside. Search for anything and get its full location path, e.g.
 > out, Warranty expiring soon, Not checked in a long time and the Archive;
 > search filters by location, category, tag, status and warranty; and a
 > search is saved, pinned into the navigation, renamed and deleted, each
-> with Undo, through the API and MCP as well.
+> with Undo, through the API and MCP as well. An item's page attaches
+> photos, files such as receipts and manuals, and web links, and a
+> location's page gives it a photo, each with Undo.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 
