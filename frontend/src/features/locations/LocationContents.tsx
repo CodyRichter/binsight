@@ -5,6 +5,7 @@ import { AppFrame } from "@/components/AppFrame";
 import { EmptyState } from "@/components/EmptyState";
 import { PageLead } from "@/components/PageLead";
 import { PageState } from "@/components/PageState";
+import { CheckMode } from "@/features/checks";
 import { ItemAdder, ItemsSection, useLocationItems } from "@/features/items";
 import { pageStatusOf } from "@/lib/api/pageStatus";
 import { AddLocationSheet } from "./AddLocationSheet";
@@ -22,9 +23,10 @@ import {
 interface LocationBodyProps {
   location: Location;
   locations: Location[];
+  onCheckMode: () => void;
 }
 
-function LocationBody({ location, locations }: LocationBodyProps) {
+function LocationBody({ location, locations, onCheckMode }: LocationBodyProps) {
   const [scope, setScope] = useState("here");
   const [addingLocation, setAddingLocation] = useState(false);
   const everythingInside = scope === "inside";
@@ -45,6 +47,7 @@ function LocationBody({ location, locations }: LocationBodyProps) {
           <LocationHeader
             location={location}
             onAddLocation={children.length === 0 ? openSheet : undefined}
+            onCheckMode={onCheckMode}
           />
         }
       >
@@ -80,22 +83,38 @@ const nothingHere = {
   ),
 };
 
-/** A location's page: its header, quick add, and what it holds. */
+function frameStatus(tree: ReturnType<typeof useLocationTree>, location?: Location) {
+  const status = pageStatusOf(tree);
+  return status === "ready" && !location ? "notFound" : status;
+}
+
+/** A location's page: its header, quick add, and what it holds; or check mode over it. */
 export function LocationView({ id }: { id: string }) {
   const tree = useLocationTree();
+  const refreshTree = useRefreshLocationTree();
+  const [checking, setChecking] = useState(false);
   const location = tree.data?.find((candidate) => candidate.id === id);
-  const status = pageStatusOf(tree);
+  if (checking && location) {
+    return (
+      <CheckMode location={location} onClose={() => setChecking(false)} onAdded={refreshTree} />
+    );
+  }
   const parent = location?.parent_id ? `/locations/${location.parent_id}` : "/";
   return (
     <AppFrame current="home" parent={parent} addTo={location?.id}>
       <PageState
-        status={status === "ready" && !location ? "notFound" : status}
+        status={frameStatus(tree, location)}
         standalone
         notFound={nothingHere}
         onRetry={() => void tree.refetch()}
       >
         {location && tree.data && (
-          <LocationBody key={location.id} location={location} locations={tree.data} />
+          <LocationBody
+            key={location.id}
+            location={location}
+            locations={tree.data}
+            onCheckMode={() => setChecking(true)}
+          />
         )}
       </PageState>
     </AppFrame>

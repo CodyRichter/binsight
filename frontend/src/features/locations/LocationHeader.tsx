@@ -1,7 +1,14 @@
 import { Button, Menu } from "@mantine/core";
-import { IconArrowsMove, IconDownload } from "@tabler/icons-react";
-import { useState } from "react";
+import {
+  IconArrowsMove,
+  IconCheck,
+  IconChecklist,
+  IconDownload,
+  IconPlus,
+} from "@tabler/icons-react";
+import { useState, type ReactNode } from "react";
 import { PageHeader } from "@/components/PageHeader";
+import { useCheckLocation } from "@/features/checks";
 import { pathSegments } from "@/features/items";
 import { labelImageAddress } from "@/lib/api/labelImageAddress";
 import { countWords } from "./countWords";
@@ -11,26 +18,42 @@ import type { Location } from "./useLocations";
 
 interface LocationHeaderProps {
   location: Location;
+  /** Adding a location inside, when the page has no Locations section to hold that action. */
   onAddLocation?: () => void;
+  onCheckMode: () => void;
 }
 
-function labelMenu(code: string) {
+function moreMenu(props: LocationHeaderProps, movable: boolean): ReactNode {
+  const code = props.location.label_code;
   return (
-    <Menu.Item
-      component="a"
-      href={labelImageAddress(code)}
-      download
-      leftSection={<IconDownload aria-hidden size={20} />}
-    >
-      Download label
-    </Menu.Item>
+    <>
+      {movable && props.onAddLocation && (
+        <Menu.Item leftSection={<IconPlus aria-hidden size={20} />} onClick={props.onAddLocation}>
+          Add location
+        </Menu.Item>
+      )}
+      {code && (
+        <Menu.Item
+          component="a"
+          href={labelImageAddress(code)}
+          download
+          leftSection={<IconDownload aria-hidden size={20} />}
+        >
+          Download label
+        </Menu.Item>
+      )}
+      <Menu.Item leftSection={<IconChecklist aria-hidden size={20} />} onClick={props.onCheckMode}>
+        Check mode
+      </Menu.Item>
+    </>
   );
 }
 
-export function LocationHeader({ location, onAddLocation }: LocationHeaderProps) {
-  const code = location.label_code ?? undefined;
+export function LocationHeader(props: LocationHeaderProps) {
+  const { location, onAddLocation } = props;
   const [moving, setMoving] = useState(false);
   const move = useMoveLocation(location);
+  const check = useCheckLocation(location.id);
   // A site is the top of its tree, so it has nowhere to move to.
   const movable = location.parent_id !== null;
   return (
@@ -38,24 +61,23 @@ export function LocationHeader({ location, onAddLocation }: LocationHeaderProps)
       <PageHeader
         title={location.name}
         parents={pathSegments(location.path.slice(0, -1))}
-        code={code}
+        code={location.label_code ?? undefined}
+        lastChecked={location.last_checked_at ? new Date(location.last_checked_at) : null}
         counts={[countWords(location.item_count, "item")]}
         actions={
-          (onAddLocation || movable) && (
-            <>
-              {movable && (
-                <Button
-                  leftSection={<IconArrowsMove aria-hidden />}
-                  onClick={() => setMoving(true)}
-                >
-                  Move
-                </Button>
-              )}
-              {onAddLocation && <Button onClick={onAddLocation}>Add location</Button>}
-            </>
-          )
+          <>
+            <Button leftSection={<IconCheck aria-hidden />} onClick={() => check()}>
+              Contents checked
+            </Button>
+            {movable && (
+              <Button leftSection={<IconArrowsMove aria-hidden />} onClick={() => setMoving(true)}>
+                Move
+              </Button>
+            )}
+            {!movable && onAddLocation && <Button onClick={onAddLocation}>Add location</Button>}
+          </>
         }
-        menu={code && labelMenu(code)}
+        menu={moreMenu(props, movable)}
       />
       {movable && (
         <MoveSheet

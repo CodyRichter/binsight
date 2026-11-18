@@ -61,8 +61,9 @@ There is no `PUT`.
   `_cents`. An install has one currency.
 - A missing optional value is `null`, never an empty string or a missing
   key.
-- Anything that returns an item includes its `path`, and its
-  `last_checked_at` from the step that builds checks.
+- Anything that returns an item includes its `path` and its
+  `last_checked_at`, its home location's; every location carries its own.
+  Either is `null` until the location is first checked.
 
 ## Lists
 
@@ -111,8 +112,8 @@ One shape for every error:
   `already_undone`, `changed_since` when a record no longer holds what the
   entry left it as, or `undo_not_supported` for an action undo does not
   cover yet. It covers adding items, changing an item's name or
-  quantity, moving an item or a location, and deleting or restoring an
-  item; undoing a location's move is refused with `changed_since` when its
+  quantity, moving an item or a location, deleting or restoring an item,
+  marking an item missing or found, and checking a location; undoing a location's move is refused with `changed_since` when its
   old parent has since been moved inside it, and any other change to an
   item that has since been deleted is refused with `changed_since`.
 - `DELETE /api/items/{id}` deletes an item and `POST
@@ -121,6 +122,13 @@ One shape for every error:
   its `deleted_at` set. Changing, moving or deleting it again is refused
   with 409 `item_deleted`; restoring an item that is not deleted is refused
   with 409 `not_deleted`.
+- `POST /api/locations/{id}/check` records a check and marks any
+  `missing_item_ids` missing, as one entry that one undo reverses. An item
+  not directly in that location is refused with 422 `not_in_location`.
+  `POST /api/items/{id}/mark-missing` is refused with 409
+  `already_missing`, and `POST /api/items/{id}/mark-found`, which takes the
+  `location_id` where it turned up, with 409 `not_missing`. Over MCP,
+  `check_location` with missing items goes through the confirmation step.
 - A move is refused with 409 `already_there` when the thing is already in
   that location, `move_into_itself` when a location would go into itself
   or anything inside it, and `site_cannot_move` for a site.

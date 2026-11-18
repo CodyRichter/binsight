@@ -5,6 +5,7 @@ from typing import Annotated, Self
 from pydantic import BaseModel, Field, StringConstraints, model_validator
 
 from app.features.locations.service import PathStep
+from app.models import ItemStatus
 
 ItemName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
 
@@ -41,7 +42,9 @@ class Item(BaseModel):
     name: str | None
     quantity: int
     home_location_id: str | None
+    status: ItemStatus
     path: list[PathStep]
+    last_checked_at: datetime | None
     photo_url: str | None
     created_at: datetime
     deleted_at: datetime | None
@@ -61,6 +64,18 @@ class ItemUpdated(Item):
 
 
 class ItemMoved(Item):
+    history_entry_id: str
+
+
+class ItemFound(BaseModel):
+    location_id: str
+
+
+class ItemMarkedMissing(Item):
+    history_entry_id: str
+
+
+class ItemMarkedFound(Item):
     history_entry_id: str
 
 

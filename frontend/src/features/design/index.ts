@@ -5,7 +5,5 @@ export { HeaderSpecimen } from "./HeaderSpecimen";
 export { OverlaysSpecimen } from "./OverlaysSpecimen";
 export { PageStatesSpecimen } from "./PageStatesSpecimen";
 export { RowsSpecimen } from "./RowsSpecimen";
-export { TaskSpecimen } from "./TaskSpecimen";
-export { TemplatesSpecimen } from "./TemplatesSpecimen";
 export { TokensSpecimen } from "./TokensSpecimen";
 export { ValuesSpecimen } from "./ValuesSpecimen";

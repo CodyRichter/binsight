@@ -5,6 +5,7 @@ from sqlalchemy import Enum, ForeignKey, func, select
 from sqlalchemy.orm import Mapped, column_property, mapped_column
 
 from app.models.base import Model
+from app.models.checks import Check
 from app.models.items import Item
 from app.models.labels import Label
 
@@ -41,6 +42,12 @@ class Location(Model):
         select(func.count(Item.id))
         .where(Item.home_location_id == id, Item.deleted_at.is_(None))
         .correlate_except(Item)
+        .scalar_subquery()
+    )
+    last_checked_at: Mapped[datetime | None] = column_property(
+        select(func.max(Check.checked_at))
+        .where(Check.location_id == id)
+        .correlate_except(Check)
         .scalar_subquery()
     )
     label_code: Mapped[str | None] = column_property(

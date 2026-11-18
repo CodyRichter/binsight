@@ -144,7 +144,9 @@ pass in continuous integration.
 In this order, each as its own step shipping both sides together:
 
 1. Checks: contents checked, check mode, last-checked everywhere.
-   Feature: `checks`.
+   Feature: `checks`. Check mode marks unticked items missing, so this
+   step also brings the `missing` status, with marking missing and found;
+   step 2 adds the other statuses.
 2. Item details: status, lent to, archive, links,
    categories and tags.
 3. Views and saved searches. Feature: `views`.

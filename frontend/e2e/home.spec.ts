@@ -2,8 +2,14 @@ import { expect, test, type Page } from "@playwright/test";
 import { addItem, siteRoomBin, uniqueName } from "./homeData";
 import { openAtPhoneWidth } from "./owner";
 
-async function addLocationNamed(page: Page, name: string) {
-  await page.getByRole("button", { name: "Add location" }).first().click();
+/** Adds a location from the page's Add location button, or from More on a room or bin with nothing inside. */
+async function addLocationNamed(page: Page, name: string, fromMore = false) {
+  if (fromMore) {
+    await page.getByRole("button", { name: "More", exact: true }).click();
+    await page.getByRole("menuitem", { name: "Add location" }).click();
+  } else {
+    await page.getByRole("button", { name: "Add location" }).first().click();
+  }
   const sheet = page.getByRole("dialog");
   await sheet.getByLabel("Name").fill(name);
   await sheet.getByRole("button", { name: "Add" }).click();
@@ -22,7 +28,7 @@ test("locations are added from the tree and from each location's page", async ({
 
   await addLocationNamed(page, room);
   await page.getByRole("link", { name: room }).click();
-  await addLocationNamed(page, bin);
+  await addLocationNamed(page, bin, true);
   await expect(page.getByRole("link", { name: bin })).toBeVisible();
 
   await page.goto("/");

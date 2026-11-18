@@ -15,6 +15,9 @@ from app.features.items.schemas import (
     ItemChanges,
     ItemCreated,
     ItemDeleted,
+    ItemFound,
+    ItemMarkedFound,
+    ItemMarkedMissing,
     ItemMove,
     ItemMoved,
     ItemRestored,
@@ -106,3 +109,17 @@ def delete_item(item_id: str, session: WriteSession) -> ItemDeleted:
 @router.post("/{item_id}/restore", operation_id="restore_item", responses=refusals(404, 409))
 def restore_item(item_id: str, session: WriteSession) -> ItemRestored:
     return service.restore_item(session, item_id, Actor.app, clock.now())
+
+
+@router.post(
+    "/{item_id}/mark-missing", operation_id="mark_item_missing", responses=refusals(404, 409)
+)
+def mark_item_missing(item_id: str, session: WriteSession) -> ItemMarkedMissing:
+    return service.mark_item_missing(session, item_id, Actor.app, clock.now())
+
+
+@router.post(
+    "/{item_id}/mark-found", operation_id="mark_item_found", responses=refusals(404, 409, 422)
+)
+def mark_item_found(item_id: str, body: ItemFound, session: WriteSession) -> ItemMarkedFound:
+    return service.mark_item_found(session, item_id, body, Actor.app, clock.now())

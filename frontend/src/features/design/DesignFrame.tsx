@@ -35,7 +35,7 @@ export function DesignFrame({ current = "home", currentView, parent, ...props }:
       navigation={{ current, inboxCount: 3 }}
       sections={sections}
       search={{ query, onChange: setQuery }}
-      actions={{ onAdd: () => setAdding(true), onScan: () => navigate("/design/task") }}
+      actions={{ onAdd: () => setAdding(true), onScan: () => navigate("/scan") }}
       parent={parent ?? "/design"}
       destination={props.destination}
       selectionBar={props.selectionBar}

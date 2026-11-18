@@ -19,10 +19,13 @@ UNDOABLE = {
     "item.moved",
     "item.deleted",
     "item.restored",
+    "item.marked_missing",
+    "item.found",
+    "location.checked",
     "location.moved",
 }
 
-type Undoable = models.Item | models.Attachment | models.Location
+type Undoable = models.Item | models.Attachment | models.Location | models.Check
 
 
 def _entry(session: Session, entry_id: str) -> models.HistoryEntry:
@@ -41,6 +44,8 @@ def _record(session: Session, change: models.HistoryChange) -> Undoable | None:
         return session.get(models.Attachment, change.record_id)
     if change.record_type == "location":
         return session.get(models.Location, change.record_id)
+    if change.record_type == "check":
+        return session.get(models.Check, change.record_id)
     return session.get(models.Item, change.record_id)
 
 

@@ -16,8 +16,22 @@ function scannedMessage(code: string, found: Location | undefined, currentId: st
   return `Can't move into ${placeName(found)}`;
 }
 
+function whereItWas(location: Location, onPick: () => void) {
+  return (
+    <LocationRow
+      key="where-it-was"
+      name="Where it was"
+      locationType={location.type}
+      code={location.label_code ?? undefined}
+      itemCount={location.item_count}
+      onPick={onPick}
+    />
+  );
+}
+
 /** Choosing where something goes: a recent place, one found by name or code, or a scanned label. */
-export function MoveSheet({ opened, onClose, currentId, movingId, onPick }: MoveSheetProps) {
+export function MoveSheet(props: MoveSheetProps) {
+  const { opened, onClose, currentId, movingId, onPick } = props;
   // Read only while open, so a page with a closed sheet does not load the tree.
   const locations = useLocationTree(opened).data ?? [];
   const [query, setQuery] = useState("");
@@ -45,24 +59,27 @@ export function MoveSheet({ opened, onClose, currentId, movingId, onPick }: Move
     movingId,
     recent: opened ? recentDestinations() : [],
   });
+  const current = props.offerCurrent && locations.find((location) => location.id === currentId);
   const ScanToggle = scanning ? IconList : IconScan;
   return (
     <Sheet
       opened={opened}
-      title="Move to"
+      title={props.title ?? "Move to"}
       onClose={close}
       rows={
-        !scanning &&
-        choices.map((location) => (
-          <LocationRow
-            key={location.id}
-            name={location.name}
-            locationType={location.type}
-            code={location.label_code ?? undefined}
-            itemCount={location.item_count}
-            onPick={() => pick(location)}
-          />
-        ))
+        !scanning && [
+          current && whereItWas(current, () => pick(current)),
+          ...choices.map((location) => (
+            <LocationRow
+              key={location.id}
+              name={location.name}
+              locationType={location.type}
+              code={location.label_code ?? undefined}
+              itemCount={location.item_count}
+              onPick={() => pick(location)}
+            />
+          )),
+        ]
       }
     >
       <TextInput
