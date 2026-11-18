@@ -43,7 +43,7 @@ def test_claude_can_look_at_a_photo_and_name_the_item(claude: Claude, home: Acce
     response = mcp_request(claude.client, claude.secret, "tools/call", params)
     content = response.json()["result"]["content"][0]
     assert (content["type"], content["mimeType"]) == ("image", "image/jpeg")
-    named = claude.call("update_item", item_id=added["id"], name="Multimeter")
+    named = claude.call("update_item", item_id=added["id"], changes={"name": "Multimeter"})
     assert named["name"] == "Multimeter"
     assert claude.call("count_inbox") == {"count": 0}
 

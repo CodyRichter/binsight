@@ -18,7 +18,7 @@ from app.features.search.matching import (
 )
 from app.features.search.schemas import ItemResult, LocationResult, Mark, SearchResults
 
-# A name counts double against a summary, so a bin called "Cables" beats one that mentions them.
+# A name counts double against other words, so a bin called "Cables" beats one that mentions them.
 NAME_WEIGHT = 2
 CODE_SCORE = EXACT * NAME_WEIGHT
 # A code is typed as one word, so the hyphen in B-014 must not split it in two.
@@ -40,20 +40,21 @@ class _Candidate:
     id: str
     name: list[Word]
     name_text: str
-    summary: list[Word]
+    # A location's summary, or an item's details and tags.
+    details: list[Word]
     code_number: int | None
 
 
 def _candidates(session: Session) -> list[_Candidate]:
     found = [
-        _Candidate("item", item.id, words(item.name), item.name, [], None)
+        _Candidate("item", item.id, words(item.name), item.name, words(item.details), None)
         for item in items.searchable_items(session)
     ]
     for location in locations.searchable_locations(session):
         code = labels.label_number(location.label_code) if location.label_code else None
-        summary = words(location.summary or "")
+        details = words(location.summary or "")
         name = words(location.name)
-        found.append(_Candidate("location", location.id, name, location.name, summary, code))
+        found.append(_Candidate("location", location.id, name, location.name, details, code))
     return found
 
 
@@ -61,7 +62,7 @@ def _word_score(candidate: _Candidate, found: dict[str, int], code: int | None) 
     if code is not None and code == candidate.code_number:
         return CODE_SCORE
     return max(
-        best_score(found, candidate.name) * NAME_WEIGHT, best_score(found, candidate.summary)
+        best_score(found, candidate.name) * NAME_WEIGHT, best_score(found, candidate.details)
     )
 
 
@@ -83,7 +84,7 @@ def _ranked(session: Session, query: str) -> list[_Found]:
     if not query_words:
         return []
     candidates = _candidates(session)
-    vocabulary = {word.text for each in candidates for word in each.name + each.summary}
+    vocabulary = {word.text for each in candidates for word in each.name + each.details}
     found = match_vocabulary(query_words, vocabulary)
     codes = [labels.label_number(word) for word in query_words]
     scored = [_score(candidate, query_words, found, codes) for candidate in candidates]
@@ -109,7 +110,7 @@ def _shaped(session: Session, page: list[_Found]) -> list[ItemResult | LocationR
 
 
 def search_home(session: Session, query: str, limit: int, cursor: str | None) -> SearchResults:
-    """Find items and locations by name, in any word order and despite typos, or by label code."""
+    """Find items and locations by name or details, in any word order, despite typos, or by code."""
     start = decode_offset(cursor) if cursor else 0
     ranked = _ranked(session, query)
     end = start + limit

@@ -401,7 +401,19 @@ toast offers Undo.
    home first as "Where it was", and picking says "Found {name} in
    {place}" with Undo.
 2. Sections of value rows: "Details", then others only when they hold a
-   value or are being added to.
+   value or are being added to. Details lists Category, Tags, Notes,
+   Brand, Model, Serial number, Purchase date, Price, Order link,
+   Warranty ends and Return by, in that order, each empty one as its
+   invitation ("Add a serial number"). Category is a chosen value that
+   opens the category sheet; Tags holds the tag list, whose "Add tag"
+   opens the tag sheet; the rest are editable text, the dates in the
+   browser's date field and the price typed as "24.99" and shown as a
+   plain number, since an install has one currency. A price that isn't
+   one is not saved. Each change says "Changed {detail}", "Category set to
+   {name}", "Removed category", "Tagged {tag}" or "Removed tag {tag}", with
+   Undo, and history says "{Detail} changed", "Tagged {tag}", "Tag {tag}
+   removed", or "Details changed" for several at once. A deleted item's
+   page has no Details section.
 3. Section "History", last: a list of history rows, newest first.
 
 **Task** (`/scan`, check mode). Full screen in the task frame, so nothing
@@ -591,12 +603,21 @@ the thing and the number. Two verb buttons, the safe one first and focused:
 page is edited where it is shown: plain text at rest, `hover` fill on hover,
 a focused field on tap. Enter or leaving saves, Escape cancels. No Save
 button. An empty optional value shows as a `muted` invitation ("Add a
-summary") only on the thing's own page.
+summary") only on the thing's own page. A date is typed in the browser's
+date field and reads at rest in the owner's own date style ("1 Mar 2027").
 
 **Sheet** (`Sheet`: a Mantine `Drawer` from the bottom, a `Modal` from `md`
 up). One title, one choice. Picking a row acts and closes it. The move sheet
 lists recently used locations first. A sheet never opens another sheet and
 never holds more than one field.
+
+The category sheet is titled "Category". Its one field, "Search or make a
+category", narrows name rows of the categories items have, each with its
+count; when the typed name matches none, the first row is "Make
+"{name}"", and Enter picks the typed name. A subtle "No category" follows
+the field while the item has one. The tag sheet is titled "Add tag": one
+field, "Tag", a primary "Add", and name rows of the tags in use that the
+item lacks, narrowed as it is typed.
 
 The move sheet is titled "Move to". Its one field, "Search locations or
 scan", narrows the rows by name or by code (typed loosely, as `b14`), and
@@ -710,6 +731,14 @@ changed from 3 to 4"), and under it one `text-small`, `muted` line: when, in
 words as the checked stamp says it, then who ("You" for the app, "Claude"
 for MCP). Full width, hairline below, at least `row-min` high, and its text
 wraps. Not tappable: no icon, no badge, no chevron.
+
+**Name row** (`NameRow`). A category or tag in a sheet: its name in
+`text-body`, and how many items have it in `muted` `text-small` at the
+right. `touch-min` high, hairline below; the whole row picks it.
+
+**Chosen value** (`ChosenValue`). A value row's value that is picked in a
+sheet rather than typed: it reads as editable text does at rest, with the
+same invitation when empty, and tapping it opens the sheet.
 
 **Value row.** A name and its value, for the Record and Settings templates.
 The name in bold `text-small` above the value, `space-xs` apart, with

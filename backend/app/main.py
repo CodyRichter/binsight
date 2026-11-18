@@ -28,6 +28,7 @@ def _signed_in_routes() -> APIRouter:
     signed_in.include_router(auth.mcp_credentials_router)
     signed_in.include_router(locations.router)
     signed_in.include_router(items.router)
+    signed_in.include_router(items.categories_and_tags_router)
     signed_in.include_router(labels.router)
     signed_in.include_router(history.router)
     signed_in.include_router(attachments.router)

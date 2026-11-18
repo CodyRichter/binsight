@@ -1,6 +1,8 @@
 from sqlalchemy import Engine
 
 from app.core.database import open_read_session, open_write_session
+from app.features.items import service as items
+from app.features.items.schemas import ItemChanges
 from app.features.locations import service as locations
 from app.features.locations.schemas import NewLocation
 from app.features.search import service
@@ -106,3 +108,22 @@ def test_pages_hold_every_result_once(migrated_engine: Engine) -> None:
     second = _search(migrated_engine, "cable", limit=4, cursor=first.next_cursor)
     assert second.next_cursor is None
     assert len(set(_names(first) + _names(second))) == 7
+
+
+def test_an_item_is_found_by_its_serial_number_a_tag_or_a_word_in_its_notes(
+    migrated_engine: Engine,
+) -> None:
+    home = _home(migrated_engine)
+    changes = ItemChanges(serial_number="SN-0042", tags=["video"], notes="Spare for the projector")
+    with open_write_session(migrated_engine) as session:
+        items.update_item(session, home.hdmi_cable, changes, Actor.app, builders.NOW)
+    for query in ("sn 0042", "video", "projector"):
+        assert _names(_search(migrated_engine, query)) == ["HDMI cable"]
+
+
+def test_a_name_ranks_above_a_word_in_another_item_s_details(migrated_engine: Engine) -> None:
+    home = _home(migrated_engine)
+    changes = ItemChanges(notes="Plugs into the HDMI cable")
+    with open_write_session(migrated_engine) as session:
+        items.update_item(session, home.usb_c_charger, changes, Actor.app, builders.NOW)
+    assert _names(_search(migrated_engine, "hdmi cable")) == ["HDMI cable", "USB-C charger"]

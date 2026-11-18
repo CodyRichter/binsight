@@ -50,14 +50,26 @@ and an empty path means it is in the inbox.
 
 Returns the item, or the error item_not_found."""
 
-UPDATE_ITEM = """Give an item its name, or change how many of it there are.
+UPDATE_ITEM = """Change an item: its name, quantity, category, tags or other details.
 
-Use this when the owner says they used some up, bought more, or counted them: quantity is
-the new total, a whole number of 0 or more, not the difference. Use it with name to name
-an item added by photo, or to correct a name. Give either or both; a name cannot be
-cleared.
+changes holds only what to change; anything left out stays as it is:
+- name: to name an item added by photo, or to correct a name. It cannot be cleared.
+- quantity: when the owner used some up, bought more or counted them. It is the new total,
+  a whole number of 0 or more, not the difference.
+- category: the one kind of thing it is, by name, such as "Cables". A category is made
+  the first time a name is used and matched ignoring case after that, so call
+  list_categories first and reuse an existing name. null removes the category.
+- tags: keywords such as "usb-c" or "18v". This is the whole list, replacing the old one,
+  so to add a tag send the item's tags plus the new one. Tags are lower-cased; see
+  list_tags for the ones in use. [] removes them all.
+- notes, brand, model, serial_number: text. order_link: an http(s) address.
+- purchase_date, warranty_ends, return_ends: dates as YYYY-MM-DD.
+- price_cents: the price as a whole number of cents, so 24.99 is 2499.
+Every detail but name, quantity and tags is cleared by giving it as null. Search finds
+items by brand, model, serial number, notes and tags as well as by name.
 
-Returns the item as it is now, with the history_entry_id of the change."""
+Returns the item as it is now, with the history_entry_id of the change, which
+undo_history_entry takes to put it all back."""
 
 ADD_ITEMS = """Add several items by name at once, all to the same place.
 
@@ -126,18 +138,14 @@ def _add_changing_tools(server: MCPServer, app: FastAPI) -> None:
 
     @server.tool(description=UPDATE_ITEM)
     async def update_item(
-        item_id: str, name: str | None = None, quantity: int | None = None
+        item_id: str, changes: dict[str, object]
     ) -> Annotated[CallToolResult, ItemUpdated]:
-        given = {"name": name, "quantity": quantity}
+        # Validated in the action, so a bad value is refused with the API's validation_failed.
         return await run_action(
             app,
             open_write_session,
             lambda session: service.update_item(
-                session,
-                item_id,
-                ItemChanges.model_validate({k: v for k, v in given.items() if v is not None}),
-                Actor.mcp,
-                clock.now(),
+                session, item_id, ItemChanges.model_validate(changes), Actor.mcp, clock.now()
             ),
         )
 

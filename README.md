@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: moving (phases B9 and F9).** The requirements,
+> **Status: item details (Breadth 2a).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -33,6 +33,10 @@ what's inside. Search for anything and get its full location path, e.g.
 > Items move from a row or their page, and locations from their page with
 > everything inside them, by picking a place or scanning its label, each
 > with Undo; `/scan` opens a scanned label's page.
+> Items are deleted and restored from their page; a location's contents are
+> checked, from its header or in check mode, which marks what wasn't there
+> missing; and an item's page sets its category, tags and details, which
+> search finds too.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 

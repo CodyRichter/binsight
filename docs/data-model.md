@@ -90,7 +90,7 @@ Rules:
 | `category`          | At most one.                                         |
 | `notes`             | Free text.                                           |
 | `brand`, `model`, `serial_number` | Optional.                              |
-| `purchase_date`, `price`, `order_link` | Optional. Price is in the install's one currency. |
+| `purchase_date`, `price_cents`, `order_link` | Optional. Price is in the install's one currency; the link is http(s). |
 | `warranty_ends`, `return_ends` | Optional dates.                           |
 | `retired_at`        | When status became sold, given away or thrown away.  |
 | `deleted_at`        | Set when deleted.                                    |
@@ -113,9 +113,12 @@ Rules:
 
 ## Category and tag
 
-- A category has a unique name. Deleting one leaves its items with no
-  category.
-- A tag is just its name, lower-cased. A tag exists while at least one item
+- A category has a unique name, ignoring case. Setting an item's category
+  by a new name makes it. Only categories that an item has are listed, so
+  one nothing uses any more is not offered. Deleting one leaves its items
+  with no category.
+- A tag is just its name, lower-cased, stored as a row joining it to the
+  item, with no identifier of its own. A tag exists while at least one item
   has it.
 
 ## Link

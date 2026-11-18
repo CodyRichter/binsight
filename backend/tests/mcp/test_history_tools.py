@@ -14,7 +14,7 @@ def test_an_item_s_history_matches_the_api(
 
 def test_changes_made_through_mcp_have_the_actor_mcp(claude: Claude, home: AcceptanceHome) -> None:
     created = claude.call("create_item", name="Ethernet cable", home_location_id=home.cables)
-    claude.call("update_item", item_id=created["id"], quantity=4)
+    claude.call("update_item", item_id=created["id"], changes={"quantity": 4})
     history = claude.call("list_history", item_id=created["id"])
     assert [(entry["actor"], entry["action"]) for entry in history["items"]] == [
         ("mcp", "item.updated"),

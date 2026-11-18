@@ -61,7 +61,7 @@ def test_where_is_the_hdmi_cable_matches_the_api(
 def test_changing_a_quantity_is_visible_through_the_api_at_once(
     claude: Claude, signed_in: TestClient, home: AcceptanceHome
 ) -> None:
-    updated = claude.call("update_item", item_id=home.hdmi_cable, quantity=2)
+    updated = claude.call("update_item", item_id=home.hdmi_cable, changes={"quantity": 2})
     through_api = signed_in.get(f"/api/items/{home.hdmi_cable}").json()
     assert {**through_api, "history_entry_id": updated["history_entry_id"]} == updated
     assert through_api["quantity"] == 2
@@ -69,7 +69,10 @@ def test_changing_a_quantity_is_visible_through_the_api_at_once(
 
 def test_item_refusals_carry_the_api_s_codes(claude: Claude, home: AcceptanceHome) -> None:
     assert claude.refusal("get_item", item_id="made-up")["code"] == "item_not_found"
-    assert claude.refusal("update_item", item_id="made-up", quantity=1)["code"] == "item_not_found"
+    assert (
+        claude.refusal("update_item", item_id="made-up", changes={"quantity": 1})["code"]
+        == "item_not_found"
+    )
     assert claude.refusal("list_items", location_id="made-up")["code"] == "location_not_found"
     bad_cursor = claude.refusal("list_items", location_id=home.cables, cursor="nope")
     assert bad_cursor["code"] == "invalid_cursor"
@@ -78,10 +81,23 @@ def test_item_refusals_carry_the_api_s_codes(claude: Claude, home: AcceptanceHom
 def test_item_inputs_are_refused_as_the_api_refuses_them(
     claude: Claude, home: AcceptanceHome
 ) -> None:
-    negative = claude.refusal("update_item", item_id=home.hdmi_cable, quantity=-1)
+    negative = claude.refusal("update_item", item_id=home.hdmi_cable, changes={"quantity": -1})
     blank = claude.refusal("create_item", name=" ")
     too_many = claude.refusal("list_items", location_id=home.cables, limit=201)
     assert [refusal["code"] for refusal in (negative, blank, too_many)] == ["validation_failed"] * 3
     assert list(negative["details"]["fields"]) == ["quantity"]
     assert list(blank["details"]["fields"]) == ["name"]
     assert list(too_many["details"]["fields"]) == ["limit"]
+
+
+def test_claude_sets_a_category_and_tags_and_sees_them_listed(
+    claude: Claude, home: AcceptanceHome
+) -> None:
+    changes = {"category": "Cables", "tags": ["HDMI", "4k"], "warranty_ends": "2027-01-31"}
+    updated = claude.call("update_item", item_id=home.hdmi_cable, changes=changes)
+    assert (updated["category"], updated["tags"]) == ("Cables", ["4k", "hdmi"])
+    assert updated["warranty_ends"] == "2027-01-31"
+    assert claude.call("list_categories")["items"] == [{"name": "Cables", "item_count": 1}]
+    assert [tag["name"] for tag in claude.call("list_tags")["items"]] == ["4k", "hdmi"]
+    cleared = claude.call("update_item", item_id=home.hdmi_cable, changes={"category": None})
+    assert cleared["category"] is None

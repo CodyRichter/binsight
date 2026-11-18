@@ -18,6 +18,7 @@ import { useQuantity } from "./useQuantity";
 import { useDeleteItem } from "./useDeleteItem";
 import { useRestoreItem } from "./useRestoreItem";
 import { StatusButton } from "./StatusButton";
+import { ItemDetails } from "./ItemDetails";
 
 function MoveButton({ item }: { item: Item }) {
   const { MoveSheet } = useContext(FrameAdditionsContext);
@@ -93,6 +94,7 @@ function ItemBody({ item }: { item: Item }) {
       >
         <QuantityStepper value={item.quantity} onChange={changeQuantity} />
       </PageLead>
+      {!deleted && <ItemDetails item={item} />}
       <ItemHistory itemId={item.id} />
     </>
   );

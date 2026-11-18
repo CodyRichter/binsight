@@ -10,6 +10,7 @@ from app.core.settings import AppSettings
 from app.features.attachments import service as attachments
 from app.features.items import service
 from app.features.items.schemas import (
+    Category,
     InboxCount,
     Item,
     ItemChanges,
@@ -25,10 +26,13 @@ from app.features.items.schemas import (
     ItemUpdated,
     NewItem,
     NewItems,
+    Tag,
 )
 from app.models import Actor
 
 router = APIRouter(prefix="/items")
+# Categories and tags exist only on items, so items owns them, at their own addresses.
+categories_and_tags_router = APIRouter()
 
 
 @router.post("", operation_id="create_item", status_code=201, responses=refusals(404, 422))
@@ -123,3 +127,19 @@ def mark_item_missing(item_id: str, session: WriteSession) -> ItemMarkedMissing:
 )
 def mark_item_found(item_id: str, body: ItemFound, session: WriteSession) -> ItemMarkedFound:
     return service.mark_item_found(session, item_id, body, Actor.app, clock.now())
+
+
+@categories_and_tags_router.get(
+    "/categories", operation_id="list_categories", responses=refusals(400, 422)
+)
+def list_categories(
+    session: ReadSession, limit: Limit = DEFAULT_LIMIT, cursor: str | None = None
+) -> Page[Category]:
+    return service.list_categories(session, limit, cursor)
+
+
+@categories_and_tags_router.get("/tags", operation_id="list_tags", responses=refusals(400, 422))
+def list_tags(
+    session: ReadSession, limit: Limit = DEFAULT_LIMIT, cursor: str | None = None
+) -> Page[Tag]:
+    return service.list_tags(session, limit, cursor)

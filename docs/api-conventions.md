@@ -111,11 +111,18 @@ One shape for every error:
   takes: `POST /api/history/{entry_id}/undo`. Undo is refused with 409
   `already_undone`, `changed_since` when a record no longer holds what the
   entry left it as, or `undo_not_supported` for an action undo does not
-  cover yet. It covers adding items, changing an item's name or
-  quantity, moving an item or a location, deleting or restoring an item,
+  cover yet. It covers adding items, changing an item's name, quantity,
+  category, tags or details, moving an item or a location, deleting or restoring an item,
   marking an item missing or found, and checking a location; undoing a location's move is refused with `changed_since` when its
   old parent has since been moved inside it, and any other change to an
   item that has since been deleted is refused with `changed_since`.
+- `PATCH /api/items/{id}` changes only the fields given. A detail given as
+  `null` is cleared; `name`, `quantity` and `tags` can be changed but not
+  cleared, and an empty body is refused. `category` is a name, matched
+  ignoring case or made; `tags` is the whole list, lower-cased, each once.
+  Over MCP, `update_item` takes the same fields as one `changes` object.
+  `GET /api/categories` and `GET /api/tags` list the names items have, by
+  name, with how many items have each.
 - `DELETE /api/items/{id}` deletes an item and `POST
   /api/items/{id}/restore` restores it. A deleted item is left out of every
   list, count and search, and `GET /api/items/{id}` still answers with it,

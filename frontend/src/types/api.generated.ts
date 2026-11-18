@@ -349,6 +349,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Categories */
+        get: operations["list_categories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Tags */
+        get: operations["list_tags"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/labels/blank": {
         parameters: {
             query?: never;
@@ -566,6 +600,13 @@ export interface components {
             /** Home Location Id */
             home_location_id?: string | null;
         };
+        /** Category */
+        Category: {
+            /** Name */
+            name: string;
+            /** Item Count */
+            item_count: number;
+        };
         /** CheckLocation */
         CheckLocation: {
             /** Missing Item Ids */
@@ -650,6 +691,28 @@ export interface components {
             /** Home Location Id */
             home_location_id: string | null;
             status: components["schemas"]["ItemStatus"];
+            /** Category */
+            category: string | null;
+            /** Tags */
+            tags: string[];
+            /** Notes */
+            notes: string | null;
+            /** Brand */
+            brand: string | null;
+            /** Model */
+            model: string | null;
+            /** Serial Number */
+            serial_number: string | null;
+            /** Purchase Date */
+            purchase_date: string | null;
+            /** Price Cents */
+            price_cents: number | null;
+            /** Order Link */
+            order_link: string | null;
+            /** Warranty Ends */
+            warranty_ends: string | null;
+            /** Return Ends */
+            return_ends: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -664,12 +727,37 @@ export interface components {
             /** Deleted At */
             deleted_at: string | null;
         };
-        /** ItemChanges */
+        /**
+         * ItemChanges
+         * @description What to change on an item; a detail given as null is cleared.
+         */
         ItemChanges: {
             /** Name */
             name?: string | null;
             /** Quantity */
             quantity?: number | null;
+            /** Category */
+            category?: string | null;
+            /** Tags */
+            tags?: string[] | null;
+            /** Notes */
+            notes?: string | null;
+            /** Brand */
+            brand?: string | null;
+            /** Model */
+            model?: string | null;
+            /** Serial Number */
+            serial_number?: string | null;
+            /** Purchase Date */
+            purchase_date?: string | null;
+            /** Price Cents */
+            price_cents?: number | null;
+            /** Order Link */
+            order_link?: string | null;
+            /** Warranty Ends */
+            warranty_ends?: string | null;
+            /** Return Ends */
+            return_ends?: string | null;
         };
         /** ItemCreated */
         ItemCreated: {
@@ -682,6 +770,28 @@ export interface components {
             /** Home Location Id */
             home_location_id: string | null;
             status: components["schemas"]["ItemStatus"];
+            /** Category */
+            category: string | null;
+            /** Tags */
+            tags: string[];
+            /** Notes */
+            notes: string | null;
+            /** Brand */
+            brand: string | null;
+            /** Model */
+            model: string | null;
+            /** Serial Number */
+            serial_number: string | null;
+            /** Purchase Date */
+            purchase_date: string | null;
+            /** Price Cents */
+            price_cents: number | null;
+            /** Order Link */
+            order_link: string | null;
+            /** Warranty Ends */
+            warranty_ends: string | null;
+            /** Return Ends */
+            return_ends: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -709,6 +819,28 @@ export interface components {
             /** Home Location Id */
             home_location_id: string | null;
             status: components["schemas"]["ItemStatus"];
+            /** Category */
+            category: string | null;
+            /** Tags */
+            tags: string[];
+            /** Notes */
+            notes: string | null;
+            /** Brand */
+            brand: string | null;
+            /** Model */
+            model: string | null;
+            /** Serial Number */
+            serial_number: string | null;
+            /** Purchase Date */
+            purchase_date: string | null;
+            /** Price Cents */
+            price_cents: number | null;
+            /** Order Link */
+            order_link: string | null;
+            /** Warranty Ends */
+            warranty_ends: string | null;
+            /** Return Ends */
+            return_ends: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -741,6 +873,28 @@ export interface components {
             /** Home Location Id */
             home_location_id: string | null;
             status: components["schemas"]["ItemStatus"];
+            /** Category */
+            category: string | null;
+            /** Tags */
+            tags: string[];
+            /** Notes */
+            notes: string | null;
+            /** Brand */
+            brand: string | null;
+            /** Model */
+            model: string | null;
+            /** Serial Number */
+            serial_number: string | null;
+            /** Purchase Date */
+            purchase_date: string | null;
+            /** Price Cents */
+            price_cents: number | null;
+            /** Order Link */
+            order_link: string | null;
+            /** Warranty Ends */
+            warranty_ends: string | null;
+            /** Return Ends */
+            return_ends: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -768,6 +922,28 @@ export interface components {
             /** Home Location Id */
             home_location_id: string | null;
             status: components["schemas"]["ItemStatus"];
+            /** Category */
+            category: string | null;
+            /** Tags */
+            tags: string[];
+            /** Notes */
+            notes: string | null;
+            /** Brand */
+            brand: string | null;
+            /** Model */
+            model: string | null;
+            /** Serial Number */
+            serial_number: string | null;
+            /** Purchase Date */
+            purchase_date: string | null;
+            /** Price Cents */
+            price_cents: number | null;
+            /** Order Link */
+            order_link: string | null;
+            /** Warranty Ends */
+            warranty_ends: string | null;
+            /** Return Ends */
+            return_ends: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -800,6 +976,28 @@ export interface components {
             /** Home Location Id */
             home_location_id: string | null;
             status: components["schemas"]["ItemStatus"];
+            /** Category */
+            category: string | null;
+            /** Tags */
+            tags: string[];
+            /** Notes */
+            notes: string | null;
+            /** Brand */
+            brand: string | null;
+            /** Model */
+            model: string | null;
+            /** Serial Number */
+            serial_number: string | null;
+            /** Purchase Date */
+            purchase_date: string | null;
+            /** Price Cents */
+            price_cents: number | null;
+            /** Order Link */
+            order_link: string | null;
+            /** Warranty Ends */
+            warranty_ends: string | null;
+            /** Return Ends */
+            return_ends: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -827,6 +1025,28 @@ export interface components {
             /** Home Location Id */
             home_location_id: string | null;
             status: components["schemas"]["ItemStatus"];
+            /** Category */
+            category: string | null;
+            /** Tags */
+            tags: string[];
+            /** Notes */
+            notes: string | null;
+            /** Brand */
+            brand: string | null;
+            /** Model */
+            model: string | null;
+            /** Serial Number */
+            serial_number: string | null;
+            /** Purchase Date */
+            purchase_date: string | null;
+            /** Price Cents */
+            price_cents: number | null;
+            /** Order Link */
+            order_link: string | null;
+            /** Warranty Ends */
+            warranty_ends: string | null;
+            /** Return Ends */
+            return_ends: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -870,6 +1090,28 @@ export interface components {
             /** Home Location Id */
             home_location_id: string | null;
             status: components["schemas"]["ItemStatus"];
+            /** Category */
+            category: string | null;
+            /** Tags */
+            tags: string[];
+            /** Notes */
+            notes: string | null;
+            /** Brand */
+            brand: string | null;
+            /** Model */
+            model: string | null;
+            /** Serial Number */
+            serial_number: string | null;
+            /** Purchase Date */
+            purchase_date: string | null;
+            /** Price Cents */
+            price_cents: number | null;
+            /** Order Link */
+            order_link: string | null;
+            /** Warranty Ends */
+            warranty_ends: string | null;
+            /** Return Ends */
+            return_ends: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Last Checked At */
@@ -1136,6 +1378,13 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** Page[Category] */
+        Page_Category_: {
+            /** Items */
+            items: components["schemas"]["Category"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
         /** Page[HistoryEntry] */
         Page_HistoryEntry_: {
             /** Items */
@@ -1164,6 +1413,13 @@ export interface components {
             /** Next Cursor */
             next_cursor: string | null;
         };
+        /** Page[Tag] */
+        Page_Tag_: {
+            /** Items */
+            items: components["schemas"]["Tag"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
         /** Password */
         Password: {
             /** Password */
@@ -1187,6 +1443,13 @@ export interface components {
             next_cursor: string | null;
             /** Count */
             count: number;
+        };
+        /** Tag */
+        Tag: {
+            /** Name */
+            name: string;
+            /** Item Count */
+            item_count: number;
         };
         /** Undone */
         Undone: {
@@ -2193,6 +2456,88 @@ export interface operations {
             };
             /** @description Conflict */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_categories: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_Category_"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_tags: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_Tag_"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
