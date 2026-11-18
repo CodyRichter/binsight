@@ -8,6 +8,7 @@ from app import models
 from app.core.errors import AppError
 from app.core.identifiers import new_identifier
 from app.core.pagination import Page, decode_cursor, encode_cursor
+from app.core.table_rows import ExportTables, table_rows
 from app.features.history import service as history
 from app.features.labels.label_image import draw_label
 from app.features.labels.schemas import (
@@ -163,3 +164,8 @@ def location_id_for(session: Session, location: str) -> str:
 def label_number(text: str) -> int | None:
     """The number in a typed label code, ignoring case and the hyphen: b14 and B-014 are 14."""
     return _number(text)
+
+
+def export_tables(session: Session) -> ExportTables:
+    """Every label, blank or claimed, as stored, for the export."""
+    return {"labels": table_rows(session, models.Label)}

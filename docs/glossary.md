@@ -95,6 +95,8 @@ before naming it in code.
 | **MCP credential** | The revocable secret Claude uses to reach the MCP server. |
 | **App address**    | The permanent web address of an install.                  |
 | **Data directory** | The one folder holding the database, attachments and backups. |
+| **Export**         | One zip of everything in the home: the data as JSON and CSV, with every photo and file. |
+| **Import**         | Adding items, and the locations they name, from a CSV file, as one change to undo. |
 
 ## Words not to use
 

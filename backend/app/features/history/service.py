@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session, selectinload
 from app import models
 from app.core.pagination import Page, decode_cursor, encode_cursor
 from app.core.settings import Settings
+from app.core.table_rows import ExportTables, table_rows
 from app.features.history import undo as undoing
 from app.features.history.recording import RecordChange as RecordChange
 from app.features.history.recording import record as record
@@ -87,3 +88,11 @@ def undo(
 ) -> Undone:
     """Put back what one change did, as a new change, if nothing has changed it since."""
     return undoing.undo(session, settings, entry_id, actor, now)
+
+
+def export_tables(session: Session) -> ExportTables:
+    """Every history entry and the changes in it, for the export."""
+    return {
+        "history_entries": table_rows(session, models.HistoryEntry),
+        "history_changes": table_rows(session, models.HistoryChange),
+    }

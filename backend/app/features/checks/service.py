@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app import models
 from app.core.identifiers import new_identifier
+from app.core.table_rows import ExportTables, table_rows
 from app.features.checks.schemas import CheckLocation, CheckPreview, LocationChecked
 from app.features.history import service as history
 from app.features.items import service as items
@@ -47,3 +48,8 @@ def check_location(
     return LocationChecked(
         **location.model_dump(), marked_missing=marked, history_entry_id=entry_id
     )
+
+
+def export_tables(session: Session) -> ExportTables:
+    """Every time a location's contents were checked, for the export."""
+    return {"checks": table_rows(session, models.Check)}

@@ -64,6 +64,35 @@ class ItemChanges(BaseModel):
         return self
 
 
+class ImportedItem(BaseModel):
+    """One item from an imported file, with whatever details the file gave it."""
+
+    name: ItemName
+    quantity: int = Field(default=1, ge=0)
+    home_location_id: str | None = None
+    status: ItemStatus = ItemStatus.in_place
+    lent_to: DetailText | None = None
+    category: DetailText | None = None
+    tags: Annotated[list[TagName], AfterValidator(_each_once)] = Field(
+        default_factory=list, max_length=50
+    )
+    notes: Notes | None = None
+    brand: DetailText | None = None
+    model: DetailText | None = None
+    serial_number: DetailText | None = None
+    purchase_date: date | None = None
+    price_cents: int | None = Field(default=None, ge=0)
+    order_link: WebAddress | None = None
+    warranty_ends: date | None = None
+    return_ends: date | None = None
+
+    @model_validator(mode="after")
+    def _lent_to_only_when_lent_out(self) -> Self:
+        if (self.status == ItemStatus.lent_out) != (self.lent_to is not None):
+            raise ValueError("An item is lent out exactly when it says who it is lent to.")
+        return self
+
+
 class ItemMove(BaseModel):
     location_id: str
 

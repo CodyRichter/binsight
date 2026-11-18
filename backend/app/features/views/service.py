@@ -2,7 +2,9 @@ from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
 
+from app import models
 from app.core.pagination import Page, counted_page, decode_offset
+from app.core.table_rows import ExportTables, table_rows
 from app.features.history import service as history
 from app.features.items import service as items
 from app.features.locations import service as locations
@@ -69,3 +71,8 @@ def list_view_rows(
     if view == "recently-moved":
         return _items(items.list_items_in_order(session, _moved(session, now), limit, cursor))
     return _items(items.list_view_items(session, view, now, limit, cursor))
+
+
+def export_tables(session: Session) -> ExportTables:
+    """Every saved search as stored, for the export."""
+    return {"saved_searches": table_rows(session, models.SavedSearch)}

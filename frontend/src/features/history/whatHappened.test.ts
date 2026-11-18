@@ -26,6 +26,10 @@ test("adding several at once reads Added", () => {
   expect(whatHappened(entry("items.created", null, { name: "Patch cable" }), "item")).toBe("Added");
 });
 
+test("an item brought in from a file reads Imported", () => {
+  expect(whatHappened(entry("items.imported", null, { name: "Drill" }), "item")).toBe("Imported");
+});
+
 test("naming an item reads Named and the name", () => {
   const named = entry("item.named", { name: null }, { name: "Multimeter" });
   expect(whatHappened(named, "item")).toBe("Named Multimeter");
