@@ -142,20 +142,28 @@ Rules:
 
 ## Attachment
 
-| Field      | Notes                                                         |
-| ---------- | ------------------------------------------------------------- |
-| `owner`    | Exactly one item or one location.                             |
-| `kind`     | `photo`, `file` or `link`.                                    |
-| `path`     | For photos and files: where it sits in the data directory.    |
-| `url`      | For links.                                                    |
-| `filename` | The original name, for display.                               |
-| `position` | Order among the owner's attachments. The first photo is the picture shown. |
+| Field          | Notes                                                         |
+| -------------- | ------------------------------------------------------------- |
+| `owner`        | Exactly one item or one location (`item_id` or `location_id`). |
+| `kind`         | `photo`, `file` or `link` (a web link).                       |
+| `path`         | For photos and files: where it sits in the data directory.    |
+| `url`          | For web links, and only for them.                             |
+| `filename`     | The original name, or a web link's name, for display.         |
+| `content_type` | For photos and files: `image/jpeg`, `image/png`, `image/webp` or `application/pdf`. |
+| `size`         | For photos and files: bytes on disk.                          |
+| `position`     | Order among the owner's attachments. The first photo is the picture shown. |
 
 - File bytes live on disk in the data directory, never in the database.
 - A photo is stored as JPEG under `attachments/`, turned upright from its
   orientation tag, at most 2048 pixels on its longest edge, and without its
   metadata, so it never carries where it was taken.
-- Locations take photos only.
+- A file is a PDF, JPEG, PNG or WebP, judged by its bytes, at most 50 MB,
+  and stored exactly as sent. It has no type of its own: its filename says
+  whether it is a receipt, a manual or a warranty document.
+- Locations take one photo and nothing else; a new one takes the old one's
+  place.
+- Removing an attachment deletes its record but leaves its file on disk, so
+  Undo can bring it back. An unnamed item's only photo can't be removed.
 
 ## Check
 

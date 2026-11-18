@@ -1,5 +1,11 @@
 import { Button, Menu } from "@mantine/core";
-import { IconArrowBackUp, IconArrowsMove, IconLink, IconTrash } from "@tabler/icons-react";
+import {
+  IconArrowBackUp,
+  IconArrowsMove,
+  IconLink,
+  IconPaperclip,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useContext, useState } from "react";
 import { FrameAdditionsContext } from "@/components/frameAdditions";
 import { PageHeader } from "@/components/PageHeader";
@@ -52,10 +58,11 @@ function since(item: Item): { words: string; at: Date } | undefined {
 interface ItemHeaderProps {
   item: Item;
   linkedIds: string[];
+  onAttach: () => void;
 }
 
 /** An item page's header: its path, name and status, its buttons, and More. */
-export function ItemHeader({ item, linkedIds }: ItemHeaderProps) {
+export function ItemHeader({ item, linkedIds, onAttach }: ItemHeaderProps) {
   const rename = useRename(item);
   const restore = useRestoreItem();
   const deleteItem = useDeleteItem();
@@ -78,6 +85,9 @@ export function ItemHeader({ item, linkedIds }: ItemHeaderProps) {
       <StatusMenuItems item={item} onLend={() => setLending(true)} />
       <Menu.Item leftSection={<IconLink aria-hidden size={20} />} onClick={() => setLinking(true)}>
         Link an item
+      </Menu.Item>
+      <Menu.Item leftSection={<IconPaperclip aria-hidden size={20} />} onClick={onAttach}>
+        Attach…
       </Menu.Item>
       <Menu.Item
         color="danger"

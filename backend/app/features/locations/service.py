@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session
 from app import models
 from app.core.errors import AppError
 from app.core.identifiers import new_identifier
+from app.features.attachments import service as attachments
+from app.features.attachments.service import StoredFile
 from app.features.history import service as history
 from app.features.locations.schemas import (
     Location as Location,
@@ -15,6 +17,7 @@ from app.features.locations.schemas import (
     LocationCreated,
     LocationMove,
     LocationMoved,
+    LocationPhotoChanged,
     LocationTree,
     NewLocation,
     SearchableLocation,
@@ -58,6 +61,7 @@ def _tree(session: Session) -> list[Location]:
         .execution_options(populate_existing=True)
     )
     rows = list(session.scalars(query))
+    photos = attachments.location_photo_urls(session)
     children: defaultdict[str, list[models.Location]] = defaultdict(list)
     for row in rows:
         if row.parent_id is not None:
@@ -78,6 +82,7 @@ def _tree(session: Session) -> list[Location]:
             direct_item_count=row.direct_item_count,
             item_count=item_count(row),
             last_checked_at=row.last_checked_at,
+            photo_url=photos.get(row.id),
         )
         for row in rows
     ]
@@ -143,6 +148,60 @@ def move_location(
     change = history.RecordChange("location", location.id, before, {"parent_id": move.parent_id})
     entry_id = history.record(session, actor, "location.moved", [change], now)
     return LocationMoved(**_find(session, location.id).model_dump(), history_entry_id=entry_id)
+
+
+def _photo_changed(
+    session: Session,
+    location_id: str,
+    changes: list[history.RecordChange],
+    actor: Actor,
+    now: datetime,
+) -> LocationPhotoChanged:
+    session.flush()
+    entry_id = history.record(session, actor, "location.photo_changed", changes, now)
+    return LocationPhotoChanged(
+        **_find(session, location_id).model_dump(), history_entry_id=entry_id
+    )
+
+
+def set_location_photo(
+    session: Session, location_id: str, stored: StoredFile, actor: Actor, now: datetime
+) -> LocationPhotoChanged:
+    """Give a location its photo, in place of any it had; one Undo puts the old one back."""
+    _get(session, location_id)
+    old = attachments.location_photo_id(session, location_id)
+    added = attachments.attach_to_location(session, location_id, stored, now)
+    # The new photo goes first, so undoing takes it away before the old one comes back.
+    changes = [history.RecordChange("attachment", stored.id, None, added)]
+    if old is not None:
+        changes.append(
+            history.RecordChange("attachment", old, attachments.detach(session, old), {})
+        )
+    return _photo_changed(session, location_id, changes, actor, now)
+
+
+def _photo_id(session: Session, location_id: str) -> str:
+    _get(session, location_id)
+    photo_id = attachments.location_photo_id(session, location_id)
+    if photo_id is None:
+        raise AppError(404, "attachment_not_found", "That location has no photo.")
+    return photo_id
+
+
+def preview_remove_location_photo(session: Session, location_id: str) -> Location:
+    """The location whose photo removing would take away, refused when it has none."""
+    _photo_id(session, location_id)
+    return _find(session, location_id)
+
+
+def remove_location_photo(
+    session: Session, location_id: str, actor: Actor, now: datetime
+) -> LocationPhotoChanged:
+    """Take a location's photo away; Undo puts it back."""
+    photo_id = _photo_id(session, location_id)
+    removed = attachments.detach(session, photo_id)
+    changes = [history.RecordChange("attachment", photo_id, removed, {})]
+    return _photo_changed(session, location_id, changes, actor, now)
 
 
 def location_path(session: Session, location_id: str) -> list[PathStep]:

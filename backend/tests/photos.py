@@ -22,3 +22,6 @@ def photo(
     else:
         image.save(output, format=image_format)
     return output.getvalue()
+
+
+PDF = b"%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\ntrailer << /Root 1 0 R >>\n%%EOF\n"

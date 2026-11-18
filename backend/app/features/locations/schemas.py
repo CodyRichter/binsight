@@ -45,9 +45,14 @@ class Location(BaseModel):
     direct_item_count: int
     item_count: int
     last_checked_at: datetime | None
+    photo_url: str | None
 
 
 class LocationCreated(Location):
+    history_entry_id: str
+
+
+class LocationPhotoChanged(Location):
     history_entry_id: str
 
 

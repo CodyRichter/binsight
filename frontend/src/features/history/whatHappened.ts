@@ -15,6 +15,8 @@ const fixedWords: Record<string, string> = {
   "history.undone": "Undone",
   "item.returned": "Returned",
   "item.unlinked": "Link removed",
+  "item.photo_added": "Added a photo",
+  "item.web_link_attached": "Attached a link",
 };
 
 const statusWords: Record<string, string> = {
@@ -77,11 +79,26 @@ function linked(entry: HistoryEntry, itemId: string): string {
   return link.after.item_id === itemId ? linkedWords.part_of : linkedWords.part;
 }
 
+const removedWords = { photo: "Removed a photo", file: "Removed a file", link: "Removed a link" };
+
+// An attachment's fields are what was attached, or, once removed, what it was before.
+function attached(entry: HistoryEntry): string {
+  const [change] = entry.changes;
+  const fields = change.before ?? change.after;
+  const name = fields.filename ? String(fields.filename) : undefined;
+  if (entry.action === "item.file_attached") return `Attached ${name ?? "a file"}`;
+  const kind = String(fields.kind) as keyof typeof removedWords;
+  return name ? `Removed ${name}` : removedWords[kind];
+}
+
 /** The line a history row says for an entry: "Added", "Quantity changed from 3 to 4". */
 export function whatHappened(entry: HistoryEntry, itemId: string): string {
   const words = fixedWords[entry.action];
   if (words) return words;
   if (entry.action === "item.linked") return linked(entry, itemId);
+  if (entry.action === "item.file_attached" || entry.action === "item.attachment_removed") {
+    return attached(entry);
+  }
   const [change] = entry.changes.filter((each) => each.record_type === "item");
   if (entry.action === "item.updated" || entry.action === "item.named") {
     return changedFields(change);

@@ -13,6 +13,7 @@ function location(id: string, parentId: string | null): Location {
     path: [],
     direct_item_count: 0,
     last_checked_at: null,
+    photo_url: null,
     item_count: 0,
   };
 }

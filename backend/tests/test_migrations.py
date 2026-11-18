@@ -164,3 +164,34 @@ def test_items_lent_before_saved_searches_keep_their_loans(settings: Settings) -
         row = connection.execute(text("SELECT status, lent_to FROM item WHERE id = 'drill'")).one()
         saved = connection.execute(text("SELECT count(*) FROM saved_search")).scalar()
     assert (tuple(row), saved) == (("lent_out", "Sam"), 0)
+
+
+def test_photos_from_before_files_stay_their_item_s_jpeg_photos(settings: Settings) -> None:
+    settings.data_directory.mkdir()
+    engine = create_database_engine(settings.database_path)
+    config = Config()
+    config.set_main_option("script_location", str(BACKEND_DIRECTORY / "migrations"))
+    with engine.begin() as connection:
+        config.attributes["connection"] = connection
+        command.upgrade(config, "0011")
+        connection.execute(
+            text(
+                "INSERT INTO item (id, name, quantity, status, created_at, updated_at)"
+                " VALUES ('drill', NULL, 1, 'in_place', '2026-11-16 12:00:00',"
+                " '2026-11-16 12:00:00')"
+            )
+        )
+        connection.execute(
+            text(
+                "INSERT INTO attachment"
+                " (id, item_id, kind, path, filename, position, created_at, updated_at)"
+                " VALUES ('photo', 'drill', 'photo', 'attachments/photo.jpg', NULL, 0,"
+                " '2026-11-16 12:00:00', '2026-11-16 12:00:00')"
+            )
+        )
+    migrate_database(engine, settings)
+    with engine.connect() as connection:
+        row = connection.execute(
+            text("SELECT item_id, location_id, kind, path, content_type FROM attachment")
+        ).one()
+    assert tuple(row) == ("drill", None, "photo", "attachments/photo.jpg", "image/jpeg")

@@ -7,8 +7,16 @@ from app import models
 from app.core.errors import AppError
 from app.core.identifiers import new_identifier
 from app.features.attachments import service as attachments
-from app.features.attachments.service import StoredPhoto
+from app.features.attachments.service import StoredFile
 from app.features.history import service as history
+from app.features.items.attachments import add_item_photo as add_item_photo
+from app.features.items.attachments import attach_file as attach_file
+from app.features.items.attachments import attach_web_link as attach_web_link
+from app.features.items.attachments import list_item_attachments as list_item_attachments
+from app.features.items.attachments import (
+    preview_remove_item_attachment as preview_remove_item_attachment,
+)
+from app.features.items.attachments import remove_item_attachment as remove_item_attachment
 from app.features.items.details import apply_changes
 from app.features.items.links import link_items as link_items
 from app.features.items.links import list_item_links as list_item_links
@@ -53,7 +61,7 @@ from app.features.items.views import count_items_in_order as count_items_in_orde
 from app.features.items.views import count_view_items as count_view_items
 from app.features.items.views import list_items_in_order as list_items_in_order
 from app.features.items.views import list_view_items as list_view_items
-from app.models import Actor
+from app.models import Actor, AttachmentKind
 
 
 def _fields(item: models.Item) -> dict[str, Any]:
@@ -99,7 +107,7 @@ def create_items(session: Session, new: NewItems, actor: Actor, now: datetime) -
 
 def create_item_by_photo(
     session: Session,
-    photo: StoredPhoto,
+    photo: StoredFile,
     home_location_id: str | None,
     actor: Actor,
     now: datetime,
@@ -109,7 +117,7 @@ def create_item_by_photo(
     item = _new(None, home_location_id, now)
     session.add(item)
     session.flush()
-    attached = attachments.attach_photo(session, item.id, photo, now)
+    attached = attachments.attach_to_item(session, item.id, photo, AttachmentKind.photo, now)
     changes = [
         history.RecordChange("item", item.id, None, _fields(item)),
         history.RecordChange("attachment", photo.id, None, attached),

@@ -4,6 +4,7 @@ from typing import Annotated, Literal, Self
 
 from pydantic import AfterValidator, BaseModel, Field, StringConstraints, model_validator
 
+from app.features.attachments.service import Attachment
 from app.features.locations.service import PathStep
 from app.models import ItemStatus, LinkKind
 
@@ -22,7 +23,7 @@ class NewItems(BaseModel):
 
 DetailText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
 Notes = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=5000)]
-OrderLink = Annotated[
+WebAddress = Annotated[
     str, StringConstraints(strip_whitespace=True, max_length=2000, pattern=r"^https?://\S+$")
 ]
 TagName = Annotated[
@@ -49,7 +50,7 @@ class ItemChanges(BaseModel):
     serial_number: DetailText | None = None
     purchase_date: date | None = None
     price_cents: int | None = Field(default=None, ge=0)
-    order_link: OrderLink | None = None
+    order_link: WebAddress | None = None
     warranty_ends: date | None = None
     return_ends: date | None = None
 
@@ -178,6 +179,19 @@ class ItemLinked(BaseModel):
 
 
 class ItemUnlinked(BaseModel):
+    history_entry_id: str
+
+
+class NewWebLink(BaseModel):
+    url: WebAddress
+    name: DetailText | None = None
+
+
+class AttachmentAdded(Attachment):
+    history_entry_id: str
+
+
+class AttachmentRemoved(Attachment):
     history_entry_id: str
 
 

@@ -15,6 +15,7 @@ from app.features.attachments import routes as attachments
 from app.features.auth import routes as auth
 from app.features.checks import routes as checks
 from app.features.history import routes as history
+from app.features.items import attachment_routes as item_attachments
 from app.features.items import routes as items
 from app.features.labels import routes as labels
 from app.features.locations import routes as locations
@@ -30,6 +31,7 @@ def _signed_in_routes() -> APIRouter:
     signed_in.include_router(locations.router)
     signed_in.include_router(items.router)
     signed_in.include_router(items.categories_and_tags_router)
+    signed_in.include_router(item_attachments.router)
     signed_in.include_router(labels.router)
     signed_in.include_router(history.router)
     signed_in.include_router(attachments.router)

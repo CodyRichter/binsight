@@ -34,10 +34,11 @@ location can carry a label, a sticker with a code such as B-014; wherever a tool
 location identifier, the code works too. Every change is recorded in history with the
 actor "mcp"; an item added or changed, moved or deleted by mistake can be put back with
 undo_history_entry and the history_entry_id the change returned. Deleting asks for the
-owner's confirmation first: see delete_item. Every item and location carries
-last_checked_at, when the owner last confirmed that location's contents (null if never);
-say how old it is, so old information is recognizably old, and use check_location when the
-owner confirms a bin's contents."""
+owner's confirmation first: see delete_item. Items carry photos, files such as receipts and
+manuals, and web links: see list_item_attachments and get_attachment_file. Every item and
+location carries last_checked_at, when the owner last confirmed that location's contents
+(null if never); say how old it is, so old information is recognizably old, and use
+check_location when the owner confirms a bin's contents."""
 
 
 def add_mcp_server(app: FastAPI) -> MCPServer:

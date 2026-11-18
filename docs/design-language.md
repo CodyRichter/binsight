@@ -346,11 +346,14 @@ Every page is one of six templates. "Header" is the page header component.
 
 1. Header: the parent path; the title and large code chip; the summary; the
    checked stamp and counts; up to two default buttons and More. A
-   location's photo is not shown large here. On a location the buttons are
+   location with a photo shows it as the 96px thumbnail beside the title,
+   and nowhere larger. On a location the buttons are
    "Contents checked" and Move ("Add location" in place of Move on a
    site); More holds "Add location" when there is no Locations section,
-   "Download label" and "Check mode". "Contents checked" says "Contents
-   checked" with Undo.
+   "Download label", "Check mode", then "Add photo" ("Replace photo" when
+   it has one), which opens the camera, and "Remove photo" when it has
+   one. "Contents checked" says "Contents checked" with Undo; a photo says
+   "Added a photo to {place}" or "Removed the photo", with Undo.
 2. The add bar, on a location only. The page's one accent.
 3. "Here / Everything inside", only when the location contains other
    locations.
@@ -437,7 +440,8 @@ toast offers Undo.
    in use" (not while in use), which says "Marked {name} in use"; "Sold",
    "Given away" and "Thrown away", which say "Marked {name} sold" and so
    on; none of these four while archived; then "Link an item", which opens
-   the link sheet; then "Delete item", which goes to the item's location
+   the link sheet; then "Attach…", which opens the Attach sheet; then
+   "Delete item", which goes to the item's location
    (or `/inbox`) with the toast "Deleted {name}". Every one offers Undo. A
    lent-out, archived or deleted item's page reads when, as a `muted`
    `text-small` line under the title: "Lent 2 weeks ago", "Sold 3 days
@@ -459,6 +463,14 @@ toast offers Undo.
    Undo, and history says "{Detail} changed", "Tagged {tag}", "Tag {tag}
    removed", or "Details changed" for several at once. A deleted item's
    page has no Details section.
+   Then "Attachments", only when the item has any: attachment rows, photos
+   first and then files and web links in the order added, with the
+   section action "Attach". Attaching says "Added a photo to {name}",
+   "Attached {filename}" or "Attached link to {name}", and the row's
+   "Remove" icon button says "Removed {name}", each with Undo; history says
+   "Added a photo", "Attached {filename}", "Attached a link" or "Removed
+   {name}". A file can be a receipt, a manual or anything else: its
+   filename says which. A deleted item's page has none.
    Then "Belongs with", "Part of" and "Parts", each only when it has
    linked items: item rows, each ending in a "Remove link" icon button that
    says "Removed link to {name}" with Undo. Linking says "Linked {name}".
@@ -679,6 +691,11 @@ the item itself and what it is already linked to. Picking a row swaps them
 in place for three name rows: "Belongs with {name}", "Part of {name}" and
 "{name} is a part of this".
 
+The Attach sheet is titled "Attach": three name rows, "Take photo", which
+opens the camera, "Choose file", which takes a PDF, JPEG, PNG or WebP, and
+"Add link", which swaps in the Add link sheet: two fields, "Address" and
+"Name", and a primary "Attach".
+
 The move sheet is titled "Move to". Its one field, "Search locations or
 scan", narrows the rows by name or by code (typed loosely, as `b14`), and
 ends in a "Scan destination" icon button that swaps the rows for the
@@ -769,6 +786,14 @@ nothing is cut with an ellipsis. Matched search text is marked with
 `highlight`. No swipe gestures. An item added by photo and not named yet
 reads "Unnamed" in `muted`, here and as its page's title, which is edited in
 place like any name; it is a fact, not a prompt.
+
+**Attachment row.** A 48px thumbnail (the photo itself, or in `muted`
+`photo` for an image file, `file-type-pdf` for a PDF and `world` for a web
+link), then the name over a `muted` `text-small` line with a file's size or
+a named link's site, then a `touch-min` "Remove" icon button (`x`). A photo
+without a filename reads "Photo", a link without a name its address. The
+whole row opens it in a new tab. Full width on `ground`, hairline below, at
+least `row-min` high.
 
 **Location row.** Expand toggle (only with children), type icon, name, code
 chip if labeled, count of every item inside in `muted` at the right.

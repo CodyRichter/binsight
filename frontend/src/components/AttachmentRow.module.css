@@ -1,0 +1,61 @@
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--bs-space-md);
+  min-height: var(--bs-row-min);
+  padding: var(--bs-space-sm) var(--bs-space-lg);
+  border-bottom: 1px solid var(--bs-hairline);
+  list-style: none;
+}
+
+.row:hover {
+  background: var(--bs-hover);
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--bs-space-xs);
+  min-width: 0;
+}
+
+.name {
+  color: var(--bs-ink);
+  font-size: var(--bs-text-body-strong-size);
+  line-height: var(--bs-text-body-strong-line-height);
+  font-weight: var(--bs-text-body-strong-weight);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+/* The whole row is the target. */
+.name::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.name:focus-visible {
+  outline: none;
+}
+
+.name:focus-visible::after {
+  outline: 2px solid var(--bs-focus);
+  outline-offset: -2px;
+}
+
+.detail {
+  color: var(--bs-muted);
+  font-size: var(--bs-text-small-size);
+  line-height: var(--bs-text-small-line-height);
+  font-weight: var(--bs-text-small-weight);
+}
+
+/* Above the row's link, and with its glyph at the gutter. */
+.remove {
+  position: relative;
+  z-index: 1;
+  margin-right: calc((24px - var(--bs-touch-min)) / 2);
+}
