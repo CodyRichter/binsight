@@ -83,3 +83,34 @@ def test_items_from_before_details_keep_their_fields_and_have_none_yet(
             text("SELECT name, quantity, status, category_id, notes FROM item WHERE id = 'drill'")
         ).one()
     assert tuple(row) == ("Drill", 2, "missing", None, None)
+
+
+def test_items_with_photos_survive_upgrades_that_rebuild_the_item_table(
+    settings: Settings,
+) -> None:
+    settings.data_directory.mkdir()
+    engine = create_database_engine(settings.database_path)
+    config = Config()
+    config.set_main_option("script_location", str(BACKEND_DIRECTORY / "migrations"))
+    with engine.begin() as connection:
+        config.attributes["connection"] = connection
+        command.upgrade(config, "0008")
+        connection.execute(
+            text(
+                "INSERT INTO item (id, name, quantity, status, created_at, updated_at)"
+                " VALUES ('drill', 'Drill', 1, 'in_place', '2026-11-16 12:00:00',"
+                " '2026-11-16 12:00:00')"
+            )
+        )
+        connection.execute(
+            text(
+                "INSERT INTO attachment"
+                " (id, item_id, kind, path, filename, position, created_at, updated_at)"
+                " VALUES ('photo', 'drill', 'photo', 'attachments/photo.jpg', NULL, 0,"
+                " '2026-11-16 12:00:00', '2026-11-16 12:00:00')"
+            )
+        )
+    migrate_database(engine, settings)
+    with engine.connect() as connection:
+        owner = connection.execute(text("SELECT item_id FROM attachment")).scalar()
+    assert owner == "drill"
