@@ -48,6 +48,8 @@ export function useSavedSearchRows(id: string) {
 function useSavedSearchAction<Input, Answer extends { history_entry_id: string }>(
   send: (input: Input) => Promise<Answer>,
   message: (input: Input, answer: Answer) => string,
+  // A deleted search's own page may still be showing; reading it again would only say it's gone.
+  onlyTheList = false,
 ): (input: Input) => void {
   const queryClient = useQueryClient();
   const undo = useUndo();
@@ -56,7 +58,8 @@ function useSavedSearchAction<Input, Answer extends { history_entry_id: string }
     onSuccess: (answer, input) =>
       showToast({ message: message(input, answer), onUndo: () => undo(answer.history_entry_id) }),
     onError: (error, input) => showToast({ message: error.message, onRetry: () => mutate(input) }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: savedSearchesKey }),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: savedSearchesKey, exact: onlyTheList }),
   });
   return (input) => mutate(input);
 }
@@ -85,5 +88,6 @@ export function useDeleteSavedSearch(): (saved: SavedSearch) => void {
   return useSavedSearchAction(
     (saved) => api.delete<SavedSearchDeleted>(`/api/saved-searches/${saved.id}`),
     (saved) => `Deleted ${saved.name}`,
+    true,
   );
 }
