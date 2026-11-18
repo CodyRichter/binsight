@@ -1,5 +1,5 @@
-import { Button } from "@mantine/core";
-import { IconArrowsMove } from "@tabler/icons-react";
+import { Button, Menu } from "@mantine/core";
+import { IconArrowBackUp, IconArrowsMove, IconTrash } from "@tabler/icons-react";
 import { useContext, useState } from "react";
 import { useParams } from "react-router";
 import { AppFrame } from "@/components/AppFrame";
@@ -15,6 +15,8 @@ import { useRename } from "./useItemChange";
 import { useMoveItem } from "./useMoveItem";
 import { useItem, type Item } from "./useItems";
 import { useQuantity } from "./useQuantity";
+import { useDeleteItem } from "./useDeleteItem";
+import { useRestoreItem } from "./useRestoreItem";
 
 function MoveButton({ item }: { item: Item }) {
   const { MoveSheet } = useContext(FrameAdditionsContext);
@@ -36,9 +38,32 @@ function MoveButton({ item }: { item: Item }) {
   );
 }
 
+function RestoreButton({ item }: { item: Item }) {
+  const restore = useRestoreItem();
+  return (
+    <Button leftSection={<IconArrowBackUp aria-hidden />} onClick={() => restore(item)}>
+      Restore
+    </Button>
+  );
+}
+
+function DeleteMenuItem({ item }: { item: Item }) {
+  const deleteItem = useDeleteItem();
+  return (
+    <Menu.Item
+      color="danger"
+      leftSection={<IconTrash aria-hidden size={20} />}
+      onClick={() => deleteItem(item)}
+    >
+      Delete item
+    </Menu.Item>
+  );
+}
+
 function ItemBody({ item }: { item: Item }) {
   const changeQuantity = useQuantity(item);
   const rename = useRename(item);
+  const deleted = item.deleted_at !== null;
   return (
     <>
       <PageLead
@@ -49,7 +74,9 @@ function ItemBody({ item }: { item: Item }) {
             onRename={rename}
             parents={pathSegments(item.path)}
             thumbnail={{ photoUrl: item.photo_url ?? undefined }}
-            actions={<MoveButton item={item} />}
+            deletedAt={item.deleted_at ? new Date(item.deleted_at) : undefined}
+            actions={deleted ? <RestoreButton item={item} /> : <MoveButton item={item} />}
+            menu={deleted ? undefined : <DeleteMenuItem item={item} />}
           />
         }
       >

@@ -17,6 +17,8 @@ export function whatHappened(entry: HistoryEntry): string {
     return changedFields(change);
   }
   if (entry.action === "item.moved") return "Moved";
+  if (entry.action === "item.deleted") return "Deleted";
+  if (entry.action === "item.restored") return "Restored";
   if (entry.action === "history.undone") return "Undone";
   throw new Error(`History has no wording for ${entry.action}`);
 }

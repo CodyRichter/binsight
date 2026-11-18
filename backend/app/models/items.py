@@ -17,3 +17,4 @@ class Item(Model):
     home_location_id: Mapped[str | None] = mapped_column(ForeignKey("location.id"), index=True)
     created_at: Mapped[datetime]
     updated_at: Mapped[datetime]
+    deleted_at: Mapped[datetime | None]

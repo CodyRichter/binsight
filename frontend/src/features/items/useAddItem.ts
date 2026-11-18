@@ -19,6 +19,7 @@ export function adding(name: string | null, home: Destination | null, photoUrl?:
     path: home?.path ?? [],
     photo_url: photoUrl ?? null,
     created_at: new Date().toISOString(),
+    deleted_at: null,
   };
 }
 

@@ -17,6 +17,8 @@ UNDOABLE = {
     "item.updated",
     "item.named",
     "item.moved",
+    "item.deleted",
+    "item.restored",
     "location.moved",
 }
 
@@ -42,11 +44,32 @@ def _record(session: Session, change: models.HistoryChange) -> Undoable | None:
     return session.get(models.Item, change.record_id)
 
 
+def _as_recorded(value: object) -> object:
+    # History is JSON, so times are kept as ISO text.
+    return value.isoformat() if isinstance(value, datetime) else value
+
+
+def _as_field(key: str, value: object) -> object:
+    if key == "deleted_at" and isinstance(value, str):
+        return datetime.fromisoformat(value)
+    return value
+
+
+def _deleted_since(current: Undoable, change: models.HistoryChange) -> bool:
+    return (
+        isinstance(current, models.Item)
+        and current.deleted_at is not None
+        and "deleted_at" not in change.after
+    )
+
+
 def _current(session: Session, change: models.HistoryChange) -> Undoable:
     # Undo reads and writes these tables directly: the one exception to features keeping to theirs.
     current = _record(session, change)
-    if current is None or any(
-        getattr(current, key) != value for key, value in change.after.items()
+    if (
+        current is None
+        or _deleted_since(current, change)
+        or any(_as_recorded(getattr(current, key)) != value for key, value in change.after.items())
     ):
         raise AppError(409, "changed_since", "That can't be undone, because it has changed since.")
     return current
@@ -76,7 +99,7 @@ def _reverse(
         if isinstance(current, models.Location) and change.before.get("parent_id"):
             _refuse_cycle(session, current, change.before["parent_id"])
         for key, value in change.before.items():
-            setattr(current, key, value)
+            setattr(current, key, _as_field(key, value))
         current.updated_at = now
     # A record that was created is now gone, so it has nothing after.
     undone_to = change.before or {}

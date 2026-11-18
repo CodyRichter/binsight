@@ -132,3 +132,34 @@ def test_a_change_undo_does_not_cover_is_refused(
 
 def test_an_unknown_change_is_not_found(migrated_engine: Engine, settings: Settings) -> None:
     assert _refusal(migrated_engine, settings, "made-up") == (404, "history_entry_not_found")
+
+
+def test_undoing_a_delete_restores_the_item(migrated_engine: Engine, settings: Settings) -> None:
+    with open_write_session(migrated_engine) as session:
+        added = builders.item(session, "Ethernet cable")
+        deleted = items.delete_item(session, added.id, Actor.app, builders.NOW)
+    _undo(migrated_engine, settings, deleted.history_entry_id)
+    with open_read_session(migrated_engine) as session:
+        assert items.get_item(session, added.id).deleted_at is None
+        assert items.count_inbox(session).count == 1
+
+
+def test_undoing_a_restore_deletes_the_item_again(
+    migrated_engine: Engine, settings: Settings
+) -> None:
+    with open_write_session(migrated_engine) as session:
+        added = builders.item(session, "Ethernet cable")
+        items.delete_item(session, added.id, Actor.app, builders.NOW)
+        restored = items.restore_item(session, added.id, Actor.app, builders.NOW)
+    _undo(migrated_engine, settings, restored.history_entry_id)
+    with open_read_session(migrated_engine) as session:
+        assert items.get_item(session, added.id).deleted_at == builders.NOW
+
+
+def test_an_add_cannot_be_undone_once_the_item_is_deleted(
+    migrated_engine: Engine, settings: Settings
+) -> None:
+    with open_write_session(migrated_engine) as session:
+        added = builders.item(session, "Ethernet cable")
+        items.delete_item(session, added.id, Actor.app, builders.NOW)
+    assert _refusal(migrated_engine, settings, added.history_entry_id) == (409, "changed_since")

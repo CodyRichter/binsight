@@ -44,6 +44,7 @@ class Item(BaseModel):
     path: list[PathStep]
     photo_url: str | None
     created_at: datetime
+    deleted_at: datetime | None
 
 
 class ItemCreated(Item):
@@ -60,6 +61,14 @@ class ItemUpdated(Item):
 
 
 class ItemMoved(Item):
+    history_entry_id: str
+
+
+class ItemDeleted(Item):
+    history_entry_id: str
+
+
+class ItemRestored(Item):
     history_entry_id: str
 
 

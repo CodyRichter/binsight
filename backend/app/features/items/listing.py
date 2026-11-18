@@ -13,7 +13,7 @@ def _oldest_first(
 ) -> Page[Item]:
     query = (
         select(models.Item)
-        .where(which)
+        .where(which, _not_deleted())
         .order_by(models.Item.created_at, models.Item.id)
         .limit(limit + 1)
     )
@@ -38,6 +38,10 @@ def list_items(
     return _oldest_first(session, models.Item.home_location_id.in_(homes), limit, cursor)
 
 
+def _not_deleted() -> ColumnElement[bool]:
+    return models.Item.deleted_at.is_(None)
+
+
 def _in_inbox() -> ColumnElement[bool]:
     return or_(models.Item.name.is_(None), models.Item.home_location_id.is_(None))
 
@@ -49,13 +53,16 @@ def list_inbox(session: Session, limit: int, cursor: str | None) -> Page[Item]:
 
 def count_inbox(session: Session) -> InboxCount:
     """How many items are missing a name or a home location."""
-    count = session.scalar(select(func.count()).select_from(models.Item).where(_in_inbox()))
+    query = select(func.count()).select_from(models.Item).where(_in_inbox(), _not_deleted())
+    count = session.scalar(query)
     return InboxCount(count=count or 0)
 
 
 def searchable_items(session: Session) -> list[SearchableItem]:
     """Every named item's identifier and name, for search to score."""
-    query = select(models.Item.id, models.Item.name).where(models.Item.name.is_not(None))
+    query = select(models.Item.id, models.Item.name).where(
+        models.Item.name.is_not(None), _not_deleted()
+    )
     return [
         SearchableItem(id=item_id, name=name)
         for item_id, name in session.execute(query)

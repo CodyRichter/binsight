@@ -43,3 +43,13 @@ test("a move reads Moved", () => {
 test("an action with no wording is a bug, not a blank row", () => {
   expect(() => whatHappened(entry("location.merged", {}))).toThrow("location.merged");
 });
+
+test("deleting and restoring read Deleted and Restored", () => {
+  const at = "2026-11-16T12:00:00+00:00";
+  expect(whatHappened(entry("item.deleted", { deleted_at: null }, { deleted_at: at }))).toBe(
+    "Deleted",
+  );
+  expect(whatHappened(entry("item.restored", { deleted_at: at }, { deleted_at: null }))).toBe(
+    "Restored",
+  );
+});

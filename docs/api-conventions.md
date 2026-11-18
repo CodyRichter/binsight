@@ -111,9 +111,16 @@ One shape for every error:
   `already_undone`, `changed_since` when a record no longer holds what the
   entry left it as, or `undo_not_supported` for an action undo does not
   cover yet. It covers adding items, changing an item's name or
-  quantity, and moving an item or a location; undoing a location's move is
-  refused with `changed_since` when its old parent has since been moved
-  inside it.
+  quantity, moving an item or a location, and deleting or restoring an
+  item; undoing a location's move is refused with `changed_since` when its
+  old parent has since been moved inside it, and any other change to an
+  item that has since been deleted is refused with `changed_since`.
+- `DELETE /api/items/{id}` deletes an item and `POST
+  /api/items/{id}/restore` restores it. A deleted item is left out of every
+  list, count and search, and `GET /api/items/{id}` still answers with it,
+  its `deleted_at` set. Changing, moving or deleting it again is refused
+  with 409 `item_deleted`; restoring an item that is not deleted is refused
+  with 409 `not_deleted`.
 - A move is refused with 409 `already_there` when the thing is already in
   that location, `move_into_itself` when a location would go into itself
   or anything inside it, and `site_cannot_move` for a site.
@@ -148,7 +155,10 @@ One shape for every error:
 - Errors use the same `code` values as the API.
 - A tool that deletes, merges or changes many records returns a preview and
   a confirmation token first, and acts only when called again with the same
-  inputs and the token. A token works once and expires after ten minutes.
+  inputs and the token. A token works once and expires after ten minutes;
+  otherwise the call is refused with 409 `confirmation_invalid` or
+  `confirmation_expired`. `delete_item` is one of these; the app has no
+  confirmation step, since its delete offers Undo.
   Adding several items is not one of these: it only creates, and one undo
   removes the whole batch.
 - A location can be named by its code wherever a location identifier is

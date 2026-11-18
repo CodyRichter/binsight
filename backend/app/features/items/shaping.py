@@ -24,4 +24,5 @@ def shaped(session: Session, item: models.Item) -> Item:
         path=path_of(session, item.home_location_id),
         photo_url=attachments.photo_url(session, item.id),
         created_at=item.created_at,
+        deleted_at=item.deleted_at,
     )

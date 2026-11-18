@@ -20,8 +20,10 @@ from app.features.items.schemas import (
 from app.features.items.schemas import (
     ItemChanges,
     ItemCreated,
+    ItemDeleted,
     ItemMove,
     ItemMoved,
+    ItemRestored,
     ItemsCreated,
     ItemUpdated,
     NewItem,
@@ -100,8 +102,15 @@ def _get(session: Session, item_id: str) -> models.Item:
     return item
 
 
+def _live(session: Session, item_id: str) -> models.Item:
+    item = _get(session, item_id)
+    if item.deleted_at is not None:
+        raise AppError(409, "item_deleted", "That item has been deleted. Restore it first.")
+    return item
+
+
 def get_item(session: Session, item_id: str) -> Item:
-    """One item, with the full path of its home location."""
+    """One item, with the full path of its home location, even when it has been deleted."""
     return shaped(session, _get(session, item_id))
 
 
@@ -109,7 +118,7 @@ def update_item(
     session: Session, item_id: str, changes: ItemChanges, actor: Actor, now: datetime
 ) -> ItemUpdated:
     """Give an item its name, or change how many of it there are."""
-    item = _get(session, item_id)
+    item = _live(session, item_id)
     changed = changes.model_dump(exclude_none=True)
     before = {field: getattr(item, field) for field in changed}
     for field, value in changed.items():
@@ -125,7 +134,7 @@ def move_item(
     session: Session, item_id: str, move: ItemMove, actor: Actor, now: datetime
 ) -> ItemMoved:
     """Move an item into another location."""
-    item = _get(session, item_id)
+    item = _live(session, item_id)
     path_of(session, move.location_id)
     if item.home_location_id == move.location_id:
         raise AppError(409, "already_there", "That item is already there.")
@@ -135,3 +144,36 @@ def move_item(
     change = history.RecordChange("item", item.id, before, {"home_location_id": move.location_id})
     entry_id = history.record(session, actor, "item.moved", [change], now)
     return ItemMoved(**shaped(session, item).model_dump(), history_entry_id=entry_id)
+
+
+def preview_delete_item(session: Session, item_id: str) -> Item:
+    """The item that deleting would take out of view, refused as deleting it would be."""
+    return shaped(session, _live(session, item_id))
+
+
+def _set_deleted_at(
+    session: Session, item: models.Item, deleted_at: datetime | None, actor: Actor, now: datetime
+) -> str:
+    before = {"deleted_at": item.deleted_at.isoformat() if item.deleted_at else None}
+    item.deleted_at = deleted_at
+    item.updated_at = now
+    after = {"deleted_at": deleted_at.isoformat() if deleted_at else None}
+    change = history.RecordChange("item", item.id, before, after)
+    action = "item.deleted" if deleted_at else "item.restored"
+    return history.record(session, actor, action, [change], now)
+
+
+def delete_item(session: Session, item_id: str, actor: Actor, now: datetime) -> ItemDeleted:
+    """Take an item out of view; it can be restored."""
+    item = _live(session, item_id)
+    entry_id = _set_deleted_at(session, item, now, actor, now)
+    return ItemDeleted(**shaped(session, item).model_dump(), history_entry_id=entry_id)
+
+
+def restore_item(session: Session, item_id: str, actor: Actor, now: datetime) -> ItemRestored:
+    """Bring a deleted item back where it was."""
+    item = _get(session, item_id)
+    if item.deleted_at is None:
+        raise AppError(409, "not_deleted", "That item has not been deleted.")
+    entry_id = _set_deleted_at(session, item, None, actor, now)
+    return ItemRestored(**shaped(session, item).model_dump(), history_entry_id=entry_id)
