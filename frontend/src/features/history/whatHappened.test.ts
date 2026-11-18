@@ -65,3 +65,25 @@ test("a check that marked the item missing says so", () => {
   const checked = entry("location.checked", { status: "in_place" }, { status: "missing" });
   expect(whatHappened(checked)).toBe("Marked missing in a check");
 });
+
+test("a detail change names the detail", () => {
+  const changed = entry("item.updated", { serial_number: null }, { serial_number: "SN-1" });
+  expect(whatHappened(changed)).toBe("Serial number changed");
+  expect(whatHappened(entry("item.updated", { category_id: null }, { category_id: "c" }))).toBe(
+    "Category changed",
+  );
+});
+
+test("a tag added or removed is named", () => {
+  expect(whatHappened(entry("item.updated", { tags: ["hdmi"] }, { tags: ["4k", "hdmi"] }))).toBe(
+    "Tagged 4k",
+  );
+  expect(whatHappened(entry("item.updated", { tags: ["hdmi"] }, { tags: [] }))).toBe(
+    "Tag hdmi removed",
+  );
+});
+
+test("several details changed at once read Details changed", () => {
+  const changed = entry("item.updated", { brand: null, model: null }, { brand: "A", model: "B" });
+  expect(whatHappened(changed)).toBe("Details changed");
+});

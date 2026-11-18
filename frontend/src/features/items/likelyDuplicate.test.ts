@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { likelyDuplicate } from "./likelyDuplicate";
+import { noDetails } from "./noDetails";
 import type { Item } from "./useItems";
 
 function item(id: string, name: string | null): Item {
@@ -13,6 +14,7 @@ function item(id: string, name: string | null): Item {
     created_at: "2026-11-16T12:00:00Z",
     deleted_at: null,
     status: "in_place",
+    ...noDetails,
     last_checked_at: null,
   };
 }

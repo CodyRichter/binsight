@@ -147,8 +147,11 @@ In this order, each as its own step shipping both sides together:
    Feature: `checks`. Check mode marks unticked items missing, so this
    step also brings the `missing` status, with marking missing and found;
    step 2 adds the other statuses.
-2. Item details: status, lent to, archive, links,
-   categories and tags.
+2. Item details, in two steps:
+   - 2a: the item page's Details section, with every optional field,
+     the category and tags, and search over them.
+   - 2b: in use, lent to, retiring and the archive, and links between
+     items.
 3. Views and saved searches. Feature: `views`.
 4. Attachments beyond photos: receipts, manuals, links.
 5. Import and export, the insurance export, contents sheets. Feature:

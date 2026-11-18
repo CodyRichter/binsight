@@ -7,7 +7,7 @@ import {
   siteRoomBin,
   uniqueName,
 } from "./homeData";
-import { box, open } from "./measure";
+import { box, open, settled } from "./measure";
 
 test("an item row with a path is row-min plus its hairline", async ({ page }) => {
   const shed = uniqueName("Shed");
@@ -43,6 +43,7 @@ test("a move sheet's rows are flat, touch-min plus a hairline, with the type ico
   const sheet = page.getByRole("dialog", { name: "Move to" });
   await sheet.getByRole("textbox", { name: "Search locations" }).fill(names.site);
   const row = sheet.locator("li").first();
+  await settled(page);
   expect((await box(row)).height).toBe(49);
   expect((await box(row.locator("svg").first())).left).toBe(16);
 });
@@ -65,6 +66,7 @@ test("a sheet's Close is touch-min with its glyph at the gutter", async ({ page 
   await open(page, "/");
   await page.getByRole("button", { name: "Add location" }).click();
   const close = page.getByRole("dialog").locator(".mantine-Drawer-close");
+  await settled(page);
   expect((await box(close)).height).toBe(48);
   expect((await box(close.locator("svg"))).right).toBe(390 - 16);
 });

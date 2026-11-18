@@ -6,12 +6,26 @@ interface EditableTextProps {
   label: string;
   invitation?: string;
   multiline?: boolean;
+  /** The kind of field a one-line value is typed in. */
+  type?: "text" | "date" | "url";
+  inputMode?: "decimal";
+  /** How the value reads at rest, when that differs from how it is typed (a date). */
+  display?: string;
   onSave: (value: string) => void;
 }
 
 type Field = HTMLInputElement | HTMLTextAreaElement;
 
-export function EditableText({ value, label, invitation, multiline, onSave }: EditableTextProps) {
+export function EditableText({
+  value,
+  label,
+  invitation,
+  multiline,
+  type,
+  inputMode,
+  display,
+  onSave,
+}: EditableTextProps) {
   const [editing, setEditing] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const restoreFocus = useRef(false);
@@ -43,31 +57,45 @@ export function EditableText({ value, label, invitation, multiline, onSave }: Ed
     }
   }
 
-  if (editing) {
-    const Field = multiline ? "textarea" : "input";
+  if (editing && multiline) {
     return (
-      <Field
+      <textarea
         className={classes.field}
         aria-label={label}
         defaultValue={value}
-        rows={multiline ? 4 : undefined}
+        rows={4}
         autoFocus
         onBlur={(event) => save(event.currentTarget.value)}
         onKeyDown={handleKey}
       />
     );
   }
-  if (!value && !invitation) return null;
+  if (editing) {
+    return (
+      <input
+        className={classes.field}
+        aria-label={label}
+        defaultValue={value}
+        type={type}
+        inputMode={inputMode}
+        autoFocus
+        onBlur={(event) => save(event.currentTarget.value)}
+        onKeyDown={handleKey}
+      />
+    );
+  }
+  const shown = display ?? value;
+  if (!shown && !invitation) return null;
   return (
     <button
       ref={buttonRef}
       type="button"
       className={classes.text}
       data-empty={!value || undefined}
-      aria-label={`${label}: ${value || "empty"}`}
+      aria-label={`${label}: ${shown || "empty"}`}
       onClick={() => setEditing(true)}
     >
-      {value || invitation}
+      {shown || invitation}
     </button>
   );
 }

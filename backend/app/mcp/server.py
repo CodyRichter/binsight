@@ -5,6 +5,7 @@ from starlette.routing import Route
 
 from app.mcp.access import RequireMcpCredential
 from app.mcp.attachment_tools import add_attachment_tools
+from app.mcp.category_and_tag_tools import add_category_and_tag_tools
 from app.mcp.check_tools import add_check_tools
 from app.mcp.delete_tools import add_delete_tools
 from app.mcp.history_tools import add_history_tools
@@ -15,17 +16,19 @@ from app.mcp.move_tools import add_move_tools
 from app.mcp.search_tools import add_search_tools
 from app.mcp.status_tools import add_status_tools
 
-INSTRUCTIONS = """Binsight is the owner's home inventory: locations nested in a tree (a site,
-its rooms, the furniture, shelves, bins, drawers and boxes in them) and the items kept in
-them. Use it to answer whether the owner has something and where it is, starting with
-search_home, and to record what they add or change. A location can carry a label, a
-sticker with a code such as B-014; wherever a tool takes a location identifier, the code
-works too. Every change is recorded in history with the actor "mcp"; an item added or
-changed, moved or deleted by mistake can be put back with undo_history_entry and the
-history_entry_id the change returned. Deleting asks for the owner's confirmation first: see
-delete_item. Every item and location carries last_checked_at, when the owner last confirmed
-that location's contents (null if never); say how old it is, so old information is
-recognizably old, and use check_location when the owner confirms a bin's contents."""
+INSTRUCTIONS = """Binsight is the owner's home inventory: locations nested in a tree (a
+site, its rooms, the furniture, shelves, bins, drawers and boxes in them) and the items
+kept in them. Use it to answer whether the owner has something and where it is, starting
+with search_home, and to record what they add or change. Items can carry a category, tags
+and details such as brand, serial number and warranty date, all set with update_item. A
+location can carry a label, a sticker with a code such as B-014; wherever a tool takes a
+location identifier, the code works too. Every change is recorded in history with the
+actor "mcp"; an item added or changed, moved or deleted by mistake can be put back with
+undo_history_entry and the history_entry_id the change returned. Deleting asks for the
+owner's confirmation first: see delete_item. Every item and location carries
+last_checked_at, when the owner last confirmed that location's contents (null if never);
+say how old it is, so old information is recognizably old, and use check_location when the
+owner confirms a bin's contents."""
 
 
 def add_mcp_server(app: FastAPI) -> MCPServer:
@@ -41,6 +44,7 @@ def add_mcp_server(app: FastAPI) -> MCPServer:
     add_delete_tools(server, app)
     add_check_tools(server, app)
     add_status_tools(server, app)
+    add_category_and_tag_tools(server, app)
     mcp_app = server.streamable_http_app(
         streamable_http_path="/mcp",
         json_response=True,

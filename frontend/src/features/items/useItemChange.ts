@@ -7,10 +7,10 @@ import { itemName } from "./placeName";
 import { showQuantity } from "./useQuantity";
 import { itemKey, refreshItemLists, type Item } from "./useItems";
 
-type ItemChanges = components["schemas"]["ItemChanges"];
+export type ItemChanges = components["schemas"]["ItemChanges"];
 type ItemUpdated = components["schemas"]["ItemUpdated"];
 
-function useSendChange() {
+export function useSendChange() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, changes }: { id: string; changes: ItemChanges }) =>

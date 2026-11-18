@@ -1,9 +1,9 @@
 from sqlalchemy import ColumnElement, and_, func, or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app import models
-from app.core.pagination import Page, decode_cursor, encode_cursor
-from app.features.items.schemas import InboxCount, Item, SearchableItem
+from app.core.pagination import Page, decode_cursor, decode_offset, encode_cursor, encode_offset
+from app.features.items.schemas import Category, InboxCount, Item, SearchableItem, Tag
 from app.features.items.shaping import shaped
 from app.features.locations import service as locations
 
@@ -58,16 +58,56 @@ def count_inbox(session: Session) -> InboxCount:
     return InboxCount(count=count or 0)
 
 
+def _details(item: models.Item) -> str:
+    details = [item.brand, item.model, item.serial_number, item.notes, *item.tags]
+    return " ".join(detail for detail in details if detail)
+
+
 def searchable_items(session: Session) -> list[SearchableItem]:
-    """Every named item's identifier and name, for search to score."""
-    query = select(models.Item.id, models.Item.name).where(
-        models.Item.name.is_not(None), _not_deleted()
+    """Every named item's identifier, name, details and tags, for search to score."""
+    query = (
+        select(models.Item)
+        .where(models.Item.name.is_not(None), _not_deleted())
+        .options(selectinload(models.Item.tag_rows))
     )
     return [
-        SearchableItem(id=item_id, name=name)
-        for item_id, name in session.execute(query)
-        if name is not None
+        SearchableItem(id=item.id, name=item.name, details=_details(item))
+        for item in session.scalars(query)
+        if item.name is not None
     ]
+
+
+def _counted_page[T](rows: list[T], start: int, limit: int) -> Page[T]:
+    end = start + limit
+    return Page(items=rows[start:end], next_cursor=encode_offset(end) if end < len(rows) else None)
+
+
+def list_categories(session: Session, limit: int, cursor: str | None) -> Page[Category]:
+    """The categories items have, by name, each with how many items have it."""
+    count = func.count(models.Item.id)
+    query = (
+        select(models.Category.name, count)
+        .join(models.Item, models.Item.category_id == models.Category.id)
+        .where(_not_deleted())
+        .group_by(models.Category.id)
+        .order_by(func.lower(models.Category.name))
+    )
+    rows = [Category(name=name, item_count=total) for name, total in session.execute(query)]
+    return _counted_page(rows, decode_offset(cursor) if cursor else 0, limit)
+
+
+def list_tags(session: Session, limit: int, cursor: str | None) -> Page[Tag]:
+    """The tags items have, by name, each with how many items have it."""
+    count = func.count(models.Item.id)
+    query = (
+        select(models.ItemTag.tag, count)
+        .join(models.Item, models.Item.id == models.ItemTag.item_id)
+        .where(_not_deleted())
+        .group_by(models.ItemTag.tag)
+        .order_by(models.ItemTag.tag)
+    )
+    rows = [Tag(name=name, item_count=total) for name, total in session.execute(query)]
+    return _counted_page(rows, decode_offset(cursor) if cursor else 0, limit)
 
 
 def get_items(session: Session, item_ids: list[str]) -> list[Item]:

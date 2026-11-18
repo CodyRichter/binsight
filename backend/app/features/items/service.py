@@ -9,10 +9,13 @@ from app.core.identifiers import new_identifier
 from app.features.attachments import service as attachments
 from app.features.attachments.service import StoredPhoto
 from app.features.history import service as history
+from app.features.items.details import apply_changes
 from app.features.items.listing import count_inbox as count_inbox
 from app.features.items.listing import get_items as get_items
+from app.features.items.listing import list_categories as list_categories
 from app.features.items.listing import list_inbox as list_inbox
 from app.features.items.listing import list_items as list_items
+from app.features.items.listing import list_tags as list_tags
 from app.features.items.listing import searchable_items as searchable_items
 from app.features.items.schemas import (
     Item as Item,
@@ -120,15 +123,9 @@ def get_item(session: Session, item_id: str) -> Item:
 def update_item(
     session: Session, item_id: str, changes: ItemChanges, actor: Actor, now: datetime
 ) -> ItemUpdated:
-    """Give an item its name, or change how many of it there are."""
+    """Change an item's name, quantity, category, tags or details, as one change to undo."""
     item = _live(session, item_id)
-    changed = changes.model_dump(exclude_none=True)
-    before = {field: getattr(item, field) for field in changed}
-    for field, value in changed.items():
-        setattr(item, field, value)
-    item.updated_at = now
-    action = "item.named" if changed.keys() == {"name"} else "item.updated"
-    change = history.RecordChange("item", item.id, before, changed)
+    action, change = apply_changes(session, item, changes, now)
     entry_id = history.record(session, actor, action, [change], now)
     return ItemUpdated(**shaped(session, item).model_dump(), history_entry_id=entry_id)
 

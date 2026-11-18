@@ -1,6 +1,7 @@
 import { api } from "@/lib/api/client";
 import type { components } from "@/types/api.generated";
 import { itemName, placeName } from "./placeName";
+import { noDetails } from "./noDetails";
 import { useOptimisticAdd } from "./useOptimisticAdd";
 import type { Destination, Item } from "./useItems";
 
@@ -21,6 +22,7 @@ export function adding(name: string | null, home: Destination | null, photoUrl?:
     created_at: new Date().toISOString(),
     deleted_at: null,
     status: "in_place",
+    ...noDetails,
     last_checked_at: null,
   };
 }

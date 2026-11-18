@@ -1,5 +1,6 @@
 import { Switch } from "@mantine/core";
 import { useState } from "react";
+import { ChosenValue } from "@/components/ChosenValue";
 import { EditableText } from "@/components/EditableText";
 import { ListSection } from "@/components/ListSection";
 import { QuantityStepper } from "@/components/QuantityStepper";
@@ -7,7 +8,7 @@ import { ValueRow } from "@/components/ValueRow";
 import { Specimen } from "./Specimen";
 
 export function ValuesSpecimen() {
-  const [category, setCategory] = useState("Cables");
+  const [warranty, setWarranty] = useState("2027-03-01");
   const [serial, setSerial] = useState("");
   const [notes, setNotes] = useState("Bought with the dock.\nThe short one is in the car.");
   const [quantity, setQuantity] = useState(1);
@@ -16,7 +17,12 @@ export function ValuesSpecimen() {
     <Specimen title="Value rows" fullWidth gap={0}>
       <ListSection title="Details">
         <ValueRow name="Category">
-          <EditableText value={category} label="Category" onSave={setCategory} />
+          <ChosenValue
+            value="Cables"
+            label="Category"
+            invitation="Add a category"
+            onChoose={() => undefined}
+          />
         </ValueRow>
         <ValueRow name="Serial number">
           <EditableText
@@ -24,6 +30,18 @@ export function ValuesSpecimen() {
             label="Serial number"
             invitation="Add a serial number"
             onSave={setSerial}
+          />
+        </ValueRow>
+        <ValueRow name="Warranty ends">
+          <EditableText
+            value={warranty}
+            display={new Date(`${warranty}T00:00`).toLocaleDateString(undefined, {
+              dateStyle: "medium",
+            })}
+            type="date"
+            label="Warranty ends"
+            invitation="Add a warranty end"
+            onSave={setWarranty}
           />
         </ValueRow>
         <ValueRow name="Quantity">

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, cast
 
 from sqlalchemy.orm import Session
@@ -49,14 +49,22 @@ def _record(session: Session, change: models.HistoryChange) -> Undoable | None:
     return session.get(models.Item, change.record_id)
 
 
+DATED_FIELDS = {
+    "deleted_at": datetime.fromisoformat,
+    "purchase_date": date.fromisoformat,
+    "warranty_ends": date.fromisoformat,
+    "return_ends": date.fromisoformat,
+}
+
+
 def _as_recorded(value: object) -> object:
-    # History is JSON, so times are kept as ISO text.
-    return value.isoformat() if isinstance(value, datetime) else value
+    # History is JSON, so times and dates are kept as ISO text.
+    return value.isoformat() if isinstance(value, date) else value
 
 
 def _as_field(key: str, value: object) -> object:
-    if key == "deleted_at" and isinstance(value, str):
-        return datetime.fromisoformat(value)
+    if key in DATED_FIELDS and isinstance(value, str):
+        return DATED_FIELDS[key](value)
     return value
 
 

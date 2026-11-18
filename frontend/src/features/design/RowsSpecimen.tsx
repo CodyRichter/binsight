@@ -5,6 +5,7 @@ import { CodeChip } from "@/components/CodeChip";
 import { EmptyState } from "@/components/EmptyState";
 import { HistoryRow } from "@/components/HistoryRow";
 import { ListSection } from "@/components/ListSection";
+import { NameRow } from "@/components/NameRow";
 import { Path } from "@/components/Path";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Thumbnail } from "@/components/Thumbnail";
@@ -45,6 +46,10 @@ export function RowsSpecimen() {
       <ListSection title="History">
         <HistoryRow happened="Quantity changed from 3 to 4" at={daysAgo(0)} actor="app" />
         <HistoryRow happened="Added" at={daysAgo(21)} actor="mcp" />
+      </ListSection>
+      <ListSection title="Name rows">
+        <NameRow name={'Make "Adapters"'} onPick={() => undefined} />
+        <NameRow name="Cables" itemCount={12} onPick={() => undefined} />
       </ListSection>
       <EmptyState
         statement='Nothing matches "multimeter"'
