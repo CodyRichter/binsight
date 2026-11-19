@@ -15,14 +15,6 @@
   grid-row: 1;
 }
 
-.row:hover {
-  background: var(--bs-hover);
-}
-
-.row[data-selected] {
-  background: var(--bs-highlight);
-}
-
 .main {
   display: flex;
   flex-direction: column;
@@ -35,6 +27,28 @@
   display: flex;
   flex: none;
   width: var(--bs-touch-min);
+}
+
+.pick {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  cursor: pointer;
+}
+
+/* A badge over the thumbnail's top left corner, clear of the icon at its center. */
+.pickBox {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+}
+
+.pickBox > div {
+  min-height: 0;
+}
+
+.pick[data-selected] img {
+  opacity: 0.6;
 }
 
 .name {

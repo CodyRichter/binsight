@@ -6,6 +6,7 @@ from starlette.routing import Route
 from app.mcp.access import RequireMcpCredential
 from app.mcp.attachment_tools import add_attachment_tools
 from app.mcp.backup_tools import add_backup_tools
+from app.mcp.bulk_tools import add_bulk_tools
 from app.mcp.category_and_tag_tools import add_category_and_tag_tools
 from app.mcp.check_tools import add_check_tools
 from app.mcp.delete_tools import add_delete_tools
@@ -44,8 +45,9 @@ location carries last_checked_at, when the owner last confirmed that location's 
 (null if never); say how old it is, so old information is recognizably old, and use
 check_location when the owner confirms a bin's contents. A list of things can be brought in
 at once with import_items, which asks first. Locations are renamed with update_location,
-and deleting or merging one asks first: see delete_location and merge_location. Binsight
-backs itself up daily: see list_backups."""
+and deleting or merging one asks first: see delete_location and merge_location. Many items
+can be moved, tagged, recategorized or given a status at once, after asking: see move_items.
+Binsight backs itself up daily: see list_backups."""
 
 
 def add_mcp_server(app: FastAPI) -> MCPServer:
@@ -70,6 +72,7 @@ def add_mcp_server(app: FastAPI) -> MCPServer:
     add_print_tools(server, app)
     add_saved_search_tools(server, app)
     add_backup_tools(server, app)
+    add_bulk_tools(server, app)
     mcp_app = server.streamable_http_app(
         streamable_http_path="/mcp",
         json_response=True,

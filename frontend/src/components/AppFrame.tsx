@@ -15,6 +15,8 @@ interface AppFrameProps {
   currentView?: string;
   /** The location whose page this is, so Add starts there. */
   addTo?: string;
+  /** Shown in the bottom bar's place while rows are selected. */
+  selectionBar?: ReactNode;
   children: ReactNode;
 }
 
@@ -37,7 +39,7 @@ function useSearch() {
 }
 
 export function AppFrame(props: AppFrameProps) {
-  const { current = null, destination, parent, currentView, addTo, children } = props;
+  const { current = null, destination, parent, currentView, addTo, selectionBar, children } = props;
   const { AddSheet, useInboxCount, useViewsSection } = useContext(FrameAdditionsContext);
   const inboxCount = useInboxCount();
   const viewsSection = useViewsSection(currentView, current === "views");
@@ -51,6 +53,7 @@ export function AppFrame(props: AppFrameProps) {
       actions={{ onAdd: AddSheet && (() => setAdding(true)), onScan: () => navigate("/scan") }}
       destination={destination}
       parent={parent}
+      selectionBar={selectionBar}
     >
       <SessionCheck>
         {children}

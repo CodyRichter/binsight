@@ -4,6 +4,7 @@ export { ItemListRow } from "./ItemListRow";
 export { ItemRecord } from "./ItemRecord";
 export { ItemsSection } from "./ItemsSection";
 export { useInboxCount } from "./useInbox";
+export { useItemSelection, type ItemSelection } from "./useItemSelection";
 export { useLocationItems, type Destination, type Item } from "./useItems";
 export { pathSegments } from "./pathSegments";
 export { dateText, priceText } from "./detailValues";

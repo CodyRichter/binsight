@@ -7,7 +7,8 @@ import { useCategories } from "./useNames";
 
 interface CategorySheetProps {
   opened: boolean;
-  current: string | null;
+  /** The category items have now; undefined for several items, which may differ. */
+  current: string | null | undefined;
   onPick: (category: string | null) => void;
   onClose: () => void;
 }
@@ -65,7 +66,7 @@ export function CategorySheet({ opened, current, onPick, onClose }: CategoryShee
         onChange={(event) => setQuery(event.currentTarget.value)}
         leftSection={<IconSearch aria-hidden size={20} />}
       />
-      {current && (
+      {current !== null && (
         <Group>
           <Button variant="subtle" onClick={() => pick(null)}>
             No category

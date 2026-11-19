@@ -692,10 +692,13 @@ placeholder is an example or "Optional". Nothing is marked required. The
 line under a field exists only for an error. Search is this field with a
 leading icon; batch add is its multi-line form, one name per line.
 
-**Checkbox** (`Checkbox`). 28px box in a `touch-min` target; ticked is
-`accent`. For check mode, where it replaces the thumbnail and the whole row
-is the target, and for bulk selection, where the row also takes `highlight`.
-Settings that are on or off use `Switch`.
+**Checkbox** (`Checkbox`). A `control-border` box in a `touch-min` target,
+its border `ink` on hover; ticked is `accent` with an `on-accent` tick that
+fades in. Check mode's box is 28px, and replaces the thumbnail with the whole
+row as the target. Bulk selection's box is a 20px badge over the
+thumbnail's top left corner, labeled "Select {name}", with the whole
+thumbnail as its target; a selected row takes `highlight` and its photo
+dims. Settings that are on or off use `Switch`.
 
 **Segmented control** (`SegmentedControl`). Two or three views of the same
 list, each with its count: "Here" and "Everything inside" on a location. The
@@ -851,7 +854,8 @@ the destination. Under 48em a row with both puts the stepper on its own
 line under the name.
 Full width on `ground`, hairline below, at least `row-min` high, and a path does not make it taller. A checkbox in place of the thumbnail
 has its box at the gutter, and the name stays where a thumbnail row's name
-starts. Names wrap;
+starts. In a list that allows bulk edit, every row's thumbnail carries its
+select box, so the row keeps its layout. Names wrap;
 nothing is cut with an ellipsis. Matched search text is marked with
 `highlight`. No swipe gestures. An item added by photo and not named yet
 reads "Unnamed" in `muted`, here and as its page's title, which is edited in
@@ -988,6 +992,19 @@ such controls uses the page header alone.
 are selected, and appears at the bottom of the column on wide screens:
 the count ("3 selected"), up to three default verb buttons, and Close,
 which ends the selection.
+
+Bulk edit selects items on a location's page (Here and Everything inside),
+`/search`, views and saved searches, and `/inbox`; locations listed there
+have no box. Ticking any row starts the selection; it ends on Close, once an
+edit is stored, or on going to another list. The bar's verbs are Move, which
+opens the move sheet titled "Move {n} items to"; Tag, which opens "Add tag";
+and a More icon button whose menu holds "Change category…", opening the
+category sheet with "No category" offered, then Mark in use, Back in place,
+Sold, Given away and Thrown away. Each is one change with Undo: "Moved {n}
+items to {place}", "Tagged {n} items {tag}", "Changed the category of {n}
+items to {category}" or "Removed the category from {n} items", "Marked {n}
+items {status}" or "{n} items back in place". {n} counts only the items that
+changed. A move takes the rows out of the list at once.
 
 **Task frame.** The frame for a Task. A `bar-height` row with Close at the
 gutter and the task's name in `text-heading`; the work area in the column;

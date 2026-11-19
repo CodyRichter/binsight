@@ -1,11 +1,18 @@
 import { LocationRow } from "@/components/LocationRow";
-import { ItemListRow } from "@/features/items";
+import { ItemListRow, type ItemSelection } from "@/features/items";
 import type { SearchResult as Result } from "./useSearch";
 
 /** One thing a search found: an item with its path, or a location in a flat list. */
-export function SearchResult({ result }: { result: Result }) {
+export function SearchResult({ result, selection }: { result: Result; selection: ItemSelection }) {
   if (result.kind === "item") {
-    return <ItemListRow item={result.item} showPath marks={result.marks} />;
+    return (
+      <ItemListRow
+        item={result.item}
+        showPath
+        marks={result.marks}
+        select={selection.select(result.item)}
+      />
+    );
   }
   const { location } = result;
   return (

@@ -51,10 +51,15 @@ export const components = {
     classNames: {
       body: classes.checkboxBody,
       input: classes.checkboxInput,
+      icon: classes.checkboxIcon,
       label: classes.controlLabel,
     },
-    vars: () => ({
-      root: { "--checkbox-size": "28px", "--checkbox-radius": "var(--bs-radius-sm)" },
+    // Check mode's box is 28px; "sm" is bulk edit's 20px badge on a thumbnail.
+    vars: (_theme, props) => ({
+      root: {
+        "--checkbox-size": props.size === "sm" ? "20px" : "28px",
+        "--checkbox-radius": "var(--bs-radius-sm)",
+      },
     }),
   }),
   Switch: Switch.extend({

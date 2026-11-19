@@ -20,6 +20,7 @@ from app.features.checks import routes as checks
 from app.features.history import routes as history
 from app.features.import_export import routes as import_export
 from app.features.items import attachment_routes as item_attachments
+from app.features.items import bulk_routes as bulk_items
 from app.features.items import routes as items
 from app.features.labels import routes as labels
 from app.features.locations import routes as locations
@@ -33,6 +34,7 @@ def _signed_in_routes() -> APIRouter:
     signed_in = APIRouter(dependencies=[Depends(auth.require_sign_in)])
     signed_in.include_router(auth.mcp_credentials_router)
     signed_in.include_router(locations.router)
+    signed_in.include_router(bulk_items.router)
     signed_in.include_router(items.router)
     signed_in.include_router(items.categories_and_tags_router)
     signed_in.include_router(item_attachments.router)

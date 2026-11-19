@@ -7,6 +7,7 @@ import { PageState } from "@/components/PageState";
 import { pageStatusOf } from "@/lib/api/pageStatus";
 import { ItemListRow } from "./ItemListRow";
 import { useInbox, useInboxCount } from "./useInbox";
+import { useItemSelection } from "./useItemSelection";
 
 function countLine(count: number | undefined): string[] {
   if (count === undefined) return [];
@@ -19,8 +20,9 @@ export function InboxList() {
   const count = useInboxCount();
   const items = inbox.data?.pages.flatMap((page) => page.items) ?? [];
   const status = pageStatusOf(inbox);
+  const selection = useItemSelection("inbox");
   return (
-    <AppFrame current="inbox" destination>
+    <AppFrame current="inbox" destination selectionBar={selection.bar}>
       <PageLead header={<PageHeader title="Inbox" counts={countLine(count)} />} />
       <PageState
         status={status === "ready" && items.length === 0 ? "empty" : status}
@@ -29,7 +31,7 @@ export function InboxList() {
       >
         <ListSection>
           {items.map((item) => (
-            <ItemListRow key={item.id} item={item} showPath />
+            <ItemListRow key={item.id} item={item} showPath select={selection.select(item)} />
           ))}
         </ListSection>
         {inbox.hasNextPage && (
