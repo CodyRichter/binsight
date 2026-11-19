@@ -111,7 +111,7 @@ def claim_label(
 ) -> LabelClaimed:
     """Attach a blank label to a location, the first time it is scanned."""
     label = _get(session, code)
-    location = locations.get_location(session, claim.location_id)
+    location = locations.get_live_location(session, claim.location_id)
     if label.location_id is not None:
         raise AppError(409, "label_already_claimed", f"Label {label.code} is already in use.")
     if location.label_code is not None:
@@ -143,6 +143,25 @@ def unclaim_label(session: Session, code: str, actor: Actor, now: datetime) -> L
     label.updated_at = now
     entry_id = history.record(session, actor, "label.unclaimed", [change], now)
     return LabelUnclaimed(**_label(label).model_dump(), history_entry_id=entry_id)
+
+
+def move_label(
+    session: Session, location_id: str, destination_id: str, now: datetime
+) -> list[history.RecordChange]:
+    """Put a location's label on another one that has none, for the caller to record."""
+    taken = select(models.Label.id).where(models.Label.location_id == destination_id)
+    label = session.scalars(
+        select(models.Label).where(models.Label.location_id == location_id)
+    ).first()
+    if label is None or session.scalar(taken) is not None:
+        return []
+    label.location_id = destination_id
+    label.updated_at = now
+    return [
+        history.RecordChange(
+            "label", label.id, {"location_id": location_id}, {"location_id": destination_id}
+        )
+    ]
 
 
 def label_image(session: Session, code: str, app_address: str) -> LabelImage:

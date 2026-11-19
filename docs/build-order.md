@@ -157,8 +157,8 @@ In this order, each as its own step shipping both sides together:
 5. Import and export, the insurance export, contents sheets. Feature:
    `import_export`.
 6. Scheduled backups and restore. Feature: `backups`.
-7. Location housekeeping: merge, delete with reassignment, reorder, and
-   the label page of a deleted location.
+7. Location housekeeping: rename and the summary, merge, delete with
+   reassignment, reorder, and the label page of a deleted location.
 8. Bulk edit.
 9. Install-to-home-screen polish and an accessibility pass.
 

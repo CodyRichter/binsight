@@ -34,6 +34,7 @@ export function renderRoutes(routeTree: RouteObject[], initialEntry: string) {
 }
 
 /** Answers each API path with its own body, signed in. */
+/** Answers each path with its body, or with the Response given for it, such as a 404. */
 export function stubPaths(bodies: Record<string, unknown>) {
   vi.stubGlobal(
     "fetch",
@@ -46,7 +47,8 @@ export function stubPaths(bodies: Record<string, unknown>) {
         "/api/views": { items: [], next_cursor: null },
         "/api/saved-searches": { items: [], next_cursor: null },
       };
-      return Promise.resolve(answer(200, { ...known, ...bodies }[route]));
+      const body: unknown = { ...known, ...bodies }[route];
+      return Promise.resolve(body instanceof Response ? body.clone() : answer(200, body));
     }),
   );
 }

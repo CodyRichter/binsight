@@ -14,6 +14,7 @@ function place(id: string, path: string[], code: string | null = null): Location
     direct_item_count: 0,
     last_checked_at: null,
     photo_url: null,
+    deleted_at: null,
     item_count: 0,
   };
 }

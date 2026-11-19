@@ -195,3 +195,34 @@ def test_photos_from_before_files_stay_their_item_s_jpeg_photos(settings: Settin
             text("SELECT item_id, location_id, kind, path, content_type FROM attachment")
         ).one()
     assert tuple(row) == ("drill", None, "photo", "attachments/photo.jpg", "image/jpeg")
+
+
+def test_locations_from_before_ordering_keep_their_order_among_siblings(
+    settings: Settings,
+) -> None:
+    settings.data_directory.mkdir()
+    engine = create_database_engine(settings.database_path)
+    config = Config()
+    config.set_main_option("script_location", str(BACKEND_DIRECTORY / "migrations"))
+    with engine.begin() as connection:
+        config.attributes["connection"] = connection
+        command.upgrade(config, "0012")
+        connection.execute(
+            text(
+                "INSERT INTO location (id, name, type, parent_id, created_at, updated_at) VALUES"
+                " ('home', 'Home', 'site', NULL, '2026-11-16 12:00:00', '2026-11-16 12:00:00'),"
+                " ('shed', 'Shed', 'room', 'home', '2026-11-16 12:02:00', '2026-11-16 12:02:00'),"
+                " ('attic', 'Attic', 'room', 'home', '2026-11-16 12:01:00',"
+                " '2026-11-16 12:01:00')"
+            )
+        )
+    migrate_database(engine, settings)
+    with engine.connect() as connection:
+        rows = connection.execute(
+            text("SELECT id, position, deleted_at FROM location ORDER BY id")
+        ).all()
+    assert [tuple(row) for row in rows] == [
+        ("attic", 0, None),
+        ("home", 0, None),
+        ("shed", 1, None),
+    ]

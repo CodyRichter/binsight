@@ -69,7 +69,9 @@ before naming it in code.
 | **Actor**         | Who made a change: `app` (the owner in the interface) or `mcp` (Claude). |
 | **Undo**          | Reversing a history entry.                                 |
 | **Delete**        | Removing an item or location from view. Deleted things can be restored. Different from archive. |
-| **Restore**       | Bringing a deleted item back into view, where it was.      |
+| **Restore**       | Bringing a deleted item or location back into view, where it was. A restored location comes back empty. |
+| **Merge**         | Folding one location into another: its items, the locations inside it, its checks and, if the other has none, its label move across, then it is deleted. |
+| **Reorder**       | Changing where a location comes among the locations beside it. |
 | **Preview**       | What an MCP tool returns in place of acting, when the action deletes, merges or changes many records. |
 | **Confirmation**  | The single-use token returned with a preview, sent back to make the action happen. |
 

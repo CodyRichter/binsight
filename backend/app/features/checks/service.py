@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import models
@@ -16,7 +17,7 @@ def preview_check_location(
     session: Session, location_id: str, check: CheckLocation
 ) -> CheckPreview:
     """What checking a location would do: the items it would mark missing."""
-    location = locations.get_location(session, location_id)
+    location = locations.get_live_location(session, location_id)
     missing = items.items_to_mark_missing(session, location_id, check.missing_item_ids)
     return CheckPreview(location=location, marked_missing=missing)
 
@@ -25,7 +26,7 @@ def check_location(
     session: Session, location_id: str, check: CheckLocation, actor: Actor, now: datetime
 ) -> LocationChecked:
     """Record that a location's contents are right, marking any items not found there missing."""
-    locations.get_location(session, location_id)
+    locations.get_live_location(session, location_id)
     record = models.Check(
         id=new_identifier(),
         location_id=location_id,
@@ -48,6 +49,24 @@ def check_location(
     return LocationChecked(
         **location.model_dump(), marked_missing=marked, history_entry_id=entry_id
     )
+
+
+def move_checks(
+    session: Session, location_id: str, destination_id: str, now: datetime
+) -> list[history.RecordChange]:
+    """Give every check of one location to another, for the caller to record."""
+    changes = []
+    for check in session.scalars(
+        select(models.Check).where(models.Check.location_id == location_id)
+    ):
+        changes.append(
+            history.RecordChange(
+                "check", check.id, {"location_id": location_id}, {"location_id": destination_id}
+            )
+        )
+        check.location_id = destination_id
+        check.updated_at = now
+    return changes
 
 
 def export_tables(session: Session) -> ExportTables:

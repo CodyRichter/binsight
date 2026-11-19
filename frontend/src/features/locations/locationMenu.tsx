@@ -1,5 +1,6 @@
 import { Menu } from "@mantine/core";
 import {
+  IconArrowMerge,
   IconChecklist,
   IconDownload,
   IconFileText,
@@ -7,6 +8,7 @@ import {
   IconPhotoOff,
   IconPlus,
   IconShieldCheck,
+  IconTrash,
 } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
@@ -18,6 +20,11 @@ export interface LocationMenuProps {
   /** Adding a location inside, when the page has no Locations section to hold that action. */
   onAddLocation?: () => void;
   onCheckMode: () => void;
+}
+
+export interface RemovalChoices {
+  onMerge: () => void;
+  onDelete: () => void;
 }
 
 interface PhotoChoices {
@@ -43,11 +50,29 @@ function photoItems({ location }: LocationMenuProps, photo: PhotoChoices): React
   );
 }
 
+function removalItems(removal: RemovalChoices): ReactNode {
+  return (
+    <>
+      <Menu.Item leftSection={<IconArrowMerge aria-hidden size={20} />} onClick={removal.onMerge}>
+        Merge into…
+      </Menu.Item>
+      <Menu.Item
+        color="danger"
+        leftSection={<IconTrash aria-hidden size={20} />}
+        onClick={removal.onDelete}
+      >
+        Delete location
+      </Menu.Item>
+    </>
+  );
+}
+
 /** The More menu of a location's page header. */
 export function moreMenu(
   props: LocationMenuProps,
   movable: boolean,
   photo: PhotoChoices,
+  removal: RemovalChoices,
 ): ReactNode {
   const code = props.location.label_code;
   return (
@@ -85,6 +110,7 @@ export function moreMenu(
         Check mode
       </Menu.Item>
       {photoItems(props, photo)}
+      {removalItems(removal)}
     </>
   );
 }

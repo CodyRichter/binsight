@@ -36,7 +36,7 @@ HistoryEntry ──> any of the above
 | `type`       | One of the fixed location types. Required.                  |
 | `parent`     | Another location, or none for a site.                       |
 | `summary`    | Optional one line.                                          |
-| `position`   | Order among its siblings.                                   |
+| `position`   | Order among its siblings. A new location goes last.         |
 | `deleted_at` | Set when deleted.                                           |
 
 Rules:
@@ -52,6 +52,13 @@ Rules:
   go. A location is never deleted with contents still in it.
 - Merging location A into B moves A's items, children and checks to B, then
   deletes A. A's label, if any, is re-pointed to B only if B has none.
+- Deleting or merging moves every item in the location that is not
+  deleted, archived ones included. Deleted items stay with the deleted
+  location, and are restored only once it is. Archived items in an empty
+  location deleted without a destination keep it as their home, for the
+  record.
+- A deleted location is restored empty, under its old parent, and only
+  while that parent is not deleted.
 
 ## Label
 

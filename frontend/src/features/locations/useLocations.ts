@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api/client";
+import { ApiError, api } from "@/lib/api/client";
 import { showToast } from "@/lib/toast";
 import type { components } from "@/types/api.generated";
 
@@ -18,6 +18,34 @@ export function useLocationTree(enabled = true) {
     queryFn: ({ signal }) => api.get<LocationTree>("/api/locations", signal),
     select: (tree) => tree.locations,
   });
+}
+
+async function readLocation(id: string, signal: AbortSignal): Promise<Location | null> {
+  try {
+    return await api.get<Location>(`/api/locations/${encodeURIComponent(id)}`, signal);
+  } catch (error) {
+    if (error instanceof ApiError && error.isNotFound) return null;
+    throw error;
+  }
+}
+
+/** One location read on its own, for a deleted one, which the tree leaves out; null if none. */
+export function useLocation(id: string) {
+  return useQuery({
+    queryKey: [...locationTreeKey, id],
+    queryFn: ({ signal }) => readLocation(id, signal),
+  });
+}
+
+/** Reads every list again once a location's contents have moved, as deleting and merging do. */
+export function useRefreshAfterHousekeeping(): () => Promise<unknown> {
+  const queryClient = useQueryClient();
+  return () =>
+    Promise.all(
+      [locationTreeKey, ["items"], ["search"], ["views"]].map((queryKey) =>
+        queryClient.invalidateQueries({ queryKey }),
+      ),
+    );
 }
 
 /** Reads the tree again, so its item counts follow a change made elsewhere. */

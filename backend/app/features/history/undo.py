@@ -35,6 +35,11 @@ UNDOABLE = {
     "location.photo_changed",
     "location.checked",
     "location.moved",
+    "location.updated",
+    "location.deleted",
+    "location.merged",
+    "location.restored",
+    "location.reordered",
     "saved_search.created",
     "saved_search.renamed",
     "saved_search.pinned",
@@ -47,6 +52,7 @@ type Undoable = (
     | models.Attachment
     | models.Location
     | models.Check
+    | models.Label
     | models.ItemLink
     | models.SavedSearch
 )
@@ -70,6 +76,8 @@ def _record(session: Session, change: models.HistoryChange) -> Undoable | None:
         return session.get(models.Location, change.record_id)
     if change.record_type == "check":
         return session.get(models.Check, change.record_id)
+    if change.record_type == "label":
+        return session.get(models.Label, change.record_id)
     if change.record_type == "link":
         return session.get(models.ItemLink, change.record_id)
     if change.record_type == "saved_search":
@@ -100,7 +108,7 @@ def _as_field(key: str, value: object) -> object:
 
 def _deleted_since(current: Undoable, change: models.HistoryChange) -> bool:
     return (
-        isinstance(current, models.Item)
+        isinstance(current, models.Item | models.Location)
         and current.deleted_at is not None
         and "deleted_at" not in change.after
     )

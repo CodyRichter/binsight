@@ -1,6 +1,6 @@
-import { Button, SegmentedControl } from "@mantine/core";
+import { SegmentedControl } from "@mantine/core";
 import { useState } from "react";
-import { Link, useParams } from "react-router";
+import { useParams } from "react-router";
 import { AppFrame } from "@/components/AppFrame";
 import { EmptyState } from "@/components/EmptyState";
 import { PageLead } from "@/components/PageLead";
@@ -10,8 +10,10 @@ import { ItemAdder, ItemsSection, useLocationItems } from "@/features/items";
 import { pageStatusOf } from "@/lib/api/pageStatus";
 import { AddLocationSheet } from "./AddLocationSheet";
 import { ChildLocations } from "./ChildLocations";
+import { DeletedLocation } from "./DeletedLocation";
 import { LocationHeader } from "./LocationHeader";
 import { newLocationType } from "./newLocationType";
+import { parentPage } from "./parentPage";
 import { childrenOf } from "./treeRows";
 import {
   useCreateLocation,
@@ -47,6 +49,7 @@ function LocationBody({ location, locations, onCheckMode }: LocationBodyProps) {
           <LocationHeader
             location={location}
             onAddLocation={children.length === 0 ? openSheet : undefined}
+            hasChildren={children.length > 0}
             onCheckMode={onCheckMode}
           />
         }
@@ -74,40 +77,21 @@ function LocationBody({ location, locations, onCheckMode }: LocationBodyProps) {
   );
 }
 
-const nothingHere = {
-  statement: "Nothing at this address",
-  action: (
-    <Button component={Link} to="/">
-      Show all locations
-    </Button>
-  ),
-};
-
-function frameStatus(tree: ReturnType<typeof useLocationTree>, location?: Location) {
-  const status = pageStatusOf(tree);
-  return status === "ready" && !location ? "notFound" : status;
-}
-
 /** A location's page: its header, quick add, and what it holds; or check mode over it. */
 export function LocationView({ id }: { id: string }) {
   const tree = useLocationTree();
   const refreshTree = useRefreshLocationTree();
   const [checking, setChecking] = useState(false);
   const location = tree.data?.find((candidate) => candidate.id === id);
+  if (tree.data && !location) return <DeletedLocation id={id} />;
   if (checking && location) {
     return (
       <CheckMode location={location} onClose={() => setChecking(false)} onAdded={refreshTree} />
     );
   }
-  const parent = location?.parent_id ? `/locations/${location.parent_id}` : "/";
   return (
-    <AppFrame current="home" parent={parent} addTo={location?.id}>
-      <PageState
-        status={frameStatus(tree, location)}
-        standalone
-        notFound={nothingHere}
-        onRetry={() => void tree.refetch()}
-      >
+    <AppFrame current="home" parent={parentPage(location)} addTo={location?.id}>
+      <PageState status={pageStatusOf(tree)} standalone onRetry={() => void tree.refetch()}>
         {location && tree.data && (
           <LocationBody
             key={location.id}

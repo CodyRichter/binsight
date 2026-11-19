@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Any
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import models
@@ -53,7 +54,7 @@ from app.features.items.schemas import (
 from app.features.items.schemas import (
     ItemFilters as ItemFilters,
 )  # re-exported: search filters with it
-from app.features.items.shaping import path_of, shaped
+from app.features.items.shaping import refuse_deleted_home, shaped
 from app.features.items.statuses import change_item_status as change_item_status
 from app.features.items.statuses import items_to_mark_missing as items_to_mark_missing
 from app.features.items.statuses import lend_item as lend_item
@@ -87,7 +88,7 @@ def _new(name: str | None, home_location_id: str | None, now: datetime) -> model
 
 def create_item(session: Session, new: NewItem, actor: Actor, now: datetime) -> ItemCreated:
     """Add an item by name, in a location or in the inbox."""
-    path_of(session, new.home_location_id)
+    refuse_deleted_home(session, new.home_location_id)
     item = _new(new.name, new.home_location_id, now)
     session.add(item)
     session.flush()
@@ -98,7 +99,7 @@ def create_item(session: Session, new: NewItem, actor: Actor, now: datetime) -> 
 
 def create_items(session: Session, new: NewItems, actor: Actor, now: datetime) -> ItemsCreated:
     """Add several items by name at once, in the order given, as one change to undo."""
-    path_of(session, new.home_location_id)
+    refuse_deleted_home(session, new.home_location_id)
     # A microsecond apart, so the list shows them in the order they were typed.
     added = [
         _new(name, new.home_location_id, now + timedelta(microseconds=order))
@@ -119,7 +120,7 @@ def create_item_by_photo(
     now: datetime,
 ) -> ItemCreated:
     """Add an item from a photo alone; it waits in the inbox until it is given a name."""
-    path_of(session, home_location_id)
+    refuse_deleted_home(session, home_location_id)
     item = _new(None, home_location_id, now)
     session.add(item)
     session.flush()
@@ -152,7 +153,7 @@ def move_item(
 ) -> ItemMoved:
     """Move an item into another location."""
     item = live_item(session, item_id)
-    path_of(session, move.location_id)
+    refuse_deleted_home(session, move.location_id)
     if item.home_location_id == move.location_id:
         raise AppError(409, "already_there", "That item is already there.")
     before = {"home_location_id": item.home_location_id}
@@ -192,8 +193,31 @@ def restore_item(session: Session, item_id: str, actor: Actor, now: datetime) ->
     item = item_record(session, item_id)
     if item.deleted_at is None:
         raise AppError(409, "not_deleted", "That item has not been deleted.")
+    refuse_deleted_home(session, item.home_location_id)
     entry_id = _set_deleted_at(session, item, None, actor, now)
     return ItemRestored(**shaped(session, item).model_dump(), history_entry_id=entry_id)
+
+
+def rehome_items(
+    session: Session, location_id: str, destination_id: str, now: datetime
+) -> list[history.RecordChange]:
+    """Move every item not deleted out of one location into another, for the caller to record."""
+    query = select(models.Item).where(
+        models.Item.home_location_id == location_id, models.Item.deleted_at.is_(None)
+    )
+    changes = []
+    for item in session.scalars(query):
+        changes.append(
+            history.RecordChange(
+                "item",
+                item.id,
+                {"home_location_id": location_id},
+                {"home_location_id": destination_id},
+            )
+        )
+        item.home_location_id = destination_id
+        item.updated_at = now
+    return changes
 
 
 def export_tables(session: Session) -> ExportTables:

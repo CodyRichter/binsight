@@ -27,6 +27,7 @@ def test_creating_a_location_answers_with_it_and_its_history_entry(signed_in: Te
         "item_count": 0,
         "last_checked_at": None,
         "photo_url": None,
+        "deleted_at": None,
         "history_entry_id": body["history_entry_id"],
     }
 
