@@ -457,6 +457,9 @@ toast offers Undo.
    "Given away" and "Thrown away", which say "Marked {name} sold" and so
    on; none of these four while archived; then "Link an item", which opens
    the link sheet; then "Attach…", which opens the Attach sheet; then
+   "Duplicate" (`copy`), which opens the copy's page, saying "Duplicated
+   {name}"; then "Merge into…" (`arrow-merge`), which opens the merge sheet
+   and goes to the item picked, saying "Merged {name} into {name}"; then
    "Delete item", which goes to the item's location
    (or `/inbox`) with the toast "Deleted {name}". Every one offers Undo. A
    lent-out, archived or deleted item's page reads when, as a `muted`
@@ -464,7 +467,9 @@ toast offers Undo.
    ago", "Deleted {time ago}". A deleted item's page has the default button
    "Restore" in place of Move, and no More; restoring says "Restored
    {name}" with Undo. History says "Lent to {person}", "Returned", "Marked
-   in use", "Back in place", "Sold", "Given away" or "Thrown away".
+   in use", "Back in place", "Sold", "Given away" or "Thrown away"; a
+   merge says "Merged into another item" on the item folded in and
+   "Another item merged into this" on the other.
 2. Sections of value rows: "Details", then others only when they hold a
    value or are being added to. Details lists Category, Tags, Notes,
    Brand, Model, Serial number, Purchase date, Price, Order link,
@@ -762,7 +767,9 @@ first, narrowed as it is typed. The link sheet is titled "Link an item":
 one field, "Search items", over item rows found as it is typed, leaving out
 the item itself and what it is already linked to. Picking a row swaps them
 in place for three name rows: "Belongs with {name}", "Part of {name}" and
-"{name} is a part of this".
+"{name} is a part of this". The merge sheet is titled "Merge into": the
+same "Search items" field over item rows, leaving out the item itself;
+picking a row merges at once, with Undo and no dialog.
 
 The Attach sheet is titled "Attach": three name rows, "Take photo", which
 opens the camera, "Choose file", which takes a PDF, JPEG, PNG or WebP, and

@@ -161,6 +161,21 @@ class ItemRestored(Item):
     history_entry_id: str
 
 
+class ItemMerge(BaseModel):
+    into: str
+
+
+class ItemMerged(Item):
+    """The item merged into, as it is now."""
+
+    history_entry_id: str
+
+
+class MergePreview(BaseModel):
+    item: Item
+    into: Item
+
+
 class ItemStatusChange(BaseModel):
     """A status to set directly; lending, returning, missing and found have their own."""
 

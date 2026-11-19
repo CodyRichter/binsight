@@ -28,6 +28,9 @@ from app.features.items.bulk import preview_move_items as preview_move_items
 from app.features.items.bulk import preview_tag_items as preview_tag_items
 from app.features.items.bulk import tag_items as tag_items
 from app.features.items.details import apply_changes
+from app.features.items.duplicates import duplicate_item as duplicate_item
+from app.features.items.duplicates import merge_item as merge_item
+from app.features.items.duplicates import preview_merge_item as preview_merge_item
 from app.features.items.importing import make_item as make_item
 from app.features.items.links import link_items as link_items
 from app.features.items.links import list_item_links as list_item_links

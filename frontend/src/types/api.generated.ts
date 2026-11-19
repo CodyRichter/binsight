@@ -454,6 +454,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/items/{item_id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duplicate Item */
+        post: operations["duplicate_item"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/items/{item_id}/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Merge Item */
+        post: operations["merge_item"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/items/{item_id}/restore": {
         parameters: {
             query?: never;
@@ -1692,6 +1726,69 @@ export interface components {
         };
         /** ItemMarkedMissing */
         ItemMarkedMissing: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Home Location Id */
+            home_location_id: string | null;
+            status: components["schemas"]["ItemStatus"];
+            /** Category */
+            category: string | null;
+            /** Tags */
+            tags: string[];
+            /** Notes */
+            notes: string | null;
+            /** Brand */
+            brand: string | null;
+            /** Model */
+            model: string | null;
+            /** Serial Number */
+            serial_number: string | null;
+            /** Purchase Date */
+            purchase_date: string | null;
+            /** Price Cents */
+            price_cents: number | null;
+            /** Order Link */
+            order_link: string | null;
+            /** Warranty Ends */
+            warranty_ends: string | null;
+            /** Return Ends */
+            return_ends: string | null;
+            /** Lent To */
+            lent_to: string | null;
+            /** Lent At */
+            lent_at: string | null;
+            /** Retired At */
+            retired_at: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Last Checked At */
+            last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Deleted At */
+            deleted_at: string | null;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** ItemMerge */
+        ItemMerge: {
+            /** Into */
+            into: string;
+        };
+        /**
+         * ItemMerged
+         * @description The item merged into, as it is now.
+         */
+        ItemMerged: {
             /** Id */
             id: string;
             /** Name */
@@ -4322,6 +4419,108 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ItemMoved"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    duplicate_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemCreated"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    merge_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemMerge"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemMerged"];
                 };
             };
             /** @description Not Found */

@@ -144,3 +144,10 @@ test("removing an attachment reads Removed and its name, or what it was", () => 
   const link = entry("item.attachment_removed", { kind: "link", filename: null });
   expect(whatHappened(link, "item")).toBe("Removed a link");
 });
+
+test("a merge reads from each side: the item folded in, and the one it went into", () => {
+  const folded = entry("item.merged", { deleted_at: null }, { deleted_at: "2026-11-16T12:00:00Z" });
+  expect(whatHappened(folded, "item")).toBe("Merged into another item");
+  const into = entry("item.merged", { quantity: 3 }, { quantity: 4 });
+  expect(whatHappened(into, "item")).toBe("Another item merged into this");
+});

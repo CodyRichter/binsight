@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: bulk edit (Breadth 8).** The requirements,
+> **Status: item duplicates (Breadth 8b).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -60,7 +60,9 @@ what's inside. Search for anything and get its full location path, e.g.
 > offer Restore. Claude can do the same, asking first before a delete or
 > merge. Items ticked in a location, search, view or the inbox are moved,
 > tagged, recategorized or given a status together, as one change with
-> Undo; Claude asks first before changing many at once.
+> Undo; Claude asks first before changing many at once. An item's page
+> duplicates it, opening the copy, and merges it into another recorded
+> twice, each with Undo; Claude asks first before a merge.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 

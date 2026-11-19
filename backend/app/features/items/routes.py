@@ -23,6 +23,8 @@ from app.features.items.schemas import (
     ItemLinkNew,
     ItemMarkedFound,
     ItemMarkedMissing,
+    ItemMerge,
+    ItemMerged,
     ItemMove,
     ItemMoved,
     ItemRestored,
@@ -125,6 +127,21 @@ def move_item(item_id: str, body: ItemMove, session: WriteSession) -> ItemMoved:
 @router.delete("/{item_id}", operation_id="delete_item", responses=refusals(404, 409))
 def delete_item(item_id: str, session: WriteSession) -> ItemDeleted:
     return service.delete_item(session, item_id, Actor.app, clock.now())
+
+
+@router.post(
+    "/{item_id}/duplicate",
+    operation_id="duplicate_item",
+    status_code=201,
+    responses=refusals(404, 409),
+)
+def duplicate_item(item_id: str, session: WriteSession) -> ItemCreated:
+    return service.duplicate_item(session, item_id, Actor.app, clock.now())
+
+
+@router.post("/{item_id}/merge", operation_id="merge_item", responses=refusals(404, 409, 422))
+def merge_item(item_id: str, body: ItemMerge, session: WriteSession) -> ItemMerged:
+    return service.merge_item(session, item_id, body, Actor.app, clock.now())
 
 
 @router.post("/{item_id}/restore", operation_id="restore_item", responses=refusals(404, 409))

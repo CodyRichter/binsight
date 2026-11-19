@@ -80,6 +80,14 @@ function linked(entry: HistoryEntry, itemId: string): string {
   return link.after.item_id === itemId ? linkedWords.part_of : linkedWords.part;
 }
 
+// A merge deletes the item folded in and changes the one it went into; names aren't kept.
+function merged(entry: HistoryEntry, itemId: string): string {
+  const folded = entry.changes.some(
+    (change) => change.record_id === itemId && "deleted_at" in change.after,
+  );
+  return folded ? "Merged into another item" : "Another item merged into this";
+}
+
 const removedWords = { photo: "Removed a photo", file: "Removed a file", link: "Removed a link" };
 
 // An attachment's fields are what was attached, or, once removed, what it was before.
@@ -97,6 +105,7 @@ export function whatHappened(entry: HistoryEntry, itemId: string): string {
   const words = fixedWords[entry.action];
   if (words) return words;
   if (entry.action === "item.linked") return linked(entry, itemId);
+  if (entry.action === "item.merged") return merged(entry, itemId);
   if (entry.action === "item.file_attached" || entry.action === "item.attachment_removed") {
     return attached(entry);
   }

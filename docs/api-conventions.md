@@ -138,6 +138,11 @@ One shape for every error:
   its `deleted_at` set. Changing, moving or deleting it again is refused
   with 409 `item_deleted`; restoring an item that is not deleted is refused
   with 409 `not_deleted`.
+- `POST /api/items/{id}/duplicate` adds a copy beside the item, as the data
+  model describes, and answers 201 with it. `POST /api/items/{id}/merge`
+  takes `into`, folds the item into that one and deletes it, answering with
+  the item merged into; merging an item into itself is refused with 409
+  `same_item`, and either being deleted with 409 `item_deleted`.
 - `POST /api/locations/{id}/check` records a check and marks any
   `missing_item_ids` missing, as one entry that one undo reverses. An item
   not directly in that location is refused with 422 `not_in_location`.
@@ -295,7 +300,7 @@ One shape for every error:
   inputs and the token. A token works once and expires after ten minutes;
   otherwise the call is refused with 409 `confirmation_invalid` or
   `confirmation_expired`. `delete_item` is one of these, as are
-  `delete_location` and `merge_location`, and the four bulk edits,
+  `delete_location`, `merge_location` and `merge_item`, and the four bulk edits,
   `move_items`, `tag_items`, `change_items_category` and
   `change_items_status`; the app has no
   confirmation step, since its delete offers Undo. So are
