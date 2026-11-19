@@ -55,7 +55,8 @@ async function auditPages(page: Page) {
 async function auditLocationOverlays(page: Page) {
   const { ids, word } = await home(page);
   await openAtPhoneWidth(page, `/locations/${ids.bin}`);
-  await page.getByRole("button", { name: "Add", exact: true }).first().click();
+  const navigation = page.getByRole("navigation", { name: "Main" });
+  await navigation.getByRole("button", { name: "Add", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Add" })).toBeVisible();
   expect(await violations(page), "Add").toEqual([]);
   await page.keyboard.press("Escape");

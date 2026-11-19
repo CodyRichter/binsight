@@ -61,8 +61,10 @@ test("moving an item takes it out of the bin, and Undo puts it back", async ({ p
   await expect(page.getByRole("link", { name: charger })).toBeVisible();
   await page.getByRole("button", { name: `Move ${charger}` }).click();
   await sheet.getByRole("textbox", { name: "Search locations" }).fill(toolsName);
+  const moved = page.waitForResponse((answer) => answer.url().endsWith("/move"));
   await sheet.getByRole("button", { name: new RegExp(`^${toolsName}`) }).click();
   await expect(page.getByRole("link", { name: charger })).toHaveCount(0);
+  await moved;
   await page.goto(`/locations/${ids.tools}`);
   await page.getByRole("link", { name: charger }).click();
   await expect(page.getByRole("navigation", { name: "Path" })).toContainText(toolsName);

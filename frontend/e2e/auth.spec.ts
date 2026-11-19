@@ -122,7 +122,9 @@ test("an admin adds an Edit account, which can add to a bin and is named in its 
   await signIn(page, editor, accountPassword);
   await expect(page).toHaveURL(`/locations/${ids.bin}`);
   await page.getByRole("textbox", { name: "Add an item" }).fill("Drill");
+  const created = page.waitForResponse((answer) => answer.url().endsWith("/api/items"));
   await page.getByRole("textbox", { name: "Add an item" }).press("Enter");
+  await created;
   await page.getByRole("link", { name: "Drill" }).click();
   await expect(page.getByText(/· You$/)).toBeVisible();
   const drill = page.url();
