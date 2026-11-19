@@ -230,6 +230,9 @@ value row is 64px (8, 20, 4, 24, 8) plus its hairline.
 - Location type icons: site `home` or `building-warehouse`, room `door`,
   furniture `armchair`, shelf `layout-rows`, bin `box`, drawer `archive`,
   box `package`.
+- A location with a chosen icon shows it wherever its type icon would
+  show, at the same size and color. The chosen icon is any Tabler outline
+  icon ([decision 0019](decisions/0019-location-icons-from-tabler.md)).
 - Nothing moves for decoration. State changes fade in 120ms; sheets and
   toasts slide 200ms in, 150ms out, and not at all with reduced motion set.
 
@@ -357,16 +360,19 @@ Every page is one of seven templates. "Header" is the page header component.
 
 1. Header: the parent path; the title and large code chip; the summary; the
    checked stamp and counts; up to two default buttons and More. A
-   location with a photo shows it as the 96px thumbnail beside the title,
-   and nowhere larger. On a location the buttons are
+   location always has the 96px thumbnail beside the title: its photo,
+   shown nowhere larger, or else its icon. Tapping the thumbnail opens the
+   type and icon sheet. On a location the buttons are
    "Contents checked" and Move ("Add location" in place of Move on a
    site); More holds "Add location" when there is no Locations section,
    "Download label", "Check mode", then "Add photo" ("Replace photo" when
    it has one), which opens the camera, and "Remove photo" when it has
    one, then "Contents sheet" and "Insurance list", which open the
-   location's print pages, then "Merge into…" (`arrow-merge`) and "Delete
+   location's print pages, then "Type and icon…" (`icons`), then "Merge into…" (`arrow-merge`) and "Delete
    location" (`trash`, `danger`) last. "Contents checked" says "Contents checked" with Undo; a photo says
-   "Added a photo to {place}" or "Removed the photo", with Undo. The title
+   "Added a photo to {place}" or "Removed the photo", with Undo; the type and
+   icon sheet says "Changed to {type}", "Icon changed" or "Icon reset",
+   with Undo. The title
    and the summary ("Add a summary" when empty) are edited in place, saying
    "Renamed to {name}" or "Summary changed", with Undo. "Merge into…" opens
    the move sheet titled "Merge into", then goes to the location picked,
@@ -774,6 +780,16 @@ the field while the item has one. The tag sheet is titled "Add tag": one
 field, "Tag", a primary "Add", and name rows of the tags in use that the
 item lacks, narrowed as it is typed.
 
+The type and icon sheet is titled "Type and icon", and each opening makes
+one pick. Its one field, "Search icons", sits over an icon grid. With the
+field empty the grid holds "Type's icon" first, which clears the choice,
+then a short starter set for home storage; typing searches every icon's
+name and tags, words in any order. Below, under the heading "Type", the
+six types a location other than a site can have are name rows, each with
+its icon before its name and the current one marked with `check` at the
+right; a site has no Type heading or rows, as it cannot change. Picking a
+type or an icon acts and closes the sheet.
+
 The Lent to sheet is titled "Lent to": one field, "Name", a primary
 "Lend", and name rows of the names items were lent to before, most recent
 first, narrowed as it is typed. The link sheet is titled "Link an item":
@@ -864,8 +880,9 @@ types an exact value. Minus stops at 1. No "low" coloring.
 
 **Thumbnail.** A square, `radius-md`, hairline border: 48px in rows, 96px on
 an item page. Without a photo it is `surface` with a `muted` icon: `package`
-for an item, the location type's icon for a location. It is not a prompt: no
-plus sign, no "Add photo".
+for an item, the location's icon for a location. It is not a prompt: no
+plus sign, no "Add photo". On a location's page it is a button named
+"Change type and icon", with the hover fill and focus ring of any button.
 
 **Item row.** Thumbnail, then the name over a line holding the path and any
 status badge, then the quantity stepper if shown. The whole row opens the
@@ -934,6 +951,13 @@ whole row opens it.
 **Name row** (`NameRow`). A category or tag in a sheet: its name in
 `text-body`, and how many items have it in `muted` `text-small` at the
 right. `touch-min` high, hairline below; the whole row picks it.
+
+**Icon grid** (`IconGrid`). Icons to pick from, in a sheet: `touch-min`
+square buttons, `space-xs` apart, wrapping to fill the column from the
+gutter, each a 24px `ink` icon with no word under it, named by its words
+("tools-kitchen-2" is "Tools kitchen 2"). The chosen one has a `highlight`
+fill and is pressed. It shows at most 60; when more match, a `muted`
+`text-small` line under it says "60 of {n} shown. Keep typing to narrow."
 
 **Chosen value** (`ChosenValue`). A value row's value that is picked in a
 sheet rather than typed: it reads as editable text does at rest, with the

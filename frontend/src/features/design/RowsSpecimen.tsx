@@ -4,6 +4,8 @@ import { CheckedStamp } from "@/components/CheckedStamp";
 import { CodeChip } from "@/components/CodeChip";
 import { EmptyState } from "@/components/EmptyState";
 import { HistoryRow } from "@/components/HistoryRow";
+import { IconGrid } from "@/components/IconGrid";
+import { LocationIcon } from "@/components/LocationIcon";
 import { ListSection } from "@/components/ListSection";
 import { NameRow } from "@/components/NameRow";
 import { Path } from "@/components/Path";
@@ -23,6 +25,7 @@ export function RowsSpecimen() {
           <Thumbnail photoUrl={samplePhoto} />
           <Thumbnail />
           <Thumbnail locationType="bin" />
+          <Thumbnail locationType="furniture" locationIcon="bike" />
           <Thumbnail photoUrl={samplePhoto} large />
           <CodeChip code="B-014" />
           <CodeChip code="B-031" blank />
@@ -40,6 +43,13 @@ export function RowsSpecimen() {
           <CheckedStamp lastChecked={null} />
         </Group>
         <Path segments={binPath} linked />
+        <IconGrid
+          type="furniture"
+          icons={[null, "bike", "fridge", "tools-kitchen-2", "christmas-tree"]}
+          chosen="bike"
+          total={212}
+          onPick={() => undefined}
+        />
       </Stack>
       <LocationTreeDemo />
       <ItemListDemo />
@@ -50,6 +60,12 @@ export function RowsSpecimen() {
       <ListSection title="Name rows">
         <NameRow name={'Make "Adapters"'} onPick={() => undefined} />
         <NameRow name="Cables" itemCount={12} onPick={() => undefined} />
+        <NameRow
+          name="Furniture"
+          icon={<LocationIcon type="furniture" size={20} />}
+          chosen
+          onPick={() => undefined}
+        />
       </ListSection>
       <EmptyState
         statement='Nothing matches "multimeter"'

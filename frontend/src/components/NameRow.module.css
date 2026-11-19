@@ -53,3 +53,14 @@
   font-weight: var(--bs-text-small-weight);
   font-variant-numeric: tabular-nums;
 }
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--bs-muted);
+}
+
+.chosen {
+  flex: none;
+  margin-left: auto;
+}

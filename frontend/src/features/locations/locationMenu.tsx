@@ -4,6 +4,7 @@ import {
   IconChecklist,
   IconDownload,
   IconFileText,
+  IconIcons,
   IconPhoto,
   IconPhotoOff,
   IconPlus,
@@ -27,25 +28,29 @@ export interface RemovalChoices {
   onDelete: () => void;
 }
 
-interface PhotoChoices {
+interface LookChoices {
   onTakePhoto: () => void;
   onRemovePhoto: () => void;
+  onTypeAndIcon: () => void;
 }
 
-function photoItems({ location }: LocationMenuProps, photo: PhotoChoices): ReactNode {
+function lookItems({ location }: LocationMenuProps, look: LookChoices): ReactNode {
   return (
     <>
-      <Menu.Item leftSection={<IconPhoto aria-hidden size={20} />} onClick={photo.onTakePhoto}>
+      <Menu.Item leftSection={<IconPhoto aria-hidden size={20} />} onClick={look.onTakePhoto}>
         {location.photo_url ? "Replace photo" : "Add photo"}
       </Menu.Item>
       {location.photo_url && (
         <Menu.Item
           leftSection={<IconPhotoOff aria-hidden size={20} />}
-          onClick={photo.onRemovePhoto}
+          onClick={look.onRemovePhoto}
         >
           Remove photo
         </Menu.Item>
       )}
+      <Menu.Item leftSection={<IconIcons aria-hidden size={20} />} onClick={look.onTypeAndIcon}>
+        Type and icon…
+      </Menu.Item>
     </>
   );
 }
@@ -71,7 +76,7 @@ function removalItems(removal: RemovalChoices): ReactNode {
 export function moreMenu(
   props: LocationMenuProps,
   movable: boolean,
-  photo: PhotoChoices,
+  look: LookChoices,
   removal: RemovalChoices,
 ): ReactNode {
   const code = props.location.label_code;
@@ -109,7 +114,7 @@ export function moreMenu(
       <Menu.Item leftSection={<IconChecklist aria-hidden size={20} />} onClick={props.onCheckMode}>
         Check mode
       </Menu.Item>
-      {photoItems(props, photo)}
+      {lookItems(props, look)}
       {removalItems(removal)}
     </>
   );

@@ -56,8 +56,10 @@ def test_merging_previews_then_merges_and_restoring_needs_no_token(
 def test_renaming_clearing_a_summary_and_reordering(
     claude: Claude, signed_in: TestClient, home: AcceptanceHome
 ) -> None:
-    claude.call("update_location", location_id="B-014", summary="spare network cables")
-    renamed = claude.call("update_location", location_id="B-014", name="Wires", clear_summary=True)
+    claude.call("update_location", location_id="B-014", changes={"summary": "spare network cables"})
+    renamed = claude.call(
+        "update_location", location_id="B-014", changes={"name": "Wires", "summary": None}
+    )
     assert (renamed["name"], renamed["summary"]) == ("Wires", None)
     claude.call("reorder_location", location_id=home.tools, position=0)
     shelf = [
@@ -66,3 +68,12 @@ def test_renaming_clearing_a_summary_and_reordering(
         if row["parent_id"] == home.shelf
     ]
     assert shelf == ["Tools", "Wires"]
+
+
+def test_changing_a_bin_s_type_and_icon(claude: Claude, home: AcceptanceHome) -> None:
+    changed = claude.call(
+        "update_location", location_id="B-014", changes={"type": "drawer", "icon": "plug"}
+    )
+    assert (changed["id"], changed["type"], changed["icon"]) == (home.cables, "drawer", "plug")
+    refused = claude.refusal("update_location", location_id=home.home, changes={"type": "box"})
+    assert refused["code"] == "site_type"

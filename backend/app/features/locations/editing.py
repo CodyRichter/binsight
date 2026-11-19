@@ -20,8 +20,10 @@ from app.models import Actor
 def update_location(
     session: Session, location_id: str, changes: LocationChanges, actor: Actor, now: datetime
 ) -> LocationUpdated:
-    """Rename a location or change its summary."""
+    """Rename a location, or change its summary, type or icon."""
     location = live_record(session, location_id)
+    if changes.type is not None and location.type == models.LocationType.site:
+        raise AppError(409, "site_type", "A site stays a site, because it has no parent.")
     sent = changes.model_dump(exclude_unset=True)
     if "summary" in sent and not sent["summary"]:
         sent["summary"] = None

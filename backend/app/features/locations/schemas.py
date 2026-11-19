@@ -10,6 +10,8 @@ from app.models import LocationType
 LocationName = Annotated[
     str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)
 ]
+# A Tabler outline icon's name; the frontend shows the type's icon for one Tabler doesn't have.
+IconName = Annotated[str, StringConstraints(pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$", max_length=64)]
 
 
 class NewLocation(BaseModel):
@@ -40,6 +42,7 @@ class Location(BaseModel):
     type: LocationType
     parent_id: str | None
     summary: str | None
+    icon: str | None
     label_code: str | None
     path: list[PathStep]
     direct_item_count: int
@@ -66,15 +69,27 @@ class LocationMoved(Location):
 
 
 class LocationChanges(BaseModel):
-    """Only the fields sent are changed; a summary sent as null is cleared."""
+    """Only the fields sent are changed; a summary or icon sent as null is cleared."""
 
     name: LocationName | None = None
     summary: Annotated[str, StringConstraints(strip_whitespace=True, max_length=500)] | None = None
+    type: LocationType | None = None
+    icon: IconName | None = None
 
     @model_validator(mode="after")
-    def a_name_is_never_cleared(self) -> Self:
+    def a_name_and_type_are_never_cleared(self) -> Self:
         if "name" in self.model_fields_set and self.name is None:
             raise PydanticCustomError("name_required", "A location always has a name.")
+        if "type" in self.model_fields_set and self.type is None:
+            raise PydanticCustomError("type_required", "A location always has a type.")
+        return self
+
+    @model_validator(mode="after")
+    def nothing_becomes_a_site(self) -> Self:
+        if self.type == LocationType.site:
+            raise PydanticCustomError(
+                "site_parent", "Only a location with no parent is a site, and it stays one."
+            )
         return self
 
 

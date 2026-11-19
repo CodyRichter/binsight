@@ -36,12 +36,15 @@ HistoryEntry ──> any of the above
 | `type`       | One of the fixed location types. Required.                  |
 | `parent`     | Another location, or none for a site.                       |
 | `summary`    | Optional one line.                                          |
+| `icon`       | Optional. The name of a built-in icon; none means the type's icon. |
 | `position`   | Order among its siblings. A new location goes last.         |
 | `deleted_at` | Set when deleted.                                           |
 
 Rules:
 
 - A location with no parent has type `site`, and only sites have no parent.
+  So a site's type never changes, and no other location becomes a site.
+- Changing a location's type or icon changes nothing beneath it.
 - The tree has no cycles: a location cannot be moved into itself or anything
   beneath it.
 - Moving a location changes only its `parent`. Everything beneath it moves

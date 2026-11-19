@@ -27,14 +27,20 @@ from app.mcp import confirmation
 from app.mcp.actions import run_action
 from app.models import Actor
 
-UPDATE_LOCATION = """Rename a location, or change or clear its one-line summary.
+UPDATE_LOCATION = """Rename a location, or change its one-line summary, its type or its icon.
 
-Use this when the owner renames a room, shelf or bin, or describes what a bin holds
-("spare network cables"). location_id is its identifier or its label's code. Pass only what
-changes: name to rename it, summary to change it, or clear_summary true to remove it.
+Use this when the owner renames a room, shelf or bin, describes what a bin holds ("spare
+network cables"), says what kind of place it is, or wants it to look like something.
+location_id is its identifier or its label's code. changes holds only what to change:
+- name: the new name. It cannot be cleared.
+- summary: one line about what it holds. null or "" removes it.
+- type: one of room, furniture, shelf, bin, drawer, box. A site (a location with no parent)
+  stays a site, and nothing else can become one.
+- icon: the name of a Tabler outline icon (tabler.io/icons), such as "fridge", "bike" or
+  "tools-kitchen-2", shown in place of the type's icon. null goes back to the type's icon.
 
 Returns the location with its path and the history_entry_id, which undo_history_entry takes
-to put the old name or summary back."""
+to put the old values back. Refusals: site_type, and validation_failed for a bad value."""
 
 DELETE_LOCATION = """Delete a location, in two calls: first a preview, then the deletion.
 
@@ -146,13 +152,6 @@ def _merge(session: Session, location: str, into: str, token: str | None) -> Mer
     return MergeLocationAnswer(preview=None, merged=merged)
 
 
-def _changes(name: str | None, summary: str | None, clear_summary: bool) -> LocationChanges:
-    sent: dict[str, str | None] = {} if name is None else {"name": name}
-    if clear_summary or summary is not None:
-        sent["summary"] = None if clear_summary else summary
-    return LocationChanges.model_validate(sent)
-
-
 def _add_removal_tools(server: MCPServer, app: FastAPI) -> None:
     @server.tool(description=DELETE_LOCATION)
     async def delete_location(
@@ -180,18 +179,16 @@ def _add_removal_tools(server: MCPServer, app: FastAPI) -> None:
 def _add_update_tool(server: MCPServer, app: FastAPI) -> None:
     @server.tool(description=UPDATE_LOCATION)
     async def update_location(
-        location_id: str,
-        name: str | None = None,
-        summary: str | None = None,
-        clear_summary: bool = False,
+        location_id: str, changes: dict[str, object]
     ) -> Annotated[CallToolResult, LocationUpdated]:
+        # Validated in the action, so a bad value is refused with the API's validation_failed.
         return await run_action(
             app,
             open_write_session,
             lambda session: service.update_location(
                 session,
                 _location(session, location_id),
-                _changes(name, summary, clear_summary),
+                LocationChanges.model_validate(changes),
                 Actor.mcp,
                 clock.now(),
             ),

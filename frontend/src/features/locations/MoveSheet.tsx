@@ -22,6 +22,7 @@ function whereItWas(location: Location, onPick: () => void) {
       key="where-it-was"
       name="Where it was"
       locationType={location.type}
+      locationIcon={location.icon}
       code={location.label_code ?? undefined}
       itemCount={location.item_count}
       onPick={onPick}
@@ -74,6 +75,7 @@ export function MoveSheet(props: MoveSheetProps) {
               key={location.id}
               name={location.name}
               locationType={location.type}
+              locationIcon={location.icon}
               code={location.label_code ?? undefined}
               itemCount={location.item_count}
               onPick={() => pick(location)}

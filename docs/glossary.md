@@ -10,6 +10,7 @@ before naming it in code.
 | ----------------- | ---------------------------------------------------------- |
 | **Location**      | Anything that can hold items or other locations. The only word for a place. |
 | **Location type** | What kind of location it is: `site`, `room`, `furniture`, `shelf`, `bin`, `drawer`, `box`. A fixed list. |
+| **Icon**          | The picture shown for a location in rows and on its page: one picked from the built-in set, or else its type's icon. |
 | **Site**          | A location with no parent: the home, a storage unit, a car. |
 | **Bin**           | A location of type `bin`. In prose, "bin" is also used loosely for any labeled container; in code it means only the type. |
 | **Parent**        | The location that directly contains a location.            |

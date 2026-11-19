@@ -2337,6 +2337,8 @@ export interface components {
             parent_id: string | null;
             /** Summary */
             summary: string | null;
+            /** Icon */
+            icon: string | null;
             /** Label Code */
             label_code: string | null;
             /** Path */
@@ -2354,13 +2356,16 @@ export interface components {
         };
         /**
          * LocationChanges
-         * @description Only the fields sent are changed; a summary sent as null is cleared.
+         * @description Only the fields sent are changed; a summary or icon sent as null is cleared.
          */
         LocationChanges: {
             /** Name */
             name?: string | null;
             /** Summary */
             summary?: string | null;
+            type?: components["schemas"]["LocationType"] | null;
+            /** Icon */
+            icon?: string | null;
         };
         /** LocationChecked */
         LocationChecked: {
@@ -2373,6 +2378,8 @@ export interface components {
             parent_id: string | null;
             /** Summary */
             summary: string | null;
+            /** Icon */
+            icon: string | null;
             /** Label Code */
             label_code: string | null;
             /** Path */
@@ -2403,6 +2410,8 @@ export interface components {
             parent_id: string | null;
             /** Summary */
             summary: string | null;
+            /** Icon */
+            icon: string | null;
             /** Label Code */
             label_code: string | null;
             /** Path */
@@ -2431,6 +2440,8 @@ export interface components {
             parent_id: string | null;
             /** Summary */
             summary: string | null;
+            /** Icon */
+            icon: string | null;
             /** Label Code */
             label_code: string | null;
             /** Path */
@@ -2467,6 +2478,8 @@ export interface components {
             parent_id: string | null;
             /** Summary */
             summary: string | null;
+            /** Icon */
+            icon: string | null;
             /** Label Code */
             label_code: string | null;
             /** Path */
@@ -2500,6 +2513,8 @@ export interface components {
             parent_id: string | null;
             /** Summary */
             summary: string | null;
+            /** Icon */
+            icon: string | null;
             /** Label Code */
             label_code: string | null;
             /** Path */
@@ -2528,6 +2543,8 @@ export interface components {
             parent_id: string | null;
             /** Summary */
             summary: string | null;
+            /** Icon */
+            icon: string | null;
             /** Label Code */
             label_code: string | null;
             /** Path */
@@ -2564,6 +2581,8 @@ export interface components {
             parent_id: string | null;
             /** Summary */
             summary: string | null;
+            /** Icon */
+            icon: string | null;
             /** Label Code */
             label_code: string | null;
             /** Path */
@@ -2592,6 +2611,8 @@ export interface components {
             parent_id: string | null;
             /** Summary */
             summary: string | null;
+            /** Icon */
+            icon: string | null;
             /** Label Code */
             label_code: string | null;
             /** Path */
@@ -2641,6 +2662,8 @@ export interface components {
             parent_id: string | null;
             /** Summary */
             summary: string | null;
+            /** Icon */
+            icon: string | null;
             /** Label Code */
             label_code: string | null;
             /** Path */

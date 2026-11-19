@@ -34,6 +34,7 @@ class Location(Model):
     )
     parent_id: Mapped[str | None] = mapped_column(ForeignKey("location.id"), index=True)
     summary: Mapped[str | None]
+    icon: Mapped[str | None]
     position: Mapped[int]
     deleted_at: Mapped[datetime | None]
     created_at: Mapped[datetime]

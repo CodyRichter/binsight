@@ -27,6 +27,7 @@ export function ChildLocations({ locations, onAddLocation }: ChildLocationsProps
           <LocationRow
             name={location.name}
             locationType={location.type}
+            locationIcon={location.icon}
             code={location.label_code ?? undefined}
             itemCount={location.item_count}
             to={`/locations/${location.id}`}

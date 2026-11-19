@@ -66,6 +66,48 @@ def test_a_name_can_t_be_cleared_and_an_empty_summary_clears_it(
     assert (cleared["name"], cleared["summary"]) == ("Cables", None)
 
 
+def test_changing_a_location_s_type_and_icon_and_undoing_it(
+    signed_in: TestClient, home: AcceptanceHome
+) -> None:
+    changed = signed_in.patch(
+        f"{LOCATIONS}/{home.garage}", json={"type": "furniture", "icon": "tools-kitchen-2"}
+    ).json()
+    assert (changed["type"], changed["icon"]) == ("furniture", "tools-kitchen-2")
+    assert _location(signed_in, home.shelf)["type"] == "shelf"
+    _undo(signed_in, changed)
+    reverted = _location(signed_in, home.garage)
+    assert (reverted["type"], reverted["icon"]) == ("room", None)
+
+
+def test_an_icon_sent_as_null_goes_back_to_the_type_s_icon(
+    signed_in: TestClient, home: AcceptanceHome
+) -> None:
+    signed_in.patch(f"{LOCATIONS}/{home.cables}", json={"icon": "plug"})
+    cleared = signed_in.patch(f"{LOCATIONS}/{home.cables}", json={"icon": None}).json()
+    assert (cleared["type"], cleared["icon"]) == ("bin", None)
+
+
+@pytest.mark.parametrize("icon", ["Fridge", "fridge cold", "-fridge", "../fridge", "a" * 65])
+def test_an_icon_that_is_not_an_icon_name_is_refused(
+    signed_in: TestClient, home: AcceptanceHome, icon: str
+) -> None:
+    answer = signed_in.patch(f"{LOCATIONS}/{home.cables}", json={"icon": icon})
+    assert answer.status_code == 422
+
+
+def test_a_site_stays_a_site_and_nothing_else_becomes_one(
+    signed_in: TestClient, home: AcceptanceHome
+) -> None:
+    refused = signed_in.patch(f"{LOCATIONS}/{home.home}", json={"type": "room"})
+    assert (refused.status_code, refused.json()["error"]["code"]) == (409, "site_type")
+    assert signed_in.patch(f"{LOCATIONS}/{home.garage}", json={"type": "site"}).status_code == 422
+    assert signed_in.patch(f"{LOCATIONS}/{home.garage}", json={"type": None}).status_code == 422
+    assert _location(signed_in, home.home)["type"] == "site"
+    assert _location(signed_in, home.garage)["type"] == "room"
+    icon = signed_in.patch(f"{LOCATIONS}/{home.home}", json={"icon": "building-warehouse"})
+    assert icon.json()["icon"] == "building-warehouse"
+
+
 def test_deleting_moves_the_contents_and_undo_puts_them_back(
     signed_in: TestClient, home: AcceptanceHome
 ) -> None:

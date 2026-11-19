@@ -20,8 +20,19 @@ function useShowInTree() {
     );
 }
 
-/** Renames a location or changes its summary, shown at once and put back if refused. */
-type Change = { name: string } | { summary: string };
+type LocationType = components["schemas"]["LocationType"];
+
+export type Change =
+  { name: string } | { summary: string } | { type: LocationType } | { icon: string | null };
+
+function changedWords(changes: Change, updated: LocationUpdated): string {
+  if ("name" in changes) return `Renamed to ${updated.name}`;
+  if ("type" in changes) return `Changed to ${updated.type}`;
+  if ("icon" in changes) return changes.icon ? "Icon changed" : "Icon reset";
+  return "Summary changed";
+}
+
+/** Renames a location or changes its summary, type or icon, shown at once and put back if refused. */
 
 export function useChangeLocation(location: Location): (changes: Change) => void {
   const undo = useUndo();
@@ -44,7 +55,7 @@ export function useChangeLocation(location: Location): (changes: Change) => void
     mutate(changes, {
       onSuccess: (updated) =>
         showToast({
-          message: "name" in changes ? `Renamed to ${updated.name}` : "Summary changed",
+          message: changedWords(changes, updated),
           onUndo: () => undo(updated.history_entry_id),
         }),
       onError: (error) => {
