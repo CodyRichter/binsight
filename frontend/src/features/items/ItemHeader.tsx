@@ -1,16 +1,19 @@
 import { Button } from "@mantine/core";
 import { IconArrowBackUp, IconArrowsMove } from "@tabler/icons-react";
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { FrameAdditionsContext } from "@/components/frameAdditions";
 import { PageHeader } from "@/components/PageHeader";
-import { LendSheet } from "./LendSheet";
+import { QuantityStepper } from "@/components/QuantityStepper";
 import { ItemMenu } from "./ItemMenu";
+import { ItemPhotoInput } from "./ItemPhotoInput";
+import { LendSheet } from "./LendSheet";
 import { LinkSheet } from "./LinkSheet";
 import { MergeSheet } from "./MergeSheet";
 import { pathSegments } from "./pathSegments";
 import { StatusButton } from "./StatusButton";
 import { useRename } from "./useItemChange";
 import { useMoveItem } from "./useMoveItem";
+import { useQuantity } from "./useQuantity";
 import { useRestoreItem } from "./useRestoreItem";
 import { useLend } from "./useStatusChange";
 import type { Item } from "./useItems";
@@ -55,15 +58,18 @@ interface ItemHeaderProps {
   onAttach: () => void;
 }
 
-/** An item page's header: its path, name and status, its buttons, and More. */
+/** An item page's header: its path, name, status, quantity, buttons, and More. */
 export function ItemHeader({ item, linkedIds, onAttach }: ItemHeaderProps) {
   const rename = useRename(item);
+  const changeQuantity = useQuantity(item);
   const restore = useRestoreItem();
   const lend = useLend();
   const [lending, setLending] = useState(false);
   const [linking, setLinking] = useState(false);
   const [merging, setMerging] = useState(false);
-  const deleted = item.deleted_at !== null;
+  const photoInput = useRef<HTMLInputElement>(null);
+  const deleted = Boolean(item.deleted_at);
+  const canAddPhoto = !deleted && !item.photo_url;
   const actions = deleted ? (
     <Button leftSection={<IconArrowBackUp aria-hidden />} onClick={() => restore(item)}>
       Restore
@@ -90,12 +96,21 @@ export function ItemHeader({ item, linkedIds, onAttach }: ItemHeaderProps) {
         untitled="Unnamed"
         onRename={rename}
         parents={pathSegments(item.path)}
-        thumbnail={{ photoUrl: item.photo_url ?? undefined }}
+        thumbnail={{
+          photoUrl: item.photo_url ?? undefined,
+          action: canAddPhoto
+            ? { label: "Add photo", onClick: () => photoInput.current?.click() }
+            : undefined,
+        }}
         since={since(item)}
         status={{ status: item.status, lentTo: item.lent_to ?? undefined }}
+        quantity={
+          deleted ? undefined : <QuantityStepper value={item.quantity} onChange={changeQuantity} />
+        }
         actions={actions}
         menu={deleted ? undefined : menu}
       />
+      {canAddPhoto && <ItemPhotoInput item={item} inputRef={photoInput} />}
       <LendSheet
         opened={lending}
         onLend={(name) => lend(item, name)}
