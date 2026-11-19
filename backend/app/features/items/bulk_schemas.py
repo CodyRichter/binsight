@@ -2,7 +2,7 @@ from typing import Annotated, Literal
 
 from pydantic import AfterValidator, BaseModel, Field
 
-from app.features.items.schemas import DetailText, Item, TagName
+from app.features.items.schemas import DetailText, Item, ItemName, TagName
 
 
 def _each_once(item_ids: list[str]) -> list[str]:
@@ -32,6 +32,15 @@ class ItemsCategory(BaseModel):
 class ItemsStatus(BaseModel):
     item_ids: ItemIds
     status: Literal["in_place", "in_use", "sold", "given_away", "thrown_away"]
+
+
+class ItemsDelete(BaseModel):
+    item_ids: ItemIds
+
+
+class ItemsLend(BaseModel):
+    item_ids: ItemIds
+    lent_to: ItemName
 
 
 class ItemsChanged(BaseModel):

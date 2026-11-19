@@ -2,7 +2,6 @@ import { Button } from "@mantine/core";
 import { useState, type ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { AppFrame } from "@/components/AppFrame";
-import { ListSection } from "@/components/ListSection";
 import { PageHeader } from "@/components/PageHeader";
 import { PageLead } from "@/components/PageLead";
 import { PageState, type PageStatus } from "@/components/PageState";
@@ -10,18 +9,14 @@ import { useItemSelection } from "@/features/items";
 import { AddSheet } from "@/features/locations";
 import { pageStatusOf } from "@/lib/api/pageStatus";
 import { FilterChips } from "./FilterChips";
+import { FoundList } from "./FoundList";
 import { resultCount } from "./resultCount";
-import { SearchResult } from "./SearchResult";
 import { addressOf, hasFilters, searchOf, type Search } from "./searchState";
-import { useSearchResults, type SearchResult as Result } from "./useSearch";
+import { useSearchResults } from "./useSearch";
 
 interface SearchResultsProps {
   /** The header's button for the search showing, such as saving it; left out with no search. */
   action?: (search: Search) => ReactNode;
-}
-
-function resultKey(result: Result): string {
-  return result.kind === "item" ? `item-${result.item.id}` : `location-${result.location.id}`;
 }
 
 function title(search: Search): string {
@@ -74,11 +69,7 @@ export function SearchResults({ action }: SearchResultsProps) {
         empty={emptyMessage(search.query, () => setAdding(true))}
         onRetry={() => void results.refetch()}
       >
-        <ListSection>
-          {found.map((result) => (
-            <SearchResult key={resultKey(result)} result={result} selection={selection} />
-          ))}
-        </ListSection>
+        <FoundList found={found} selection={selection} />
         {results.hasNextPage && (
           <Button variant="subtle" ml="lg" mt="xs" onClick={() => void results.fetchNextPage()}>
             Show more

@@ -10,7 +10,7 @@ import type { SettableStatus } from "./useStatusChange";
 type ItemsChanged = components["schemas"]["ItemsChanged"];
 
 interface BulkEdit<Input> {
-  path: "move" | "tag" | "category" | "status";
+  path: "move" | "tag" | "category" | "status" | "lend" | "delete";
   body: (input: Input) => object;
   message: (count: string, input: Input) => string;
   /** Changes the screen before the answer, returning what puts it back. */
@@ -69,7 +69,7 @@ function useBulkEdit<Input>(
   return (ids, input) => mutate({ ids, input });
 }
 
-/** Takes moved items out of the location lists showing them, before the answer. */
+/** Takes moved or deleted items out of the location lists showing them, before the answer. */
 function showMoved(queryClient: QueryClient, ids: string[]) {
   const before = queryClient.getQueriesData<Item[]>({ queryKey: itemListsKey });
   queryClient.setQueriesData<Item[]>({ queryKey: itemListsKey }, (items) =>
@@ -86,40 +86,55 @@ const statusWords: Record<SettableStatus, (count: string) => string> = {
   thrown_away: (count) => `Marked ${count} thrown away`,
 };
 
-/** The four bulk edits, each calling onDone once it is stored, so the selection can end. */
+const moving: BulkEdit<Destination> = {
+  path: "move",
+  body: (place) => ({ location_id: place.id }),
+  message: (count, place) => `Moved ${count} to ${placeName(place)}`,
+  shown: showMoved,
+};
+
+const tagging: BulkEdit<string> = {
+  path: "tag",
+  body: (tag) => ({ tag }),
+  message: (count, tag) => `Tagged ${count} ${tag}`,
+};
+
+const categorizing: BulkEdit<string | null> = {
+  path: "category",
+  body: (category) => ({ category }),
+  message: (count, category) =>
+    category
+      ? `Changed the category of ${count} to ${category}`
+      : `Removed the category from ${count}`,
+};
+
+const restatusing: BulkEdit<SettableStatus> = {
+  path: "status",
+  body: (status) => ({ status }),
+  message: (count, status) => statusWords[status](count),
+};
+
+const lending: BulkEdit<string> = {
+  path: "lend",
+  body: (lentTo) => ({ lent_to: lentTo }),
+  message: (count, lentTo) => `Lent ${count} to ${lentTo}`,
+};
+
+const deleting: BulkEdit<null> = {
+  path: "delete",
+  body: () => ({}),
+  message: (count) => `Deleted ${count}`,
+  shown: showMoved,
+};
+
+/** The bulk edits, each calling onDone once it is stored, so the selection can end. */
 export function useBulkEdits(onDone: () => void) {
   return {
-    move: useBulkEdit<Destination>(
-      {
-        path: "move",
-        body: (place) => ({ location_id: place.id }),
-        message: (count, place) => `Moved ${count} to ${placeName(place)}`,
-        shown: showMoved,
-      },
-      onDone,
-    ),
-    tag: useBulkEdit<string>(
-      { path: "tag", body: (tag) => ({ tag }), message: (count, tag) => `Tagged ${count} ${tag}` },
-      onDone,
-    ),
-    category: useBulkEdit<string | null>(
-      {
-        path: "category",
-        body: (category) => ({ category }),
-        message: (count, category) =>
-          category
-            ? `Changed the category of ${count} to ${category}`
-            : `Removed the category from ${count}`,
-      },
-      onDone,
-    ),
-    status: useBulkEdit<SettableStatus>(
-      {
-        path: "status",
-        body: (status) => ({ status }),
-        message: (count, status) => statusWords[status](count),
-      },
-      onDone,
-    ),
+    move: useBulkEdit(moving, onDone),
+    tag: useBulkEdit(tagging, onDone),
+    category: useBulkEdit(categorizing, onDone),
+    status: useBulkEdit(restatusing, onDone),
+    lend: useBulkEdit(lending, onDone),
+    remove: useBulkEdit(deleting, onDone),
   };
 }

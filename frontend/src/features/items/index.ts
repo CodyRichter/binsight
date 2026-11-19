@@ -6,6 +6,7 @@ export { ItemsSection } from "./ItemsSection";
 export { useInboxCount } from "./useInbox";
 export { useItemSelection, type ItemSelection } from "./useItemSelection";
 export { useLocationItems, type Destination, type Item } from "./useItems";
+export { useMoveItem } from "./useMoveItem";
 export { pathSegments } from "./pathSegments";
 export { dateText, priceText } from "./detailValues";
 export { itemName, placeName } from "./placeName";

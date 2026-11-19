@@ -6,7 +6,13 @@ from sqlalchemy.orm import Session
 from app import models
 from app.core.errors import AppError
 from app.features.history import service as history
-from app.features.items.bulk_schemas import ItemsCategory, ItemsChanged, ItemsMove, ItemsTag
+from app.features.items.bulk_schemas import (
+    ItemsCategory,
+    ItemsChanged,
+    ItemsDelete,
+    ItemsMove,
+    ItemsTag,
+)
 from app.features.items.categories import category_name
 from app.features.items.details import apply_changes
 from app.features.items.records import live_item
@@ -122,3 +128,22 @@ def change_items_category(
         for item in _recategorizing(session, categorizing)
     ]
     return recorded(session, "item.updated", changes, actor, now)
+
+
+def preview_delete_items(session: Session, deleting: ItemsDelete) -> list[Item]:
+    """The items deleting would take out of view, refused as deleting them would be."""
+    return [shaped(session, live_item(session, item_id)) for item_id in deleting.item_ids]
+
+
+def delete_items(
+    session: Session, deleting: ItemsDelete, actor: Actor, now: datetime
+) -> ItemsChanged:
+    """Take many items out of view, as one change to undo; they can be restored."""
+    changes = []
+    for item_id in deleting.item_ids:
+        item = live_item(session, item_id)
+        item.deleted_at = now
+        item.updated_at = now
+        after = {"deleted_at": now.isoformat()}
+        changes.append((item, history.RecordChange("item", item.id, {"deleted_at": None}, after)))
+    return recorded(session, "item.deleted", changes, actor, now)
