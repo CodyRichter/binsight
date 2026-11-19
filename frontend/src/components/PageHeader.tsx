@@ -25,6 +25,8 @@ interface PageHeaderProps {
   onRename?: (title: string) => void;
   parents?: PathSegment[];
   code?: string;
+  /** Makes the code chip a button, named "Label {code}", that shows the label. */
+  onCodeClick?: () => void;
   thumbnail?: PageThumbnail;
   status?: { status: Status; lentTo?: string };
   summary?: { value: string; onSave: (summary: string) => void };
@@ -50,8 +52,23 @@ function metaLine({ counts = [], since }: PageHeaderProps): ReactNode {
   );
 }
 
+function codeChip({ code, onCodeClick }: PageHeaderProps): ReactNode {
+  if (!code) return null;
+  if (!onCodeClick) return <CodeChip code={code} large />;
+  return (
+    <button
+      type="button"
+      className={classes.codeButton}
+      aria-label={`Label ${code}`}
+      onClick={onCodeClick}
+    >
+      <CodeChip code={code} large />
+    </button>
+  );
+}
+
 function titleLine(props: PageHeaderProps): ReactNode {
-  const { title, untitled, code, onRename } = props;
+  const { title, untitled, onRename } = props;
   return (
     <div className={classes.title}>
       <Title order={1} tabIndex={-1}>
@@ -61,7 +78,7 @@ function titleLine(props: PageHeaderProps): ReactNode {
           title || untitled
         )}
       </Title>
-      {code && <CodeChip code={code} large />}
+      {codeChip(props)}
     </div>
   );
 }

@@ -1,5 +1,11 @@
 import { Button, Menu } from "@mantine/core";
-import { IconArrowsMove, IconQrcode, IconTrash, IconZoomQuestion } from "@tabler/icons-react";
+import {
+  IconArrowsMove,
+  IconFileText,
+  IconQrcode,
+  IconTrash,
+  IconZoomQuestion,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { QuantityStepper } from "@/components/QuantityStepper";
@@ -28,11 +34,14 @@ export function HeaderSpecimen() {
             >
               Move
             </Button>
+            <Button leftSection={<IconQrcode aria-hidden />}>Label</Button>
           </>
         }
         menu={
           <>
-            <Menu.Item leftSection={<IconQrcode aria-hidden size={20} />}>Download label</Menu.Item>
+            <Menu.Item leftSection={<IconFileText aria-hidden size={20} />}>
+              Contents sheet
+            </Menu.Item>
             <Menu.Divider />
             <Menu.Item color="danger" leftSection={<IconTrash aria-hidden size={20} />}>
               Delete location

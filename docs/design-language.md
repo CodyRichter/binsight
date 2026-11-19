@@ -78,7 +78,7 @@ theme in the same change, before it is used.
 | ---------------- | --------- | --------- | -------- |
 | `ground`         | `#eef0f1` | `#111315` | Page background. Rows, headers and bars sit directly on it. |
 | `surface`        | `#ffffff` | `#1b1e21` | What you write on or what floats: fields, add bar, sheets, dialogs, menus. |
-| `hover`          | `#e1e5e8` | `#262a2e` | Hover and pressed fill behind a row, icon button or menu item. |
+| `hover`          | `#e1e5e8` | `#33393f` | Hover and pressed fill behind a row, icon button or menu item. |
 | `ink`            | `#14171a` | `#eef0f1` | Primary text and icons. The rule under a section header. |
 | `muted`          | `#55606a` | `#a3acb4` | Secondary text: paths, counts, placeholders. |
 | `hairline`       | `#cfd4d8` | `#30353a` | 1px row separators. Carries no meaning. |
@@ -209,9 +209,9 @@ At phone width, a location's page with a one-line title and path measures:
 | Top space | 16 | 72 |
 | Path, title with chip, summary, stamp, 4 apart | 20, 36, 24, 20 | 184 |
 | Space, buttons | 16, 48 | 248 |
-| Space, add bar | 16, 56 | 320 |
-| Space, add actions | 8, 48 | 376 |
-| Section header (24 space, 48 row, rule) | 73 | 449 |
+| Space, rule, space, add bar | 16, 1, 16, 56 | 337 |
+| Space, add actions | 8, 48 | 393 |
+| Section header (24 space, 48 row, rule) | 73 | 466 |
 
 Its page header is 192px. An item row with a path on one line is `row-min`
 (8, 24, 4, 20, 8) plus its hairline; a location row is `touch-min`; a text
@@ -361,12 +361,14 @@ Every page is one of seven templates. "Header" is the page header component.
    counts; up to two default buttons and More. A
    location always has the 96px thumbnail beside the title: its photo,
    shown nowhere larger, or else its icon. Tapping the thumbnail opens the
-   type and icon sheet. On a location the button is Move ("Add
-   location" in place of Move on a site); More holds "Add location" when
-   there is no Locations section, "Download label", then "Add photo" ("Replace photo" when
-   it has one), which opens the camera, and "Remove photo" when it has
-   one, then "Contents sheet" and "Insurance list", which open the
-   location's print pages, then "Type and icon…" (`icons`), then "Merge into…" (`arrow-merge`) and "Delete
+   type and icon sheet. On a location the buttons are Move ("Add
+   location" in place of Move on a site) and Label (`qrcode`), which opens
+   the label sheet, as tapping the large code chip does. More holds, in
+   groups split by rules: "Add location" when there is no Locations section
+   (not on a site); "Contents sheet" and "Insurance list", which open the
+   location's print pages; "Add photo" ("Replace photo" when it has one),
+   which opens the camera, "Remove photo" when it has one, and "Type and
+   icon…" (`icons`); then "Merge into…" (`arrow-merge`) and "Delete
    location" (`trash`, `danger`) last. A photo says
    "Added a photo to {place}" or "Removed the photo", with Undo; the type and
    icon sheet says "Changed to {type}", "Icon changed" or "Icon reset",
@@ -457,12 +459,10 @@ location's page with "This bin is empty".
    sheet titled "Where is it now?" with the item's home first as "Where it
    was" and says "Found {name} in {place}"; "Mark returned" when lent out,
    which says "Returned {name}"; and "Back in place" when in use or
-   archived, which says "{name} is back in place". More holds "Lend…",
-   which opens the Lent to sheet and says "Lent {name} to {person}"; "Mark
-   in use" (not while in use), which says "Marked {name} in use"; "Sold",
-   "Given away" and "Thrown away", which say "Marked {name} sold" and so
-   on; none of these four while archived; then "Link an item", which opens
-   the link sheet; then "Attach…", which opens the Attach sheet; then
+   archived, which says "{name} is back in place". More holds, in groups
+   split by rules: "Change status…" (`status-change`, not while archived),
+   which opens the status sheet; then "Link an item", which opens
+   the link sheet, "Attach…", which opens the Attach sheet, and
    "Duplicate" (`copy`), which opens the copy's page, saying "Duplicated
    {name}"; then "Merge into…" (`arrow-merge`), which opens the merge sheet
    and goes to the item picked, saying "Merged {name} into {name}"; then
@@ -484,7 +484,7 @@ location's page with "This bin is empty".
    invitation ("Add a serial number"). Category is a chosen value that
    opens the category sheet; Tags holds the tag list, whose "Add tag"
    opens the tag sheet; the rest are editable text, the dates in the
-   browser's date field and the price typed as "24.99" and shown as a
+   date field and the price typed as "24.99" and shown as a
    plain number, since an install has one currency. A price that isn't
    one is not saved. Each change says "Changed {detail}", "Category set to
    {name}", "Removed category", "Tagged {tag}" or "Removed tag {tag}", with
@@ -679,8 +679,8 @@ buttons, `accent` only for Add.
 
 **Menu** (`Menu`). Opens beside its More button at every width. Holds what
 did not make the two header buttons. Verb-first rows with a 20px icon. A destructive
-row is `danger` (`color="danger"`), last, below a rule. No nesting, no toggles, seven rows at
-most.
+row is `danger` (`color="danger"`), last, below a rule. Rows of one kind form a group, and
+groups are split by rules. No nesting, no toggles, eight rows at most.
 
 **Text field** (`TextInput`, `Textarea`). `surface` fill, `touch-min` high
 (drawn 40px inside a `bar-height` bar with a `touch-min` tap area),
@@ -736,8 +736,17 @@ the thing and the number. Two verb buttons, the safe one first and focused:
 page is edited where it is shown: plain text at rest, `hover` fill on hover,
 a focused field on tap. Enter or leaving saves, Escape cancels. No Save
 button. An empty optional value shows as a `muted` invitation ("Add a
-summary") only on the thing's own page. A date is typed in the browser's
-date field and reads at rest in the owner's own date style ("1 Mar 2027").
+summary") only on the thing's own page. A date is edited in the date field
+and reads at rest in the owner's own date style ("1 Mar 2027").
+
+**Date field** (`DateField`, built on Mantine `DateInput`). A text field
+that opens a calendar under it as it takes focus. A date can be typed
+("2027-03-01" or "Mar 1, 2027") and saved with Enter or by leaving, or
+picked, which saves at once. Escape leaves it as it was, and an emptied
+field clears it. The calendar floats like a menu (`surface`, hairline
+border, `shadow-overlay`): month and arrows on top, `muted` weekday
+initials, then `touch-min` days with `radius-sm`, today ringed in `ink` and
+the chosen day `accent`. The week starts on the owner's locale's first day.
 
 **Sheet** (`Sheet`: a Mantine `Drawer` from the bottom, a `Modal` from `md`
 up). One title, one choice. Picking a row acts and closes it. The move sheet
@@ -762,6 +771,12 @@ its icon before its name and the current one marked with `check` at the
 right; a site has no Type heading or rows, as it cannot change. Picking a
 type or an icon acts and closes the sheet.
 
+The status sheet is titled "Change status": name rows, each with its icon,
+for "Lend…" (`user-share`), which swaps in the Lent to sheet and says "Lent
+{name} to {person}"; "Mark in use" (`hand-grab`, not while in use), which
+says "Marked {name} in use"; and "Sold" (`cash`), "Given away" (`gift`) and
+"Thrown away" (`trash-x`), which say "Marked {name} sold" and so on.
+
 The Lent to sheet is titled "Lent to": one field, "Name", a primary
 "Lend", and name rows of the names items were lent to before, most recent
 first, narrowed as it is typed. The link sheet is titled "Link an item":
@@ -776,6 +791,12 @@ The Attach sheet is titled "Attach": three name rows, "Take photo", which
 opens the camera, "Choose file", which takes a PDF, JPEG, PNG or WebP, and
 "Add link", which swaps in the Add link sheet: two fields, "Address" and
 "Name", and a primary "Attach".
+
+The label sheet is titled "Label": the location's label image at the
+column's width (at most 360px), with a hairline border, then a primary
+"Download" (`download`), which saves it as "{code}.png", and "Open to print"
+(`external-link`), which opens the image in its own tab for the browser to
+print. The app does no print layout.
 
 The move sheet is titled "Move to". Its one field, "Search locations or
 scan", narrows the rows by name or by code (typed loosely, as `b14`), and
@@ -821,7 +842,8 @@ is the location's name; its code is shown only in code chips.
 
 **Code chip.** `label` fill, `on-label` text and 1.5px border, `radius-sm`,
 mono. Regular beside a location's name; large once, in a location's
-page header. Shows the code exactly as printed. Only for location codes.
+page header, where tapping it opens the label sheet. Shows the code exactly
+as printed. Only for location codes.
 
 **Status badge.** Icon, word, 1.5px outline in one color, never filled. In
 place shows nothing.
@@ -857,7 +879,9 @@ item; no chevron. Inside a location's own contents the path is left out,
 and a Move icon button ends the row, so moving takes two taps: Move, then
 the destination. Search results end in Move too, with the path kept. Under 48em a row with both puts the stepper on its own
 line under the name.
-Full width on `ground`, hairline below, at least `row-min` high, and a path does not make it taller. In a list that allows bulk edit, every row's thumbnail carries its
+Full width on `ground`, hairline below, at least `row-min` high, and a path does not make it taller. Hovering the row
+fills it with `hover`; hovering Move, the stepper or the select box fills only that control, so the
+two targets never read as one. Move sits a `space-sm` in from the gutter. In a list that allows bulk edit, every row's thumbnail carries its
 select box, so the row keeps its layout. Names wrap;
 nothing is cut with an ellipsis. Matched search text is marked with
 `highlight`. No swipe gestures. An item added by photo and not named yet
@@ -976,8 +1000,9 @@ parent path; the title and large code chip; the summary, edited in place;
 the counts; at most two default buttons and a More icon button. No
 eyebrow above the title. It scrolls with the page. The lines before the
 buttons are one group, `space-xs` apart; the buttons sit `space-lg` below.
-It sets the document title. A location's More menu holds
-"Download label".
+It sets the document title. On a location's page the large code chip is a
+button named "Label {code}" that opens the label sheet, with a `touch-min`
+tap area.
 
 With a thumbnail (an item's or location's page), the thumbnail is at the
 left and the path, title, status badge and (on a live item) quantity
@@ -988,7 +1013,9 @@ of the two.
 
 **Page lead.** The top of a page: the page header, then the controls that
 belong to the whole page (add bar, "Here / Everything inside", filter
-chips), each `space-lg` from the next. It gives its controls the gutter.
+chips), each `space-lg` from the next. A hairline across the column, `space-lg`
+from the header and from the first control, keeps the thing apart from adding to it.
+It gives its controls the gutter.
 The filter chip row is the exception: it runs edge to edge so it can scroll
 sideways, with the gutter inside the scroller. A page with no such controls
 uses the page header alone.

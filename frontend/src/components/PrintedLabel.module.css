@@ -4,3 +4,11 @@
   height: auto;
   margin: var(--bs-space-lg) var(--bs-space-lg) 0;
 }
+
+.label[data-large] {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  border: 1px solid var(--bs-hairline);
+  border-radius: var(--bs-radius-md);
+}

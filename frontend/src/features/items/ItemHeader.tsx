@@ -11,6 +11,7 @@ import { LinkSheet } from "./LinkSheet";
 import { MergeSheet } from "./MergeSheet";
 import { pathSegments } from "./pathSegments";
 import { StatusButton } from "./StatusButton";
+import { StatusSheet } from "./StatusSheet";
 import { useRename } from "./useItemChange";
 import { useMoveItem } from "./useMoveItem";
 import { useQuantity } from "./useQuantity";
@@ -64,9 +65,8 @@ export function ItemHeader({ item, linkedIds, onAttach }: ItemHeaderProps) {
   const changeQuantity = useQuantity(item);
   const restore = useRestoreItem();
   const lend = useLend();
-  const [lending, setLending] = useState(false);
-  const [linking, setLinking] = useState(false);
-  const [merging, setMerging] = useState(false);
+  const [sheet, setSheet] = useState<"status" | "lend" | "link" | "merge">();
+  const close = () => setSheet(undefined);
   const photoInput = useRef<HTMLInputElement>(null);
   const deleted = Boolean(item.deleted_at);
   const canAddPhoto = !deleted && !item.photo_url;
@@ -83,10 +83,10 @@ export function ItemHeader({ item, linkedIds, onAttach }: ItemHeaderProps) {
   const menu = (
     <ItemMenu
       item={item}
-      onLend={() => setLending(true)}
-      onLink={() => setLinking(true)}
+      onChangeStatus={() => setSheet("status")}
+      onLink={() => setSheet("link")}
       onAttach={onAttach}
-      onMerge={() => setMerging(true)}
+      onMerge={() => setSheet("merge")}
     />
   );
   return (
@@ -111,18 +111,15 @@ export function ItemHeader({ item, linkedIds, onAttach }: ItemHeaderProps) {
         menu={deleted ? undefined : menu}
       />
       {canAddPhoto && <ItemPhotoInput item={item} inputRef={photoInput} />}
-      <LendSheet
-        opened={lending}
-        onLend={(name) => lend(item, name)}
-        onClose={() => setLending(false)}
-      />
-      <LinkSheet
-        opened={linking}
+      <StatusSheet
         item={item}
-        linkedIds={linkedIds}
-        onClose={() => setLinking(false)}
+        opened={sheet === "status"}
+        onClose={close}
+        onLend={() => setSheet("lend")}
       />
-      <MergeSheet opened={merging} item={item} onClose={() => setMerging(false)} />
+      <LendSheet opened={sheet === "lend"} onLend={(name) => lend(item, name)} onClose={close} />
+      <LinkSheet opened={sheet === "link"} item={item} linkedIds={linkedIds} onClose={close} />
+      <MergeSheet opened={sheet === "merge"} item={item} onClose={close} />
     </>
   );
 }

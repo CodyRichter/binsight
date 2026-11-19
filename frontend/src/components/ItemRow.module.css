@@ -15,6 +15,11 @@
   grid-row: 1;
 }
 
+/* Over Move only Move fills, so the row and its button never look like one target. */
+.row:hover:not(:has(.move:hover, .quantity:hover, .pick:hover)) {
+  background: var(--bs-hover);
+}
+
 .main {
   display: flex;
   flex-direction: column;
@@ -94,11 +99,6 @@
 .move {
   position: relative;
   z-index: 1;
-}
-
-/* The button is wider than its glyph; this puts the glyph at the gutter. */
-.move {
-  margin-right: calc((24px - var(--bs-touch-min)) / 2);
 }
 
 @media (width < 48em) {

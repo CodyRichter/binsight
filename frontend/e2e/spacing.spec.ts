@@ -76,3 +76,43 @@ test("typing a multi-digit quantity expands the stepper input without clipping",
   const overflows = await input.evaluate((node) => node.scrollWidth > node.clientWidth);
   expect(overflows).toBe(false);
 });
+
+test("hovering an item row fills the row, and hovering its Move fills only Move", async ({
+  page,
+}) => {
+  const { ids } = await siteRoomBin(page.request);
+  const name = uniqueName("Torch");
+  await addItem(page.request, name, ids.bin);
+  await open(page, `/locations/${ids.bin}`);
+  const row = page.locator("#content li").filter({ hasText: name });
+  const move = row.getByRole("button", { name: `Move ${name}` });
+  const fill = (locator: typeof row) =>
+    locator.evaluate((element) => getComputedStyle(element).backgroundColor);
+  const clear = await fill(row);
+  await row.getByRole("link", { name }).hover();
+  const hovered = await fill(row);
+  expect(hovered).not.toBe(clear);
+  await move.hover();
+  await expect.poll(() => fill(row)).toBe(clear);
+  await expect.poll(() => fill(move)).toBe(hovered);
+  expect((await box(row)).right - (await box(move)).right).toBe(16);
+});
+
+test("a hairline across the column parts a location's header from its add bar", async ({
+  page,
+}) => {
+  const { ids } = await siteRoomBin(page.request);
+  await open(page, `/locations/${ids.bin}`);
+  const buttons = await box(page.getByRole("button", { name: "Move", exact: true }));
+  const field = page.getByRole("textbox", { name: "Add an item" });
+  // The rule is the top border of the nearest block around the add bar's own bordered box.
+  const gaps = await field.evaluate((input, above) => {
+    const barBox = input.parentElement;
+    let block = barBox?.parentElement;
+    while (block && getComputedStyle(block).borderTopWidth !== "1px") block = block.parentElement;
+    const bar = barBox?.getBoundingClientRect();
+    const rule = block?.getBoundingClientRect();
+    return rule && bar && { above: rule.top - above, below: bar.top - rule.top };
+  }, buttons.bottom);
+  expect(gaps).toEqual({ above: 16, below: 17 });
+});

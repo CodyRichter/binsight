@@ -1,7 +1,7 @@
 export const colorTokens = {
   ground: { light: "#eef0f1", dark: "#111315" },
   surface: { light: "#ffffff", dark: "#1b1e21" },
-  hover: { light: "#e1e5e8", dark: "#262a2e" },
+  hover: { light: "#e1e5e8", dark: "#33393f" },
   ink: { light: "#14171a", dark: "#eef0f1" },
   muted: { light: "#55606a", dark: "#a3acb4" },
   hairline: { light: "#cfd4d8", dark: "#30353a" },

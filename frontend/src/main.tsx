@@ -1,5 +1,6 @@
 // Layered, so the app's own styles win over Mantine's whichever order the build loads them in.
 import "@mantine/core/styles.layer.css";
+import "@mantine/dates/styles.layer.css";
 import "@mantine/notifications/styles.layer.css";
 import "@/lib/theme/theme.css";
 import { MantineProvider } from "@mantine/core";

@@ -8,7 +8,11 @@ test("lent to a name, returned, and Undo lends it again", async ({ page }) => {
   const person = uniqueName("Sam");
   await openAtPhoneWidth(page, `/items/${await addItem(page.request, name, ids.bin)}`);
   await page.getByRole("button", { name: "More", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Lend…" }).click();
+  await page.getByRole("menuitem", { name: "Change status…" }).click();
+  await page
+    .getByRole("dialog", { name: "Change status" })
+    .getByRole("button", { name: "Lend…" })
+    .click();
   const sheet = page.getByRole("dialog", { name: "Lent to" });
   await sheet.getByRole("textbox", { name: "Name" }).fill(person);
   await sheet.getByRole("button", { name: "Lend", exact: true }).click();
@@ -27,7 +31,11 @@ test("a sold item leaves its bin, is still found, and comes back in place", asyn
   const itemId = await addItem(page.request, name, ids.bin);
   await openAtPhoneWidth(page, `/items/${itemId}`);
   await page.getByRole("button", { name: "More", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Sold" }).click();
+  await page.getByRole("menuitem", { name: "Change status…" }).click();
+  await page
+    .getByRole("dialog", { name: "Change status" })
+    .getByRole("button", { name: "Sold" })
+    .click();
   await expect(page.getByRole("status")).toContainText(`Marked ${name} sold`);
   await expect(page.getByText(/^Sold /)).toBeVisible();
   await page.goto(`/locations/${ids.bin}`);
