@@ -1,16 +1,18 @@
 import { expect, test as setup } from "@playwright/test";
-import { openAtPhoneWidth, ownerPassword, signedInState } from "./owner";
+import { openAtPhoneWidth, ownerPassword, ownerUsername, signedInState, signIn } from "./owner";
 
-setup("the first visit sets the owner's password and returns to the page", async ({ page }) => {
+setup("the first visit makes the first admin and returns to the page", async ({ page }) => {
   await openAtPhoneWidth(page, "/settings");
-  await page.getByLabel("Password", { exact: true }).fill(ownerPassword);
-  // A server kept running between local runs already has its owner.
-  const repeat = page.getByLabel("Repeat password");
-  if (await repeat.isVisible()) {
-    await repeat.fill(ownerPassword);
-    await page.getByRole("button", { name: "Set password" }).click();
+  // A server kept running between local runs already has its first admin.
+  const create = page.getByRole("button", { name: "Create account" });
+  await expect(create.or(page.getByRole("button", { name: "Sign in" }))).toBeVisible();
+  if (await create.isVisible()) {
+    await page.getByLabel("Username").fill(ownerUsername);
+    await page.getByLabel("Password", { exact: true }).fill(ownerPassword);
+    await page.getByLabel("Repeat password").fill(ownerPassword);
+    await create.click();
   } else {
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await signIn(page, ownerUsername, ownerPassword);
   }
   await expect(page).toHaveURL("/settings");
   await expect(page.getByRole("heading", { level: 1, name: "Settings" })).toBeVisible();

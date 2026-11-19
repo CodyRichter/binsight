@@ -67,6 +67,8 @@ from app.features.items.schemas import (
 from app.features.items.schemas import (
     ItemFilters as ItemFilters,
 )  # re-exported: search filters with it
+from app.features.items.shaping import item_for as item_for
+from app.features.items.shaping import page_for as page_for
 from app.features.items.shaping import refuse_deleted_home, shaped
 from app.features.items.statuses import change_item_status as change_item_status
 from app.features.items.statuses import change_items_status as change_items_status

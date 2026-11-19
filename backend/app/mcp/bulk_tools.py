@@ -24,7 +24,7 @@ from app.features.items.schemas import Item
 from app.features.locations import service as locations
 from app.mcp import confirmation
 from app.mcp.actions import run_action
-from app.models import Actor
+from app.models import MCP_ACTOR, Actor
 
 TWO_CALLS = """Call it first without a confirmation_token: nothing changes, and it returns
 {"preview": {"items": [...], "confirmation_token", "expires_at"}, "changed": null}, listing
@@ -126,7 +126,7 @@ def _in_two_calls[Body: BaseModel](
         )
         return BulkAnswer(preview=found, changed=None)
     confirmation.redeem(session, tool, inputs, token, now)
-    return BulkAnswer(preview=None, changed=act(session, body, Actor.mcp, now))
+    return BulkAnswer(preview=None, changed=act(session, body, MCP_ACTOR, now))
 
 
 def _move(session: Session, item_ids: list[str], location: str, token: str | None) -> BulkAnswer:

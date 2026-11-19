@@ -8,14 +8,15 @@ from app.features.attachments import service as attachments
 from app.features.history import service
 from app.features.items import service as items
 from app.features.items.schemas import ItemChanges, NewItems
-from app.models import Actor, HistoryEntry, Item
+from app.models import HistoryEntry, Item
 from tests import builders
+from tests.builders import APP_ACTOR
 from tests.photos import photo
 
 
 def _undo(engine: Engine, settings: Settings, entry_id: str) -> str:
     with open_write_session(engine) as session:
-        return service.undo(session, settings, entry_id, Actor.app, builders.NOW).history_entry_id
+        return service.undo(session, settings, entry_id, APP_ACTOR, builders.NOW).history_entry_id
 
 
 def _refusal(engine: Engine, settings: Settings, entry_id: str) -> tuple[int, str]:
@@ -44,7 +45,7 @@ def test_undoing_several_added_at_once_removes_them_all(
 ) -> None:
     with open_write_session(migrated_engine) as session:
         added = items.create_items(
-            session, NewItems(names=["Tape", "Glue", "Pins"]), Actor.app, builders.NOW
+            session, NewItems(names=["Tape", "Glue", "Pins"]), APP_ACTOR, builders.NOW
         )
     _undo(migrated_engine, settings, added.history_entry_id)
     with open_read_session(migrated_engine) as session:
@@ -58,7 +59,7 @@ def test_undoing_a_photo_add_removes_the_item_and_its_file(
         attachments.saved_photo(settings, photo(), None) as stored,
         open_write_session(migrated_engine) as session,
     ):
-        added = items.create_item_by_photo(session, stored, None, Actor.app, builders.NOW)
+        added = items.create_item_by_photo(session, stored, None, APP_ACTOR, builders.NOW)
     _undo(migrated_engine, settings, added.history_entry_id)
     with open_read_session(migrated_engine) as session:
         assert session.get(Item, added.id) is None
@@ -72,11 +73,11 @@ def test_a_photo_stays_when_its_undo_is_rolled_back(
         attachments.saved_photo(settings, photo(), None) as stored,
         open_write_session(migrated_engine) as session,
     ):
-        added = items.create_item_by_photo(session, stored, None, Actor.app, builders.NOW)
+        added = items.create_item_by_photo(session, stored, None, APP_ACTOR, builders.NOW)
 
     def undo_then_fail() -> None:
         with open_write_session(migrated_engine) as session:
-            service.undo(session, settings, added.history_entry_id, Actor.app, builders.NOW)
+            service.undo(session, settings, added.history_entry_id, APP_ACTOR, builders.NOW)
             raise RuntimeError
 
     with pytest.raises(RuntimeError):
@@ -90,7 +91,7 @@ def test_undoing_a_quantity_change_puts_the_old_quantity_back(
     with open_write_session(migrated_engine) as session:
         item = builders.item(session, "HDMI cable")
         changed = items.update_item(
-            session, item.id, ItemChanges(quantity=4), Actor.app, builders.NOW
+            session, item.id, ItemChanges(quantity=4), APP_ACTOR, builders.NOW
         )
     _undo(migrated_engine, settings, changed.history_entry_id)
     with open_read_session(migrated_engine) as session:
@@ -102,7 +103,7 @@ def test_a_change_that_was_changed_again_since_is_not_undone(
 ) -> None:
     with open_write_session(migrated_engine) as session:
         item = builders.item(session, "HDMI cable")
-        items.update_item(session, item.id, ItemChanges(quantity=4), Actor.app, builders.NOW)
+        items.update_item(session, item.id, ItemChanges(quantity=4), APP_ACTOR, builders.NOW)
     assert _refusal(migrated_engine, settings, item.history_entry_id) == (409, "changed_since")
     with open_read_session(migrated_engine) as session:
         assert items.get_item(session, item.id).quantity == 4
@@ -112,7 +113,7 @@ def test_a_change_is_undone_only_once(migrated_engine: Engine, settings: Setting
     with open_write_session(migrated_engine) as session:
         item = builders.item(session, "HDMI cable")
         changed = items.update_item(
-            session, item.id, ItemChanges(quantity=4), Actor.app, builders.NOW
+            session, item.id, ItemChanges(quantity=4), APP_ACTOR, builders.NOW
         )
     _undo(migrated_engine, settings, changed.history_entry_id)
     refusal = _refusal(migrated_engine, settings, changed.history_entry_id)
@@ -136,7 +137,7 @@ def test_an_unknown_change_is_not_found(migrated_engine: Engine, settings: Setti
 def test_undoing_a_delete_restores_the_item(migrated_engine: Engine, settings: Settings) -> None:
     with open_write_session(migrated_engine) as session:
         added = builders.item(session, "Ethernet cable")
-        deleted = items.delete_item(session, added.id, Actor.app, builders.NOW)
+        deleted = items.delete_item(session, added.id, APP_ACTOR, builders.NOW)
     _undo(migrated_engine, settings, deleted.history_entry_id)
     with open_read_session(migrated_engine) as session:
         assert items.get_item(session, added.id).deleted_at is None
@@ -148,8 +149,8 @@ def test_undoing_a_restore_deletes_the_item_again(
 ) -> None:
     with open_write_session(migrated_engine) as session:
         added = builders.item(session, "Ethernet cable")
-        items.delete_item(session, added.id, Actor.app, builders.NOW)
-        restored = items.restore_item(session, added.id, Actor.app, builders.NOW)
+        items.delete_item(session, added.id, APP_ACTOR, builders.NOW)
+        restored = items.restore_item(session, added.id, APP_ACTOR, builders.NOW)
     _undo(migrated_engine, settings, restored.history_entry_id)
     with open_read_session(migrated_engine) as session:
         assert items.get_item(session, added.id).deleted_at == builders.NOW
@@ -160,5 +161,5 @@ def test_an_add_cannot_be_undone_once_the_item_is_deleted(
 ) -> None:
     with open_write_session(migrated_engine) as session:
         added = builders.item(session, "Ethernet cable")
-        items.delete_item(session, added.id, Actor.app, builders.NOW)
+        items.delete_item(session, added.id, APP_ACTOR, builders.NOW)
     assert _refusal(migrated_engine, settings, added.history_entry_id) == (409, "changed_since")

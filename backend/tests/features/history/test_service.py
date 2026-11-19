@@ -4,8 +4,9 @@ from sqlalchemy import Engine
 
 from app.core.database import open_read_session, open_write_session
 from app.features.history import service
-from app.models import Actor
+from app.models import MCP_ACTOR
 from tests import builders
+from tests.builders import APP_ACTOR
 
 
 def test_an_items_history_lists_its_entries_newest_first(migrated_engine: Engine) -> None:
@@ -13,12 +14,12 @@ def test_an_items_history_lists_its_entries_newest_first(migrated_engine: Engine
     with open_write_session(migrated_engine) as session:
         item = builders.item(session, "HDMI cable")
         change = service.RecordChange("item", item.id, {"quantity": 1}, {"quantity": 3})
-        counted = service.record(session, Actor.mcp, "item.quantity_changed", [change], later)
+        counted = service.record(session, MCP_ACTOR, "item.quantity_changed", [change], later)
     with open_read_session(migrated_engine) as session:
         page = service.list_item_history(session, item.id, 50, None)
     assert [entry.id for entry in page.items] == [counted, item.history_entry_id]
     newest = page.items[0]
-    assert (newest.actor, newest.at) == (Actor.mcp, later)
+    assert (newest.actor, newest.at) == (MCP_ACTOR.kind, later)
     assert [(c.before, c.after) for c in newest.changes] == [({"quantity": 1}, {"quantity": 3})]
     assert page.next_cursor is None
 
@@ -39,7 +40,7 @@ def test_history_pages_end_with_no_cursor(migrated_engine: Engine) -> None:
             change = service.RecordChange("item", item.id, {"quantity": minute}, {"quantity": 9})
             service.record(
                 session,
-                Actor.app,
+                APP_ACTOR,
                 "item.quantity_changed",
                 [change],
                 builders.NOW + timedelta(minutes=minute),

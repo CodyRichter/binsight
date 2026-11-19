@@ -11,9 +11,8 @@ from app.features.items import service as items
 from app.features.items.schemas import ItemChanges, ItemLending, ItemMove, ItemStatusChange
 from app.features.views import service
 from app.features.views.schemas import ViewName
-from app.models import Actor
 from tests import builders
-from tests.builders import AcceptanceHome
+from tests.builders import APP_ACTOR, AcceptanceHome
 
 # Two months after the acceptance home was made, so it no longer counts as recently added.
 NOW = builders.NOW + timedelta(days=60)
@@ -39,20 +38,20 @@ def _counts(engine: Engine, now: datetime = NOW) -> dict[str, int]:
 
 def _change(engine: Engine, item_id: str, changes: ItemChanges) -> None:
     with open_write_session(engine) as session:
-        items.update_item(session, item_id, changes, Actor.app, NOW)
+        items.update_item(session, item_id, changes, APP_ACTOR, NOW)
 
 
 def _status(engine: Engine, item_id: str, status: str) -> None:
     change = ItemStatusChange.model_validate({"status": status})
     with open_write_session(engine) as session:
-        items.change_item_status(session, item_id, change, Actor.app, NOW)
+        items.change_item_status(session, item_id, change, APP_ACTOR, NOW)
 
 
 def test_every_view_is_listed_in_order_with_its_count(
     migrated_engine: Engine, home: AcceptanceHome
 ) -> None:
     with open_write_session(migrated_engine) as session:
-        items.lend_item(session, home.hdmi_cable, ItemLending(lent_to="Sam"), Actor.app, NOW)
+        items.lend_item(session, home.hdmi_cable, ItemLending(lent_to="Sam"), APP_ACTOR, NOW)
     assert _counts(migrated_engine) == {
         "lent-out": 1,
         "missing": 0,
@@ -96,9 +95,9 @@ def test_recently_moved_leaves_out_a_move_that_was_undone(
 ) -> None:
     with open_write_session(migrated_engine) as session:
         moved = ItemMove(location_id=home.tools)
-        items.move_item(session, home.hdmi_cable, moved, Actor.app, NOW - timedelta(days=1))
-        undone = items.move_item(session, home.usb_c_charger, moved, Actor.app, NOW)
-        history.undo(session, settings, undone.history_entry_id, Actor.app, NOW)
+        items.move_item(session, home.hdmi_cable, moved, APP_ACTOR, NOW - timedelta(days=1))
+        undone = items.move_item(session, home.usb_c_charger, moved, APP_ACTOR, NOW)
+        history.undo(session, settings, undone.history_entry_id, APP_ACTOR, NOW)
     assert _names(migrated_engine, "recently-moved") == ["HDMI cable"]
     assert _counts(migrated_engine)["recently-moved"] == 1
 

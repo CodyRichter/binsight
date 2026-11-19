@@ -6,9 +6,9 @@ from app.core.database import open_read_session, open_write_session
 from app.core.errors import AppError
 from app.features.items import service
 from app.features.items.schemas import ItemMove, ItemMoved
-from app.models import Actor, HistoryEntry
+from app.models import HistoryEntry
 from tests import builders
-from tests.builders import AcceptanceHome
+from tests.builders import APP_ACTOR, AcceptanceHome
 
 
 @pytest.fixture
@@ -20,7 +20,7 @@ def home(migrated_engine: Engine) -> AcceptanceHome:
 def _move(engine: Engine, item_id: str, location_id: str) -> ItemMoved:
     with open_write_session(engine) as session:
         return service.move_item(
-            session, item_id, ItemMove(location_id=location_id), Actor.app, builders.NOW
+            session, item_id, ItemMove(location_id=location_id), APP_ACTOR, builders.NOW
         )
 
 
@@ -43,7 +43,7 @@ def test_the_move_is_one_history_entry_by_the_app(
     with open_read_session(migrated_engine) as session:
         entry = session.get(HistoryEntry, moved.history_entry_id)
         assert entry is not None
-        assert (entry.action, entry.actor) == ("item.moved", Actor.app)
+        assert (entry.action, entry.actor) == ("item.moved", APP_ACTOR.kind)
         assert [(change.before, change.after) for change in entry.changes] == [
             ({"home_location_id": home.cables}, {"home_location_id": home.tools})
         ]

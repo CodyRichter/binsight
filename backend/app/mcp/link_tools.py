@@ -10,7 +10,7 @@ from app.core.pagination import DEFAULT_LIMIT, Page, PageLimit
 from app.features.items import service
 from app.features.items.schemas import ItemLinked, ItemLinkNew, ItemUnlinked, LinkedItem
 from app.mcp.actions import run_action
-from app.models import Actor, LinkKind
+from app.models import MCP_ACTOR, LinkKind
 
 LINK_ITEMS = """Link two items: one belongs with the other, or is part of it.
 
@@ -50,7 +50,7 @@ def add_link_tools(server: MCPServer, app: FastAPI) -> None:
         return await run_action(
             app,
             open_write_session,
-            lambda session: service.link_items(session, item_id, link, Actor.mcp, clock.now()),
+            lambda session: service.link_items(session, item_id, link, MCP_ACTOR, clock.now()),
         )
 
     @server.tool(description=UNLINK_ITEMS)
@@ -58,7 +58,7 @@ def add_link_tools(server: MCPServer, app: FastAPI) -> None:
         return await run_action(
             app,
             open_write_session,
-            lambda session: service.unlink_items(session, link_id, Actor.mcp, clock.now()),
+            lambda session: service.unlink_items(session, link_id, MCP_ACTOR, clock.now()),
         )
 
     @server.tool(description=LIST_ITEM_LINKS)

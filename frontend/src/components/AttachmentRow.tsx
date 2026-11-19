@@ -15,7 +15,8 @@ export interface AttachmentRowProps {
   photoUrl?: string;
   /** For a file, whether it is a PDF rather than an image. */
   pdf?: boolean;
-  onRemove: () => void;
+  /** Left out for someone who may not change the item. */
+  onRemove?: () => void;
 }
 
 function iconOf({ kind, pdf }: AttachmentRowProps) {
@@ -35,9 +36,11 @@ export function AttachmentRow(props: AttachmentRowProps) {
         </a>
         {detail && <span className={classes.detail}>{detail}</span>}
       </div>
-      <ActionIcon className={classes.remove} aria-label={`Remove ${name}`} onClick={onRemove}>
-        <IconX aria-hidden />
-      </ActionIcon>
+      {onRemove && (
+        <ActionIcon className={classes.remove} aria-label={`Remove ${name}`} onClick={onRemove}>
+          <IconX aria-hidden />
+        </ActionIcon>
+      )}
     </li>
   );
 }

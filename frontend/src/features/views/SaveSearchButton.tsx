@@ -1,5 +1,6 @@
 import { Button } from "@mantine/core";
 import { useState } from "react";
+import { useAccess } from "@/lib/api/useAccess";
 import type { Search } from "@/features/search";
 import { NameSheet } from "./NameSheet";
 import { useSaveSearch } from "./useSavedSearches";
@@ -8,6 +9,7 @@ import { useSaveSearch } from "./useSavedSearches";
 export function SaveSearchButton({ search }: { search: Search }) {
   const [naming, setNaming] = useState(false);
   const save = useSaveSearch();
+  if (!useAccess().canEdit) return null;
   return (
     <>
       <Button onClick={() => setNaming(true)}>Save search</Button>

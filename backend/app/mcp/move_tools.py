@@ -11,7 +11,7 @@ from app.features.items.schemas import ItemMove, ItemMoved
 from app.features.locations import service as locations
 from app.features.locations.schemas import LocationMove, LocationMoved
 from app.mcp.actions import run_action
-from app.models import Actor
+from app.models import MCP_ACTOR
 
 MOVE_ITEM = """Move an item into another location.
 
@@ -47,7 +47,7 @@ def add_move_tools(server: MCPServer, app: FastAPI) -> None:
                 session,
                 item_id,
                 ItemMove(location_id=locations.location_code(location_id)),
-                Actor.mcp,
+                MCP_ACTOR,
                 clock.now(),
             ),
         )
@@ -63,7 +63,7 @@ def add_move_tools(server: MCPServer, app: FastAPI) -> None:
                 session,
                 locations.location_code(location_id),
                 LocationMove(parent_id=locations.location_code(parent_id)),
-                Actor.mcp,
+                MCP_ACTOR,
                 clock.now(),
             ),
         )

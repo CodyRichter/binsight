@@ -9,9 +9,10 @@ from app.features.items import service as items
 from app.features.items.schemas import ItemChanges, ItemCreated, NewItem
 from app.features.locations import service as locations
 from app.features.locations.schemas import LocationCreated, NewLocation
-from app.models import Actor, LocationType
+from app.models import Actor, ActorKind, LocationType
 
 NOW = datetime(2026, 11, 16, 12, 0, tzinfo=UTC)
+APP_ACTOR = Actor(ActorKind.app, "sam")
 
 
 def location(
@@ -24,7 +25,7 @@ def location(
     """A site by default, or a bin when given a parent."""
     kind = location_type or (LocationType.site if parent_id is None else LocationType.bin)
     new = NewLocation(name=name, type=kind, parent_id=parent_id)
-    return locations.create_location(session, new, Actor.app, now)
+    return locations.create_location(session, new, APP_ACTOR, now)
 
 
 def item(
@@ -35,7 +36,7 @@ def item(
 ) -> ItemCreated:
     """An item, in the inbox unless given a home location."""
     new = NewItem(name=name, home_location_id=home_location_id)
-    return items.create_item(session, new, Actor.app, now)
+    return items.create_item(session, new, APP_ACTOR, now)
 
 
 @dataclass(frozen=True)
@@ -60,6 +61,6 @@ def acceptance_home(session: Session) -> AcceptanceHome:
     cables = location(session, "Cables", shelf, now=minute[3]).id
     tools = location(session, "Tools", shelf, now=minute[4]).id
     hdmi_cable = item(session, "HDMI cable", cables, minute[5]).id
-    items.update_item(session, hdmi_cable, ItemChanges(quantity=3), Actor.app, minute[6])
+    items.update_item(session, hdmi_cable, ItemChanges(quantity=3), APP_ACTOR, minute[6])
     usb_c_charger = item(session, "USB-C charger", cables, minute[7]).id
     return AcceptanceHome(home, garage, shelf, cables, tools, hdmi_cable, usb_c_charger)

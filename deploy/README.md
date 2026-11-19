@@ -23,8 +23,9 @@ docker compose -f deploy/compose.yml up --build -d
 docker compose -f deploy/compose.yml ps    # shows "healthy" once it is ready
 ```
 
-The app listens on port 8000. Open it at its address and choose the owner's
-password. The container refuses to start until `BINSIGHT_APP_ADDRESS` is
+The app listens on port 8000. Open it at its address and make the first account,
+an admin, with a username and password; add the household's accounts in
+Settings. The container refuses to start until `BINSIGHT_APP_ADDRESS` is
 set.
 
 To install it on a phone, open the address and use the browser's "Add to

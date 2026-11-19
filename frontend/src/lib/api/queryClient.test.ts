@@ -33,28 +33,38 @@ const signedOutError = new ApiError(401, "not_signed_in", "Sign in to continue."
 
 test("a session that ended mid-use marks the device signed out instead of throwing", async () => {
   const client = createQueryClient();
-  client.setQueryData(authStatusKey, { owner_exists: true, signed_in: true });
+  client.setQueryData(authStatusKey, {
+    setup_needed: false,
+    account: { id: "sam", username: "sam", role: "admin" },
+  });
   await expect(
     client.fetchQuery({ queryKey: ["any"], queryFn: failingWith(signedOutError) }),
   ).rejects.toThrow();
-  expect(client.getQueryData(authStatusKey)).toEqual({ owner_exists: true, signed_in: false });
+  expect(client.getQueryData(authStatusKey)).toEqual({ setup_needed: false, account: null });
   const throwOnError = client.getDefaultOptions().queries?.throwOnError;
   expect(typeof throwOnError === "function" && throwOnError(signedOutError, never())).toBe(false);
 });
 
 test("a write refused because the session ended marks the device signed out", async () => {
   const client = createQueryClient();
-  client.setQueryData(authStatusKey, { owner_exists: true, signed_in: true });
+  client.setQueryData(authStatusKey, {
+    setup_needed: false,
+    account: { id: "sam", username: "sam", role: "admin" },
+  });
   const write = new MutationObserver(client, { mutationFn: failingWith(signedOutError) });
   await expect(write.mutate()).rejects.toThrow();
-  expect(client.getQueryData(authStatusKey)).toEqual({ owner_exists: true, signed_in: false });
+  expect(client.getQueryData(authStatusKey)).toEqual({ setup_needed: false, account: null });
 });
 
-test("a wrong password leaves the device's status alone", async () => {
+test("a wrong sign-in leaves the device's status alone", async () => {
   const client = createQueryClient();
-  client.setQueryData(authStatusKey, { owner_exists: true, signed_in: false });
-  const wrong = new ApiError(401, "wrong_password", "That password is wrong. Try again.");
+  client.setQueryData(authStatusKey, { setup_needed: false, account: null });
+  const wrong = new ApiError(
+    401,
+    "wrong_sign_in",
+    "That username or password is wrong. Try again.",
+  );
   const write = new MutationObserver(client, { mutationFn: failingWith(wrong) });
   await expect(write.mutate()).rejects.toThrow();
-  expect(client.getQueryData(authStatusKey)).toEqual({ owner_exists: true, signed_in: false });
+  expect(client.getQueryData(authStatusKey)).toEqual({ setup_needed: false, account: null });
 });

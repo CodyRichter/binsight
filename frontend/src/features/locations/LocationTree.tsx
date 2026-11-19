@@ -13,6 +13,7 @@ import { newLocationType } from "./newLocationType";
 import { childrenOf, treeRows, type TreeRow } from "./treeRows";
 import { useReorderLocation } from "./useLocationChanges";
 import { useCreateLocation, useLocationTree, type Location } from "./useLocations";
+import { useAccess } from "@/lib/api/useAccess";
 
 function useOpenBranches() {
   const [open, setOpen] = useState(new Set<string>());
@@ -84,6 +85,7 @@ function Sites({ locations }: { locations: Location[] }) {
   const [adding, setAdding] = useState(false);
   const create = useCreateLocation();
   const reorder = useReorderLocation();
+  const { canEdit } = useAccess();
   const sites = childrenOf(locations, null);
   const itemCount = sites.reduce((total, site) => total + site.item_count, 0);
   return (
@@ -91,13 +93,13 @@ function Sites({ locations }: { locations: Location[] }) {
       <PageHeader
         title="Locations"
         counts={[countWords(sites.length, "site"), countWords(itemCount, "item")]}
-        actions={<Button onClick={() => setAdding(true)}>Add location</Button>}
+        actions={canEdit && <Button onClick={() => setAdding(true)}>Add location</Button>}
       />
       <PageState
         status={sites.length > 0 ? "ready" : "empty"}
         empty={{ statement: "No locations" }}
       >
-        <Tree locations={locations} onReorder={reorder} />
+        <Tree locations={locations} onReorder={canEdit ? reorder : undefined} />
       </PageState>
       <AddLocationSheet
         opened={adding}

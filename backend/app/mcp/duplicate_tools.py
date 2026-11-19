@@ -13,7 +13,7 @@ from app.features.items import service
 from app.features.items.schemas import ItemCreated, ItemMerge, ItemMerged, MergePreview
 from app.mcp import confirmation
 from app.mcp.actions import run_action
-from app.models import Actor
+from app.models import MCP_ACTOR
 
 DUPLICATE_ITEM = """Add a copy of an item beside it, to record a similar thing quickly.
 
@@ -67,7 +67,7 @@ def _merge(session: Session, item_id: str, into: str, token: str | None) -> Merg
         return MergeItemAnswer(preview=preview, merged=None)
     now = clock.now()
     confirmation.redeem(session, "merge_item", inputs, token, now)
-    merged = service.merge_item(session, item_id, merge, Actor.mcp, now)
+    merged = service.merge_item(session, item_id, merge, MCP_ACTOR, now)
     return MergeItemAnswer(preview=None, merged=merged)
 
 
@@ -79,7 +79,7 @@ def add_duplicate_tools(server: MCPServer, app: FastAPI) -> None:
         return await run_action(
             app,
             open_write_session,
-            lambda session: service.duplicate_item(session, item_id, Actor.mcp, clock.now()),
+            lambda session: service.duplicate_item(session, item_id, MCP_ACTOR, clock.now()),
         )
 
     @server.tool(description=MERGE_ITEM)

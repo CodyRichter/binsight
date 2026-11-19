@@ -76,7 +76,7 @@ def test_an_export_s_items_import_back_into_a_new_install(
     exported = _export(signed_in).read("items.csv")
     elsewhere = replace(settings, data_directory=tmp_path / "elsewhere")
     with TestClient(build_app(elsewhere)) as other:
-        other.post("/api/auth/owner", json={"password": "correct horse"})
+        other.post("/api/auth/first-admin", json={"username": "sam", "password": "correct horse"})
         files = {"csv": ("items.csv", exported, "text/csv")}
         assert other.post("/api/import", files=files).status_code == 200
         home_id = other.get("/api/locations").json()["locations"][0]["id"]

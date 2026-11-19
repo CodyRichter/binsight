@@ -13,6 +13,7 @@ import {
 } from "./useItemAttachments";
 import type { Item } from "./useItems";
 import { WebLinkSheet } from "./WebLinkSheet";
+import { useAccess } from "@/lib/api/useAccess";
 
 function hrefOf(attachment: Attachment): string {
   return attachment.file_url ?? attachment.url ?? "";
@@ -31,6 +32,7 @@ export function ItemAttachments({ item, attaching, onAttaching }: ItemAttachment
   const attach = useAttach(item);
   const remove = useRemoveAttachment(item);
   const [addingLink, setAddingLink] = useState(false);
+  const { canEdit } = useAccess();
   return (
     <>
       {attachments.length > 0 && (
@@ -38,9 +40,11 @@ export function ItemAttachments({ item, attaching, onAttaching }: ItemAttachment
           title="Attachments"
           count={attachments.length}
           action={
-            <Button variant="subtle" onClick={() => onAttaching(true)}>
-              Attach
-            </Button>
+            canEdit && (
+              <Button variant="subtle" onClick={() => onAttaching(true)}>
+                Attach
+              </Button>
+            )
           }
         >
           {attachments.map((attachment) => (
@@ -54,7 +58,7 @@ export function ItemAttachments({ item, attaching, onAttaching }: ItemAttachment
                 attachment.kind === "photo" ? (attachment.file_url ?? undefined) : undefined
               }
               pdf={attachment.content_type === "application/pdf"}
-              onRemove={() => remove(attachment)}
+              onRemove={canEdit ? () => remove(attachment) : undefined}
             />
           ))}
         </ListSection>

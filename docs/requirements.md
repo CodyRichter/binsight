@@ -14,7 +14,7 @@ SCOPE
   with a count. Showing the count is supported; managing stock is not (see
   NON-GOALS).
 - Food is not tracked. Grocy does that.
-- One household, one main user to start. See ACCESS.
+- One household, with an account for each person who uses it. See ACCESS.
 - Open source on GitHub under AGPL-3.0, but designed for this household
   first. Features are not added just because other people might want them.
 
@@ -214,8 +214,8 @@ Also:
   the app login.
 - Claude connects from Claude Code or Claude Desktop on a device that can
   already reach the app.
-- The history records who made each change: you in the app, or Claude through
-  MCP.
+- The history records who made each change: the account that made it in the
+  app, or Claude through MCP. Claude acts with the Edit role.
 - Natural questions should work: "Do I already own a multimeter?", "What's in
   the garage bins?", "Put the new drill in B-014.", "How many AA batteries do
   we have?"
@@ -234,12 +234,22 @@ IMPORT, EXPORT, REPORTS
 
 ACCESS
 ------
-- One owner account.
+- Each person has an account: a username and a password. No email, and
+  nothing to verify. The first account, made on a new install's first visit,
+  is an admin; admins make the others.
+- Every account has one of three fixed roles:
+    - View: sees everything in the home, but changes nothing.
+    - Edit: also adds, changes, moves and deletes things in the home.
+    - Admin: also manages accounts, MCP credentials, backups, import and
+      export.
+- Anyone who can reach the app can browse it without signing in, so someone
+  in the house can see what is in a bin. Signed out, it is read-only, and
+  prices, serial numbers, order links, files, history and the insurance
+  list are hidden.
 - Login session that stays signed in on your phone, so you aren't logging in
   every scan.
 - Works behind the home lab's existing access layer (Teleport or LAN). The
   app is not designed to be exposed directly to the internet.
-- Nothing in the design should prevent adding household members later.
 
 
 EXPERIENCE AND QUALITY
@@ -268,7 +278,8 @@ Things Binsight deliberately does not do.
   the smoke detector). That's Grocy chores or Home Assistant.
 - Financial tracking: current value, depreciation, value totals by location
   or category, value over time, "most valuable" views.
-- Multi-household, multi-tenant, roles and permissions, public sign-up.
+- Multi-household, multi-tenant, public sign-up. Custom roles, or
+  permissions per location or per item.
 - Public or read-only share links. Access goes through the home lab's access
   layer; to share a bin's contents, print or export its contents sheet.
 - A native mobile app. The installable web app is the only client.
@@ -291,7 +302,6 @@ Things Binsight deliberately does not do.
 LATER
 -----
 Not ruled out, but not part of the first version.
-- Household member accounts with per-person attribution in history.
 - Vision: photo -> named item, and bin/shelf photos that show what changed.
 - Searching the text inside attachments.
 - Order-email import.

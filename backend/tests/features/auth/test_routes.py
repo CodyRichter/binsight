@@ -1,20 +1,17 @@
+from collections.abc import Callable
 from dataclasses import replace
 from http.cookies import SimpleCookie
 
-from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
-from sqlalchemy import Engine
+from httpx2 import Response
 
-from app.core import clock
-from app.core.database import open_write_session
-from app.core.errors import add_error_handlers
 from app.core.settings import Settings
-from app.features.auth import service
-from app.features.auth.routes import require_sign_in
 from app.main import build_app
+from app.models import Role
+from tests.conftest import FIRST_ADMIN
 
-PASSWORD = {"password": "correct horse"}
 STATUS = "/api/auth/status"
+ACCOUNTS = "/api/auth/accounts"
 
 
 def _set_cookie(response_headers: str) -> SimpleCookie:
@@ -23,19 +20,28 @@ def _set_cookie(response_headers: str) -> SimpleCookie:
     return cookie
 
 
-def test_a_new_install_reports_no_owner(client: TestClient) -> None:
-    assert client.get(STATUS).json() == {"owner_exists": False, "signed_in": False}
+def _code(response: Response) -> tuple[int, str]:
+    return response.status_code, response.json()["error"]["code"]
 
 
-def test_creating_the_owner_signs_this_device_in(client: TestClient) -> None:
-    response = client.post("/api/auth/owner", json=PASSWORD)
+def test_a_new_install_needs_its_first_admin(client: TestClient) -> None:
+    assert client.get(STATUS).json() == {"setup_needed": True, "account": None}
+
+
+def test_creating_the_first_admin_signs_this_device_in(client: TestClient) -> None:
+    response = client.post("/api/auth/first-admin", json=FIRST_ADMIN)
     assert response.status_code == 201
-    assert response.json() == {"owner_exists": True, "signed_in": True}
-    assert client.get(STATUS).json()["signed_in"]
+    account = response.json()["account"]
+    assert (response.json()["setup_needed"], account["username"], account["role"]) == (
+        False,
+        "sam",
+        "admin",
+    )
+    assert client.get(STATUS).json()["account"] == account
 
 
 def test_the_cookie_is_kept_from_scripts_and_other_sites(client: TestClient) -> None:
-    response = client.post("/api/auth/owner", json=PASSWORD)
+    response = client.post("/api/auth/first-admin", json=FIRST_ADMIN)
     cookie = _set_cookie(response.headers["set-cookie"])["binsight_session"]
     assert cookie["httponly"]
     assert cookie["samesite"] == "lax"
@@ -47,19 +53,17 @@ def test_the_cookie_is_kept_from_scripts_and_other_sites(client: TestClient) -> 
 def test_the_cookie_is_secure_when_the_app_address_is_https(settings: Settings) -> None:
     https_settings = replace(settings, app_address="https://binsight.example.com")
     with TestClient(build_app(https_settings)) as https_client:
-        response = https_client.post("/api/auth/owner", json=PASSWORD)
+        response = https_client.post("/api/auth/first-admin", json=FIRST_ADMIN)
     assert _set_cookie(response.headers["set-cookie"])["binsight_session"]["secure"]
 
 
-def test_a_second_owner_is_refused(client: TestClient) -> None:
-    client.post("/api/auth/owner", json=PASSWORD)
-    response = client.post("/api/auth/owner", json={"password": "another one"})
-    assert response.status_code == 409
-    assert response.json()["error"]["code"] == "owner_exists"
+def test_a_second_first_admin_is_refused(signed_in: TestClient) -> None:
+    response = signed_in.post("/api/auth/first-admin", json={**FIRST_ADMIN, "username": "alex"})
+    assert _code(response) == (409, "accounts_exist")
 
 
 def test_a_short_password_is_refused_in_the_error_shape(client: TestClient) -> None:
-    response = client.post("/api/auth/owner", json={"password": "short"})
+    response = client.post("/api/auth/first-admin", json={"username": "sam", "password": "short"})
     assert response.status_code == 422
     assert response.json() == {
         "error": {
@@ -70,64 +74,68 @@ def test_a_short_password_is_refused_in_the_error_shape(client: TestClient) -> N
     }
 
 
-def test_signing_in_needs_the_right_password(client: TestClient) -> None:
-    client.post("/api/auth/owner", json=PASSWORD)
-    client.cookies.clear()
-    wrong = client.post("/api/auth/sign-in", json={"password": "wrong horse"})
-    assert (wrong.status_code, wrong.json()["error"]["code"]) == (401, "wrong_password")
-    assert client.post("/api/auth/sign-in", json=PASSWORD).status_code == 200
-    assert client.get(STATUS).json()["signed_in"]
+def test_a_username_with_spaces_inside_is_refused(client: TestClient) -> None:
+    response = client.post("/api/auth/first-admin", json={**FIRST_ADMIN, "username": "sam smith"})
+    assert response.status_code == 422
+    assert list(response.json()["error"]["details"]["fields"]) == ["username"]
 
 
-def test_signing_in_before_an_owner_exists_is_refused(client: TestClient) -> None:
-    response = client.post("/api/auth/sign-in", json=PASSWORD)
-    assert (response.status_code, response.json()["error"]["code"]) == (409, "owner_not_created")
+def test_signing_in_needs_the_right_username_and_password(signed_in: TestClient) -> None:
+    signed_in.cookies.clear()
+    wrong = signed_in.post("/api/auth/sign-in", json={**FIRST_ADMIN, "password": "wrong horse"})
+    assert _code(wrong) == (401, "wrong_sign_in")
+    right = signed_in.post("/api/auth/sign-in", json={**FIRST_ADMIN, "username": "SAM"})
+    assert right.status_code == 200
+    assert signed_in.get(STATUS).json()["account"]["username"] == "sam"
 
 
-def test_signing_out_ends_the_session_and_clears_the_cookie(client: TestClient) -> None:
-    client.post("/api/auth/owner", json=PASSWORD)
-    secret = client.cookies["binsight_session"]
-    response = client.post("/api/auth/sign-out")
+def test_signing_out_ends_the_session_and_clears_the_cookie(signed_in: TestClient) -> None:
+    secret = signed_in.cookies["binsight_session"]
+    response = signed_in.post("/api/auth/sign-out")
     assert response.status_code == 204
     assert 'binsight_session=""' in response.headers["set-cookie"]
-    client.cookies.set("binsight_session", secret)
-    assert not client.get(STATUS).json()["signed_in"]
+    signed_in.cookies.set("binsight_session", secret)
+    assert signed_in.get(STATUS).json()["account"] is None
 
 
 def test_signing_out_with_no_session_succeeds(client: TestClient) -> None:
     assert client.post("/api/auth/sign-out").status_code == 204
 
 
-def _guarded_client(migrated_engine: Engine) -> TestClient:
-    app = FastAPI()
-    add_error_handlers(app)
-    app.state.engine = migrated_engine
+def test_an_admin_adds_an_account_who_can_then_sign_in(signed_in: TestClient) -> None:
+    new = {"username": "Alex", "password": "alex horse", "role": "editor"}
+    created = signed_in.post(ACCOUNTS, json=new)
+    assert created.status_code == 201
+    assert (created.json()["username"], created.json()["role"]) == ("alex", "editor")
+    assert [each["username"] for each in signed_in.get(ACCOUNTS).json()["items"]] == [
+        "sam",
+        "alex",
+    ]
+    other = TestClient(signed_in.app)
+    assert other.post("/api/auth/sign-in", json=new).status_code == 200
 
-    @app.get("/guarded", dependencies=[Depends(require_sign_in)])
-    def guarded() -> dict[str, bool]:
-        return {"reached": True}
 
-    return TestClient(app)
+def test_the_last_admin_is_kept(signed_in: TestClient) -> None:
+    sam = signed_in.get(ACCOUNTS).json()["items"][0]["id"]
+    assert _code(signed_in.delete(f"{ACCOUNTS}/{sam}")) == (409, "last_admin")
+    assert _code(signed_in.patch(f"{ACCOUNTS}/{sam}", json={"role": "viewer"})) == (
+        409,
+        "last_admin",
+    )
 
 
-def test_a_signed_in_only_route_refuses_a_request_without_a_session(
-    migrated_engine: Engine,
+def test_an_unknown_account_is_not_found(signed_in: TestClient) -> None:
+    assert _code(signed_in.delete(f"{ACCOUNTS}/made-up")) == (404, "account_not_found")
+
+
+def test_anyone_signed_in_changes_their_own_password(
+    sign_in_as: Callable[[Role], TestClient],
 ) -> None:
-    response = _guarded_client(migrated_engine).get("/guarded")
-    assert response.status_code == 401
-    assert response.json()["error"] == {
-        "code": "not_signed_in",
-        "message": "Sign in to continue.",
-        "details": {},
-    }
-
-
-def test_a_signed_in_only_route_answers_a_current_session(migrated_engine: Engine) -> None:
-    with open_write_session(migrated_engine) as session:
-        secret = service.create_owner(session, PASSWORD["password"], clock.now())
-    guarded = _guarded_client(migrated_engine)
-    guarded.cookies.set("binsight_session", secret)
-    assert guarded.get("/guarded").json() == {"reached": True}
+    viewer = sign_in_as(Role.viewer)
+    change = {"current_password": "correct horse", "new_password": "another horse"}
+    assert viewer.post("/api/auth/password", json=change).status_code == 204
+    wrong = {"current_password": "correct horse", "new_password": "third horse"}
+    assert _code(viewer.post("/api/auth/password", json=wrong)) == (401, "wrong_password")
 
 
 CREDENTIALS = "/api/auth/mcp-credentials"

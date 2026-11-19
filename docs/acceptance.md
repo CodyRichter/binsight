@@ -38,7 +38,7 @@ Also:
 - The label address opens the location's page at `/locations/{Cables}`,
   and a code typed in lower case without its hyphen does the same.
 - An unknown code opens a page saying nothing is there, with a way home.
-- A signed-out owner is sent to sign in and then lands on the same bin.
+- Signed out, the bin opens read-only; signing in from it lands back on it.
 
 ## 2. Scan a bin label and add things to it
 

@@ -24,7 +24,7 @@ from app.features.views.schemas import (
 )
 from app.mcp import confirmation
 from app.mcp.actions import run_action
-from app.models import Actor
+from app.models import MCP_ACTOR
 
 LIST_SAVED_SEARCHES = """List the owner's saved searches, pinned ones first, then by name.
 
@@ -91,7 +91,7 @@ def _delete(session: Session, saved_search_id: str, token: str | None) -> Delete
         )
         return DeleteSavedSearchAnswer(preview=preview, deleted=None)
     confirmation.redeem(session, "delete_saved_search", inputs, token, now)
-    deleted = service.delete_saved_search(session, saved_search_id, Actor.mcp, now)
+    deleted = service.delete_saved_search(session, saved_search_id, MCP_ACTOR, now)
     return DeleteSavedSearchAnswer(preview=None, deleted=deleted)
 
 
@@ -102,7 +102,7 @@ def _create(
     if kept.location_id is not None:
         kept = kept.model_copy(update={"location_id": locations.location_code(kept.location_id)})
     new = NewSavedSearch(name=name, query=query, **kept.model_dump())
-    return service.create_saved_search(session, new, Actor.mcp, clock.now())
+    return service.create_saved_search(session, new, MCP_ACTOR, clock.now())
 
 
 def _add_reading_tools(server: MCPServer, app: FastAPI) -> None:
@@ -162,7 +162,7 @@ def add_saved_search_tools(server: MCPServer, app: FastAPI) -> None:
                 session,
                 saved_search_id,
                 SavedSearchChanges(name=name, pinned=pinned),
-                Actor.mcp,
+                MCP_ACTOR,
                 clock.now(),
             ),
         )

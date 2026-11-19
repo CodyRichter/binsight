@@ -244,11 +244,15 @@ def location_photo_urls(session: Session) -> dict[str, str]:
     }
 
 
-def attachment_file(session: Session, settings: Settings, attachment_id: str) -> FileOnDisk:
-    """Where a photo's or file's bytes are in the data directory; a web link has none."""
+def attachment_file(
+    session: Session, settings: Settings, attachment_id: str, visitor: bool
+) -> FileOnDisk:
+    """Where a photo's or file's bytes are on disk; a visitor is refused anything but a photo."""
     attachment = _get(session, attachment_id)
     if attachment.path is None or attachment.content_type is None:
         raise _not_found()
+    if visitor and attachment.kind != AttachmentKind.photo:
+        raise AppError(401, "not_signed_in", "Sign in to see this file.")
     path = settings.data_directory / attachment.path
     return FileOnDisk(path, attachment.content_type, attachment.filename)
 

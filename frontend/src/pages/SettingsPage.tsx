@@ -1,17 +1,21 @@
+import { AdminOnly } from "@/components/AdminOnly";
 import { AppFrame } from "@/components/AppFrame";
 import { PageHeader } from "@/components/PageHeader";
-import { McpCredentialsSection, SignInSection } from "@/features/auth";
+import { AccountSection, AccountsSection, McpCredentialsSection } from "@/features/auth";
 import { BackupsSection } from "@/features/backups";
 import { ExportImportSection } from "@/features/import-export";
 
 export function SettingsPage() {
   return (
-    <AppFrame current="settings" destination>
+    <AppFrame current="settings" destination audience="signed in">
       <PageHeader title="Settings" />
-      <McpCredentialsSection />
-      <ExportImportSection />
-      <BackupsSection />
-      <SignInSection />
+      <AccountSection />
+      <AdminOnly>
+        <AccountsSection />
+        <McpCredentialsSection />
+        <ExportImportSection />
+        <BackupsSection />
+      </AdminOnly>
     </AppFrame>
   );
 }

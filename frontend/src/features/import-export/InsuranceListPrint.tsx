@@ -51,7 +51,7 @@ export function InsuranceListPrint() {
   const { id } = useParams();
   const close = useClosePrint(id ? `/locations/${id}` : "/settings");
   return (
-    <PrintFrame name="Insurance list" onClose={close}>
+    <PrintFrame name="Insurance list" onClose={close} audience="signed in">
       <InsuranceListState key={id ?? "everything"} locationId={id} />
     </PrintFrame>
   );

@@ -13,7 +13,7 @@ from app.features.items import service
 from app.features.items.schemas import Item, ItemDeleted, ItemRestored
 from app.mcp import confirmation
 from app.mcp.actions import run_action
-from app.models import Actor
+from app.models import MCP_ACTOR
 
 DELETE_ITEM = """Delete an item, in two calls: first a preview, then the deletion.
 
@@ -63,7 +63,7 @@ def _delete(session: Session, item_id: str, token: str | None) -> DeleteItemAnsw
         )
         return DeleteItemAnswer(preview=preview, deleted=None)
     confirmation.redeem(session, "delete_item", inputs, token, now)
-    deleted = service.delete_item(session, item_id, Actor.mcp, now)
+    deleted = service.delete_item(session, item_id, MCP_ACTOR, now)
     return DeleteItemAnswer(preview=None, deleted=deleted)
 
 
@@ -83,5 +83,5 @@ def add_delete_tools(server: MCPServer, app: FastAPI) -> None:
         return await run_action(
             app,
             open_write_session,
-            lambda session: service.restore_item(session, item_id, Actor.mcp, clock.now()),
+            lambda session: service.restore_item(session, item_id, MCP_ACTOR, clock.now()),
         )

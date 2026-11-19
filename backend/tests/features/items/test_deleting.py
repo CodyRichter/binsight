@@ -13,9 +13,9 @@ from app.features.items.schemas import ItemChanges, ItemMove
 from app.features.locations import service as locations
 from app.features.search import service as search
 from app.features.search.schemas import Search
-from app.models import Actor, HistoryEntry
+from app.models import MCP_ACTOR, HistoryEntry
 from tests import builders
-from tests.builders import AcceptanceHome
+from tests.builders import APP_ACTOR, AcceptanceHome
 
 
 @pytest.fixture
@@ -26,7 +26,7 @@ def home(migrated_engine: Engine) -> AcceptanceHome:
 
 def _delete(engine: Engine, item_id: str) -> str:
     with open_write_session(engine) as session:
-        return service.delete_item(session, item_id, Actor.app, builders.NOW).history_entry_id
+        return service.delete_item(session, item_id, APP_ACTOR, builders.NOW).history_entry_id
 
 
 def _refusal_code(engine: Engine, action: Callable[[Session], object]) -> str:
@@ -84,13 +84,13 @@ def test_restoring_puts_it_back_in_its_location(
 ) -> None:
     _delete(migrated_engine, home.usb_c_charger)
     with open_write_session(migrated_engine) as session:
-        restored = service.restore_item(session, home.usb_c_charger, Actor.mcp, builders.NOW)
+        restored = service.restore_item(session, home.usb_c_charger, MCP_ACTOR, builders.NOW)
     assert restored.deleted_at is None
     with open_read_session(migrated_engine) as session:
         listed = service.list_items(session, home.cables, False, 50, None).items
         entry = session.get(HistoryEntry, restored.history_entry_id)
         assert entry is not None
-        assert (entry.action, entry.actor) == ("item.restored", Actor.mcp)
+        assert (entry.action, entry.actor) == ("item.restored", MCP_ACTOR.kind)
     assert [item.name for item in listed] == ["HDMI cable", "USB-C charger"]
 
 
@@ -101,7 +101,7 @@ def test_deleting_is_one_history_entry_by_its_actor(
     with open_read_session(migrated_engine) as session:
         entry = session.get(HistoryEntry, entry_id)
         assert entry is not None
-        assert (entry.action, entry.actor) == ("item.deleted", Actor.app)
+        assert (entry.action, entry.actor) == ("item.deleted", APP_ACTOR.kind)
         assert [(c.before, c.after) for c in entry.changes] == [
             ({"deleted_at": None}, {"deleted_at": builders.NOW.isoformat()})
         ]
@@ -116,17 +116,17 @@ def test_a_deleted_item_cannot_be_changed_moved_or_deleted_again(
         _refusal_code(
             migrated_engine,
             lambda session: service.update_item(
-                session, item_id, ItemChanges(quantity=5), Actor.app, now
+                session, item_id, ItemChanges(quantity=5), APP_ACTOR, now
             ),
         ),
         _refusal_code(
             migrated_engine,
             lambda session: service.move_item(
-                session, item_id, ItemMove(location_id=home.tools), Actor.app, now
+                session, item_id, ItemMove(location_id=home.tools), APP_ACTOR, now
             ),
         ),
         _refusal_code(
-            migrated_engine, lambda session: service.delete_item(session, item_id, Actor.app, now)
+            migrated_engine, lambda session: service.delete_item(session, item_id, APP_ACTOR, now)
         ),
     ]
     assert refusals == ["item_deleted"] * 3
@@ -137,7 +137,7 @@ def test_an_item_that_was_never_deleted_cannot_be_restored(
 ) -> None:
     refused = _refusal_code(
         migrated_engine,
-        lambda session: service.restore_item(session, home.hdmi_cable, Actor.app, builders.NOW),
+        lambda session: service.restore_item(session, home.hdmi_cable, APP_ACTOR, builders.NOW),
     )
     assert refused == "not_deleted"
 

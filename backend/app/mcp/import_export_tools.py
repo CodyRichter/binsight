@@ -17,7 +17,7 @@ from app.features.import_export import service as import_export
 from app.features.import_export.schemas import ImportDone, ImportPreview
 from app.mcp import confirmation
 from app.mcp.actions import run_action
-from app.models import Actor
+from app.models import MCP_ACTOR
 
 EXPORT_EVERYTHING = """Export everything in the home as one zip file, for a backup or a move.
 
@@ -73,7 +73,7 @@ def _import_in_two_calls(session: Session, raw: bytes, token: str | None) -> Imp
         )
         return ImportItemsAnswer(preview=answer, done=None)
     confirmation.redeem(session, "import_items", inputs, token, now)
-    done = import_export.import_items(session, raw, Actor.mcp, now)
+    done = import_export.import_items(session, raw, MCP_ACTOR, now)
     return ImportItemsAnswer(preview=None, done=done)
 
 

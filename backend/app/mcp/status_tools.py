@@ -16,7 +16,7 @@ from app.features.items.schemas import (
 )
 from app.features.locations import service as locations
 from app.mcp.actions import run_action
-from app.models import Actor
+from app.models import MCP_ACTOR
 
 MARK_ITEM_MISSING = """Mark an item missing: it is not where Binsight says it is.
 
@@ -59,7 +59,7 @@ def add_status_tools(server: MCPServer, app: FastAPI) -> None:
         return await run_action(
             app,
             open_write_session,
-            lambda session: service.mark_item_missing(session, item_id, Actor.mcp, clock.now()),
+            lambda session: service.mark_item_missing(session, item_id, MCP_ACTOR, clock.now()),
         )
 
     @server.tool(description=MARK_ITEM_FOUND)
@@ -73,7 +73,7 @@ def add_status_tools(server: MCPServer, app: FastAPI) -> None:
                 session,
                 item_id,
                 ItemFound(location_id=locations.location_code(location_id)),
-                Actor.mcp,
+                MCP_ACTOR,
                 clock.now(),
             ),
         )
@@ -86,6 +86,6 @@ def add_status_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             open_write_session,
             lambda session: service.change_item_status(
-                session, item_id, ItemStatusChange(status=status), Actor.mcp, clock.now()
+                session, item_id, ItemStatusChange(status=status), MCP_ACTOR, clock.now()
             ),
         )

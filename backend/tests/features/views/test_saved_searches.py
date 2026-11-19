@@ -13,9 +13,8 @@ from app.features.items.schemas import ItemChanges
 from app.features.search.schemas import ItemResult
 from app.features.views import service
 from app.features.views.schemas import NewSavedSearch, SavedSearchChanges
-from app.models import Actor
 from tests import builders
-from tests.builders import AcceptanceHome
+from tests.builders import APP_ACTOR, AcceptanceHome
 
 LATER = builders.NOW + timedelta(days=1)
 
@@ -25,14 +24,14 @@ def home(migrated_engine: Engine) -> AcceptanceHome:
     with open_write_session(migrated_engine) as session:
         home = builders.acceptance_home(session)
         cables = ItemChanges(category="Cables")
-        items.update_item(session, home.hdmi_cable, cables, Actor.app, LATER)
+        items.update_item(session, home.hdmi_cable, cables, APP_ACTOR, LATER)
         return home
 
 
 def _save(engine: Engine, name: str, **search: str) -> tuple[str, str]:
     with open_write_session(engine) as session:
         made = service.create_saved_search(
-            session, NewSavedSearch.model_validate({"name": name, **search}), Actor.app, LATER
+            session, NewSavedSearch.model_validate({"name": name, **search}), APP_ACTOR, LATER
         )
     return made.id, made.history_entry_id
 
@@ -40,7 +39,7 @@ def _save(engine: Engine, name: str, **search: str) -> tuple[str, str]:
 def _change(engine: Engine, saved_search_id: str, **changes: str | bool) -> str:
     with open_write_session(engine) as session:
         changed = service.update_saved_search(
-            session, saved_search_id, SavedSearchChanges.model_validate(changes), Actor.app, LATER
+            session, saved_search_id, SavedSearchChanges.model_validate(changes), APP_ACTOR, LATER
         )
     return changed.history_entry_id
 
@@ -53,7 +52,7 @@ def _listed(engine: Engine) -> list[tuple[str, bool, int]]:
 
 def _undo(engine: Engine, settings: Settings, entry_id: str) -> None:
     with open_write_session(engine) as session:
-        history.undo(session, settings, entry_id, Actor.app, LATER + timedelta(hours=1))
+        history.undo(session, settings, entry_id, APP_ACTOR, LATER + timedelta(hours=1))
 
 
 @pytest.mark.usefixtures("home")
@@ -96,7 +95,7 @@ def test_a_deleted_saved_search_comes_back_with_undo(
     saved_id, _ = _save(migrated_engine, "All cables", category="Cables")
     _change(migrated_engine, saved_id, pinned=True)
     with open_write_session(migrated_engine) as session:
-        deleted = service.delete_saved_search(session, saved_id, Actor.app, LATER)
+        deleted = service.delete_saved_search(session, saved_id, APP_ACTOR, LATER)
     assert _listed(migrated_engine) == []
     _undo(migrated_engine, settings, deleted.history_entry_id)
     assert _listed(migrated_engine) == [("All cables", True, 1)]

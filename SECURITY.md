@@ -31,7 +31,10 @@ Its own sign-in and its MCP credential are a second layer, not the only one.
 
 Within that setup, these are in scope:
 
-- Reading or changing data without a valid session or MCP credential.
+- Changing data without a login session or MCP credential whose role
+  allows it, or reaching an admin's routes without the admin role.
+- A visitor seeing private details (prices, serial numbers, order links,
+  files, history, the insurance list).
 - An MCP credential doing something after it has been revoked.
 - Reading or writing files outside the data directory, including through
   uploads, imports, exports or backups.
@@ -46,11 +49,15 @@ These are not:
   against the guidance above.
 - Anything that requires access to the host, the container or the data
   directory. Whoever has those already has everything.
-- Missing protections against a signed-in owner harming their own data.
+- A visitor reading the rest of the home. Browsing without signing in is
+  intended ([decision 0022](docs/decisions/0022-accounts-and-roles.md)).
+- Missing protections against an editor or admin harming the household's
+  data.
 
 ## For people running it
 
 - Keep it behind your access layer.
 - Keep the data directory out of anything public.
 - Back up the data directory. It holds everything.
-- Revoke an MCP credential you no longer use.
+- Revoke an MCP credential you no longer use, and delete accounts nobody
+  uses.

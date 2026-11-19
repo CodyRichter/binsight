@@ -1,6 +1,8 @@
 import { useContext, useState, type ReactNode } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
-import { SessionCheck } from "./SessionCheck";
+import { useAccess } from "@/lib/api/useAccess";
+import { gateAddress } from "@/lib/returnAddress";
+import { SessionCheck, type PageAudience } from "./SessionCheck";
 import { Frame } from "./Frame";
 import { FrameAdditionsContext } from "./frameAdditions";
 import type { Destination } from "./navigation";
@@ -17,6 +19,8 @@ interface AppFrameProps {
   addTo?: string;
   /** Shown in the bottom bar's place while rows are selected. */
   selectionBar?: ReactNode;
+  /** Who may open the page; anyone, by default, sees it read-only when signed out. */
+  audience?: PageAudience;
   children: ReactNode;
 }
 
@@ -55,14 +59,22 @@ function useAdding(): [boolean, (open: boolean) => void] {
 
 export function AppFrame(props: AppFrameProps) {
   const { current = null, destination, parent, currentView, addTo, selectionBar, children } = props;
-  const { AddSheet, useInboxCount, useViewsSection } = useContext(FrameAdditionsContext);
+  const { canEdit, canView } = useAccess();
+  const { pathname, search } = useLocation();
+  const frameAdditions = useContext(FrameAdditionsContext);
+  const { useInboxCount, useViewsSection } = frameAdditions;
+  const AddSheet = canEdit ? frameAdditions.AddSheet : undefined;
   const inboxCount = useInboxCount();
   const viewsSection = useViewsSection(currentView, current === "views");
   const [adding, setAdding] = useAdding();
   const navigate = useNavigate();
   return (
     <Frame
-      navigation={{ current, inboxCount }}
+      navigation={{
+        current,
+        inboxCount,
+        signInAt: canView ? undefined : gateAddress(pathname + search),
+      }}
       sections={viewsSection && [viewsSection]}
       search={useSearch()}
       actions={{ onAdd: AddSheet && (() => setAdding(true)), onScan: () => navigate("/scan") }}
@@ -70,7 +82,7 @@ export function AppFrame(props: AppFrameProps) {
       parent={parent}
       selectionBar={selectionBar}
     >
-      <SessionCheck>
+      <SessionCheck audience={props.audience ?? "anyone"}>
         {children}
         {AddSheet && (
           <AddSheet opened={adding} onClose={() => setAdding(false)} locationId={addTo} />

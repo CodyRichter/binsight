@@ -12,7 +12,7 @@ import { useTitleFocusAfterNavigating } from "./useTitleFocusAfterNavigating";
 import classes from "./Frame.module.css";
 
 interface FrameProps {
-  navigation: { current: Destination | null; inboxCount?: number };
+  navigation: { current: Destination | null; inboxCount?: number; signInAt?: string };
   sections?: NavSection[];
   search: { query: string; onChange: (query: string) => void };
   actions?: { onAdd?: () => void; onScan?: () => void };

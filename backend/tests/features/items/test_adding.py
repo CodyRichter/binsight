@@ -7,8 +7,9 @@ from app.core.settings import Settings
 from app.features.attachments import service as attachments
 from app.features.items import service
 from app.features.items.schemas import ItemChanges, NewItems
-from app.models import Actor, HistoryEntry
+from app.models import HistoryEntry
 from tests import builders
+from tests.builders import APP_ACTOR
 from tests.photos import photo
 
 
@@ -17,7 +18,7 @@ def test_several_items_are_added_in_order_as_one_history_entry(migrated_engine: 
         bin_id = builders.location(session, "Cables", builders.location(session).id).id
         names = ["Ethernet cable", "Patch cable", "Cable ties"]
         added = service.create_items(
-            session, NewItems(names=names, home_location_id=bin_id), Actor.app, builders.NOW
+            session, NewItems(names=names, home_location_id=bin_id), APP_ACTOR, builders.NOW
         )
     with open_read_session(migrated_engine) as session:
         listed = service.list_items(session, bin_id, False, 50, None)
@@ -39,7 +40,7 @@ def _photo_item(settings: Settings, engine: Engine, home: str | None = None) -> 
         attachments.saved_photo(settings, photo(), "IMG_0001.jpg") as stored,
         open_write_session(engine) as session,
     ):
-        return service.create_item_by_photo(session, stored, home, Actor.app, builders.NOW).id
+        return service.create_item_by_photo(session, stored, home, APP_ACTOR, builders.NOW).id
 
 
 def test_an_item_added_by_photo_has_no_name_and_waits_in_the_inbox(
@@ -65,7 +66,7 @@ def test_naming_an_item_takes_it_out_of_the_inbox(
     item_id = _photo_item(settings, migrated_engine, home)
     with open_write_session(migrated_engine) as session:
         named = service.update_item(
-            session, item_id, ItemChanges(name="Multimeter"), Actor.app, builders.NOW
+            session, item_id, ItemChanges(name="Multimeter"), APP_ACTOR, builders.NOW
         )
         entry = session.get(HistoryEntry, named.history_entry_id)
         assert entry is not None
@@ -112,6 +113,6 @@ def test_a_photo_is_kept_with_its_item(settings: Settings, migrated_engine: Engi
         url = service.get_item(session, item_id).photo_url
         assert url is not None
         stored_id = url.split("/")[3]
-        stored = attachments.attachment_file(session, settings, stored_id).path
+        stored = attachments.attachment_file(session, settings, stored_id, visitor=False).path
     assert stored.exists()
     assert list(settings.attachments_directory.iterdir()) == [stored]

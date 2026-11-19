@@ -5,9 +5,22 @@ import { render } from "@testing-library/react";
 import { RouterProvider, createMemoryRouter, type RouteObject } from "react-router";
 import { vi } from "vitest";
 import { createQueryClient } from "@/lib/api/queryClient";
+import type { AuthStatus } from "@/lib/api/useAuthStatus";
 import { cssVariablesResolver, theme } from "@/lib/theme/theme";
 
-export const signedIn = { owner_exists: true, signed_in: true };
+/** Signed in as an admin, who may do everything. */
+export const signedIn = {
+  setup_needed: false,
+  account: { id: "sam", username: "sam", role: "admin" },
+} satisfies AuthStatus;
+
+/** Signed in with a role, for a page as that account sees it. */
+export function signedInAs(role: "viewer" | "editor" | "admin") {
+  return { ...signedIn, account: { ...signedIn.account, role } } satisfies AuthStatus;
+}
+
+/** Not signed in: the home read-only. */
+export const visitor = { setup_needed: false, account: null } satisfies AuthStatus;
 
 export function answer(status: number, body: unknown) {
   return new Response(JSON.stringify(body), {

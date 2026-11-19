@@ -10,8 +10,10 @@ import {
   cable,
   renderRoutes,
   signedIn,
+  signedInAs,
   site,
   stubPaths,
+  visitor,
 } from "@/lib/testing/routeTesting";
 import { routes } from "./routes";
 
@@ -19,12 +21,13 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-const signedOut = { owner_exists: true, signed_in: false };
-const newInstall = { owner_exists: false, signed_in: false };
+const signedOut = visitor;
+const newInstall = { setup_needed: true, account: null };
 const noCredentials = { items: [], next_cursor: null };
 const credentialsPath = "/api/auth/mcp-credentials?limit=200";
 const settingsLists: Record<string, unknown> = {
   [credentialsPath]: noCredentials,
+  "/api/auth/accounts?limit=200": { items: [], next_cursor: null },
   "/api/labels?": { items: [], next_cursor: null },
   "/api/locations": { locations: [] },
   "/api/backups": { backups: [] },
@@ -119,18 +122,20 @@ test("a failure on the backend shows Something went wrong inside the frame", asy
   consoleError.mockRestore();
 });
 
-test("signed out, a page sends you to the Gate with one password field", async () => {
+test("signed out, a page for accounts sends you to the Gate for a username and password", async () => {
   stubBackend(answer(200, signedOut));
   renderRoutes(routes, "/settings");
   expect(await screen.findByRole("button", { name: "Sign in" })).toBeVisible();
+  expect(screen.getByLabelText("Username")).toBeVisible();
   expect(screen.getAllByLabelText(/password/i)).toHaveLength(1);
   expect(screen.queryByRole("navigation", { name: "Main" })).not.toBeInTheDocument();
 });
 
-test("a new install asks for the password twice", async () => {
+test("a new install asks for the first admin's username and the password twice", async () => {
   stubBackend(answer(200, newInstall));
-  renderRoutes(routes, "/settings");
-  expect(await screen.findByRole("button", { name: "Set password" })).toBeVisible();
+  renderRoutes(routes, "/");
+  expect(await screen.findByRole("button", { name: "Create account" })).toBeVisible();
+  expect(screen.getByLabelText("Username")).toBeVisible();
   expect(screen.getByLabelText("Password")).toBeVisible();
   expect(screen.getByLabelText("Repeat password")).toBeVisible();
 });
@@ -144,32 +149,34 @@ test("signing in returns to the address that was asked for", async () => {
   });
   vi.stubGlobal("fetch", fetchMock);
   renderRoutes(routes, "/settings");
-  await userEvent.type(await screen.findByLabelText("Password"), "correct horse");
+  await userEvent.type(await screen.findByLabelText("Username"), "sam");
+  await userEvent.type(screen.getByLabelText("Password"), "correct horse");
   await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
   expect(await screen.findByRole("heading", { level: 1, name: "Settings" })).toBeVisible();
   expect(fetchMock).toHaveBeenCalledWith("/api/auth/sign-in", expect.anything());
 });
 
-test("a wrong password shows the backend's sentence and stays on the Gate", async () => {
+test("a wrong sign-in shows the backend's sentence and stays on the Gate", async () => {
+  const wrong = "That username or password is wrong. Try again.";
   stubBackend(
     answer(200, signedOut),
-    answer(401, {
-      error: { code: "wrong_password", message: "That password is wrong. Try again.", details: {} },
-    }),
+    answer(401, { error: { code: "wrong_sign_in", message: wrong, details: {} } }),
   );
   renderRoutes(routes, "/login");
-  await userEvent.type(await screen.findByLabelText("Password"), "wrong horse");
+  await userEvent.type(await screen.findByLabelText("Username"), "sam");
+  await userEvent.type(screen.getByLabelText("Password"), "wrong horse");
   await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
-  expect(await screen.findByText("That password is wrong. Try again.")).toBeVisible();
+  expect(await screen.findByText(wrong)).toBeVisible();
   expect(screen.getByRole("button", { name: "Sign in" })).toBeVisible();
 });
 
 test("passwords that differ are caught before anything is sent", async () => {
   const fetchMock = stubBackend(answer(200, newInstall));
   renderRoutes(routes, "/login");
-  await userEvent.type(await screen.findByLabelText("Password"), "correct horse");
+  await userEvent.type(await screen.findByLabelText("Username"), "sam");
+  await userEvent.type(screen.getByLabelText("Password"), "correct horse");
   await userEvent.type(screen.getByLabelText("Repeat password"), "correct hose");
-  await userEvent.click(screen.getByRole("button", { name: "Set password" }));
+  await userEvent.click(screen.getByRole("button", { name: "Create account" }));
   expect(await screen.findByText("The passwords differ. Type them again.")).toBeVisible();
   expect(fetchMock).toHaveBeenCalledTimes(1);
 });
@@ -212,6 +219,43 @@ test("/locations/{id} shows the location's items", async () => {
   renderRoutes(routes, "/locations/cables");
   expect(await screen.findByRole("heading", { level: 1, name: "Cables" })).toBeVisible();
   expect(await screen.findByRole("link", { name: "HDMI cable" })).toBeVisible();
+});
+
+test("signed out, a location's page reads without its add bar, Move or More's changes", async () => {
+  const many = { ...cable, quantity: 3 };
+  stubPaths({
+    "/api/auth/status": visitor,
+    "/api/locations": { locations: [site, bin] },
+    "/api/items": { items: [many], next_cursor: null },
+  });
+  renderRoutes(routes, "/locations/cables");
+  expect(await screen.findByRole("link", { name: "HDMI cable" })).toBeVisible();
+  expect(screen.getByText("×3")).toBeVisible();
+  expect(screen.queryByRole("textbox", { name: "Add an item" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: /^Move/ })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Name: Cables" })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Label" })).toBeVisible();
+  expect(screen.getAllByRole("link", { name: "Sign in" }).length).toBeGreaterThan(0);
+});
+
+test("an editor's location page has its add bar and Move", async () => {
+  stubPaths({
+    "/api/auth/status": signedInAs("editor"),
+    "/api/locations": { locations: [site, bin] },
+    "/api/items": { items: [cable], next_cursor: null },
+  });
+  renderRoutes(routes, "/locations/cables");
+  expect(await screen.findByRole("textbox", { name: "Add an item" })).toBeVisible();
+  expect(await screen.findByRole("button", { name: "Move HDMI cable" })).toBeVisible();
+});
+
+test("a viewer's settings show their account but not the admin's sections", async () => {
+  stubPaths({ "/api/auth/status": signedInAs("viewer") });
+  renderRoutes(routes, "/settings");
+  expect(await screen.findByText("sam · View")).toBeVisible();
+  expect(screen.getByRole("button", { name: "Sign out" })).toBeVisible();
+  expect(screen.queryByRole("heading", { name: "Accounts" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("heading", { name: "MCP credentials" })).not.toBeInTheDocument();
 });
 
 test("/locations/{id} for a deleted location says so and offers Restore", async () => {

@@ -65,7 +65,7 @@ start "$container" "$work/empty"
 wait_until_healthy "$container"
 [ "$(docker exec "$container" id -u)" != 0 ] || fail "The container runs as root."
 curl --silent --fail "$address/" | grep --quiet '<div id="root">' || fail "/ did not return the app."
-api --data "{\"password\": \"$password\"}" "$address/api/auth/owner" >/dev/null
+api --data "{\"username\": \"owner\", \"password\": \"$password\"}" "$address/api/auth/first-admin" >/dev/null
 backups=$(api "$address/api/backups" | jq '.backups | length')
 [ "$backups" = 1 ] || fail "Expected the first backup on starting, found $backups."
 location_id=$(api --data '{"name": "Home", "type": "site"}' "$address/api/locations" | jq -r .id)
@@ -80,7 +80,7 @@ rm "$work/cookies"
 container=$image-used
 start "$container" "$work/used"
 wait_until_healthy "$container"
-api --data "{\"password\": \"$password\"}" "$address/api/auth/sign-in" >/dev/null
+api --data "{\"username\": \"owner\", \"password\": \"$password\"}" "$address/api/auth/sign-in" >/dev/null
 names=$(api "$address/api/items?location_id=$location_id" | jq -r '.items[].name')
 [ "$names" = "HDMI cable" ] || fail "Expected the item HDMI cable, found: $names"
 echo "Healthy, signed in, and found the item."

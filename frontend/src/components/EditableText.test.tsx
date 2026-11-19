@@ -101,3 +101,15 @@ test("picking a day in the calendar saves it once", async () => {
   expect(onSave).toHaveBeenCalledTimes(1);
   expect(onSave).toHaveBeenCalledWith("2027-03-15");
 });
+
+test("without onSave the value reads as plain text, and an empty one shows nothing", () => {
+  const { container } = renderWithTheme(
+    <>
+      <EditableText value="Patch cables" label="Name" />
+      <EditableText value="" label="Notes" invitation="Add notes" />
+    </>,
+  );
+  expect(screen.getByText("Patch cables")).toBeVisible();
+  expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  expect(container).not.toHaveTextContent("Add notes");
+});

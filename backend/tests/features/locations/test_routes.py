@@ -69,7 +69,7 @@ def test_a_room_without_a_parent_is_refused(signed_in: TestClient) -> None:
     )
 
 
-def test_locations_need_sign_in(client: TestClient) -> None:
-    response = client.get(LOCATIONS)
-    assert response.status_code == 401
-    assert response.json()["error"]["code"] == "not_signed_in"
+def test_a_visitor_can_read_locations_but_not_add_one(visitor: TestClient) -> None:
+    assert visitor.get(LOCATIONS).status_code == 200
+    response = visitor.post(LOCATIONS, json={"name": "Home", "type": "site"})
+    assert (response.status_code, response.json()["error"]["code"]) == (401, "not_signed_in")

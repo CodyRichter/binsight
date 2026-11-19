@@ -10,7 +10,7 @@ from app.features.locations import service
 from app.features.locations import service as locations
 from app.features.locations.schemas import Location, LocationCreated, LocationTree, NewLocation
 from app.mcp.actions import run_action
-from app.models import Actor, LocationType
+from app.models import MCP_ACTOR, LocationType
 
 CREATE_LOCATION = """Add a location to the home: a site, or a place inside another location.
 
@@ -57,7 +57,7 @@ def add_location_tools(server: MCPServer, app: FastAPI) -> None:
                     parent_id=locations.location_code(parent_id) if parent_id else None,
                     summary=summary,
                 ),
-                Actor.mcp,
+                MCP_ACTOR,
                 clock.now(),
             ),
         )

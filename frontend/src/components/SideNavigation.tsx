@@ -1,4 +1,4 @@
-import { IconHome, IconInbox, IconSettings } from "@tabler/icons-react";
+import { IconHome, IconInbox, IconLogin, IconSettings } from "@tabler/icons-react";
 import { Link } from "react-router";
 import { BrandMark } from "./BrandMark";
 import type { Destination, NavItem, NavSection } from "./navigation";
@@ -8,6 +8,8 @@ interface SideNavigationProps {
   current: Destination | null;
   inboxCount?: number;
   sections?: NavSection[];
+  /** For a visitor: where signing in is, shown in the place of Inbox and Settings. */
+  signInAt?: string;
 }
 
 function entry({ name, to, icon: EntryIcon, count, current }: NavItem) {
@@ -45,7 +47,8 @@ function sectionGroup(section: NavSection) {
   );
 }
 
-export function SideNavigation({ current, inboxCount, sections = [] }: SideNavigationProps) {
+export function SideNavigation(props: SideNavigationProps) {
+  const { current, inboxCount, sections = [], signInAt } = props;
   const visibleSections = sections.filter((section) => section.items.length > 0 || section.to);
   return (
     <nav className={classes.navigation} aria-label="Main">
@@ -56,24 +59,27 @@ export function SideNavigation({ current, inboxCount, sections = [] }: SideNavig
       <div className={classes.entries}>
         <ul className={classes.list}>
           {entry({ name: "Home", to: "/", icon: IconHome, current: current === "home" })}
-          {entry({
-            name: "Inbox",
-            to: "/inbox",
-            icon: IconInbox,
-            count: inboxCount,
-            current: current === "inbox",
-          })}
+          {!signInAt &&
+            entry({
+              name: "Inbox",
+              to: "/inbox",
+              icon: IconInbox,
+              count: inboxCount,
+              current: current === "inbox",
+            })}
         </ul>
         {visibleSections.map(sectionGroup)}
       </div>
       <div className={classes.pinned}>
         <ul className={classes.list}>
-          {entry({
-            name: "Settings",
-            to: "/settings",
-            icon: IconSettings,
-            current: current === "settings",
-          })}
+          {signInAt
+            ? entry({ name: "Sign in", to: signInAt, icon: IconLogin })
+            : entry({
+                name: "Settings",
+                to: "/settings",
+                icon: IconSettings,
+                current: current === "settings",
+              })}
         </ul>
       </div>
     </nav>

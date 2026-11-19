@@ -72,6 +72,7 @@ function rowControls(props: ItemRowProps): ReactNode {
           <QuantityStepper value={quantity} onChange={onQuantityChange} />
         </span>
       )}
+      {quantity > 1 && !onQuantityChange && <span className={classes.count}>×{quantity}</span>}
       {onMove && (
         <ActionIcon
           className={classes.move}

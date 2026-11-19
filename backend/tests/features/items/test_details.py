@@ -11,9 +11,9 @@ from app.core.settings import Settings
 from app.features.history import service as history
 from app.features.items import service
 from app.features.items.schemas import Item, ItemChanges
-from app.models import Actor, HistoryEntry
+from app.models import HistoryEntry
 from tests import builders
-from tests.builders import AcceptanceHome
+from tests.builders import APP_ACTOR, AcceptanceHome
 
 LATER = builders.NOW + timedelta(days=1)
 
@@ -30,7 +30,7 @@ def _change(engine: Engine, item_id: str, changes: dict[str, object], minute: in
             session,
             item_id,
             ItemChanges.model_validate(changes),
-            Actor.app,
+            APP_ACTOR,
             LATER + timedelta(minutes=minute),
         )
     return updated.history_entry_id
@@ -43,7 +43,7 @@ def _item(engine: Engine, item_id: str) -> Item:
 
 def _undo(engine: Engine, settings: Settings, entry_id: str) -> None:
     with open_write_session(engine) as session:
-        history.undo(session, settings, entry_id, Actor.app, LATER + timedelta(hours=1))
+        history.undo(session, settings, entry_id, APP_ACTOR, LATER + timedelta(hours=1))
 
 
 DETAILS: dict[str, object] = {
@@ -141,7 +141,7 @@ def test_unused_categories_and_deleted_items_tags_are_not_listed(
     _change(migrated_engine, home.hdmi_cable, {"category": "Cables"}, minute=1)
     _change(migrated_engine, home.usb_c_charger, {"category": "Chargers", "tags": ["usb-c"]})
     with open_write_session(migrated_engine) as session:
-        service.delete_item(session, home.usb_c_charger, Actor.app, LATER + timedelta(minutes=2))
+        service.delete_item(session, home.usb_c_charger, APP_ACTOR, LATER + timedelta(minutes=2))
     with open_read_session(migrated_engine) as session:
         categories = service.list_categories(session, 50, None)
         tags = service.list_tags(session, 50, None)

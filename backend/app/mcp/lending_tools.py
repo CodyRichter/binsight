@@ -15,7 +15,7 @@ from app.features.items.schemas import (
     LentToName,
 )
 from app.mcp.actions import run_action
-from app.models import Actor
+from app.models import MCP_ACTOR
 
 LEND_ITEM = """Lend an item to someone, by name.
 
@@ -51,7 +51,7 @@ def add_lending_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             open_write_session,
             lambda session: service.lend_item(
-                session, item_id, ItemLending(lent_to=lent_to), Actor.mcp, clock.now()
+                session, item_id, ItemLending(lent_to=lent_to), MCP_ACTOR, clock.now()
             ),
         )
 
@@ -60,7 +60,7 @@ def add_lending_tools(server: MCPServer, app: FastAPI) -> None:
         return await run_action(
             app,
             open_write_session,
-            lambda session: service.return_item(session, item_id, Actor.mcp, clock.now()),
+            lambda session: service.return_item(session, item_id, MCP_ACTOR, clock.now()),
         )
 
     @server.tool(description=LIST_LENT_TO_NAMES)

@@ -18,6 +18,7 @@ import { useQuantity } from "./useQuantity";
 import { useRestoreItem } from "./useRestoreItem";
 import { useLend } from "./useStatusChange";
 import type { Item } from "./useItems";
+import { since } from "./itemSince";
 
 function MoveButton({ item }: { item: Item }) {
   const { MoveSheet } = useContext(FrameAdditionsContext);
@@ -37,20 +38,6 @@ function MoveButton({ item }: { item: Item }) {
       />
     </>
   );
-}
-
-const sinceWords: Partial<Record<Item["status"], string>> = {
-  lent_out: "Lent",
-  sold: "Sold",
-  given_away: "Given away",
-  thrown_away: "Thrown away",
-};
-
-function since(item: Item): { words: string; at: Date } | undefined {
-  if (item.deleted_at) return { words: "Deleted", at: new Date(item.deleted_at) };
-  const words = sinceWords[item.status];
-  const at = item.status === "lent_out" ? item.lent_at : item.retired_at;
-  return words && at ? { words, at: new Date(at) } : undefined;
 }
 
 interface ItemHeaderProps {

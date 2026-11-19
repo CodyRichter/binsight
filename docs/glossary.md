@@ -60,7 +60,7 @@ before naming it in code.
 | Term              | Meaning                                                    |
 | ----------------- | ---------------------------------------------------------- |
 | **History entry** | A record of one change: what changed, when, and by which actor. |
-| **Actor**         | Who made a change: `app` (the owner in the interface) or `mcp` (Claude). |
+| **Actor**         | Who made a change: `app` (an account in the interface, kept by its username) or `mcp` (Claude). |
 | **Undo**          | Reversing a history entry.                                 |
 | **Delete**        | Removing an item or location from view. Deleted things can be restored. Different from archive. |
 | **Restore**       | Bringing a deleted item or location back into view, where it was. A restored location comes back empty. |
@@ -86,7 +86,11 @@ before naming it in code.
 
 | Term               | Meaning                                                   |
 | ------------------ | --------------------------------------------------------- |
-| **Owner**          | The one person who uses the app.                          |
+| **Owner**          | The household whose home it is; each person signs in with their own account. |
+| **Account**        | One person's way in: a username, a password and a role. |
+| **Role**           | What an account may do: `viewer` (shown as View), `editor` (Edit) or `admin` (Admin). Fixed; never user-defined. |
+| **Visitor**        | Someone using the app without signing in. Read-only, with private details hidden. |
+| **Private details** | What a visitor does not see: price, serial number, order link, files, history and the insurance list. |
 | **Login session**  | What keeps one device signed in: a secret in a cookie, ended by signing out. |
 | **MCP credential** | The revocable secret Claude uses to reach the MCP server. |
 | **App address**    | The permanent web address of an install.                  |
@@ -107,5 +111,5 @@ before naming it in code.
 | asset, product, thing, object, entry  | item                 | One word for a tracked thing. |
 | stock, inventory level, count (of one item) | quantity       | Stock management is a non-goal. A count of records is still a count. |
 | ID, number (for what is on a label)   | code                 | A location's code is its identifier; other records' identifiers are never shown. |
-| user, account, member                 | owner                | There is one person.        |
+| user, member, login (for a person)    | account              | One word for who signed in. |
 | remove (when it can be restored)      | delete, or archive   | They are different actions. |
