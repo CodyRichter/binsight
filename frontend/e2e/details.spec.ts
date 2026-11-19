@@ -7,7 +7,7 @@ test("a serial number set on the item's page finds it in search", async ({ page 
   const name = uniqueName("Drill");
   const serial = uniqueName("SN").replace(/\s/g, "");
   await openAtPhoneWidth(page, `/items/${await addItem(page.request, name, ids.bin)}`);
-  await page.getByRole("button", { name: "Serial number: Add a serial number" }).click();
+  await page.getByRole("button", { name: "Serial number: Add" }).click();
   const field = page.getByRole("textbox", { name: "Serial number" });
   await field.fill(serial);
   await field.press("Enter");
@@ -22,13 +22,13 @@ test("a category made on one item is picked from the sheet on another", async ({
   const first = await addItem(page.request, uniqueName("Drill"), ids.bin);
   const second = await addItem(page.request, uniqueName("Saw"), ids.bin);
   await openAtPhoneWidth(page, `/items/${first}`);
-  await page.getByRole("button", { name: "Category: Add a category" }).click();
+  await page.getByRole("button", { name: "Category: Add" }).click();
   const sheet = page.getByRole("dialog", { name: "Category" });
   await sheet.getByRole("textbox", { name: "Category" }).fill(category);
   await sheet.getByRole("button", { name: `Make "${category}"` }).click();
   await expect(page.getByRole("button", { name: `Category: ${category}` })).toBeVisible();
   await page.goto(`/items/${second}`);
-  await page.getByRole("button", { name: "Category: Add a category" }).click();
+  await page.getByRole("button", { name: "Category: Add" }).click();
   await page
     .getByRole("dialog", { name: "Category" })
     .getByRole("button", { name: category, exact: true })
@@ -59,7 +59,7 @@ test("a warranty date is still there after a reload", async ({ page }) => {
     page,
     `/items/${await addItem(page.request, uniqueName("Kettle"), ids.bin)}`,
   );
-  await page.getByRole("button", { name: "Warranty ends: Add a warranty end" }).click();
+  await page.getByRole("button", { name: "Warranty ends: Add" }).click();
   const field = page.getByLabel("Warranty ends");
   await field.fill("2027-03-01");
   await field.press("Enter");

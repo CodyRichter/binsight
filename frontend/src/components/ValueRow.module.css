@@ -20,3 +20,20 @@
   justify-content: center;
   align-items: flex-start;
 }
+
+/* The name column fits "Serial number" and "Warranty ends"; names and values line up on their text. */
+.beside {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: var(--bs-space-md);
+}
+
+.beside .name {
+  color: var(--bs-muted);
+}
+
+.beside [data-empty] {
+  font-size: var(--bs-text-small-size);
+  line-height: var(--bs-text-body-line-height);
+}

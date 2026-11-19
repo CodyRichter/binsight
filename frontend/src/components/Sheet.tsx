@@ -12,14 +12,19 @@ interface SheetProps {
   children?: ReactNode;
 }
 
-// iOS Safari draws the keyboard over the page without resizing it, so the sheet is lifted by hand.
-function useKeyboardHeight(opened: boolean): number {
-  const [height, setHeight] = useState(0);
+interface VisibleArea {
+  top: number;
+  height: number;
+}
+
+// iOS Safari draws the keyboard over the page and scrolls the page under it, so the sheet is
+// placed in the part of the screen still visible, measured from the visual viewport alone.
+function useVisibleArea(opened: boolean): VisibleArea | undefined {
+  const [area, setArea] = useState<VisibleArea>();
   useEffect(() => {
     const viewport = window.visualViewport;
     if (!opened || !viewport) return;
-    const measure = () =>
-      setHeight(Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop));
+    const measure = () => setArea({ top: viewport.offsetTop, height: viewport.height });
     measure();
     viewport.addEventListener("resize", measure);
     viewport.addEventListener("scroll", measure);
@@ -28,7 +33,7 @@ function useKeyboardHeight(opened: boolean): number {
       viewport.removeEventListener("scroll", measure);
     };
   }, [opened]);
-  return height;
+  return area;
 }
 
 function sheetForm({ onSubmit, children }: SheetProps): ReactNode {
@@ -56,7 +61,7 @@ export function Sheet(props: SheetProps) {
   const wide = useMediaQuery(`(min-width: ${theme.breakpoints.md})`, false, {
     getInitialValueInEffect: false,
   });
-  const keyboardHeight = useKeyboardHeight(opened && !wide);
+  const visible = useVisibleArea(opened && !wide);
   const body = sheetBody(props);
   if (wide) {
     return (
@@ -72,7 +77,7 @@ export function Sheet(props: SheetProps) {
       title={title}
       position="bottom"
       classNames={{ content: classes.drawer, body: classes.body }}
-      styles={{ inner: { bottom: keyboardHeight } }}
+      styles={{ inner: visible && { top: visible.top, bottom: "auto", height: visible.height } }}
     >
       {body}
     </Drawer>

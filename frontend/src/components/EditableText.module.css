@@ -37,13 +37,13 @@
   color: var(--bs-muted);
 }
 
+/* The field draws its border around the text where it rests, so tapping moves nothing on the page. */
 .field {
   display: block;
   box-sizing: border-box;
-  width: 100%;
-  min-height: var(--bs-touch-min);
-  margin: 0;
-  padding: var(--bs-space-sm) var(--bs-space-md);
+  width: calc(100% + 2 * (var(--bs-space-sm) + 1.5px));
+  margin: -3.5px calc(-1 * (var(--bs-space-sm) + 1.5px));
+  padding: 2px var(--bs-space-sm);
   border: 1.5px solid var(--bs-control-border);
   border-radius: var(--bs-radius-md);
   background: var(--bs-surface);
@@ -62,7 +62,7 @@
 }
 
 textarea.field {
-  padding: var(--bs-space-md);
+  margin-bottom: 0;
   resize: vertical;
 }
 

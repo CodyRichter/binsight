@@ -1,5 +1,6 @@
 import { DateInput, type DayOfWeek } from "@mantine/dates";
 import { useRef, type FocusEvent, type KeyboardEvent } from "react";
+import classes from "./EditableText.module.css";
 
 interface DateFieldProps {
   /** The date as `YYYY-MM-DD`, or empty. */
@@ -55,6 +56,8 @@ export function DateField({ value, label, onSave, onCancel }: DateFieldProps) {
   return (
     <DateInput
       aria-label={label}
+      classNames={{ input: classes.field }}
+      styles={{ input: { height: "auto", minHeight: 0 } }}
       defaultValue={value || null}
       valueFormat="MMM D, YYYY"
       dateParser={parseDate}
@@ -66,6 +69,8 @@ export function DateField({ value, label, onSave, onCancel }: DateFieldProps) {
       onBlur={finish}
       onKeyDown={(event) => {
         if (event.nativeEvent.isComposing) return;
+        // Focus returns to the value's button, which the same Enter would press, reopening it empty.
+        if (event.key === "Enter" || event.key === "Escape") event.preventDefault();
         if (event.key === "Enter") finish(event);
         if (event.key === "Escape") end(onCancel);
       }}

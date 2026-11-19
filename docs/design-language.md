@@ -215,7 +215,8 @@ At phone width, a location's page with a one-line title and path measures:
 
 Its page header is 192px. An item row with a path on one line is `row-min`
 (8, 24, 4, 20, 8) plus its hairline; a location row is `touch-min`; a text
-value row is 64px (8, 20, 4, 24, 8) plus its hairline.
+value row is 64px (8, 20, 4, 24, 8) plus its hairline, and one with its name
+beside the value is `touch-min`.
 
 ### Icons and motion
 
@@ -484,8 +485,8 @@ location's page with "This bin is empty".
 2. Sections of value rows: "Details", then others only when they hold a
    value or are being added to. Details lists Category, Tags, Notes,
    Brand, Model, Serial number, Purchase date, Price, Order link,
-   Warranty ends and Return by, in that order, each empty one as its
-   invitation ("Add a serial number"). Category is a chosen value that
+   Warranty ends and Return by, in that order, as value rows with the name
+   beside the value, each empty one as the invitation "Add". Category is a chosen value that
    opens the category sheet; Tags holds the tag list, whose "Add tag"
    opens the tag sheet; the rest are editable text, the dates in the
    date field and the price typed as "24.99" and shown as a
@@ -646,7 +647,9 @@ specimen, which is then deleted
 
 A sheet that holds a field keeps the field and its primary control fully
 visible above the on-screen keyboard, in iOS Safari and Android Chrome and
-when installed to the home screen. This is checked on a real phone before
+when installed to the home screen. On a phone the sheet is placed in the
+visual viewport, the part of the screen the keyboard leaves, since iOS Safari
+scrolls the page under the keyboard instead of resizing it. This is checked on a real phone before
 flow 2 is called done.
 
 ### Where things go on a page
@@ -757,7 +760,8 @@ the thing and the number. Two verb buttons, the safe one first and focused:
 
 **Editable text** (`EditableText`). Editing in place: a value shown on a
 page is edited where it is shown: plain text at rest, `hover` fill on hover,
-a focused field on tap. Enter or leaving saves, Escape cancels. No Save
+a focused field on tap, its border drawn around the text where it rests so
+nothing on the page moves. Enter or leaving saves, Escape cancels. No Save
 button. An empty optional value shows as a `muted` invitation ("Add a
 summary") only on the thing's own page. A date is edited in the date field
 and reads at rest in the owner's own date style ("1 Mar 2027"). For
@@ -976,7 +980,10 @@ same invitation when empty, and tapping it opens the sheet.
 The name in bold `text-small` above the value, `space-xs` apart, with
 `space-sm` above and below; the value as editable text or one control. An
 editable text value takes its line height; a button or switch keeps
-`touch-min`. Full width, hairline below.
+`touch-min`. Full width, hairline below. In an item's Details, a long list
+of short values, the name sits beside the value instead: a 7.5rem `muted`
+column, `space-md` from the value, on the value's first line, and an empty
+value's invitation in `text-small`.
 
 **List section.** A `text-heading` noun ("Items"), its count in
 `text-small`, at most one subtle action, over a 1px `ink` rule. `space-xl`

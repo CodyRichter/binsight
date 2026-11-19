@@ -26,12 +26,12 @@ function DetailRow({ item, detail }: { item: Item; detail: DetailField }) {
     if (changes) change(changes, `Changed ${detail.name.toLowerCase()}`);
   };
   return (
-    <ValueRow name={detail.name}>
+    <ValueRow beside name={detail.name}>
       <EditableText
         value={typedValue(item, detail)}
         display={shownValue(item, detail)}
         label={detail.name}
-        invitation={detail.invitation}
+        invitation="Add"
         onSave={save}
         {...inputKinds[detail.kind]}
       />
@@ -51,15 +51,15 @@ export function ItemDetails({ item }: { item: Item }) {
   return (
     <>
       <ListSection title="Details">
-        <ValueRow name="Category">
+        <ValueRow beside name="Category">
           <ChosenValue
             value={item.category}
             label="Category"
-            invitation="Add a category"
+            invitation="Add"
             onChoose={() => setPicking("category")}
           />
         </ValueRow>
-        <ValueRow name="Tags">
+        <ValueRow beside name="Tags">
           <TagList
             tags={item.tags}
             tagHref={(tag) => `/search?q=${encodeURIComponent(tag)}`}

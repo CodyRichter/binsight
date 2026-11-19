@@ -16,23 +16,18 @@ export function ValuesSpecimen() {
   return (
     <Specimen title="Value rows" fullWidth gap={0}>
       <ListSection title="Details">
-        <ValueRow name="Category">
+        <ValueRow beside name="Category">
           <ChosenValue
             value="Cables"
             label="Category"
-            invitation="Add a category"
+            invitation="Add"
             onChoose={() => undefined}
           />
         </ValueRow>
-        <ValueRow name="Serial number">
-          <EditableText
-            value={serial}
-            label="Serial number"
-            invitation="Add a serial number"
-            onSave={setSerial}
-          />
+        <ValueRow beside name="Serial number">
+          <EditableText value={serial} label="Serial number" invitation="Add" onSave={setSerial} />
         </ValueRow>
-        <ValueRow name="Warranty ends">
+        <ValueRow beside name="Warranty ends">
           <EditableText
             value={warranty}
             display={new Date(`${warranty}T00:00`).toLocaleDateString(undefined, {
@@ -40,21 +35,15 @@ export function ValuesSpecimen() {
             })}
             type="date"
             label="Warranty ends"
-            invitation="Add a warranty end"
+            invitation="Add"
             onSave={setWarranty}
           />
         </ValueRow>
-        <ValueRow name="Quantity">
+        <ValueRow beside name="Quantity">
           <QuantityStepper value={quantity} onChange={setQuantity} />
         </ValueRow>
-        <ValueRow name="Notes">
-          <EditableText
-            value={notes}
-            label="Notes"
-            invitation="Add notes"
-            multiline
-            onSave={setNotes}
-          />
+        <ValueRow beside name="Notes">
+          <EditableText value={notes} label="Notes" invitation="Add" multiline onSave={setNotes} />
         </ValueRow>
       </ListSection>
       <ListSection title="Backups">

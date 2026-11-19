@@ -75,12 +75,12 @@ test("a category picked once is listed first the next time", async ({ page }) =>
   const { firstId, secondId } = await twoItemsInABin(page);
   const category = uniqueName("Camping");
   await openAtPhoneWidth(page, `/items/${firstId}`);
-  await page.getByRole("button", { name: "Category: Add a category" }).click();
+  await page.getByRole("button", { name: "Category: Add" }).click();
   const sheet = page.getByRole("dialog", { name: "Category" });
   await sheet.getByRole("textbox", { name: "Category" }).fill(category);
   await sheet.getByRole("button", { name: `Make "${category}"` }).click();
   await expect(page.getByRole("status")).toContainText(`Category set to ${category}`);
   await page.goto(`/items/${secondId}`);
-  await page.getByRole("button", { name: "Category: Add a category" }).click();
+  await page.getByRole("button", { name: "Category: Add" }).click();
   await expect(sheet.getByRole("listitem").first()).toContainText(category);
 });

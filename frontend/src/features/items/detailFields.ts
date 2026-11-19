@@ -16,31 +16,28 @@ type TypedField =
 export interface DetailField {
   field: TypedField;
   name: string;
-  invitation: string;
   kind: "text" | "multiline" | "url" | "date" | "price";
 }
 
 /** The typed details on an item's page, in the order the Details section lists them. */
 export const detailFields: DetailField[] = [
-  { field: "notes", name: "Notes", invitation: "Add notes", kind: "multiline" },
-  { field: "brand", name: "Brand", invitation: "Add a brand", kind: "text" },
-  { field: "model", name: "Model", invitation: "Add a model", kind: "text" },
+  { field: "notes", name: "Notes", kind: "multiline" },
+  { field: "brand", name: "Brand", kind: "text" },
+  { field: "model", name: "Model", kind: "text" },
   {
     field: "serial_number",
     name: "Serial number",
-    invitation: "Add a serial number",
     kind: "text",
   },
   {
     field: "purchase_date",
     name: "Purchase date",
-    invitation: "Add a purchase date",
     kind: "date",
   },
-  { field: "price_cents", name: "Price", invitation: "Add a price", kind: "price" },
-  { field: "order_link", name: "Order link", invitation: "Add an order link", kind: "url" },
-  { field: "warranty_ends", name: "Warranty ends", invitation: "Add a warranty end", kind: "date" },
-  { field: "return_ends", name: "Return by", invitation: "Add a return date", kind: "date" },
+  { field: "price_cents", name: "Price", kind: "price" },
+  { field: "order_link", name: "Order link", kind: "url" },
+  { field: "warranty_ends", name: "Warranty ends", kind: "date" },
+  { field: "return_ends", name: "Return by", kind: "date" },
 ];
 
 /** The detail as it is typed in its field. */
