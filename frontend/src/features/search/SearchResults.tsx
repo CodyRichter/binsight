@@ -6,6 +6,7 @@ import { ListSection } from "@/components/ListSection";
 import { PageHeader } from "@/components/PageHeader";
 import { PageLead } from "@/components/PageLead";
 import { PageState, type PageStatus } from "@/components/PageState";
+import { useItemSelection } from "@/features/items";
 import { AddSheet } from "@/features/locations";
 import { pageStatusOf } from "@/lib/api/pageStatus";
 import { FilterChips } from "./FilterChips";
@@ -46,6 +47,7 @@ export function SearchResults({ action }: SearchResultsProps) {
   const navigate = useNavigate();
   const results = useSearchResults(search);
   const [adding, setAdding] = useState(false);
+  const selection = useItemSelection(addressOf(search));
   const pages = results.data?.pages ?? [];
   const found = pages.flatMap((page) => page.results);
   const searching = search.query !== "" || hasFilters(search);
@@ -57,7 +59,7 @@ export function SearchResults({ action }: SearchResultsProps) {
     />
   );
   return (
-    <AppFrame>
+    <AppFrame selectionBar={selection.bar}>
       <PageLead
         header={header}
         filters={
@@ -74,7 +76,7 @@ export function SearchResults({ action }: SearchResultsProps) {
       >
         <ListSection>
           {found.map((result) => (
-            <SearchResult key={resultKey(result)} result={result} />
+            <SearchResult key={resultKey(result)} result={result} selection={selection} />
           ))}
         </ListSection>
         {results.hasNextPage && (

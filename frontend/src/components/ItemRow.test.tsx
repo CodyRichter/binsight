@@ -1,4 +1,5 @@
 import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { ComponentProps } from "react";
 import { expect, test, vi } from "vitest";
 import { renderWithTheme } from "@/lib/testing/renderWithTheme";
@@ -99,4 +100,18 @@ test("a linked item's row removes the link, named for the item", () => {
   renderRow({ onRemoveLink });
   screen.getByRole("button", { name: "Remove link to AA batteries" }).click();
   expect(onRemoveLink).toHaveBeenCalled();
+});
+
+test("a selectable row keeps its link, and its box selects it", async () => {
+  const onChange = vi.fn();
+  renderRow({ select: { selected: false, onChange } });
+  expect(screen.getByRole("link", { name: "AA batteries" })).toBeInTheDocument();
+  await userEvent.click(screen.getByRole("checkbox", { name: "Select AA batteries" }));
+  expect(onChange).toHaveBeenCalledWith(true);
+});
+
+test("a selected row is highlighted", () => {
+  renderRow({ select: { selected: true, onChange: vi.fn() } });
+  expect(screen.getByRole("checkbox", { name: "Select AA batteries" })).toBeChecked();
+  expect(screen.getByRole("listitem")).toHaveAttribute("data-selected", "true");
 });

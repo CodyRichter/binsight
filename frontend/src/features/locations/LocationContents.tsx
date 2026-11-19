@@ -6,7 +6,13 @@ import { EmptyState } from "@/components/EmptyState";
 import { PageLead } from "@/components/PageLead";
 import { PageState } from "@/components/PageState";
 import { CheckMode } from "@/features/checks";
-import { ItemAdder, ItemsSection, useLocationItems } from "@/features/items";
+import {
+  ItemAdder,
+  ItemsSection,
+  useItemSelection,
+  useLocationItems,
+  type ItemSelection,
+} from "@/features/items";
 import { pageStatusOf } from "@/lib/api/pageStatus";
 import { AddLocationSheet } from "./AddLocationSheet";
 import { ChildLocations } from "./ChildLocations";
@@ -26,9 +32,10 @@ interface LocationBodyProps {
   location: Location;
   locations: Location[];
   onCheckMode: () => void;
+  selection: ItemSelection;
 }
 
-function LocationBody({ location, locations, onCheckMode }: LocationBodyProps) {
+function LocationBody({ location, locations, onCheckMode, selection }: LocationBodyProps) {
   const [scope, setScope] = useState("here");
   const [addingLocation, setAddingLocation] = useState(false);
   const everythingInside = scope === "inside";
@@ -64,7 +71,9 @@ function LocationBody({ location, locations, onCheckMode }: LocationBodyProps) {
       )}
       <PageState status={pageStatusOf(items)} onRetry={() => void items.refetch()}>
         {empty && <EmptyState statement={`This ${location.type} is empty`} />}
-        {items.data && <ItemsSection items={items.data} showPath={everythingInside} />}
+        {items.data && (
+          <ItemsSection items={items.data} showPath={everythingInside} select={selection.select} />
+        )}
       </PageState>
       <AddLocationSheet
         opened={addingLocation}
@@ -82,6 +91,7 @@ export function LocationView({ id }: { id: string }) {
   const tree = useLocationTree();
   const refreshTree = useRefreshLocationTree();
   const [checking, setChecking] = useState(false);
+  const selection = useItemSelection(id, id);
   const location = tree.data?.find((candidate) => candidate.id === id);
   if (tree.data && !location) return <DeletedLocation id={id} />;
   if (checking && location) {
@@ -90,7 +100,12 @@ export function LocationView({ id }: { id: string }) {
     );
   }
   return (
-    <AppFrame current="home" parent={parentPage(location)} addTo={location?.id}>
+    <AppFrame
+      current="home"
+      parent={parentPage(location)}
+      addTo={location?.id}
+      selectionBar={selection.bar}
+    >
       <PageState status={pageStatusOf(tree)} standalone onRetry={() => void tree.refetch()}>
         {location && tree.data && (
           <LocationBody
@@ -98,6 +113,7 @@ export function LocationView({ id }: { id: string }) {
             location={location}
             locations={tree.data}
             onCheckMode={() => setChecking(true)}
+            selection={selection}
           />
         )}
       </PageState>

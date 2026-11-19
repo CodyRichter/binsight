@@ -1,4 +1,3 @@
-import { Button } from "@mantine/core";
 import { useState } from "react";
 import { ItemRow } from "@/components/ItemRow";
 import { ListSection } from "@/components/ListSection";
@@ -8,32 +7,19 @@ const checking = ["Cat6 patch cable, 2 m", "DisplayPort cable", "USB-C to HDMI a
 
 export function ItemListDemo() {
   const [batteries, setBatteries] = useState(12);
-  const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [ticked, setTicked] = useState<string[]>(["DisplayPort cable"]);
   const toggle = (list: string[], name: string, on: boolean) =>
     on ? [...list, name] : list.filter((other) => other !== name);
-  const selection = (name: string) =>
-    selecting
-      ? {
-          selected: selected.includes(name),
-          check: {
-            checked: selected.includes(name),
-            onChange: (on: boolean) => setSelected(toggle(selected, name, on)),
-          },
-        }
-      : {};
+  const selection = (name: string) => ({
+    select: {
+      selected: selected.includes(name),
+      onChange: (on: boolean) => setSelected(toggle(selected, name, on)),
+    },
+  });
   return (
     <>
-      <ListSection
-        title="Items"
-        count={4}
-        action={
-          <Button variant="subtle" onClick={() => setSelecting(!selecting)}>
-            {selecting ? "Done" : "Select"}
-          </Button>
-        }
-      >
+      <ListSection title="Items" count={4}>
         <ItemRow
           {...selection("USB-C to HDMI adapter")}
           name="USB-C to HDMI adapter"

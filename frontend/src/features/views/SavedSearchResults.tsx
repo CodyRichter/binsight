@@ -3,6 +3,7 @@ import { AppFrame } from "@/components/AppFrame";
 import { ListSection } from "@/components/ListSection";
 import { PageLead } from "@/components/PageLead";
 import { PageState } from "@/components/PageState";
+import { useItemSelection } from "@/features/items";
 import { SearchResult } from "@/features/search";
 import { pageStatusOf } from "@/lib/api/pageStatus";
 import { SavedSearchHeader } from "./SavedSearchHeader";
@@ -14,8 +15,14 @@ export function SavedSearchResults({ id }: { id: string }) {
   const rows = useSavedSearchRows(id);
   const found = rows.data?.pages.flatMap((page) => page.results) ?? [];
   const status = pageStatusOf(rows);
+  const selection = useItemSelection(id);
   return (
-    <AppFrame current="views" currentView={`/views/${id}`} parent="/views">
+    <AppFrame
+      current="views"
+      currentView={`/views/${id}`}
+      parent="/views"
+      selectionBar={selection.bar}
+    >
       <PageState status={pageStatusOf(saved)} onRetry={() => void saved.refetch()}>
         {saved.data && <PageLead header={<SavedSearchHeader saved={saved.data} />} />}
         <PageState
@@ -28,6 +35,7 @@ export function SavedSearchResults({ id }: { id: string }) {
               <SearchResult
                 key={result.kind === "item" ? result.item.id : result.location.id}
                 result={result}
+                selection={selection}
               />
             ))}
           </ListSection>

@@ -7,6 +7,8 @@ from app import models
 from app.core.errors import AppError
 from app.core.pagination import Page, counted_page, decode_offset
 from app.features.history import service as history
+from app.features.items.bulk import changing_items, recorded
+from app.features.items.bulk_schemas import ItemsChanged, ItemsStatus
 from app.features.items.records import live_item
 from app.features.items.schemas import (
     Item,
@@ -77,6 +79,33 @@ def change_item_status(
     recorded = _status_change(item, status, now)
     entry_id = history.record(session, actor, "item.status_changed", [recorded], now)
     return ItemStatusChanged(**shaped(session, item).model_dump(), history_entry_id=entry_id)
+
+
+def _restatusing(session: Session, change: ItemsStatus) -> list[models.Item]:
+    status = ItemStatus(change.status)
+    items = changing_items(
+        session,
+        change.item_ids,
+        lambda item: item.status != status,
+        AppError(409, "status_unchanged", "Those items already have that status."),
+    )
+    if status == ItemStatus.in_place and any(i.status == ItemStatus.missing for i in items):
+        raise AppError(409, "use_mark_found", "Mark a missing item found, saying where it is.")
+    return items
+
+
+def preview_change_items_status(session: Session, change: ItemsStatus) -> list[Item]:
+    """The items whose status would change, refused as changing it would be."""
+    return [shaped(session, item) for item in _restatusing(session, change)]
+
+
+def change_items_status(
+    session: Session, change: ItemsStatus, actor: Actor, now: datetime
+) -> ItemsChanged:
+    """Give many items one status, as one change to undo; lending and missing have their own."""
+    status = ItemStatus(change.status)
+    changes = [(item, _status_change(item, status, now)) for item in _restatusing(session, change)]
+    return recorded(session, "item.status_changed", changes, actor, now)
 
 
 def lend_item(

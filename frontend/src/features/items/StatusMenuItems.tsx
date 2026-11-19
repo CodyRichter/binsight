@@ -1,13 +1,8 @@
 import { Menu } from "@mantine/core";
-import { IconCash, IconGift, IconHandGrab, IconTrashX, IconUserShare } from "@tabler/icons-react";
-import { isArchived, useStatusChange, type SettableStatus } from "./useStatusChange";
+import { IconHandGrab, IconUserShare } from "@tabler/icons-react";
+import { retiring } from "./statusChoices";
+import { isArchived, useStatusChange } from "./useStatusChange";
 import type { Item } from "./useItems";
-
-const retiring: { status: SettableStatus; words: string; Icon: typeof IconCash }[] = [
-  { status: "sold", words: "Sold", Icon: IconCash },
-  { status: "given_away", words: "Given away", Icon: IconGift },
-  { status: "thrown_away", words: "Thrown away", Icon: IconTrashX },
-];
 
 interface StatusMenuItemsProps {
   item: Item;

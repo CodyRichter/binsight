@@ -48,6 +48,8 @@ before naming it in code.
 | **Category**      | The one kind of thing an item is, e.g. cable, tool.        |
 | **Tag**           | A keyword on an item. An item can have many.               |
 | **Link**          | A relationship between two items: `belongs_with` or `part_of`. |
+| **Selection**     | The items ticked in one list, for a bulk edit.             |
+| **Bulk edit**     | Moving, tagging, recategorizing or changing the status of a selection in one change. |
 | **Attachment**    | A photo, file or web link stored against an item or location. |
 | **Photo**         | An attachment that is an image shown as the item's or location's picture. |
 | **File**          | An attachment that is a PDF or image kept as it was sent, such as a receipt or a manual. |

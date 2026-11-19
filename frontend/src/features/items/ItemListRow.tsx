@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ItemRow } from "@/components/ItemRow";
 import type { Mark } from "@/components/markedText";
 import { pathSegments } from "./pathSegments";
+import type { RowSelect } from "./useItemSelection";
 import { useQuantity } from "./useQuantity";
 import type { Item } from "./useItems";
 
@@ -12,6 +13,7 @@ interface ItemListRowProps {
   /** Since when it has had its status, as a view of lent or archived items shows. */
   since?: string;
   onMove?: () => void;
+  select?: RowSelect;
 }
 
 function lastChecked(item: Item): Date | null {
@@ -25,7 +27,8 @@ interface Shown {
 }
 
 /** An item in a list, with its quantity changed on screen at once wherever the list came from. */
-export function ItemListRow({ item, showPath, marks, since, onMove }: ItemListRowProps) {
+export function ItemListRow(props: ItemListRowProps) {
+  const { item, showPath, marks, since, onMove, select } = props;
   const [shown, setShown] = useState<Shown>();
   const changeQuantity = useQuantity(item, (quantity) =>
     setShown({ from: item.quantity, quantity }),
@@ -45,6 +48,7 @@ export function ItemListRow({ item, showPath, marks, since, onMove }: ItemListRo
       onQuantityChange={changeQuantity}
       marks={marks}
       onMove={onMove}
+      select={select}
     />
   );
 }

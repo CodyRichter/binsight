@@ -3,14 +3,16 @@ import { FrameAdditionsContext } from "@/components/frameAdditions";
 import { ListSection } from "@/components/ListSection";
 import { ItemListRow } from "./ItemListRow";
 import { useMoveItem } from "./useMoveItem";
+import type { RowSelect } from "./useItemSelection";
 import type { Item } from "./useItems";
 
 interface ItemsSectionProps {
   items: Item[];
   showPath: boolean;
+  select?: (item: Item) => RowSelect;
 }
 
-export function ItemsSection({ items, showPath }: ItemsSectionProps) {
+export function ItemsSection({ items, showPath, select }: ItemsSectionProps) {
   const { MoveSheet } = useContext(FrameAdditionsContext);
   const [moving, setMoving] = useState<Item>();
   const move = useMoveItem();
@@ -26,6 +28,7 @@ export function ItemsSection({ items, showPath }: ItemsSectionProps) {
             item={item}
             showPath={showPath}
             onMove={movable ? () => setMoving(item) : undefined}
+            select={select?.(item)}
           />
         ))}
       </ListSection>

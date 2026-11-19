@@ -30,6 +30,8 @@ type ItemRowProps = {
   marks?: Mark[];
   selected?: boolean;
   check?: { checked: boolean; onChange: (checked: boolean) => void };
+  /** For bulk edit: a box on the thumbnail's corner, the thumbnail its target, selects the row. */
+  select?: { selected: boolean; onChange: (selected: boolean) => void };
 } & (
   | { to: string; onPick?: never }
   // In a sheet the row picks the item instead of opening it.
@@ -104,25 +106,43 @@ function rowControls(props: ItemRowProps): ReactNode {
   );
 }
 
+function leading(props: ItemRowProps, checkId: string): ReactNode {
+  const { check, select, photoUrl, name } = props;
+  if (check) {
+    return (
+      <Checkbox
+        id={checkId}
+        className={classes.check}
+        checked={check.checked}
+        onChange={(event) => check.onChange(event.currentTarget.checked)}
+      />
+    );
+  }
+  if (!select) return <Thumbnail photoUrl={photoUrl} />;
+  // The whole thumbnail is the box's target, so the box can be a small badge on its corner.
+  return (
+    <label className={classes.pick} data-selected={select.selected || undefined}>
+      <Thumbnail photoUrl={photoUrl} />
+      <Checkbox
+        className={classes.pickBox}
+        size="sm"
+        aria-label={`Select ${name ?? "Unnamed"}`}
+        checked={select.selected}
+        onChange={(event) => select.onChange(event.currentTarget.checked)}
+      />
+    </label>
+  );
+}
+
 export function ItemRow(props: ItemRowProps) {
-  const { photoUrl, check } = props;
   const checkId = useId();
   return (
     <li
       className={classes.row}
-      data-selected={props.selected || undefined}
+      data-selected={props.selected || props.select?.selected || undefined}
       data-movable={props.onMove || props.onRemoveLink ? true : undefined}
     >
-      {check ? (
-        <Checkbox
-          id={checkId}
-          className={classes.check}
-          checked={check.checked}
-          onChange={(event) => check.onChange(event.currentTarget.checked)}
-        />
-      ) : (
-        <Thumbnail photoUrl={photoUrl} />
-      )}
+      {leading(props, checkId)}
       <div className={classes.main}>
         {rowName(props, checkId)}
         {metaLine(props)}

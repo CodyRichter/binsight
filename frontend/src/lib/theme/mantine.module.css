@@ -93,6 +93,28 @@ textarea.input {
   background: var(--bs-accent);
 }
 
+.checkboxInput {
+  cursor: pointer;
+  transition:
+    background-color 120ms,
+    border-color 120ms;
+}
+
+.checkboxInput:hover:not(:checked) {
+  border-color: var(--bs-ink);
+}
+
+.checkboxInput:focus-visible {
+  outline: 2px solid var(--bs-focus);
+  outline-offset: 2px;
+}
+
+/* The tick fades in rather than Mantine's slide, as every state change does. */
+.checkboxIcon {
+  transform: none;
+  transition: opacity 120ms;
+}
+
 .switchInput:focus-visible + .switchTrack,
 .chipInput:focus-visible + .chip {
   outline: 2px solid var(--bs-focus);
