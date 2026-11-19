@@ -170,7 +170,7 @@ the authority; this table says where to look.
 | Design color tokens and type styles match the document; CSS only in `src/components/` and `src/lib/theme/`, with no hex colors | `scripts/check_repo.py` |
 | Frontend formatting                         | Prettier                  |
 | Every route has an MCP tool of the same name, and every tool a route | `backend/tests/mcp/test_parity.py` |
-| Formatting on edit; no finishing while checks fail; no reading `.env` or the data directory | `.claude/settings.json` |
+| Formatting on edit; no finishing while checks fail; no reading `.env` or the data directory | `.claude/settings.json`, `.agents/hooks.json` |
 | The container builds and starts from an empty data directory and a copy of a used one | `scripts/check_container.sh` |
 | The browser tests pass against the built container image | `npm run e2e:container` in `frontend/` |
 | Everything above, on every pull request     | `.github/workflows/ci.yml` |
