@@ -22,13 +22,6 @@
   min-width: 0;
 }
 
-/* The box sits at the gutter; the slot is a thumbnail's width so names line up. */
-.check {
-  display: flex;
-  flex: none;
-  width: var(--bs-touch-min);
-}
-
 .pick {
   position: relative;
   z-index: 1;

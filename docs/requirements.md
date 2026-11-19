@@ -29,8 +29,6 @@ PRINCIPLES
   longer than making it, the data goes stale.
 - Rough and right beats detailed and wrong. A bin with one photo and a
   one-line summary is a valid, complete record.
-- The app is honest about what it knows: it shows when a bin was last
-  checked rather than pretending everything is current.
 - Every item shows where it lives as a full path, e.g.
   Garage > Shelf 2 > Bin B-014.
 - You own the data: self-hosted, full export, nothing hidden in proprietary
@@ -89,8 +87,8 @@ LABELS AND QR CODES
   to print on any ordinary printer. The app does no print layout itself.
 - Generate a batch of blank labels ahead of time, stick them on bins, and
   claim each one the first time you scan it.
-- The page after a scan shows contents, quick add, quick remove, "move this
-  bin" and "contents checked" (see KEEPING IT TRUE).
+- The page after a scan shows contents, quick add, quick remove and "move
+  this bin".
 - Scan-to-move from inside the app: pick an item or scan a bin, then scan
   the destination.
 - Download a label's image again at any time to replace a damaged one. The
@@ -149,17 +147,9 @@ ADDING AND UPDATING QUICKLY
 KEEPING IT TRUE
 ---------------
 The features that stop the data going stale.
-- Every bin shows when its contents were last checked.
-- "Contents checked" on a bin page: one tap to confirm the list is right.
-- Check mode: open a bin and tick through its list. Anything unticked is
-  offered as missing or moved; anything extra is quick-added.
-- A "not checked in a long time" view, oldest first, so tidying up has an
-  obvious starting point.
-- Search results and MCP answers show how recently the item's bin was
-  checked, so old information is recognizably old.
 - "It's not there": from any item, one tap marks it missing. Finding it
   later asks where it is now.
-- No scheduled audits, streaks or nagging. Freshness is shown, not enforced.
+- No scheduled audits, streaks or nagging.
 
 
 SEARCH
@@ -190,7 +180,6 @@ VIEWS ACROSS THE WHOLE HOME
     - Inbox / no location
     - Recently added
     - Recently moved
-    - Not checked in a long time
     - Possible duplicates
 - Counts on every view, at a glance.
 
@@ -211,13 +200,12 @@ Claude should be able to do everything you can do, through tools:
 - Find: search, "where is X," list a location's contents, run a view.
 - Add: add an item, add several items, create a location or bin.
 - Change: edit an item, move an item, move a bin, change quantity, change
-  status, lend, return, mark a bin checked.
+  status, lend, return.
 - Organize: tag, recategorize, link items, merge duplicates.
 - Attach: attach a file or link to an item.
 
 Also:
-- Answers include the full location path, the label code or link, and when
-  the bin was last checked.
+- Answers include the full location path and the label code or link.
 - Destructive or bulk actions (delete, merge, many items at once) need
   confirmation.
 - MCP access has its own credential that can be revoked without affecting
@@ -293,6 +281,8 @@ Things Binsight deliberately does not do.
 - Per-item labels and asset tags.
 - Lending management: due dates, overdue tracking, borrower pages.
 - Gamification, streaks, audit schedules or completeness scores.
+- Confirming a location's contents: "contents checked", check mode and
+  last-checked dates. Nobody does it unprompted (decision 0020).
 - Importers for other inventory apps. CSV is the one import path.
 
 

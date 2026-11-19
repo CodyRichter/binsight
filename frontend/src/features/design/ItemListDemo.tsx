@@ -3,12 +3,9 @@ import { ItemRow } from "@/components/ItemRow";
 import { ListSection } from "@/components/ListSection";
 import { binPath, samplePhoto } from "./samples";
 
-const checking = ["Cat6 patch cable, 2 m", "DisplayPort cable", "USB-C to HDMI adapter"];
-
 export function ItemListDemo() {
   const [batteries, setBatteries] = useState(12);
   const [selected, setSelected] = useState<string[]>([]);
-  const [ticked, setTicked] = useState<string[]>(["DisplayPort cable"]);
   const toggle = (list: string[], name: string, on: boolean) =>
     on ? [...list, name] : list.filter((other) => other !== name);
   const selection = (name: string) => ({
@@ -67,19 +64,6 @@ export function ItemListDemo() {
           status="sold"
           onRemoveLink={() => undefined}
         />
-      </ListSection>
-      <ListSection title="Check mode" count={checking.length}>
-        {checking.map((name) => (
-          <ItemRow
-            key={name}
-            name={name}
-            to="/design"
-            check={{
-              checked: ticked.includes(name),
-              onChange: (on) => setTicked(toggle(ticked, name, on)),
-            }}
-          />
-        ))}
       </ListSection>
     </>
   );

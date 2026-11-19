@@ -47,7 +47,6 @@ class Location(BaseModel):
     path: list[PathStep]
     direct_item_count: int
     item_count: int
-    last_checked_at: datetime | None
     photo_url: str | None
     deleted_at: datetime | None
 

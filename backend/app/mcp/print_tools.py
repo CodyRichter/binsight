@@ -28,7 +28,7 @@ GET_CONTENTS_SHEET = """Show what is in a location as its printable contents she
 location each thing is kept in.
 
 location_id is a location's identifier or a label code such as B-014. Returns the location
-(path, label code, summary, last checked) and groups: the location itself first, then
+(path, label code, summary) and groups: the location itself first, then
 every location inside it, parents before children, each with its path, label_code and
 items (name, quantity, status). Sold, given away, thrown away and deleted items are left
 out. The owner prints the sheet from the location's page in the app."""

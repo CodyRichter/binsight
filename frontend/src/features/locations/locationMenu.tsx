@@ -1,7 +1,6 @@
 import { Menu } from "@mantine/core";
 import {
   IconArrowMerge,
-  IconChecklist,
   IconDownload,
   IconFileText,
   IconIcons,
@@ -20,7 +19,6 @@ export interface LocationMenuProps {
   location: Location;
   /** Adding a location inside, when the page has no Locations section to hold that action. */
   onAddLocation?: () => void;
-  onCheckMode: () => void;
 }
 
 export interface RemovalChoices {
@@ -110,9 +108,6 @@ export function moreMenu(
         leftSection={<IconShieldCheck aria-hidden size={20} />}
       >
         Insurance list
-      </Menu.Item>
-      <Menu.Item leftSection={<IconChecklist aria-hidden size={20} />} onClick={props.onCheckMode}>
-        Check mode
       </Menu.Item>
       {lookItems(props, look)}
       {removalItems(removal)}

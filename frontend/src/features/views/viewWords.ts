@@ -1,7 +1,6 @@
 import {
   IconArchive,
   IconArrowsMove,
-  IconClock,
   IconCopy,
   IconReceiptRefund,
   IconShieldCheck,
@@ -19,7 +18,6 @@ export const viewIcons: Record<ViewName, Icon> = {
   "return-closing": IconReceiptRefund,
   "recently-added": IconSquarePlus,
   "recently-moved": IconArrowsMove,
-  "not-checked": IconClock,
   "possible-duplicates": IconCopy,
   archive: IconArchive,
 };
@@ -31,7 +29,6 @@ export const viewEmptyStatements: Record<ViewName, string> = {
   "return-closing": "No return windows close in the next 30 days",
   "recently-added": "Nothing added in the last 30 days",
   "recently-moved": "Nothing moved in the last 30 days",
-  "not-checked": "Everything was checked in the last year",
   "possible-duplicates": "No possible duplicates",
   archive: "The archive is empty",
 };

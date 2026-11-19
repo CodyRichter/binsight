@@ -1,16 +1,9 @@
 import { Button, Menu } from "@mantine/core";
-import {
-  IconArrowsMove,
-  IconCheck,
-  IconChecklist,
-  IconQrcode,
-  IconTrash,
-  IconZoomQuestion,
-} from "@tabler/icons-react";
+import { IconArrowsMove, IconQrcode, IconTrash, IconZoomQuestion } from "@tabler/icons-react";
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { showToast } from "@/lib/toast";
-import { binPath, daysAgo, samplePhoto, shelfPath } from "./samples";
+import { binPath, samplePhoto, shelfPath } from "./samples";
 import { Specimen } from "./Specimen";
 
 export function HeaderSpecimen() {
@@ -24,23 +17,20 @@ export function HeaderSpecimen() {
         parents={shelfPath}
         code="B-014"
         summary={{ value: summary, onSave: setSummary }}
-        lastChecked={daysAgo(21)}
         counts={["6 items"]}
         actions={
           <>
             <Button
-              leftSection={<IconCheck aria-hidden />}
-              onClick={() => showToast({ message: "Contents checked", onUndo: () => undefined })}
+              leftSection={<IconArrowsMove aria-hidden />}
+              onClick={() => showToast({ message: "Moved to Garage", onUndo: () => undefined })}
             >
-              Contents checked
+              Move
             </Button>
-            <Button leftSection={<IconArrowsMove aria-hidden />}>Move</Button>
           </>
         }
         menu={
           <>
             <Menu.Item leftSection={<IconQrcode aria-hidden size={20} />}>Download label</Menu.Item>
-            <Menu.Item leftSection={<IconChecklist aria-hidden size={20} />}>Check mode</Menu.Item>
             <Menu.Divider />
             <Menu.Item color="danger" leftSection={<IconTrash aria-hidden size={20} />}>
               Delete location

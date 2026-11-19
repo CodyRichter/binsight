@@ -41,7 +41,6 @@ def test_creating_an_item_answers_with_it_and_its_history_entry(signed_in: TestC
         "lent_to": None,
         "lent_at": None,
         "retired_at": None,
-        "last_checked_at": None,
         "photo_url": None,
         "created_at": body["created_at"],
         "deleted_at": None,

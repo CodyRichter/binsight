@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from app.models import Actor
 
-RecordType = Literal["attachment", "check", "item", "label", "link", "location", "saved_search"]
+RecordType = Literal["attachment", "item", "label", "link", "location", "saved_search"]
 
 
 class HistoryChange(BaseModel):

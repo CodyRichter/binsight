@@ -9,7 +9,7 @@ def test_claude_runs_a_view(claude: Claude, home: AcceptanceHome) -> None:
     views = {each["view"]: each["count"] for each in claude.call("list_views")["items"]}
     assert views["lent-out"] == 1
     rows = claude.call("list_view_rows", view="lent-out")["items"]
-    assert [(row["kind"], row["item"]["lent_to"]) for row in rows] == [("item", "Sam")]
+    assert [row["lent_to"] for row in rows] == ["Sam"]
 
 
 @pytest.mark.usefixtures("home")

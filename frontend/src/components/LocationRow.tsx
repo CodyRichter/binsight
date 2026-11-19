@@ -2,7 +2,6 @@ import { ActionIcon } from "@mantine/core";
 import { IconChevronDown, IconChevronRight, IconPlus } from "@tabler/icons-react";
 import type { CSSProperties, ReactNode } from "react";
 import { Link } from "react-router";
-import { CheckedStamp } from "./CheckedStamp";
 import { CodeChip } from "./CodeChip";
 import { markedText, type Mark } from "./markedText";
 import { LocationIcon } from "./LocationIcon";
@@ -19,8 +18,6 @@ type LocationRowProps = {
   itemCount: number;
   /** The parts of the name a search matched. */
   marks?: Mark[];
-  /** When its contents were last checked; shown only once stale, as in a view's rows. */
-  lastChecked?: Date | null;
   onAddInside?: () => void;
   /** Given inside a SortableList, so the row can be dragged by its handle. */
   sortable?: SortableRowParts;
@@ -95,9 +92,6 @@ export function LocationRow(props: LocationRowProps) {
       />
       {nameControl(props, shownName)}
       {code && <CodeChip code={code} />}
-      {props.lastChecked !== undefined && (
-        <CheckedStamp lastChecked={props.lastChecked} onlyStale />
-      )}
       <span className={classes.count}>{itemCount}</span>
       {endControls(props)}
     </li>

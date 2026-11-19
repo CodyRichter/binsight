@@ -226,3 +226,39 @@ def test_locations_from_before_ordering_keep_their_order_among_siblings(
         ("home", 0, None),
         ("shed", 1, None),
     ]
+
+
+CHECKED_HOME = (
+    "INSERT INTO location (id, name, type, position, created_at, updated_at)"
+    " VALUES ('shed', 'Shed', 'site', 0, :at, :at)",
+    'INSERT INTO "check" (id, location_id, checked_at, actor, created_at, updated_at)'
+    " VALUES ('looked', 'shed', :at, 'app', :at, :at)",
+    "INSERT INTO history_entry (id, at, actor, action)"
+    " VALUES ('entry', :at, 'app', 'location.checked')",
+    "INSERT INTO history_change (id, entry_id, record_type, record_id, before, after)"
+    " VALUES ('one', 'entry', 'check', 'looked', NULL, '{}'),"
+    " ('two', 'entry', 'item', 'drill', '{\"status\": \"in_place\"}',"
+    ' \'{"status": "missing"}\')',
+)
+
+
+def test_checks_are_dropped_and_the_items_a_check_marked_missing_stay_recorded(
+    settings: Settings,
+) -> None:
+    settings.data_directory.mkdir()
+    engine = create_database_engine(settings.database_path)
+    config = Config()
+    config.set_main_option("script_location", str(BACKEND_DIRECTORY / "migrations"))
+    with engine.begin() as connection:
+        config.attributes["connection"] = connection
+        command.upgrade(config, "0014")
+        for statement in CHECKED_HOME:
+            connection.execute(text(statement), {"at": "2026-11-16 12:00:00"})
+    migrate_database(engine, settings)
+    with engine.connect() as connection:
+        tables = connection.execute(
+            text("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'check'")
+        ).all()
+        kept = connection.execute(text("SELECT record_type FROM history_change")).scalars().all()
+    assert tables == []
+    assert kept == ["item"]

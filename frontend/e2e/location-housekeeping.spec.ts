@@ -92,10 +92,10 @@ test("a deleted bin's label says so and restores it", async ({ page }) => {
   await openAtPhoneWidth(page, `/l/${code}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(otherName);
   await expect(page.getByText(/^Deleted/)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Contents checked" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Move", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Restore" }).click();
   await expect(page.getByRole("status").filter({ hasText: `Restored ${otherName}` })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Contents checked" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Move", exact: true })).toBeVisible();
 });
 
 test("dragging a bin above another keeps the new order", async ({ page }) => {

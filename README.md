@@ -33,15 +33,14 @@ what's inside. Search for anything and get its full location path, e.g.
 > Items move from a row or their page, and locations from their page with
 > everything inside them, by picking a place or scanning its label, each
 > with Undo; `/scan` opens a scanned label's page.
-> Items are deleted and restored from their page; a location's contents are
-> checked, from its header or in check mode, which marks what wasn't there
-> missing; and an item's page sets its category, tags and details, which
+> Items are deleted and restored from their page, and marked missing and
+> found; and an item's page sets its category, tags and details, which
 > search finds too. An item is marked in use, lent to someone and
 > returned, or sold, given away or thrown away into the archive, which
 > leaves its location's contents but stays in search; and items are linked
 > as belonging together or as parts of a whole, each with Undo. `/views`
 > lists the built-in views across the home with their counts, such as Lent
-> out, Warranty expiring soon, Not checked in a long time and the Archive;
+> out, Warranty expiring soon and the Archive;
 > search filters by location, category, tag, status and warranty; and a
 > search is saved, pinned into the navigation, renamed and deleted, each
 > with Undo, through the API and MCP as well. An item's page attaches
@@ -63,7 +62,7 @@ what's inside. Search for anything and get its full location path, e.g.
 > change with Undo; Claude asks first before changing many at once. An item's page
 > duplicates it, opening the copy, and merges it into another recorded
 > twice, each with Undo; Claude asks first before a merge. Search results
-> and check mode's rows offer Move, and the category sheet lists categories
+> offer Move, and the category sheet lists categories
 > picked recently on this device first. It installs to a phone's home
 > screen with shortcuts to Scan, Add and Search, and every page, sheet and
 > menu is checked against WCAG 2.1 AA in light and dark and used by
@@ -170,7 +169,6 @@ plan for all of them; a folder that exists must be listed here.
 | `locations`     | The nested tree of places, moving, merging, deleting        |
 | `labels`        | Label codes, QR images, blank labels and claiming them      |
 | `items`         | Items, quantity, status, "lent to", links, categories, tags, quick and batch add, bulk edit, inbox |
-| `checks`        | "Contents checked", check mode, last-checked dates          |
 | `attachments`   | Photos and files on items and locations                     |
 | `search`        | Global fuzzy search and filters                             |
 | `views`         | Built-in views and pinned saved searches                    |

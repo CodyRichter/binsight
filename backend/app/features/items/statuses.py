@@ -169,28 +169,6 @@ def mark_item_missing(
     return ItemMarkedMissing(**shaped(session, item).model_dump(), history_entry_id=entry_id)
 
 
-def _markable(session: Session, location_id: str, item_ids: list[str]) -> list[models.Item]:
-    items = [_markable_item(session, item_id) for item_id in item_ids]
-    if any(item.home_location_id != location_id for item in items):
-        raise AppError(
-            422, "not_in_location", "Only items directly in that location can be marked missing."
-        )
-    return items
-
-
-def items_to_mark_missing(session: Session, location_id: str, item_ids: list[str]) -> list[Item]:
-    """The items a check would mark missing, refused as marking them would be."""
-    return [shaped(session, item) for item in _markable(session, location_id, item_ids)]
-
-
-def mark_items_missing(
-    session: Session, location_id: str, item_ids: list[str], now: datetime
-) -> list[history.RecordChange]:
-    """Mark items in a location missing, for a change that records its own history entry."""
-    items = _markable(session, location_id, item_ids)
-    return [_status_change(item, ItemStatus.missing, now) for item in items]
-
-
 def mark_item_found(
     session: Session, item_id: str, found: ItemFound, actor: Actor, now: datetime
 ) -> ItemMarkedFound:

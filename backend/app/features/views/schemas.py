@@ -1,13 +1,12 @@
 from datetime import datetime
 from typing import Annotated, Literal, Self
 
-from pydantic import BaseModel, Field, StringConstraints, model_validator
+from pydantic import BaseModel, StringConstraints, model_validator
 
-from app.features.items.service import Item, ItemView
-from app.features.locations.service import Location
+from app.features.items.service import ItemView
 from app.features.search.service import Search
 
-ViewName = ItemView | Literal["recently-moved", "not-checked"]
+ViewName = ItemView | Literal["recently-moved"]
 
 
 class ViewSummary(BaseModel):
@@ -15,18 +14,6 @@ class ViewSummary(BaseModel):
     title: str
     count: int
 
-
-class ViewItem(BaseModel):
-    kind: Literal["item"]
-    item: Item
-
-
-class ViewLocation(BaseModel):
-    kind: Literal["location"]
-    location: Location
-
-
-ViewRow = Annotated[ViewItem | ViewLocation, Field(discriminator="kind")]
 
 SavedSearchName = Annotated[
     str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)

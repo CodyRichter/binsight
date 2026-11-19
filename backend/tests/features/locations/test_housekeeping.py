@@ -185,15 +185,12 @@ def test_a_location_inside_a_deleted_one_can_t_be_restored_first(
     assert signed_in.post(f"{LOCATIONS}/{home.tools}/restore").status_code == 200
 
 
-def test_merging_moves_items_checks_and_the_label_when_the_target_has_none(
+def test_merging_moves_items_and_the_label_when_the_target_has_none(
     signed_in: TestClient, home: AcceptanceHome
 ) -> None:
-    checked = signed_in.post(f"/api/locations/{home.cables}/check", json={"missing_item_ids": []})
-    assert checked.status_code == 200, checked.json()
     target = _add(signed_in, "Everything bin", home.shelf)
     merged = signed_in.post(f"{LOCATIONS}/{home.cables}/merge", json={"into": target}).json()
     assert (merged["id"], merged["direct_item_count"]) == (target, 2)
-    assert merged["last_checked_at"] is not None
     assert merged["label_code"] == "B-014"
     assert _location(signed_in, home.cables)["deleted_at"] is not None
     _undo(signed_in, merged)

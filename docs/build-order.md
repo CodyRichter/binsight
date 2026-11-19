@@ -175,3 +175,7 @@ together:
    0019](decisions/0019-location-icons-from-tabler.md)). The thumbnail
    shows the photo or the icon on every location page. `update_location`
    takes `type` and `icon` in the API and MCP.
+2. Remove checks: "Contents checked", check mode, last-checked dates, the
+   Not checked in a long time view and `check_location` go, and migration
+   0015 drops the stored checks ([decision 0020](decisions/0020-no-checks.md)).
+   Marking an item missing and found stays.

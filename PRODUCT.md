@@ -33,9 +33,8 @@ secondary.
 
 Built for one household and the moment at the shelf, not for collectors or
 businesses. Rough and right beats detailed and wrong: a bin with one photo
-and a one-line summary is a complete record, only a name is ever required,
-and the app shows when a bin was last checked instead of pretending to be
-current. Claude has full parity through MCP, and the owner keeps all data on
+and a one-line summary is a complete record, and only a name is ever
+required. Claude has full parity through MCP, and the owner keeps all data on
 their own hardware.
 
 ## Operating Context
@@ -81,10 +80,9 @@ their own hardware.
 1. Updating must be cheaper than not updating. Two taps for find, add, move
    and update.
 2. Only a name is required; never nag for the rest.
-3. Be honest about what is known: show last checked, never imply currency.
-4. When in doubt, leave it out. A feature must make finding or updating
+3. When in doubt, leave it out. A feature must make finding or updating
    faster.
-5. The screen is the owner's data and the controls to change it, and almost
+4. The screen is the owner's data and the controls to change it, and almost
    nothing else.
 
 ## Accessibility & Inclusion

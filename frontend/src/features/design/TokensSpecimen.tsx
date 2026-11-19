@@ -42,7 +42,7 @@ export function TokensSpecimen() {
         <Title order={2}>Items</Title>
         <Text size="md">Spare patch cables and adapters</Text>
         <Text size="sm" c="dimmed">
-          Checked 3 weeks ago
+          Added 3 weeks ago
         </Text>
         <Group gap="md">
           <CodeChip code="B-014" />

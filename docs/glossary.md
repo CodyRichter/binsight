@@ -57,14 +57,6 @@ before naming it in code.
 | **File**          | An attachment that is a PDF or image kept as it was sent, such as a receipt or a manual. |
 | **Web link**      | An attachment that is a web address, such as a manual's page; not a Link between items. |
 
-## Keeping it true
-
-| Term             | Meaning                                                     |
-| ---------------- | ----------------------------------------------------------- |
-| **Check**        | A record that someone confirmed a location's direct contents at a point in time. |
-| **Last checked** | The time of a location's most recent check.                 |
-| **Check mode**   | Ticking through a location's items one by one, producing a check. |
-
 ## Changes
 
 | Term              | Meaning                                                    |
@@ -74,7 +66,7 @@ before naming it in code.
 | **Undo**          | Reversing a history entry.                                 |
 | **Delete**        | Removing an item or location from view. Deleted things can be restored. Different from archive. |
 | **Restore**       | Bringing a deleted item or location back into view, where it was. A restored location comes back empty. |
-| **Merge**         | Folding one location into another: its items, the locations inside it, its checks and, if the other has none, its label move across, then it is deleted. Folding one item into another, when it was recorded twice: its quantity is added, its tags joined, its details fill only what the other lacks, its attachments and links move across, then it is deleted. |
+| **Merge**         | Folding one location into another: its items, the locations inside it and, if the other has none, its label move across, then it is deleted. Folding one item into another, when it was recorded twice: its quantity is added, its tags joined, its details fill only what the other lacks, its attachments and links move across, then it is deleted. |
 | **Reorder**       | Changing where a location comes among the locations beside it. |
 | **Preview**       | What an MCP tool returns in place of acting, when the action deletes, merges or changes many records. |
 | **Confirmation**  | The single-use token returned with a preview, sent back to make the action happen. |
@@ -87,7 +79,7 @@ before naming it in code.
 | **Search result** | One item or location a search found, with the parts of its name that matched (its **marks**). |
 | **Typo tolerance** | Search still matching a word typed with a letter wrong, missing, extra or swapped. |
 | **Filter**       | A condition a search keeps items to: location (and everything inside it), category, tag, status or warranty. |
-| **View**         | A built-in list across the whole home: Lent out, Missing, Warranty expiring soon, Return window closing, Recently added, Recently moved, Not checked in a long time, Possible duplicates, Archive. |
+| **View**         | A built-in list across the whole home: Lent out, Missing, Warranty expiring soon, Return window closing, Recently added, Recently moved, Possible duplicates, Archive. |
 | **Possible duplicates** | Items sharing a name, ignoring case, anywhere in the home. |
 | **Saved search** | A search the owner has kept and may pin.                    |
 | **Pin**          | Putting a saved search first on `/views` and in the navigation. |
@@ -117,6 +109,5 @@ before naming it in code.
 | asset, product, thing, object, entry  | item                 | One word for a tracked thing. |
 | stock, inventory level, count (of one item) | quantity       | Stock management is a non-goal. A count of records is still a count. |
 | ID, number (for what is on a label)   | code                 | Internal identifiers are separate and never shown. |
-| verify, audit, review, confirm (contents) | check            | One word for confirming contents. Confirmation is the MCP step. |
 | user, account, member                 | owner                | There is one person.        |
 | remove (when it can be restored)      | delete, or archive   | They are different actions. |

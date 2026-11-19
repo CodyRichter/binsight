@@ -4,6 +4,7 @@ from app.core import clock
 from app.core.database import ReadSession, WriteSession
 from app.core.errors import refusals
 from app.core.pagination import DEFAULT_LIMIT, Limit, Page
+from app.features.items.service import Item
 from app.features.search.service import SearchResults
 from app.features.views import service
 from app.features.views.schemas import (
@@ -14,7 +15,6 @@ from app.features.views.schemas import (
     SavedSearchDeleted,
     SavedSearchUpdated,
     ViewName,
-    ViewRow,
     ViewSummary,
 )
 from app.models import Actor
@@ -33,7 +33,7 @@ def list_views(
 @router.get("/{view}", operation_id="list_view_rows", responses=refusals(400, 422))
 def list_view_rows(
     view: ViewName, session: ReadSession, limit: Limit = DEFAULT_LIMIT, cursor: str | None = None
-) -> Page[ViewRow]:
+) -> Page[Item]:
     return service.list_view_rows(session, view, clock.now(), limit, cursor)
 
 

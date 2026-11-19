@@ -23,7 +23,6 @@ export function adding(name: string | null, home: Destination | null, photoUrl?:
     deleted_at: null,
     status: "in_place",
     ...noDetails,
-    last_checked_at: null,
   };
 }
 

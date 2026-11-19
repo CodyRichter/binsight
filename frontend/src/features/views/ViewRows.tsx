@@ -1,14 +1,13 @@
 import { Button } from "@mantine/core";
 import { AppFrame } from "@/components/AppFrame";
 import { ListSection } from "@/components/ListSection";
-import { LocationRow } from "@/components/LocationRow";
 import { PageHeader } from "@/components/PageHeader";
 import { PageLead } from "@/components/PageLead";
 import { PageState } from "@/components/PageState";
 import { timeAgo } from "@/components/timeAgo";
-import { ItemListRow, useItemSelection, type ItemSelection } from "@/features/items";
+import { ItemListRow, useItemSelection } from "@/features/items";
 import { pageStatusOf } from "@/lib/api/pageStatus";
-import { useViewRows, useViews, type ViewName, type ViewRow } from "./useViews";
+import { useViewRows, useViews, type ViewName } from "./useViews";
 import { viewEmptyStatements } from "./viewWords";
 
 function since(view: ViewName, at: string | null): string | undefined {
@@ -17,42 +16,9 @@ function since(view: ViewName, at: string | null): string | undefined {
   return timeAgo(new Date(at));
 }
 
-interface RowProps {
-  view: ViewName;
-  row: ViewRow;
-  selection: ItemSelection;
-}
-
-function Row({ view, row, selection }: RowProps) {
-  if (row.kind === "item") {
-    const at = view === "lent-out" ? row.item.lent_at : row.item.retired_at;
-    return (
-      <ItemListRow
-        item={row.item}
-        showPath
-        since={since(view, at)}
-        select={selection.select(row.item)}
-      />
-    );
-  }
-  const { location } = row;
-  return (
-    <LocationRow
-      name={location.name}
-      locationType={location.type}
-      locationIcon={location.icon}
-      code={location.label_code ?? undefined}
-      itemCount={location.direct_item_count}
-      lastChecked={location.last_checked_at ? new Date(location.last_checked_at) : null}
-      to={`/locations/${location.id}`}
-    />
-  );
-}
-
-function countLine(view: ViewName, count: number | undefined): string[] {
+function countLine(count: number | undefined): string[] {
   if (count === undefined) return [];
-  const word = view === "not-checked" ? "location" : "item";
-  return [`${count} ${word}${count === 1 ? "" : "s"}`];
+  return [`${count} item${count === 1 ? "" : "s"}`];
 }
 
 /** `/views/{view}`: one built-in view's list across the whole home. */
@@ -70,9 +36,7 @@ export function ViewRows({ view }: { view: ViewName }) {
       selectionBar={selection.bar}
     >
       <PageLead
-        header={
-          <PageHeader title={summary?.title ?? ""} counts={countLine(view, summary?.count)} />
-        }
+        header={<PageHeader title={summary?.title ?? ""} counts={countLine(summary?.count)} />}
       />
       <PageState
         status={status === "ready" && shown.length === 0 ? "empty" : status}
@@ -80,12 +44,13 @@ export function ViewRows({ view }: { view: ViewName }) {
         onRetry={() => void rows.refetch()}
       >
         <ListSection>
-          {shown.map((row) => (
-            <Row
-              key={row.kind === "item" ? row.item.id : row.location.id}
-              view={view}
-              row={row}
-              selection={selection}
+          {shown.map((item) => (
+            <ItemListRow
+              key={item.id}
+              item={item}
+              showPath
+              since={since(view, view === "lent-out" ? item.lent_at : item.retired_at)}
+              select={selection.select(item)}
             />
           ))}
         </ListSection>

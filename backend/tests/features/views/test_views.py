@@ -6,13 +6,11 @@ from sqlalchemy import Engine
 
 from app.core.database import open_read_session, open_write_session
 from app.core.settings import Settings
-from app.features.checks import service as checks
-from app.features.checks.schemas import CheckLocation
 from app.features.history import service as history
 from app.features.items import service as items
 from app.features.items.schemas import ItemChanges, ItemLending, ItemMove, ItemStatusChange
 from app.features.views import service
-from app.features.views.schemas import ViewItem, ViewLocation, ViewName
+from app.features.views.schemas import ViewName
 from app.models import Actor
 from tests import builders
 from tests.builders import AcceptanceHome
@@ -31,7 +29,7 @@ def home(migrated_engine: Engine) -> AcceptanceHome:
 def _names(engine: Engine, view: ViewName, now: datetime = NOW) -> list[str | None]:
     with open_read_session(engine) as session:
         rows = service.list_view_rows(session, view, now, 50, None).items
-    return [row.item.name if isinstance(row, ViewItem) else row.location.name for row in rows]
+    return [row.name for row in rows]
 
 
 def _counts(engine: Engine, now: datetime = NOW) -> dict[str, int]:
@@ -62,7 +60,6 @@ def test_every_view_is_listed_in_order_with_its_count(
         "return-closing": 0,
         "recently-added": 0,
         "recently-moved": 0,
-        "not-checked": 1,
         "possible-duplicates": 0,
         "archive": 0,
     }
@@ -126,23 +123,6 @@ def test_possible_duplicates_share_a_name_ignoring_case(
     assert _names(migrated_engine, "possible-duplicates") == []
 
 
-def test_not_checked_lists_locations_with_items_never_checked_first(
-    migrated_engine: Engine, home: AcceptanceHome
-) -> None:
-    with open_write_session(migrated_engine) as session:
-        builders.item(session, "Drill", home.tools, NOW)
-        builders.item(session, "Box of screws", home.shelf, NOW)
-        long_ago = NOW - timedelta(days=400)
-        checks.check_location(session, home.cables, CheckLocation(), Actor.app, long_ago)
-        recent = NOW - timedelta(days=10)
-        checks.check_location(session, home.shelf, CheckLocation(), Actor.app, recent)
-    assert _names(migrated_engine, "not-checked") == ["Tools", "Cables"]
-    with open_read_session(migrated_engine) as session:
-        first = service.list_view_rows(session, "not-checked", NOW, 1, None)
-    assert isinstance(first.items[0], ViewLocation)
-    assert first.next_cursor is not None
-
-
 def test_a_view_is_read_a_page_at_a_time(migrated_engine: Engine, home: AcceptanceHome) -> None:
     with open_write_session(migrated_engine) as session:
         for day in range(3):
@@ -150,11 +130,8 @@ def test_a_view_is_read_a_page_at_a_time(migrated_engine: Engine, home: Acceptan
     with open_read_session(migrated_engine) as session:
         first = service.list_view_rows(session, "recently-added", NOW, 2, None)
         second = service.list_view_rows(session, "recently-added", NOW, 2, first.next_cursor)
-    assert [row.item.name for row in first.items if isinstance(row, ViewItem)] == [
-        "Thing 0",
-        "Thing 1",
-    ]
-    assert [row.item.name for row in second.items if isinstance(row, ViewItem)] == ["Thing 2"]
+    assert [row.name for row in first.items] == ["Thing 0", "Thing 1"]
+    assert [row.name for row in second.items] == ["Thing 2"]
     assert second.next_cursor is None
 
 

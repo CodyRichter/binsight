@@ -1,8 +1,7 @@
 import { Button } from "@mantine/core";
-import { IconArrowsMove, IconCheck } from "@tabler/icons-react";
+import { IconArrowsMove } from "@tabler/icons-react";
 import { useRef, useState, type ChangeEvent } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { useCheckLocation } from "@/features/checks";
 import { pathSegments } from "@/features/items";
 import { countWords } from "./countWords";
 import { moreMenu, type LocationMenuProps } from "./locationMenu";
@@ -42,7 +41,6 @@ export function LocationHeader(props: LocationHeaderProps) {
   const [restyling, setRestyling] = useState(false);
   const move = useMoveLocation(location);
   const change = useChangeLocation(location);
-  const check = useCheckLocation(location.id);
   const setPhoto = useLocationPhoto(location);
   const removing = useRemoval(props);
   const photoInput = useRef<HTMLInputElement>(null);
@@ -72,13 +70,9 @@ export function LocationHeader(props: LocationHeaderProps) {
           action: { label: "Change type and icon", onClick: () => setRestyling(true) },
         }}
         summary={{ value: location.summary ?? "", onSave: (summary) => change({ summary }) }}
-        lastChecked={location.last_checked_at ? new Date(location.last_checked_at) : null}
         counts={[countWords(location.item_count, "item")]}
         actions={
           <>
-            <Button leftSection={<IconCheck aria-hidden />} onClick={() => check()}>
-              Contents checked
-            </Button>
             {movable && (
               <Button leftSection={<IconArrowsMove aria-hidden />} onClick={() => setMoving(true)}>
                 Move

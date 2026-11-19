@@ -948,23 +948,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/locations/{location_id}/check": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Check Location */
-        post: operations["check_location"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/views": {
         parameters: {
             query?: never;
@@ -1285,11 +1268,6 @@ export interface components {
             /** Item Count */
             item_count: number;
         };
-        /** CheckLocation */
-        CheckLocation: {
-            /** Missing Item Ids */
-            missing_item_ids?: string[];
-        };
         /**
          * ContentsSheet
          * @description A location and everything in it, grouped by the location each item is kept in.
@@ -1333,7 +1311,7 @@ export interface components {
              * Record Type
              * @enum {string}
              */
-            record_type: "attachment" | "check" | "item" | "label" | "link" | "location" | "saved_search";
+            record_type: "attachment" | "item" | "label" | "link" | "location" | "saved_search";
             /** Record Id */
             record_id: string;
             /** Before */
@@ -1468,8 +1446,6 @@ export interface components {
             retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /**
@@ -1553,8 +1529,6 @@ export interface components {
             retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /**
@@ -1608,8 +1582,6 @@ export interface components {
             retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /**
@@ -1673,8 +1645,6 @@ export interface components {
             retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /**
@@ -1744,8 +1714,6 @@ export interface components {
             retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /**
@@ -1799,8 +1767,6 @@ export interface components {
             retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /**
@@ -1862,8 +1828,6 @@ export interface components {
             retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /**
@@ -1922,8 +1886,6 @@ export interface components {
             retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /**
@@ -1977,8 +1939,6 @@ export interface components {
             retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /**
@@ -2043,8 +2003,6 @@ export interface components {
             retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /**
@@ -2114,8 +2072,6 @@ export interface components {
             retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /**
@@ -2174,8 +2130,6 @@ export interface components {
             retired_at: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /**
@@ -2347,8 +2301,6 @@ export interface components {
             direct_item_count: number;
             /** Item Count */
             item_count: number;
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /** Deleted At */
@@ -2366,38 +2318,6 @@ export interface components {
             type?: components["schemas"]["LocationType"] | null;
             /** Icon */
             icon?: string | null;
-        };
-        /** LocationChecked */
-        LocationChecked: {
-            /** Id */
-            id: string;
-            /** Name */
-            name: string;
-            type: components["schemas"]["LocationType"];
-            /** Parent Id */
-            parent_id: string | null;
-            /** Summary */
-            summary: string | null;
-            /** Icon */
-            icon: string | null;
-            /** Label Code */
-            label_code: string | null;
-            /** Path */
-            path: components["schemas"]["PathStep"][];
-            /** Direct Item Count */
-            direct_item_count: number;
-            /** Item Count */
-            item_count: number;
-            /** Last Checked At */
-            last_checked_at: string | null;
-            /** Photo Url */
-            photo_url: string | null;
-            /** Deleted At */
-            deleted_at: string | null;
-            /** Marked Missing */
-            marked_missing: components["schemas"]["Item"][];
-            /** History Entry Id */
-            history_entry_id: string;
         };
         /** LocationCreated */
         LocationCreated: {
@@ -2420,8 +2340,6 @@ export interface components {
             direct_item_count: number;
             /** Item Count */
             item_count: number;
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /** Deleted At */
@@ -2450,8 +2368,6 @@ export interface components {
             direct_item_count: number;
             /** Item Count */
             item_count: number;
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /** Deleted At */
@@ -2488,8 +2404,6 @@ export interface components {
             direct_item_count: number;
             /** Item Count */
             item_count: number;
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /** Deleted At */
@@ -2523,8 +2437,6 @@ export interface components {
             direct_item_count: number;
             /** Item Count */
             item_count: number;
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /** Deleted At */
@@ -2553,8 +2465,6 @@ export interface components {
             direct_item_count: number;
             /** Item Count */
             item_count: number;
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /** Deleted At */
@@ -2591,8 +2501,6 @@ export interface components {
             direct_item_count: number;
             /** Item Count */
             item_count: number;
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /** Deleted At */
@@ -2621,8 +2529,6 @@ export interface components {
             direct_item_count: number;
             /** Item Count */
             item_count: number;
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /** Deleted At */
@@ -2672,8 +2578,6 @@ export interface components {
             direct_item_count: number;
             /** Item Count */
             item_count: number;
-            /** Last Checked At */
-            last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
             /** Deleted At */
@@ -2776,13 +2680,6 @@ export interface components {
             url: string;
             /** Name */
             name?: string | null;
-        };
-        /** Page[Annotated[Union[ViewItem, ViewLocation], FieldInfo(annotation=NoneType, required=True, discriminator='kind')]] */
-        Page_Annotated_Union_ViewItem__ViewLocation___FieldInfo_annotation_NoneType__required_True__discriminator__kind____: {
-            /** Items */
-            items: (components["schemas"]["ViewItem"] | components["schemas"]["ViewLocation"])[];
-            /** Next Cursor */
-            next_cursor: string | null;
         };
         /** Page[Attachment] */
         Page_Attachment_: {
@@ -3052,28 +2949,10 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
-        /** ViewItem */
-        ViewItem: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            kind: "item";
-            item: components["schemas"]["Item"];
-        };
-        /** ViewLocation */
-        ViewLocation: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            kind: "location";
-            location: components["schemas"]["Location"];
-        };
         /** ViewSummary */
         ViewSummary: {
             /** View */
-            view: ("lent-out" | "missing" | "warranty-ending" | "return-closing" | "recently-added" | "possible-duplicates" | "archive") | ("recently-moved" | "not-checked");
+            view: ("lent-out" | "missing" | "warranty-ending" | "return-closing" | "recently-added" | "possible-duplicates" | "archive") | "recently-moved";
             /** Title */
             title: string;
             /** Count */
@@ -5963,59 +5842,6 @@ export interface operations {
             };
         };
     };
-    check_location: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                location_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CheckLocation"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LocationChecked"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
     list_views: {
         parameters: {
             query?: {
@@ -6065,7 +5891,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                view: ("lent-out" | "missing" | "warranty-ending" | "return-closing" | "recently-added" | "possible-duplicates" | "archive") | ("recently-moved" | "not-checked");
+                view: ("lent-out" | "missing" | "warranty-ending" | "return-closing" | "recently-added" | "possible-duplicates" | "archive") | "recently-moved";
             };
             cookie?: never;
         };
@@ -6077,7 +5903,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Page_Annotated_Union_ViewItem__ViewLocation___FieldInfo_annotation_NoneType__required_True__discriminator__kind____"];
+                    "application/json": components["schemas"]["Page_Item_"];
                 };
             };
             /** @description Bad Request */

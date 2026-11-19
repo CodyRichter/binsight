@@ -70,13 +70,11 @@ from app.features.items.schemas import (
 from app.features.items.shaping import refuse_deleted_home, shaped
 from app.features.items.statuses import change_item_status as change_item_status
 from app.features.items.statuses import change_items_status as change_items_status
-from app.features.items.statuses import items_to_mark_missing as items_to_mark_missing
 from app.features.items.statuses import lend_item as lend_item
 from app.features.items.statuses import lend_items as lend_items
 from app.features.items.statuses import list_lent_to_names as list_lent_to_names
 from app.features.items.statuses import mark_item_found as mark_item_found
 from app.features.items.statuses import mark_item_missing as mark_item_missing
-from app.features.items.statuses import mark_items_missing as mark_items_missing
 from app.features.items.statuses import (
     preview_change_items_status as preview_change_items_status,
 )

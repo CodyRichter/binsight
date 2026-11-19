@@ -54,7 +54,7 @@ export const components = {
       icon: classes.checkboxIcon,
       label: classes.controlLabel,
     },
-    // Check mode's box is 28px; "sm" is bulk edit's 20px badge on a thumbnail.
+    // A box is 28px; "sm" is bulk edit's 20px badge on a thumbnail.
     vars: (_theme, props) => ({
       root: {
         "--checkbox-size": props.size === "sm" ? "20px" : "28px",

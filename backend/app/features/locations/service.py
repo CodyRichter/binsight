@@ -190,13 +190,6 @@ def live_location_path(session: Session, location_id: str) -> list[PathStep]:
     return path(session, live_record(session, location_id))
 
 
-def last_checked_at(session: Session, location_id: str) -> datetime | None:
-    """When a location's contents were last checked, or None if never."""
-    location = location_record(session, location_id)
-    session.refresh(location)
-    return location.last_checked_at
-
-
 def location_ids_within(session: Session, location_id: str) -> list[str]:
     """A location's identifier and the identifiers of every location beneath it, not deleted."""
     location_record(session, location_id)
@@ -230,24 +223,6 @@ def get_locations(session: Session, location_ids: list[str]) -> list[Location]:
     """The locations with these identifiers, in the order given, with their paths and counts."""
     found = {location.id: location for location in all_locations(session)}
     return [found[location_id] for location_id in location_ids]
-
-
-def locations_not_checked_since(session: Session, cutoff: datetime) -> list[Location]:
-    """Locations with items, checked never or not since the cutoff, the longest unchecked first."""
-    stale = [
-        location
-        for location in live_locations(session)
-        if location.direct_item_count > 0
-        and (location.last_checked_at is None or location.last_checked_at < cutoff)
-    ]
-    # Never checked is older than any check.
-    return sorted(
-        stale,
-        key=lambda location: (
-            location.last_checked_at is not None,
-            location.last_checked_at or cutoff,
-        ),
-    )
 
 
 def export_tables(session: Session) -> ExportTables:

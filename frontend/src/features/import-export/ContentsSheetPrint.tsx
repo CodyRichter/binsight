@@ -29,7 +29,6 @@ function SheetBody({ sheet }: { sheet: ContentsSheet }) {
         title={location.name}
         parents={pathSegments(location.path.slice(0, -1))}
         code={location.label_code ?? undefined}
-        lastChecked={location.last_checked_at ? new Date(location.last_checked_at) : null}
         counts={[count === 1 ? "1 item" : `${count} items`]}
       />
       {location.label_code && (

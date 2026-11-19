@@ -21,7 +21,7 @@ from app.models import Actor
 
 EXPORT_EVERYTHING = """Export everything in the home as one zip file, for a backup or a move.
 
-The zip holds binsight.json (every location, item, label, check, saved search, attachment
+The zip holds binsight.json (every location, item, label, saved search, attachment
 record and history entry), items.csv and locations.csv, and every photo and file under
 attachments/. It can be large when there are many photos. Returns the zip as an embedded
 application/zip resource."""
