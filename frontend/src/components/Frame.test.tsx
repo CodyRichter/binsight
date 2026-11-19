@@ -78,5 +78,5 @@ test("omitted actions are not rendered in the skeleton", () => {
 
 test("bottom bar announces inbox count separately from the label", () => {
   renderFrame(["/"], { inboxCount: 3, destination: true });
-  expect(screen.getByRole("link", { name: "Inbox, 3" })).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Inbox 3" })).toBeInTheDocument();
 });

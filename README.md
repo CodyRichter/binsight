@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: list leftovers (Breadth 8c).** The requirements,
+> **Status: 1.0.0. Everything in the requirements is built.** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -64,9 +64,10 @@ what's inside. Search for anything and get its full location path, e.g.
 > duplicates it, opening the copy, and merges it into another recorded
 > twice, each with Undo; Claude asks first before a merge. Search results
 > and check mode's rows offer Move, and the category sheet lists categories
-> picked recently on this device first.
-> Each backend phase is now followed by its frontend phase; see the
-> [build order](docs/build-order.md).
+> picked recently on this device first. It installs to a phone's home
+> screen with shortcuts to Scan, Add and Search, and every page, sheet and
+> menu is checked against WCAG 2.1 AA in light and dark and used by
+> keyboard alone in the browser tests.
 
 ## Documents
 
@@ -185,7 +186,7 @@ The frontend folder for `import_export` is named `import-export`.
 
 | Path                | Page                                                    |
 | ------------------- | ------------------------------------------------------- |
-| `/`                 | The tree of the whole home                              |
+| `/`                 | The tree of the whole home; `/?add` opens Add, the home screen shortcut |
 | `/l/{code}`         | Where a scanned QR code lands, e.g. `/l/B-014`          |
 | `/locations/{id}`   | A location and its contents                             |
 | `/items/{id}`       | An item                                                 |

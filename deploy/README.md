@@ -27,6 +27,10 @@ The app listens on port 8000. Open it at its address and choose the owner's
 password. The container refuses to start until `BINSIGHT_APP_ADDRESS` is
 set.
 
+To install it on a phone, open the address and use the browser's "Add to
+Home Screen". On iOS the installed app keeps its own sign-in apart from
+Safari's, so sign in once more inside it.
+
 The container runs as uid 1000, and its root file system is read-only. On
 Linux, the data directory must be writable by uid 1000:
 

@@ -38,12 +38,27 @@ function useSearch() {
   };
 }
 
+/** Whether Add is open: by its button, or by `?add`, the home screen shortcut's address. */
+function useAdding(): [boolean, (open: boolean) => void] {
+  const [params, setParams] = useSearchParams();
+  const [adding, setAdding] = useState(false);
+  const asked = params.has("add");
+  const change = (open: boolean) => {
+    setAdding(open);
+    if (open || !asked) return;
+    const rest = new URLSearchParams(params);
+    rest.delete("add");
+    setParams(rest, { replace: true });
+  };
+  return [adding || asked, change];
+}
+
 export function AppFrame(props: AppFrameProps) {
   const { current = null, destination, parent, currentView, addTo, selectionBar, children } = props;
   const { AddSheet, useInboxCount, useViewsSection } = useContext(FrameAdditionsContext);
   const inboxCount = useInboxCount();
   const viewsSection = useViewsSection(currentView, current === "views");
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useAdding();
   const navigate = useNavigate();
   return (
     <Frame

@@ -19,9 +19,12 @@ test("an item row with a path is row-min plus its hairline", async ({ page }) =>
 
 test("a search result row with a path is row-min plus its hairline", async ({ page }) => {
   const shed = uniqueName("Shed");
-  const item = await addPhotoItem(page.request, await addLocation(page.request, shed, "site"));
+  const shedId = await addLocation(page.request, shed, "site");
+  const item = await addPhotoItem(page.request, shedId);
   const name = uniqueName("Torch");
   await page.request.patch(`/api/items/${item}`, { data: { name } });
+  // Checked today, so no stale stamp joins the path beside Move.
+  await page.request.post(`/api/locations/${shedId}/check`, { data: {} });
   await open(page, `/search?q=${encodeURIComponent(name)}`);
   const row = page.locator("#content li").filter({ hasText: name });
   expect((await box(row)).height).toBe(65);

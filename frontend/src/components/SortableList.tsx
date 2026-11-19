@@ -105,7 +105,8 @@ export function SortableList<Row extends { id: string; name: string }>({
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={dropped}
-      accessibility={{ announcements: announcements(name, place) }}
+      // Its live region would otherwise sit inside the list, where only rows may.
+      accessibility={{ announcements: announcements(name, place), container: document.body }}
     >
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
         {rows.map((row) => (

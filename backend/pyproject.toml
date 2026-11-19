@@ -1,6 +1,6 @@
 [project]
 name = "binsight-backend"
-version = "0.0.0"
+version = "1.0.0"
 description = "Backend for Binsight, a self-hosted home inventory tracker"
 readme = "README.md"
 license = "AGPL-3.0-only"

@@ -43,14 +43,16 @@ function notFoundSuggestions(onGoHome?: () => void, onScan?: () => void) {
   return (
     <ListSection title="Where to go">
       {rows.map(({ icon: RowIcon, title, hint, onClick }) => (
-        <button key={title} type="button" className={classes.row} onClick={onClick}>
-          <RowIcon aria-hidden size={20} className={classes.rowIcon} />
-          <span className={classes.rowText}>
-            <span className={classes.rowTitle}>{title}</span>
-            <span className={classes.rowHint}>{hint}</span>
-          </span>
-          <IconChevronRight aria-hidden size={20} className={classes.rowIcon} />
-        </button>
+        <li key={title}>
+          <button type="button" className={classes.row} onClick={onClick}>
+            <RowIcon aria-hidden size={20} className={classes.rowIcon} />
+            <span className={classes.rowText}>
+              <span className={classes.rowTitle}>{title}</span>
+              <span className={classes.rowHint}>{hint}</span>
+            </span>
+            <IconChevronRight aria-hidden size={20} className={classes.rowIcon} />
+          </button>
+        </li>
       ))}
     </ListSection>
   );

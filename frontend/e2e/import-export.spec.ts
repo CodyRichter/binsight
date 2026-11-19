@@ -50,6 +50,7 @@ test("a file with a bad row says which row and imports nothing", async ({ page }
   const sheet = page.getByRole("dialog", { name: "Can't import" });
   await expect(sheet).toContainText("Row 2");
   await expect(sheet).toContainText("quantity:");
-  await sheet.getByRole("button", { name: "Close" }).click();
+  // The sheet's own Close button, beside the close icon in its title bar.
+  await sheet.locator("button", { hasText: "Close" }).click();
   await expect(sheet).toHaveCount(0);
 });

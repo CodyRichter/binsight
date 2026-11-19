@@ -1,3 +1,4 @@
+import { VisuallyHidden } from "@mantine/core";
 import { IconHome, IconInbox, IconListDetails, IconPlus, IconSettings } from "@tabler/icons-react";
 import { Link } from "react-router";
 import type { Destination } from "./navigation";
@@ -24,7 +25,6 @@ export function BottomBar({ current, inboxCount = 0, onAdd }: BottomBarProps) {
         key={destination}
         className={classes.slot}
         to={to}
-        aria-label={hasCount ? `${name}, ${inboxCount}` : undefined}
         aria-current={current === destination ? "page" : undefined}
       >
         <span className={classes.icon}>
@@ -35,7 +35,9 @@ export function BottomBar({ current, inboxCount = 0, onAdd }: BottomBarProps) {
             </b>
           )}
         </span>
-        {name}
+        {/* The count is read after the word shown, as the side navigation reads it: "Inbox 3". */}
+        {hasCount ? `${name} ` : name}
+        {hasCount && <VisuallyHidden component="span">{inboxCount}</VisuallyHidden>}
       </Link>
     );
   });

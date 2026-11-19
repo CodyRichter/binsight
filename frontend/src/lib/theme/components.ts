@@ -20,7 +20,7 @@ const touchMin = "var(--bs-touch-min)";
 
 const overlay = { backgroundOpacity: 1, color: "var(--bs-scrim)", blur: 0 };
 
-const closeButton = { size: sizes["touch-min"], iconSize: 24 };
+const closeButton = { size: sizes["touch-min"], iconSize: 24, "aria-label": "Close" };
 
 export const components = {
   Button: Button.extend({
@@ -98,7 +98,8 @@ export const components = {
     classNames: { root: classes.tag },
   }),
   Menu: Menu.extend({
-    defaultProps: { shadow: "md" },
+    // The placeholder is a focusable child a menu may not hold, so screen readers trip on it.
+    defaultProps: { shadow: "md", withInitialFocusPlaceholder: false },
     classNames: { dropdown: classes.menu, item: classes.menuItem, divider: classes.menuDivider },
   }),
   Modal: Modal.extend({
