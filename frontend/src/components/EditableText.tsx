@@ -92,7 +92,8 @@ export function EditableText({
       type="button"
       className={classes.text}
       data-empty={!value || undefined}
-      aria-label={`${label}: ${shown || "empty"}`}
+      // A name must include the words shown, so an empty field is named by its invitation.
+      aria-label={`${label}: ${shown || invitation}`}
       onClick={() => setEditing(true)}
     >
       {shown || invitation}

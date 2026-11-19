@@ -268,7 +268,7 @@ test("/inbox lists an item with no name as Unnamed, with its photo and path", as
   expect(row).toHaveAttribute("href", "/items/photo");
   expect(screen.getByText("1 item")).toBeVisible();
   expect(row.closest("li")).toHaveTextContent("UnnamedHomeCables");
-  expect(screen.getByRole("link", { name: "Inbox, 1" })).toHaveAttribute("aria-current", "page");
+  expect(screen.getByRole("link", { name: "Inbox 1" })).toHaveAttribute("aria-current", "page");
 });
 
 test("/inbox with nothing in it says Nothing is missing", async () => {

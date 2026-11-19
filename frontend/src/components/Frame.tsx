@@ -1,6 +1,6 @@
 import { AppShell, useMantineTheme } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { sizes } from "@/lib/theme/tokens";
 import { BottomBar } from "./BottomBar";
@@ -8,6 +8,7 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import type { Destination, NavSection } from "./navigation";
 import { SideNavigation } from "./SideNavigation";
 import { TopBar } from "./TopBar";
+import { useTitleFocusAfterNavigating } from "./useTitleFocusAfterNavigating";
 import classes from "./Frame.module.css";
 
 interface FrameProps {
@@ -28,14 +29,6 @@ function useBack(parent: string, destination?: boolean): (() => void) | undefine
   // The first page of a visit, such as one opened by a scan, has no previous page in the app.
   if (location.key === "default") return () => navigate(parent, { replace: true });
   return () => navigate(-1);
-}
-
-function useTitleFocusAfterNavigating() {
-  const { key } = useLocation();
-  useEffect(() => {
-    const typing = document.activeElement?.matches("input, textarea");
-    if (key !== "default" && !typing) document.querySelector<HTMLElement>("#content h1")?.focus();
-  }, [key]);
 }
 
 function useFocusSearch(): boolean {

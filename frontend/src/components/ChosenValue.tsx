@@ -14,7 +14,7 @@ export function ChosenValue({ value, label, invitation, onChoose }: ChosenValueP
       type="button"
       className={classes.text}
       data-empty={!value || undefined}
-      aria-label={`${label}: ${value || "empty"}`}
+      aria-label={`${label}: ${value || invitation}`}
       onClick={onChoose}
     >
       {value || invitation}

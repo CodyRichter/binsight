@@ -251,7 +251,8 @@ ACCESS
 
 EXPERIENCE AND QUALITY
 ----------------------
-- Installable on your phone's home screen and fast on mobile.
+- Installable on your phone's home screen, with shortcuts to Scan, Add and
+  Search, and fast on mobile.
 - Dark mode.
 - Large touch targets for one-handed use at a shelf.
 - Works over Teleport or the LAN. It needs a connection to the home lab;

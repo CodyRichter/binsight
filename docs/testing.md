@@ -11,7 +11,7 @@ them.
 | Feature tests    | `backend/tests/features/`    | A feature's rules, called through its service functions against a real SQLite file. | Most |
 | API tests        | `backend/tests/features/`    | Routes validate input, return the agreed shapes and error codes. Thin, because the rules are already tested. | Some |
 | MCP tests        | `backend/tests/mcp/`         | Each tool reaches the same result as its route, and destructive tools need confirmation. | Some |
-| End-to-end tests | `frontend/e2e/`              | The five core flows work in a real browser at phone width against the real backend. | Five, plus a few |
+| End-to-end tests | `frontend/e2e/`              | The five core flows work in a real browser at phone width against the real backend. `accessibility.spec.ts` checks every page, sheet and menu against WCAG 2.1 AA with axe, in light and dark, and `keyboard.spec.ts` does the core actions without a pointer. | Five, plus a few |
 
 The first three layers run in `scripts/check.sh`. The end-to-end tests run
 as their own step in continuous integration, and locally with

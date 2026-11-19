@@ -79,7 +79,7 @@ test("a photo adds an Unnamed item that waits in the inbox until it is named", a
   await waiting.getByRole("link", { name: "Unnamed" }).click();
   await expect(page).toHaveTitle("Unnamed – Binsight");
   const name = uniqueName("Multimeter");
-  await page.getByRole("button", { name: "Name: empty" }).click();
+  await page.getByRole("button", { name: "Name: Unnamed" }).click();
   await page.getByRole("textbox", { name: "Name" }).fill(name);
   await page.getByRole("textbox", { name: "Name" }).press("Enter");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
@@ -115,7 +115,7 @@ test("Add in the bottom bar adds to the inbox, or to a location picked in Add to
   await sheet.getByRole("textbox", { name: "Add an item" }).fill(inboxName);
   await sheet.getByRole("textbox", { name: "Add an item" }).press("Enter");
   await expect(page.getByText(`Added ${inboxName} to Inbox`)).toBeVisible();
-  await expect(nav.getByRole("link", { name: /^Inbox, \d+$/ })).toBeVisible();
+  await expect(nav.getByRole("link", { name: /^Inbox \d+$/ })).toBeVisible();
 
   await sheet.getByRole("button", { name: /^Add to Inbox/ }).click();
   await sheet.getByRole("button", { name: names.site, exact: true }).click();

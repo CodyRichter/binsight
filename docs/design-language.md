@@ -285,7 +285,18 @@ Three widths and one content column. Design the narrow one first.
 - The first focusable thing is a skip link to the content. Each page sets
   the document title to its own title, then "Binsight". After navigating,
   scroll goes to the top, or back to where it was on Back, and focus moves
-  to the page title.
+  to the page title, once it shows if the page is still loading.
+- A control's name includes the words it shows: an empty value reads
+  "{label}: {invitation}", such as "Category: Add a category".
+- Every page, sheet and menu passes WCAG 2.1 AA in light and dark, as the
+  accessibility end-to-end test checks with axe.
+
+**Installed.** Added to the home screen, Binsight opens standalone with
+the `ground` color behind its status bar and splash. Its icon is the bin
+mark; the maskable one keeps the mark inside the safe zone on `ground`.
+Long-pressing the icon offers Scan (`/scan`), Add (`/?add`, which opens the
+Add sheet over the location tree; closing it drops `?add`) and Search
+(`/search`).
 
 **Top bar.** On a phone: Back when shown, the search field, Scan when
 available. On a wide screen: the search field, taking the room left in the
@@ -827,8 +838,8 @@ printed. Only for label codes.
 
 **Checked stamp.** An icon and "Checked 3 weeks ago" in `text-small`. Fresh:
 tick, `muted`. Over a year, or never: clock, `stale`, bold. In every
-location's page header, and in view rows only when stale; search rows,
-which end in Move, leave it out so they stay one line on a phone. It
+location's page header, and in view and search rows only when stale. On a
+phone a stale search row, which also ends in Move, takes a second line. It
 informs and never asks: no counts, no "overdue", not tappable.
 
 **Status badge.** Icon, word, 1.5px outline in one color, never filled. In
