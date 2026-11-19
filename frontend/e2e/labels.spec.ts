@@ -39,10 +39,13 @@ test("an unknown code says nothing is there", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Show all locations" })).toBeVisible();
 });
 
-test("the Label button shows a location's label, which downloads as its code", async ({ page }) => {
+test("tapping the code beside a location's name shows its label, which downloads as its code", async ({
+  page,
+}) => {
   const { ids } = await siteRoomBin(page.request);
   await openAtPhoneWidth(page, `/locations/${ids.bin}`);
-  await page.getByRole("button", { name: "Label", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Label", exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: `Label ${ids.bin}` }).click();
   const sheet = page.getByRole("dialog", { name: "Label" });
   await expect(sheet.getByRole("img", { name: `Label ${ids.bin}` })).toBeVisible();
   await expect(sheet.getByRole("link", { name: "Open to print" })).toHaveAttribute(
@@ -52,13 +55,4 @@ test("the Label button shows a location's label, which downloads as its code", a
   const download = page.waitForEvent("download");
   await sheet.getByRole("link", { name: "Download" }).click();
   expect((await download).suggestedFilename()).toBe(`${ids.bin}.png`);
-});
-
-test("tapping the code beside a location's name shows its label", async ({ page }) => {
-  const { ids } = await siteRoomBin(page.request);
-  await openAtPhoneWidth(page, `/locations/${ids.bin}`);
-  await page.getByRole("button", { name: `Label ${ids.bin}` }).click();
-  await expect(
-    page.getByRole("dialog", { name: "Label" }).getByRole("img", { name: `Label ${ids.bin}` }),
-  ).toBeVisible();
 });

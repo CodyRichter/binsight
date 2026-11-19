@@ -7,63 +7,43 @@ from app.features.labels.label_image import draw_label
 
 def _band_pixels(image: Image.Image, top: int, bottom: int, left: int, right: int) -> list[int]:
     crop = image.crop((left, top, right, bottom))
-    return [pixel for pixel in crop.tobytes()]
+    return list(crop.tobytes())
 
 
-def test_label_image_frames_qr_above_an_inverted_nameplate() -> None:
-    png = draw_label("B-002", "https://binsight.test/l/B-002")
+def test_label_image_fits_a_two_by_three_ratio_with_header_and_nameplate() -> None:
+    png = draw_label("K7Q-4MZ", "https://binsight.test/l/K7Q-4MZ")
     image = Image.open(BytesIO(png))
 
     assert image.format == "PNG"
     assert image.mode == "L"
-    assert image.height > image.width
+    assert (image.width, image.height) == (600, 900)
 
-    footer_pixels = _band_pixels(
-        image,
-        top=int(image.height * 0.85),
-        bottom=int(image.height * 0.96),
-        left=int(image.width * 0.12),
-        right=int(image.width * 0.88),
-    )
-    dark_ratio = sum(pixel < 32 for pixel in footer_pixels) / len(footer_pixels)
-    bright_ratio = sum(pixel > 224 for pixel in footer_pixels) / len(footer_pixels)
-    assert dark_ratio > 0.55
-    assert bright_ratio > 0.08
+    header_pixels = _band_pixels(image, top=32, bottom=104, left=140, right=460)
+    assert sum(pixel < 32 for pixel in header_pixels) / len(header_pixels) > 0.65
+    assert sum(pixel > 224 for pixel in header_pixels) / len(header_pixels) > 0.12
 
-    quiet_strip = _band_pixels(
-        image,
-        top=24,
-        bottom=50,
-        left=int(image.width * 0.2),
-        right=int(image.width * 0.8),
-    )
+    footer_pixels = _band_pixels(image, top=736, bottom=868, left=60, right=540)
+    assert sum(pixel < 32 for pixel in footer_pixels) / len(footer_pixels) > 0.55
+    assert sum(pixel > 224 for pixel in footer_pixels) / len(footer_pixels) > 0.12
+
+    quiet_strip = _band_pixels(image, top=132, bottom=160, left=120, right=480)
     assert all(pixel == 255 for pixel in quiet_strip)
 
 
-def test_label_image_fits_long_codes_inside_the_nameplate() -> None:
-    png = draw_label("B-123456", "https://inventory.example.com/nested/l/B-123456")
+def test_label_image_fits_long_codes_and_addresses_inside_the_frame() -> None:
+    png = draw_label("K7Q-4MZ-9999", "https://inventory.example.com/nested/path/l/K7Q-4MZ")
     image = Image.open(BytesIO(png))
 
-    assert image.format == "PNG"
-    left_edge = _band_pixels(
-        image,
-        top=int(image.height * 0.85),
-        bottom=int(image.height * 0.94),
-        left=14,
-        right=34,
-    )
+    assert (image.width, image.height) == (600, 900)
+    left_edge = _band_pixels(image, top=740, bottom=860, left=22, right=42)
     right_edge = _band_pixels(
-        image,
-        top=int(image.height * 0.85),
-        bottom=int(image.height * 0.94),
-        left=image.width - 34,
-        right=image.width - 14,
+        image, top=740, bottom=860, left=image.width - 42, right=image.width - 22
     )
     assert all(pixel < 32 for pixel in left_edge)
     assert all(pixel < 32 for pixel in right_edge)
 
 
 def test_different_labels_produce_different_images() -> None:
-    first = draw_label("B-001", "https://binsight.test/l/B-001")
-    second = draw_label("B-002", "https://binsight.test/l/B-002")
+    first = draw_label("K7Q-4MZ", "https://binsight.test/l/K7Q-4MZ")
+    second = draw_label("B2R-W9T", "https://binsight.test/l/B2R-W9T")
     assert first != second

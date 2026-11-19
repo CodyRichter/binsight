@@ -234,7 +234,7 @@ test("signed out, a location's page reads without its add bar, Move or More's ch
   expect(screen.queryByRole("textbox", { name: "Add an item" })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /^Move/ })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Name: Cables" })).not.toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Label" })).toBeVisible();
+  expect(screen.getByRole("button", { name: "Label cables" })).toBeVisible();
   expect(screen.getAllByRole("link", { name: "Sign in" }).length).toBeGreaterThan(0);
 });
 

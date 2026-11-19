@@ -1,11 +1,5 @@
 import { Button, Menu } from "@mantine/core";
-import {
-  IconArrowsMove,
-  IconFileText,
-  IconQrcode,
-  IconTrash,
-  IconZoomQuestion,
-} from "@tabler/icons-react";
+import { IconArrowsMove, IconFileText, IconTrash, IconZoomQuestion } from "@tabler/icons-react";
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { QuantityStepper } from "@/components/QuantityStepper";
@@ -24,18 +18,16 @@ export function HeaderSpecimen() {
         onRename={setTitle}
         parents={shelfPath}
         code="K7Q-4MZ"
+        onCodeClick={() => undefined}
         summary={{ value: summary, onSave: setSummary }}
         counts={["6 items"]}
         actions={
-          <>
-            <Button
-              leftSection={<IconArrowsMove aria-hidden />}
-              onClick={() => showToast({ message: "Moved to Garage", onUndo: () => undefined })}
-            >
-              Move
-            </Button>
-            <Button leftSection={<IconQrcode aria-hidden />}>Label</Button>
-          </>
+          <Button
+            leftSection={<IconArrowsMove aria-hidden />}
+            onClick={() => showToast({ message: "Moved to Garage", onUndo: () => undefined })}
+          >
+            Move
+          </Button>
         }
         menu={
           <>
