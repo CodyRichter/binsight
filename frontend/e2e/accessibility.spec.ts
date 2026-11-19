@@ -78,7 +78,7 @@ async function auditLocationOverlays(page: Page) {
 async function auditItemOverlays(page: Page) {
   const { itemId } = await home(page);
   await openAtPhoneWidth(page, `/items/${itemId}`);
-  await page.getByRole("button", { name: "Category: Add a category" }).click();
+  await page.getByRole("button", { name: "Category: Add" }).click();
   const sheet = page.getByRole("dialog", { name: "Category" });
   await expect(sheet).toBeVisible();
   expect(await violations(page), "Category").toEqual([]);

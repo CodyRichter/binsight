@@ -85,6 +85,16 @@ test("a date typed as written and saved with Enter is kept as that day", async (
   expect(onSave).toHaveBeenCalledWith("2027-03-01");
 });
 
+test("Enter saves a date and leaves the field closed, so leaving it cannot clear the date", async () => {
+  const { user, onSave } = renderDate();
+  await user.click(screen.getByRole("button", { name: "Purchase date: Add a purchase date" }));
+  await user.keyboard("2026-05-03{Enter}");
+  expect(screen.queryByRole("textbox", { name: "Purchase date" })).toBeNull();
+  await user.tab();
+  expect(onSave).toHaveBeenCalledTimes(1);
+  expect(onSave).toHaveBeenCalledWith("2026-05-03");
+});
+
 test("Escape leaves a date as it was", async () => {
   const { user, onSave } = renderDate();
   await user.click(screen.getByRole("button", { name: "Purchase date: Add a purchase date" }));
