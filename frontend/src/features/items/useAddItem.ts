@@ -40,6 +40,7 @@ export function useAddItem(
         home_location_id: home?.id ?? null,
       } satisfies NewItem),
     shown: (name) => [adding(name, home)],
+    createdIds: (created) => [created.id],
     told: (created) => `Added ${itemName(created.name)} to ${placeName(home)}`,
   });
 }
@@ -58,6 +59,7 @@ export function useAddItems(
         home_location_id: home?.id ?? null,
       } satisfies NewItems),
     shown: (names) => names.map((name) => adding(name, home)),
+    createdIds: (created) => created.items.map((item) => item.id),
     told: (created) => `Added ${created.items.length} items to ${placeName(home)}`,
   });
 }

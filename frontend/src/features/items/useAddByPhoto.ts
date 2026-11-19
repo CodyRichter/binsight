@@ -32,6 +32,7 @@ export function useAddByPhoto(
       previews.current.push(preview);
       return [adding(null, home, preview)];
     },
+    createdIds: (created) => [created.id],
     told: () => `Added a photo to ${placeName(home)}`,
     // A preview is let go once the list shows the stored photo, after the last add in flight.
     afterwards: () => {
