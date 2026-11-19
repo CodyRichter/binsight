@@ -11,7 +11,7 @@ from app.core import clock
 from app.core.database import open_read_session, open_write_session
 from app.core.pagination import DEFAULT_LIMIT, Page, PageLimit
 from app.features.items.service import ItemFilters
-from app.features.labels import service as labels
+from app.features.locations import service as locations
 from app.features.search.service import SearchResults
 from app.features.views import service
 from app.features.views.schemas import (
@@ -44,7 +44,7 @@ CREATE_SAVED_SEARCH = """Save a search under a name, so the owner can run it aga
 
 Use this when the owner asks to keep a search, such as "save all my cables" (no query and
 filters {"category": "Cables"}). query and filters are as search_home takes them; a
-location_id may be a label code. It starts unpinned; pin it with update_saved_search.
+location_id is a location's code. It starts unpinned; pin it with update_saved_search.
 
 Returns the saved search with its count and the history_entry_id."""
 
@@ -100,9 +100,7 @@ def _create(
 ) -> SavedSearchCreated:
     kept = filters or ItemFilters()
     if kept.location_id is not None:
-        kept = kept.model_copy(
-            update={"location_id": labels.location_id_for(session, kept.location_id)}
-        )
+        kept = kept.model_copy(update={"location_id": locations.location_code(kept.location_id)})
     new = NewSavedSearch(name=name, query=query, **kept.model_dump())
     return service.create_saved_search(session, new, Actor.mcp, clock.now())
 

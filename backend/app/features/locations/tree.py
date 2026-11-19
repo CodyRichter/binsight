@@ -28,9 +28,7 @@ def live_record(session: Session, location_id: str) -> models.Location:
 
 
 def _step(location: models.Location) -> PathStep:
-    return PathStep(
-        id=location.id, name=location.name, type=location.type, label_code=location.label_code
-    )
+    return PathStep(id=location.id, name=location.name, type=location.type)
 
 
 def path(session: Session, location: models.Location) -> list[PathStep]:
@@ -44,7 +42,7 @@ def path(session: Session, location: models.Location) -> list[PathStep]:
 
 def all_locations(session: Session) -> list[Location]:
     """Every location, deleted ones included, siblings in their order."""
-    # Counts and label codes are computed on load, so rows already in the session are reloaded.
+    # Counts are computed on load, so rows already in the session are reloaded.
     query = (
         select(models.Location)
         .order_by(models.Location.position, models.Location.created_at, models.Location.id)
@@ -68,7 +66,6 @@ def all_locations(session: Session) -> list[Location]:
             parent_id=row.parent_id,
             summary=row.summary,
             icon=row.icon,
-            label_code=row.label_code,
             path=path(session, row),
             direct_item_count=row.direct_item_count,
             item_count=item_count(row),

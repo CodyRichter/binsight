@@ -11,12 +11,12 @@ def _both(home: AcceptanceHome) -> list[str]:
 def test_moving_many_items_by_code_previews_then_moves_with_the_token(
     claude: Claude, signed_in: TestClient, home: AcceptanceHome
 ) -> None:
-    asked = claude.call("move_items", item_ids=_both(home), location_id="B-015")
+    asked = claude.call("move_items", item_ids=_both(home), location_id=home.tools)
     assert [item["name"] for item in asked["preview"]["items"]] == ["HDMI cable", "USB-C charger"]
     assert signed_in.get(f"/api/locations/{home.tools}").json()["direct_item_count"] == 0
     token = asked["preview"]["confirmation_token"]
     moved = claude.call(
-        "move_items", item_ids=_both(home), location_id="B-015", confirmation_token=token
+        "move_items", item_ids=_both(home), location_id=home.tools, confirmation_token=token
     )
     assert {item["home_location_id"] for item in moved["changed"]["items"]} == {home.tools}
     again = claude.refusal(
@@ -57,7 +57,7 @@ def test_category_and_status_in_two_calls(claude: Claude, home: AcceptanceHome) 
 
 
 def test_a_refused_batch_is_refused_before_any_token(claude: Claude, home: AcceptanceHome) -> None:
-    there = claude.refusal("move_items", item_ids=_both(home), location_id="B-014")
+    there = claude.refusal("move_items", item_ids=_both(home), location_id=home.cables)
     assert there["code"] == "already_there"
     lent = claude.refusal("change_items_status", item_ids=_both(home), status="lent_out")
     assert lent["code"] == "validation_failed"

@@ -77,7 +77,6 @@ export function moreMenu(
   look: LookChoices,
   removal: RemovalChoices,
 ): ReactNode {
-  const code = props.location.label_code;
   return (
     <>
       {movable && props.onAddLocation && (
@@ -85,16 +84,14 @@ export function moreMenu(
           Add location
         </Menu.Item>
       )}
-      {code && (
-        <Menu.Item
-          component="a"
-          href={labelImageAddress(code)}
-          download
-          leftSection={<IconDownload aria-hidden size={20} />}
-        >
-          Download label
-        </Menu.Item>
-      )}
+      <Menu.Item
+        component="a"
+        href={labelImageAddress(props.location.id)}
+        download
+        leftSection={<IconDownload aria-hidden size={20} />}
+      >
+        Download label
+      </Menu.Item>
       <Menu.Item
         component={Link}
         to={`/locations/${props.location.id}/sheet`}

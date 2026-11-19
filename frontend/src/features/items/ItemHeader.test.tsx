@@ -26,8 +26,8 @@ function sampleItem(overrides: Partial<Item> = {}): Item {
     lent_at: null,
     retired_at: null,
     path: [
-      { id: "loc-1", name: "Den", type: "room", label_code: null },
-      { id: "loc-2", name: "Bike Rack", type: "furniture", label_code: null },
+      { id: "loc-1", name: "Den", type: "room" },
+      { id: "loc-2", name: "Bike Rack", type: "furniture" },
     ],
     photo_url: null,
     created_at: "2026-01-01T00:00:00Z",

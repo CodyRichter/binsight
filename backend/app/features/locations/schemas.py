@@ -33,7 +33,6 @@ class PathStep(BaseModel):
     id: str
     name: str
     type: LocationType
-    label_code: str | None
 
 
 class Location(BaseModel):
@@ -43,7 +42,6 @@ class Location(BaseModel):
     parent_id: str | None
     summary: str | None
     icon: str | None
-    label_code: str | None
     path: list[PathStep]
     direct_item_count: int
     item_count: int
@@ -145,9 +143,8 @@ class LocationTree(BaseModel):
 
 @dataclass(frozen=True)
 class SearchableLocation:
-    """What search scores a location on: its name, summary and label's code."""
+    """What search scores a location on: its code, name and summary."""
 
     id: str
     name: str
     summary: str | None
-    label_code: str | None

@@ -17,7 +17,6 @@ from app.features.attachments.service import FileOnDisk
 from app.features.history import service as history
 from app.features.import_export.schemas import COLUMNS
 from app.features.items import service as items
-from app.features.labels import service as labels
 from app.features.locations import service as locations
 from app.features.locations.service import Location
 from app.features.views import service as views
@@ -31,7 +30,6 @@ def _tables(session: Session) -> ExportTables:
         **locations.export_tables(session),
         **items.export_tables(session),
         **attachments.export_tables(session),
-        **labels.export_tables(session),
         **views.export_tables(session),
         **history.export_tables(session),
     }
@@ -78,14 +76,14 @@ def _location_rows(places: list[Location]) -> list[dict[str, Any]]:
         {
             "location": _shown_path(place),
             "type": place.type.value,
-            "label_code": place.label_code,
+            "code": place.id,
             "summary": place.summary,
         }
         for place in places
     ]
 
 
-LOCATION_COLUMNS = ("location", "type", "label_code", "summary")
+LOCATION_COLUMNS = ("location", "type", "code", "summary")
 
 
 def export_everything(session: Session, settings: Settings, now: datetime) -> FileOnDisk:

@@ -1,12 +1,14 @@
+import re
 from dataclasses import dataclass, field
 
 from sqlalchemy.orm import Session
 
 from app.features.import_export.schemas import ImportProblem, ImportRow
-from app.features.labels import service as labels
 from app.features.locations import service as locations
 from app.models import LocationType
 
+# Six letters may be a name, such as Garage, but with the hyphen they can only be a code.
+HYPHENATED_CODE = re.compile(r"[A-Za-z0-9]{3}-[A-Za-z0-9]{3}")
 # Where a step lands: an existing location's id, or the key of one the import will make.
 type Spot = tuple[str, str]
 
@@ -73,27 +75,28 @@ def _step(home: _Home, placing: Placing, spot: Spot | None, name: str) -> Spot:
     return _planned(home, placing, spot, name)
 
 
-def _place(session: Session, home: _Home, placing: Placing, row: ImportRow) -> None:
+def _place(home: _Home, placing: Placing, row: ImportRow) -> None:
     spot: Spot | None = None
     for name in row.path:
-        if labels.label_number(name) is None:
+        code = locations.location_code(name)
+        if code in home.names:
+            spot = ("id", code)
+            continue
+        if HYPHENATED_CODE.fullmatch(name.strip()) is None:
             spot = _step(home, placing, spot, name)
             continue
-        location_id = labels.location_id_for(session, name)
-        if location_id == name:
-            message = f"No location has the label {name.upper()}; claim it first."
-            placing.problems.append(ImportProblem(row=row.row, column="location", message=message))
-            return
-        spot = ("id", location_id)
+        message = f"No location has the code {code}."
+        placing.problems.append(ImportProblem(row=row.row, column="location", message=message))
+        return
     placing.spots[row.row] = spot
 
 
 def place_rows(session: Session, rows: list[ImportRow]) -> Placing:
-    """Find each row's location by name or label code, planning the ones that don't exist yet."""
+    """Find each row's location by name or location code, planning the ones that don't exist yet."""
     home = _home(session)
     placing = Placing()
     for row in rows:
-        _place(session, home, placing, row)
+        _place(home, placing, row)
     return placing
 
 

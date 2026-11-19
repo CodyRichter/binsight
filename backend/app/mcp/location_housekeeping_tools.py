@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session
 
 from app.core import clock
 from app.core.database import open_write_session
-from app.features.labels import service as labels
 from app.features.locations import housekeeping, service
+from app.features.locations import service as locations
 from app.features.locations.schemas import (
     LocationChanges,
     LocationDelete,
@@ -31,7 +31,7 @@ UPDATE_LOCATION = """Rename a location, or change its one-line summary, its type
 
 Use this when the owner renames a room, shelf or bin, describes what a bin holds ("spare
 network cables"), says what kind of place it is, or wants it to look like something.
-location_id is its identifier or its label's code. changes holds only what to change:
+location_id is its code, such as K7Q-4MZ. changes holds only what to change:
 - name: the new name. It cannot be cleared.
 - summary: one line about what it holds. null or "" removes it.
 - type: one of room, furniture, shelf, bin, drawer, box. A site (a location with no parent)
@@ -45,13 +45,13 @@ to put the old values back. Refusals: site_type, and validation_failed for a bad
 DELETE_LOCATION = """Delete a location, in two calls: first a preview, then the deletion.
 
 Use this when the owner wants a location gone. A location is never deleted with things in
-it: pass move_contents_to, a location's identifier or label code, and its items and the
+it: pass move_contents_to, another location's code, and its items and the
 locations directly inside it move there first. Leave it out only for an empty location.
 Call it first without a confirmation_token: nothing changes, and it returns {"preview":
 {"location", "destination", "items_moving", "locations_moving", "confirmation_token",
 "expires_at"}, "deleted": null}. Tell the owner what will move where and ask them. Only
 when they agree, call it again with the same inputs and the token, which works once and
-expires after ten minutes. Its label stays on it, and scanning the label offers to restore.
+expires after ten minutes. Its code stays its own, and scanning its label offers to restore.
 
 The second call returns {"preview": null, "deleted": location} with deleted_at and the
 history_entry_id, which undo_history_entry takes to put everything back. Refusals:
@@ -62,8 +62,8 @@ MERGE_LOCATION = """Merge one location into another, in two calls: a preview, th
 
 Use this when two locations are really the same place, such as two entries for one shelf.
 Everything in location_id moves into into: its items, and the locations inside it.
-Its label moves too, if into has none. Then location_id is deleted. Both accept a
-label code. Call it first without a confirmation_token, tell the owner what will move, and
+Then location_id is deleted; its label still opens it, marked deleted.
+Call it first without a confirmation_token, tell the owner what will move, and
 only when they agree call it again with the same inputs and the token (once, ten minutes).
 
 The first call returns {"preview": {...}, "merged": null}; the second {"preview": null,
@@ -108,10 +108,6 @@ class MergeLocationAnswer(BaseModel):
     merged: LocationMerged | None
 
 
-def _location(session: Session, location: str) -> str:
-    return labels.location_id_for(session, location)
-
-
 def _preview(
     session: Session, tool: str, inputs: dict[str, str | None], destination_id: str | None
 ) -> RemovalPreviewWithToken:
@@ -125,8 +121,8 @@ def _preview(
 def _delete(
     session: Session, location: str, move_contents_to: str | None, token: str | None
 ) -> DeleteLocationAnswer:
-    location_id = _location(session, location)
-    destination_id = _location(session, move_contents_to) if move_contents_to else None
+    location_id = locations.location_code(location)
+    destination_id = locations.location_code(move_contents_to) if move_contents_to else None
     inputs = {"location_id": location_id, "move_contents_to": destination_id}
     if token is None:
         preview = _preview(session, "delete_location", inputs, destination_id)
@@ -139,7 +135,7 @@ def _delete(
 
 
 def _merge(session: Session, location: str, into: str, token: str | None) -> MergeLocationAnswer:
-    location_id, into_id = _location(session, location), _location(session, into)
+    location_id, into_id = locations.location_code(location), locations.location_code(into)
     inputs: dict[str, str | None] = {"location_id": location_id, "into": into_id}
     if token is None:
         return MergeLocationAnswer(
@@ -187,7 +183,7 @@ def _add_update_tool(server: MCPServer, app: FastAPI) -> None:
             open_write_session,
             lambda session: service.update_location(
                 session,
-                _location(session, location_id),
+                locations.location_code(location_id),
                 LocationChanges.model_validate(changes),
                 Actor.mcp,
                 clock.now(),
@@ -206,7 +202,7 @@ def add_location_housekeeping_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             open_write_session,
             lambda session: service.restore_location(
-                session, _location(session, location_id), Actor.mcp, clock.now()
+                session, locations.location_code(location_id), Actor.mcp, clock.now()
             ),
         )
 
@@ -219,7 +215,7 @@ def add_location_housekeeping_tools(server: MCPServer, app: FastAPI) -> None:
             open_write_session,
             lambda session: service.reorder_location(
                 session,
-                _location(session, location_id),
+                locations.location_code(location_id),
                 LocationReorder(position=position),
                 Actor.mcp,
                 clock.now(),

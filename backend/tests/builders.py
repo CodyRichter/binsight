@@ -7,8 +7,6 @@ from sqlalchemy.orm import Session
 
 from app.features.items import service as items
 from app.features.items.schemas import ItemChanges, ItemCreated, NewItem
-from app.features.labels import service as labels
-from app.features.labels.schemas import LabelClaim, NewBlankLabels
 from app.features.locations import service as locations
 from app.features.locations.schemas import LocationCreated, NewLocation
 from app.models import Actor, LocationType
@@ -54,8 +52,8 @@ class AcceptanceHome:
 
 
 def acceptance_home(session: Session) -> AcceptanceHome:
-    """Home > Garage > Shelf 2 > Cables (B-014) and Tools (B-015); Cables holds the two items."""
-    minute = [NOW + timedelta(minutes=step) for step in range(10)]
+    """Home > Garage > Shelf 2 > Cables and Tools; Cables holds the two items."""
+    minute = [NOW + timedelta(minutes=step) for step in range(8)]
     home = location(session, "Home", now=minute[0]).id
     garage = location(session, "Garage", home, LocationType.room, minute[1]).id
     shelf = location(session, "Shelf 2", garage, LocationType.shelf, minute[2]).id
@@ -64,7 +62,4 @@ def acceptance_home(session: Session) -> AcceptanceHome:
     hdmi_cable = item(session, "HDMI cable", cables, minute[5]).id
     items.update_item(session, hdmi_cable, ItemChanges(quantity=3), Actor.app, minute[6])
     usb_c_charger = item(session, "USB-C charger", cables, minute[7]).id
-    labels.create_blank_labels(session, NewBlankLabels(count=15), Actor.app, minute[8])
-    for code, location_id in (("B-014", cables), ("B-015", tools)):
-        labels.claim_label(session, code, LabelClaim(location_id=location_id), Actor.app, minute[9])
     return AcceptanceHome(home, garage, shelf, cables, tools, hdmi_cable, usb_c_charger)

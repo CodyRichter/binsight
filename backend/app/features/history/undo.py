@@ -49,12 +49,7 @@ UNDOABLE = {
 }
 
 type Undoable = (
-    models.Item
-    | models.Attachment
-    | models.Location
-    | models.Label
-    | models.ItemLink
-    | models.SavedSearch
+    models.Item | models.Attachment | models.Location | models.ItemLink | models.SavedSearch
 )
 
 
@@ -74,8 +69,6 @@ def _record(session: Session, change: models.HistoryChange) -> Undoable | None:
         return session.get(models.Attachment, change.record_id)
     if change.record_type == "location":
         return session.get(models.Location, change.record_id)
-    if change.record_type == "label":
-        return session.get(models.Label, change.record_id)
     if change.record_type == "link":
         return session.get(models.ItemLink, change.record_id)
     if change.record_type == "saved_search":
@@ -134,11 +127,10 @@ def _refuse_cycle(session: Session, location: models.Location, parent_id: str) -
 
 
 def _remove_location(session: Session, location: models.Location) -> None:
-    # Anything put in it since, or a label stuck on it, means it has changed.
+    # Anything put in it since means it has changed.
     held = (
         select(models.Item.id).where(models.Item.home_location_id == location.id),
         select(models.Location.id).where(models.Location.parent_id == location.id),
-        select(models.Label.id).where(models.Label.location_id == location.id),
         select(models.Attachment.id).where(models.Attachment.location_id == location.id),
     )
     if any(session.scalar(query) is not None for query in held):

@@ -26,8 +26,7 @@ export function RowsSpecimen() {
           <Thumbnail locationType="bin" />
           <Thumbnail locationType="furniture" locationIcon="bike" />
           <Thumbnail photoUrl={samplePhoto} large />
-          <CodeChip code="B-014" />
-          <CodeChip code="B-031" blank />
+          <CodeChip code="K7Q-4MZ" />
         </Group>
         <Group gap="sm">
           <StatusBadge status="lent_out" lentTo="Dana" />

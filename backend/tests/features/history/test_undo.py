@@ -8,8 +8,6 @@ from app.features.attachments import service as attachments
 from app.features.history import service
 from app.features.items import service as items
 from app.features.items.schemas import ItemChanges, NewItems
-from app.features.labels import service as labels
-from app.features.labels.schemas import NewBlankLabels
 from app.models import Actor, HistoryEntry, Item
 from tests import builders
 from tests.photos import photo
@@ -125,8 +123,9 @@ def test_a_change_undo_does_not_cover_is_refused(
     migrated_engine: Engine, settings: Settings
 ) -> None:
     with open_write_session(migrated_engine) as session:
-        made = labels.create_blank_labels(session, NewBlankLabels(count=1), Actor.app, builders.NOW)
-    refusal = _refusal(migrated_engine, settings, made.history_entry_id)
+        added = builders.item(session, "Ethernet cable")
+    undo_id = _undo(migrated_engine, settings, added.history_entry_id)
+    refusal = _refusal(migrated_engine, settings, undo_id)
     assert refusal == (409, "undo_not_supported")
 
 

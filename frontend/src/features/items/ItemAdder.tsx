@@ -22,7 +22,7 @@ export function ItemAdder(props: ItemAdderProps) {
   const addByPhoto = useAddByPhoto(home, onSettled);
   return (
     <AddBar
-      destinationCode={home?.label_code ?? undefined}
+      destinationCode={home?.id}
       destinationName={home?.name}
       onChangeDestination={onChangeDestination}
       onAdd={(names) => names.forEach(addItem)}

@@ -26,7 +26,7 @@ export function ScanTask() {
         <TaskPanel onSubmit={openTyped}>
           <TextInput
             label="Code"
-            placeholder="B-014"
+            placeholder="K7Q-4MZ"
             value={typed}
             onChange={(event) => setTyped(event.currentTarget.value)}
             autoFocus

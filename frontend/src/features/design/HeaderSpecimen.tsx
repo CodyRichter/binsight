@@ -17,7 +17,7 @@ export function HeaderSpecimen() {
         title={title}
         onRename={setTitle}
         parents={shelfPath}
-        code="B-014"
+        code="K7Q-4MZ"
         summary={{ value: summary, onSave: setSummary }}
         counts={["6 items"]}
         actions={

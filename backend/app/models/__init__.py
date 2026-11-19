@@ -5,7 +5,6 @@ from app.models.categories import Category
 from app.models.confirmations import Confirmation
 from app.models.history import Actor, HistoryChange, HistoryEntry
 from app.models.items import ARCHIVED, Item, ItemStatus, ItemTag
-from app.models.labels import Label
 from app.models.links import ItemLink, LinkKind
 from app.models.locations import Location, LocationType
 from app.models.saved_searches import SavedSearch
@@ -23,7 +22,6 @@ __all__ = [
     "ItemLink",
     "ItemStatus",
     "ItemTag",
-    "Label",
     "LinkKind",
     "Location",
     "LocationType",

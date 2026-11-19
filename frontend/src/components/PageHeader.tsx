@@ -25,7 +25,6 @@ interface PageHeaderProps {
   onRename?: (title: string) => void;
   parents?: PathSegment[];
   code?: string;
-  blankCode?: boolean;
   thumbnail?: PageThumbnail;
   status?: { status: Status; lentTo?: string };
   summary?: { value: string; onSave: (summary: string) => void };
@@ -52,7 +51,7 @@ function metaLine({ counts = [], since }: PageHeaderProps): ReactNode {
 }
 
 function titleLine(props: PageHeaderProps): ReactNode {
-  const { title, untitled, code, blankCode, onRename } = props;
+  const { title, untitled, code, onRename } = props;
   return (
     <div className={classes.title}>
       <Title order={1} tabIndex={-1}>
@@ -62,7 +61,7 @@ function titleLine(props: PageHeaderProps): ReactNode {
           title || untitled
         )}
       </Title>
-      {code && <CodeChip code={code} large blank={blankCode} />}
+      {code && <CodeChip code={code} large />}
     </div>
   );
 }

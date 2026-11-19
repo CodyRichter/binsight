@@ -8,15 +8,15 @@ from app.core import clock
 from app.core.database import open_read_session
 from app.features.import_export import service as import_export
 from app.features.import_export.schemas import ContentsSheet, InsuranceList
-from app.features.labels import service as labels
+from app.features.locations import service as locations
 from app.mcp.actions import run_action
 
 GET_INSURANCE_LIST = """List everything still owned, for insurance: the whole home, or one location
 and everything inside it.
 
 Use it for "what is my stuff worth?", "what would I claim if the garage flooded?", or to
-gather serial numbers and receipts. location_id is a location's identifier or a label code
-such as B-014; leave it out for the whole home, inbox included. Sold, given away, thrown
+gather serial numbers and receipts. location_id is a location's code, such as
+K7Q-4MZ; leave it out for the whole home, inbox included. Sold, given away, thrown
 away and deleted items are left out.
 
 Returns the title, path, made_at, item_count, total_cents (each price times its quantity,
@@ -27,9 +27,9 @@ file's name and every web link). The owner can print the same list from the app.
 GET_CONTENTS_SHEET = """Show what is in a location as its printable contents sheet, grouped by the
 location each thing is kept in.
 
-location_id is a location's identifier or a label code such as B-014. Returns the location
-(path, label code, summary) and groups: the location itself first, then
-every location inside it, parents before children, each with its path, label_code and
+location_id is a location's code, such as K7Q-4MZ. Returns the location
+(path, code, summary) and groups: the location itself first, then
+every location inside it, parents before children, each with its path, location_id and
 items (name, quantity, status). Sold, given away, thrown away and deleted items are left
 out. The owner prints the sheet from the location's page in the app."""
 
@@ -46,7 +46,7 @@ def add_print_tools(server: MCPServer, app: FastAPI) -> None:
             open_read_session,
             lambda session: import_export.get_insurance_list(
                 session,
-                None if location_id is None else labels.location_id_for(session, location_id),
+                None if location_id is None else locations.location_code(location_id),
                 clock.now(),
             ),
         )
@@ -57,6 +57,6 @@ def add_print_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             open_read_session,
             lambda session: import_export.get_contents_sheet(
-                session, labels.location_id_for(session, location_id)
+                session, locations.location_code(location_id)
             ),
         )

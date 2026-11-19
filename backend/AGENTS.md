@@ -50,7 +50,8 @@ Lint rules are in `../ruff.toml`. Dependencies are added with `uv add`, so
 - Anything returning an item includes its full location path.
 - Items are archived, never removed. Deleted items stay restorable.
 - Label codes and the `/l/{code}` address are permanent
-  ([decision 0004](../docs/decisions/0004-permanent-labels.md)).
+  ([decision 0004](../docs/decisions/0004-permanent-labels.md),
+  [decision 0021](../docs/decisions/0021-location-codes.md)).
 
 ## Python
 

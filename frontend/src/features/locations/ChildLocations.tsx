@@ -28,7 +28,7 @@ export function ChildLocations({ locations, onAddLocation }: ChildLocationsProps
             name={location.name}
             locationType={location.type}
             locationIcon={location.icon}
-            code={location.label_code ?? undefined}
+            code={location.id}
             itemCount={location.item_count}
             to={`/locations/${location.id}`}
             sortable={sortable}

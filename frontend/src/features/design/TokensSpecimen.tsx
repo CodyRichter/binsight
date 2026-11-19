@@ -45,8 +45,8 @@ export function TokensSpecimen() {
           Added 3 weeks ago
         </Text>
         <Group gap="md">
-          <CodeChip code="B-014" />
-          <CodeChip code="B-014" large />
+          <CodeChip code="K7Q-4MZ" />
+          <CodeChip code="K7Q-4MZ" large />
         </Group>
       </Stack>
     </Specimen>

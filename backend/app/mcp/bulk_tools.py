@@ -21,7 +21,7 @@ from app.features.items.bulk_schemas import (
     ItemsTag,
 )
 from app.features.items.schemas import Item
-from app.features.labels import service as labels
+from app.features.locations import service as locations
 from app.mcp import confirmation
 from app.mcp.actions import run_action
 from app.models import Actor
@@ -40,8 +40,8 @@ include confirmation_invalid and confirmation_expired, after which you ask again
 MOVE_ITEMS = f"""Move many items into one location at once, in two calls: a preview, then the move.
 
 Use this when the owner wants several things moved together, such as everything on a list
-going into one bin; for one item use move_item. location_id is the destination's identifier
-or its label's code. Refused with already_there when every item is already there, and
+going into one bin; for one item use move_item. location_id is the destination's code,
+such as K7Q-4MZ. Refused with already_there when every item is already there, and
 location_deleted when the destination is deleted.
 
 {TWO_CALLS}"""
@@ -130,7 +130,7 @@ def _in_two_calls[Body: BaseModel](
 
 
 def _move(session: Session, item_ids: list[str], location: str, token: str | None) -> BulkAnswer:
-    move = ItemsMove(item_ids=item_ids, location_id=labels.location_id_for(session, location))
+    move = ItemsMove(item_ids=item_ids, location_id=locations.location_code(location))
     steps = (service.preview_move_items, service.move_items)
     return _in_two_calls(session, "move_items", move, steps, token)
 

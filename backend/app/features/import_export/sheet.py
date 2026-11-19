@@ -34,9 +34,7 @@ def get_contents_sheet(session: Session, location_id: str) -> ContentsSheet:
             )
     top = next(place for place in inside if place.id == location_id)
     groups = [
-        SheetGroup(
-            location_id=place.id, path=place.path, label_code=place.label_code, items=held[place.id]
-        )
+        SheetGroup(location_id=place.id, path=place.path, items=held[place.id])
         for place in _tree_order(top, inside)
     ]
     return ContentsSheet(location=top, groups=groups)

@@ -14,7 +14,7 @@ from app.features.items.schemas import (
     ItemStatusChange,
     ItemStatusChanged,
 )
-from app.features.labels import service as labels
+from app.features.locations import service as locations
 from app.mcp.actions import run_action
 from app.models import Actor
 
@@ -30,7 +30,7 @@ already_missing or item_deleted."""
 MARK_ITEM_FOUND = """Mark a missing item found, in the location where it turned up.
 
 Use this when the owner finds something that was marked missing. location_id is where it
-is now, which may be its old home; a label code such as B-014 works too. The item's status
+is now, which may be its old home, as a code such as K7Q-4MZ. The item's status
 goes back to in_place and its home location becomes that place, as one change.
 
 Returns the item with its new path and the history_entry_id, or the error not_missing,
@@ -72,7 +72,7 @@ def add_status_tools(server: MCPServer, app: FastAPI) -> None:
             lambda session: service.mark_item_found(
                 session,
                 item_id,
-                ItemFound(location_id=labels.location_id_for(session, location_id)),
+                ItemFound(location_id=locations.location_code(location_id)),
                 Actor.mcp,
                 clock.now(),
             ),

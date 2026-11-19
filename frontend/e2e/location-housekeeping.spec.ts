@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { addItem, addLocation, claim, makeLabels, siteRoomBin, uniqueName } from "./homeData";
+import { addItem, addLocation, siteRoomBin, uniqueName } from "./homeData";
 import { openAtPhoneWidth } from "./owner";
 
 /** A shelf holding a bin with an item in it and an empty bin beside it. */
@@ -69,10 +69,10 @@ test("an empty bin is deleted at once and Undo puts it back", async ({ page }) =
   await expect(page.getByRole("link", { name: otherName })).toBeVisible();
 });
 
-test("merging a bin into another takes its items and its label", async ({ page }) => {
+test("merging a bin into another takes its items, and its label then opens it deleted", async ({
+  page,
+}) => {
   const { full, fullName, other, otherName, item } = await shelfOfTwoBins(page);
-  const [code = ""] = await makeLabels(page.request, 1);
-  await claim(page.request, code, full);
   await openAtPhoneWidth(page, `/locations/${full}`);
   await more(page, "Merge into…");
   await pickInSheet(page, "Merge into", otherName);
@@ -81,15 +81,15 @@ test("merging a bin into another takes its items and its label", async ({ page }
     page.getByRole("status").filter({ hasText: `Merged ${fullName} into ${otherName}` }),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: item })).toBeVisible();
-  await expect(page.getByText(code, { exact: true }).first()).toBeVisible();
+  await page.goto(`/l/${full}`);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(fullName);
+  await expect(page.getByText(/^Deleted/)).toBeVisible();
 });
 
 test("a deleted bin's label says so and restores it", async ({ page }) => {
   const { other, otherName } = await shelfOfTwoBins(page);
-  const [code = ""] = await makeLabels(page.request, 1);
-  await claim(page.request, code, other);
   await page.request.delete(`/api/locations/${other}`);
-  await openAtPhoneWidth(page, `/l/${code}`);
+  await openAtPhoneWidth(page, `/l/${other}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(otherName);
   await expect(page.getByText(/^Deleted/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Move", exact: true })).toHaveCount(0);

@@ -8,7 +8,6 @@ schema; column types and indexes are decided when each table is built.
 
 ```
 Location ──parent──> Location          (a tree; sites have no parent)
-Location <──0..1── Label               (a label is blank until claimed)
 Item ──home location──> Location       (optional; none means inbox)
 Item ──0..1──> Category
 Item <──many──> Tag
@@ -20,7 +19,8 @@ HistoryEntry ──> any of the above
 ## Shared rules
 
 - Every record has an identifier that is a random opaque string. Identifiers
-  are never sequential, never shown to the owner, and never reused.
+  are never sequential and never reused, and only a location's is shown to
+  the owner: it is the location's code.
 - Every record has `created_at` and `updated_at`, stored in UTC.
 - Items and locations are never physically removed. Deleting sets
   `deleted_at`; restoring clears it.
@@ -31,6 +31,7 @@ HistoryEntry ──> any of the above
 
 | Field        | Notes                                                       |
 | ------------ | ----------------------------------------------------------- |
+| `id`         | The location's code. See below.                             |
 | `name`       | Required.                                                   |
 | `type`       | One of the fixed location types. Required.                  |
 | `parent`     | Another location, or none for a site.                       |
@@ -53,7 +54,7 @@ Rules:
 - Deleting a location requires choosing where its items and child locations
   go. A location is never deleted with contents still in it.
 - Merging location A into B moves A's items and children to B, then
-  deletes A. A's label, if any, is re-pointed to B only if B has none.
+  deletes A. A keeps its code.
 - Deleting or merging moves every item in the location that is not
   deleted, archived ones included. Deleted items stay with the deleted
   location, and are restored only once it is. Archived items in an empty
@@ -62,29 +63,22 @@ Rules:
 - A deleted location is restored empty, under its old parent, and only
   while that parent is not deleted.
 
-## Label
+## Code
 
-| Field        | Notes                                                       |
-| ------------ | ----------------------------------------------------------- |
-| `code`       | The readable code. Unique forever.                          |
-| `location`   | The location it is attached to, or none while blank.        |
-| `claimed_at` | When it was attached.                                       |
+A location's identifier is its code. The label is that code printed with
+its QR code; it is not stored.
 
-Rules:
-
-- Codes come from one series: the letter `B`, a hyphen, and a number that
-  only ever increases, padded to at least three digits (`B-001`, `B-014`,
-  `B-1203`). The letter does not stand for a location type, because blank
-  labels are printed before their type is known.
-- A code is never reused, including after its location is deleted.
-- A location has at most one label, and a label is on at most one location.
-- A label is never deleted. If its location is deleted, the label stays
-  attached to the deleted location, and scanning it says so and offers to
-  restore.
+- A code is six characters from A–Z and 0–9, written with a hyphen after
+  the third (`K7Q-4MZ`), drawn at random when the location is made.
+- A code is drawn again if it spells a word on the blocklist, read as
+  written or with digits taken as letters (`0` as O, `1` as I or L, `3` as
+  E, `4` as A, `5` as S, `7` as T, `8` as B), or if a location already has
+  it.
+- A code is never reused, including after its location is deleted or
+  merged; the label of a deleted location opens it, marked deleted.
 - Codes are matched without regard to letter case or the hyphen, so typing
-  `b14` into search finds `B-014`.
-- The code's number is stored beside it, so the series continues from the
-  highest number and a typed code is matched by number.
+  `k7q4mz` finds `K7Q-4MZ`. Six letters typed as a name, such as `Garage`,
+  are a code only where they name a location that exists.
 
 ## Item
 

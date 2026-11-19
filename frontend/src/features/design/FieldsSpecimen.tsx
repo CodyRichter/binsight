@@ -39,7 +39,7 @@ export function FieldsSpecimen() {
       />
       <AddBarDemo />
       <DuplicateSuggestion
-        message="AA batteries is in Bin B-014"
+        message="AA batteries is in Network cables"
         onAccept={() =>
           showToast({ message: "Added 1 more AA batteries", onUndo: () => undefined })
         }

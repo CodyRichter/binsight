@@ -7,7 +7,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-const cables = { id: "cables", name: "Cables", label_code: "B-014", path: [] };
+const cables = { id: "B2R-W9T", name: "Cables", path: [] };
 const hdmiCable = {
   id: "hdmi",
   name: "HDMI cable",

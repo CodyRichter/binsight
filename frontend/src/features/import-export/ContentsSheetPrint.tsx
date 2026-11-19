@@ -28,21 +28,16 @@ function SheetBody({ sheet }: { sheet: ContentsSheet }) {
       <PageHeader
         title={location.name}
         parents={pathSegments(location.path.slice(0, -1))}
-        code={location.label_code ?? undefined}
+        code={location.id}
         counts={[count === 1 ? "1 item" : `${count} items`]}
       />
-      {location.label_code && (
-        <PrintedLabel
-          code={location.label_code}
-          imageUrl={labelImageAddress(location.label_code)}
-        />
-      )}
+      <PrintedLabel code={location.id} imageUrl={labelImageAddress(location.id)} />
       {sheet.groups.map((group) => (
         <ListSection
           key={group.location_id}
           title={groupTitle(group, sheet)}
           count={group.items.length}
-          action={group.label_code ? <CodeChip code={group.label_code} /> : undefined}
+          action={<CodeChip code={group.location_id} />}
         >
           {group.items.map((item) => (
             <PrintItem

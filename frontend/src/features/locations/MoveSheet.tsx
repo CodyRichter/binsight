@@ -6,12 +6,13 @@ import { LocationRow } from "@/components/LocationRow";
 import { Sheet } from "@/components/Sheet";
 import { placeName } from "@/features/items";
 import { Scanner } from "@/features/scan";
+import { locationCode } from "./locationCode";
 import { canMoveTo, moveDestinations } from "./moveDestinations";
 import { recentDestinations, rememberDestination } from "./recentDestinations";
 import { useLocationTree, type Location } from "./useLocations";
 
 function scannedMessage(code: string, found: Location | undefined, currentId: string | null) {
-  if (!found) return `${code} isn't on a location yet`;
+  if (!found) return `No location has the code ${code}`;
   if (found.id === currentId) return `Already in ${placeName(found)}`;
   return `Can't move into ${placeName(found)}`;
 }
@@ -23,7 +24,7 @@ function whereItWas(location: Location, onPick: () => void) {
       name="Where it was"
       locationType={location.type}
       locationIcon={location.icon}
-      code={location.label_code ?? undefined}
+      code={location.id}
       itemCount={location.item_count}
       onPick={onPick}
     />
@@ -50,7 +51,7 @@ export function MoveSheet(props: MoveSheetProps) {
     onPick(location);
   };
   const scanned = (code: string) => {
-    const found = locations.find((location) => location.label_code === code);
+    const found = locations.find((location) => location.id === locationCode(code));
     if (found && canMoveTo(found, currentId, movingId)) pick(found);
     else setMessage(scannedMessage(code, found, currentId));
   };
@@ -76,7 +77,7 @@ export function MoveSheet(props: MoveSheetProps) {
               name={location.name}
               locationType={location.type}
               locationIcon={location.icon}
-              code={location.label_code ?? undefined}
+              code={location.id}
               itemCount={location.item_count}
               onPick={() => pick(location)}
             />

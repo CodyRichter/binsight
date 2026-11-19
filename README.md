@@ -5,7 +5,7 @@ questions: **"do we own one?"** and **"where is it?"**
 
 Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
-`Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
+`Garage > Shelf 2 > Cables`. Claude can do everything you can through MCP.
 
 > **Status: 1.0.0. Everything in the requirements is built.** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
@@ -20,11 +20,11 @@ what's inside. Search for anything and get its full location path, e.g.
 > credential as a bearer token, made and revoked in `/settings`. It runs
 > as one container from `deploy/compose.yml`, checked from an empty and a
 > used data directory by `scripts/check_container.sh`, and the browser
-> tests run against that image. Blank labels with codes such as `B-014`
-> are made in `/settings` and download as printable PNGs with their QR
-> code. Scanning one opens `/l/{code}`: its location's page, or for a
-> blank label the tree to claim it for, with Undo; locations show their
-> code chips, and the API and MCP can do the same. The add bar adds by
+> tests run against that image. Every location has a random code such as
+> `K7Q-4MZ`, its address at `/locations/{code}`, and its label downloads
+> as a printable PNG with its QR code. Scanning one opens `/l/{code}`,
+> which goes to its location's page; locations show their code chips, and
+> the API and MCP take a code wherever they take a location. The add bar adds by
 > name, several at once, by photo or to an existing item, from a location's
 > page or from Add in the navigation, each with Undo; `/inbox` lists what
 > still lacks a name or a home. Typing in the search field opens `/search`,
@@ -166,8 +166,8 @@ plan for all of them; a folder that exists must be listed here.
 | Feature         | What it covers                                              |
 | --------------- | ----------------------------------------------------------- |
 | `auth`          | Owner login, long-lived sessions, MCP credentials           |
-| `locations`     | The nested tree of places, moving, merging, deleting        |
-| `labels`        | Label codes, QR images, blank labels and claiming them      |
+| `locations`     | The nested tree of places, their codes, moving, merging, deleting |
+| `labels`        | A location's label as a printable QR image                  |
 | `items`         | Items, quantity, status, "lent to", links, categories, tags, quick and batch add, bulk edit, inbox |
 | `attachments`   | Photos and files on items and locations                     |
 | `search`        | Global fuzzy search and filters                             |
@@ -185,7 +185,7 @@ The frontend folder for `import_export` is named `import-export`.
 | Path                | Page                                                    |
 | ------------------- | ------------------------------------------------------- |
 | `/`                 | The tree of the whole home; `/?add` opens Add, the home screen shortcut |
-| `/l/{code}`         | Where a scanned QR code lands, e.g. `/l/B-014`          |
+| `/l/{code}`         | Where a scanned QR code lands, e.g. `/l/K7Q-4MZ`; opens `/locations/{code}` |
 | `/locations/{id}`   | A location and its contents                             |
 | `/items/{id}`       | An item                                                 |
 | `/search`           | Search results                                          |

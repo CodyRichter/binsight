@@ -1,12 +1,5 @@
 import { expect, test } from "@playwright/test";
-import {
-  addItem,
-  addLocation,
-  addPhotoItem,
-  makeLabels,
-  siteRoomBin,
-  uniqueName,
-} from "./homeData";
+import { addItem, addLocation, addPhotoItem, siteRoomBin, uniqueName } from "./homeData";
 import { box, open, settled } from "./measure";
 
 test("an item row with a path is row-min plus its hairline", async ({ page }) => {
@@ -53,14 +46,6 @@ test("a tree puts the top level's toggle glyph at the gutter", async ({ page }) 
   await siteRoomBin(page.request);
   await open(page, "/");
   expect((await box(page.locator("#content li button svg").first())).left).toBe(16);
-});
-
-test("a claim row's add-inside glyph sits at the gutter", async ({ page }) => {
-  await siteRoomBin(page.request);
-  const [code = ""] = await makeLabels(page.request, 1);
-  await open(page, `/l/${code}`);
-  const addInside = page.getByRole("button", { name: /^Add location inside/ }).first();
-  expect((await box(addInside.locator("svg"))).right).toBe(390 - 16);
 });
 
 test("a sheet's Close is touch-min with its glyph at the gutter", async ({ page }) => {

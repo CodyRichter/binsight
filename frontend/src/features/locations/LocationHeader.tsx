@@ -62,7 +62,7 @@ export function LocationHeader(props: LocationHeaderProps) {
         title={location.name}
         onRename={(name) => change({ name })}
         parents={pathSegments(location.path.slice(0, -1))}
-        code={location.label_code ?? undefined}
+        code={location.id}
         thumbnail={{
           photoUrl: location.photo_url ?? undefined,
           locationType: location.type,

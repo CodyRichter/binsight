@@ -1,3 +1,4 @@
+import { locationCode } from "./locationCode";
 import { treeRows } from "./treeRows";
 import type { Location } from "./useLocations";
 
@@ -8,15 +9,10 @@ interface Choices {
   recent: string[];
 }
 
-const codeNumber = (text: string) => /^b-?(\d+)$/i.exec(text.trim())?.[1];
-
 function matches(location: Location, query: string): boolean {
   const typed = query.trim().toLowerCase();
   if (!typed) return true;
-  const number = codeNumber(typed);
-  const code = location.label_code && codeNumber(location.label_code);
-  if (number && code) return Number(number) === Number(code);
-  return location.name.toLowerCase().includes(typed);
+  return location.id === locationCode(typed) || location.name.toLowerCase().includes(typed);
 }
 
 /** Whether a thing can move to a location: not where it is, nor into itself or anything inside. */

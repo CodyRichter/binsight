@@ -3,7 +3,6 @@ from typing import Annotated
 from fastapi import FastAPI
 from mcp.server.mcpserver import MCPServer
 from mcp.types import CallToolResult
-from sqlalchemy.orm import Session
 
 from app.core import clock
 from app.core.database import open_read_session, open_write_session
@@ -13,7 +12,6 @@ from app.features.attachments import service as attachments
 from app.features.attachments.service import Attachment
 from app.features.items import service as items
 from app.features.items.schemas import AttachmentAdded, NewWebLink
-from app.features.labels import service as labels
 from app.features.locations import service as locations
 from app.features.locations.schemas import LocationPhotoChanged
 from app.mcp.actions import run_action, run_file_action, run_file_reading_action, run_photo_action
@@ -84,7 +82,7 @@ with update_item first."""
 
 SET_LOCATION_PHOTO = """Give a location its photo, so it is easy to recognize, replacing any it had.
 
-location_id may be the location's label code, such as B-014. photo_base64 is a JPEG, PNG or
+location_id is the location's code, such as K7Q-4MZ. photo_base64 is a JPEG, PNG or
 WebP as base64 text, at most 20 MB.
 
 Returns the location with its photo_url and the history_entry_id; undoing it puts the old
@@ -92,7 +90,7 @@ photo back. Refuses with unsupported_photo, photo_too_large or location_not_foun
 
 REMOVE_LOCATION_PHOTO = """Take a location's photo away, in two calls.
 
-Call it first with location_id alone (a label code works too): nothing is removed, and it
+Call it first with location_id alone: nothing is removed, and it
 returns {"preview": {"location": ..., "confirmation_token": ..., "expires_at": ...},
 "removed": null}. Ask the owner; only when they agree, call it again with the same
 location_id and the confirmation_token.
@@ -100,10 +98,6 @@ location_id and the confirmation_token.
 The second call returns {"preview": null, "removed": location} with the history_entry_id,
 which undo_history_entry takes to put the photo back. Refuses with attachment_not_found
 when the location has no photo."""
-
-
-def _location(session: Session, location_id: str) -> str:
-    return labels.location_id_for(session, location_id)
 
 
 def _add_reading_tools(server: MCPServer, app: FastAPI) -> None:
@@ -173,7 +167,7 @@ def _add_location_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             photo_base64,
             lambda session, photo: locations.set_location_photo(
-                session, _location(session, location_id), photo, Actor.mcp, clock.now()
+                session, locations.location_code(location_id), photo, Actor.mcp, clock.now()
             ),
         )
 
@@ -199,7 +193,7 @@ def _add_removal_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             open_write_session,
             lambda session: remove_location_photo_in_two_calls(
-                session, _location(session, location_id), confirmation_token
+                session, locations.location_code(location_id), confirmation_token
             ),
         )
 

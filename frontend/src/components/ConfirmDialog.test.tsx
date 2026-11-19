@@ -9,8 +9,8 @@ test("renders safe button before danger button and invokes both handlers", async
   const { user } = renderWithTheme(
     <ConfirmDialog
       opened
-      title="Delete 12 blank labels?"
-      detail="Their codes can never be used again."
+      title="Revoke Claude Desktop?"
+      detail="Claude stops reaching Binsight with it."
       cancelLabel="Keep them"
       confirmLabel="Delete forever"
       onCancel={onCancel}

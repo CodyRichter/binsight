@@ -1,16 +1,14 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { addItem, claim, makeLabels, photoFile, siteRoomBin, uniqueName } from "./homeData";
+import { addItem, photoFile, siteRoomBin, uniqueName } from "./homeData";
 import { openAtPhoneWidth } from "./owner";
 
-/** Cables (B-0xx) as in docs/acceptance.md: an HDMI cable, quantity 3, and a USB-C charger. */
+/** Cables as in docs/acceptance.md: an HDMI cable, quantity 3, and a USB-C charger. */
 async function cablesBin(page: Page) {
   const { names, ids } = await siteRoomBin(page.request);
   const hdmiCable = await addItem(page.request, "HDMI cable", ids.bin);
   await page.request.patch(`/api/items/${hdmiCable}`, { data: { quantity: 3 } });
   await addItem(page.request, "USB-C charger", ids.bin);
-  const [code = ""] = await makeLabels(page.request, 1);
-  await claim(page.request, code, ids.bin);
-  return { names, ids, code };
+  return { names, ids, code: ids.bin };
 }
 
 function itemRows(page: Page): Locator {
@@ -28,7 +26,7 @@ async function paste(field: Locator, text: string) {
 test("an item added by name shows at once, the field is ready again, and Undo removes it", async ({
   page,
 }) => {
-  const { code } = await cablesBin(page);
+  const { code, names } = await cablesBin(page);
   await openAtPhoneWidth(page, `/l/${code}`);
   const field = page.getByRole("textbox", { name: "Add an item" });
   await field.fill("Ethernet cable");
@@ -37,7 +35,7 @@ test("an item added by name shows at once, the field is ready again, and Undo re
   await expect(row).toBeVisible();
   await expect(field).toBeFocused();
   await expect(field).toHaveValue("");
-  await expect(page.getByText(`Added Ethernet cable to Bin ${code}`)).toBeVisible();
+  await expect(page.getByText(`Added Ethernet cable to ${names.bin}`)).toBeVisible();
   await page.getByRole("button", { name: "Undo" }).click();
   await expect(row).toHaveCount(0);
   await page.reload();
@@ -48,7 +46,7 @@ test("an item added by name shows at once, the field is ready again, and Undo re
 test("pasting three lines into the add field adds three items, and one Undo takes all three back", async ({
   page,
 }) => {
-  const { code } = await cablesBin(page);
+  const { code, names } = await cablesBin(page);
   await openAtPhoneWidth(page, `/l/${code}`);
   await paste(
     page.getByRole("textbox", { name: "Add an item" }),
@@ -58,23 +56,23 @@ test("pasting three lines into the add field adds three items, and one Undo take
   for (const name of ["Patch cable", "Cable ties", "Velcro"]) {
     await expect(itemRows(page).filter({ hasText: name })).toBeVisible();
   }
-  await expect(page.getByText(`Added 3 items to Bin ${code}`)).toBeVisible();
+  await expect(page.getByText(`Added 3 items to ${names.bin}`)).toBeVisible();
   await page.getByRole("button", { name: "Undo" }).click();
   await expect(itemRows(page).filter({ hasText: "Velcro" })).toHaveCount(0);
   await expect(itemRows(page)).toHaveCount(2);
 });
 
 test("a photo adds an Unnamed item that waits in the inbox until it is named", async ({ page }) => {
-  const { code } = await cablesBin(page);
+  const { code, names } = await cablesBin(page);
   await openAtPhoneWidth(page, `/l/${code}`);
   // The add bar's camera input; the header's photo input for the bin is the other one.
   await page.locator('input[type="file"][aria-hidden="true"]').setInputFiles(photoFile);
-  await expect(page.getByText(`Added a photo to Bin ${code}`)).toBeVisible();
+  await expect(page.getByText(`Added a photo to ${names.bin}`)).toBeVisible();
   const unnamed = itemRows(page).filter({ hasText: "Unnamed" });
   await expect(unnamed.locator("img")).toBeVisible();
 
   await page.goto("/inbox");
-  const waiting = itemRows(page).filter({ hasText: `Bin ${code}` });
+  const waiting = itemRows(page).filter({ hasText: names.bin });
   await expect(waiting).toContainText("Unnamed");
   await waiting.getByRole("link", { name: "Unnamed" }).click();
   await expect(page).toHaveTitle("Unnamed – Binsight");

@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { addItem, addPhotoItem, claim, makeLabels, siteRoomBin, uniqueName } from "./homeData";
+import { addItem, addPhotoItem, siteRoomBin, uniqueName } from "./homeData";
 import { openAtPhoneWidth } from "./owner";
 
 /** Flow 3's home: Cables, with its label, holding a photographed HDMI cable and a charger. */
@@ -9,9 +9,7 @@ async function cablesBin(page: Page) {
   const photoItem = await addPhotoItem(page.request, ids.bin);
   await page.request.patch(`/api/items/${photoItem}`, { data: { name: hdmiCable } });
   await addItem(page.request, "USB-C charger", ids.bin);
-  const [code = ""] = await makeLabels(page.request, 1);
-  await claim(page.request, code, ids.bin);
-  return { names, hdmiCable, code };
+  return { names, hdmiCable, code: ids.bin };
 }
 
 function searchField(page: Page): Locator {
@@ -25,14 +23,13 @@ function resultRow(page: Page, text: string): Locator {
 test("typing hdmi lists the HDMI cable with its path, photo and the match marked", async ({
   page,
 }) => {
-  const { names, hdmiCable, code } = await cablesBin(page);
+  const { names, hdmiCable } = await cablesBin(page);
   await openAtPhoneWidth(page, "/");
   await searchField(page).pressSequentially("hdmi");
   const row = resultRow(page, hdmiCable);
   await expect(row).toBeVisible();
   await expect(page).toHaveURL(/\/search\?q=hdmi$/);
-  // A labelled bin's place in a path reads by its code.
-  await expect(row).toContainText(`${names.site}${names.room}Bin ${code}`);
+  await expect(row).toContainText(`${names.site}${names.room}${names.bin}`);
   await expect(row.locator("img")).toBeVisible();
   await expect(row.locator("mark")).toHaveText("HDMI");
 });
@@ -47,10 +44,10 @@ test("a typo and reversed words still find it", async ({ page }) => {
   await expect(resultRow(page, hdmiCable)).toBeVisible();
 });
 
-test("a label code typed in lower case without its hyphen finds the bin", async ({ page }) => {
+test("a location code typed in lower case without its hyphen finds the bin", async ({ page }) => {
   const { names, code } = await cablesBin(page);
   await openAtPhoneWidth(page, "/");
-  await searchField(page).fill(code.toLowerCase().replace(/-0*/, ""));
+  await searchField(page).fill(code.toLowerCase().replace("-", ""));
   const first = page.locator("#content li").first();
   await expect(first).toContainText(names.bin);
   await expect(first).toContainText(code);

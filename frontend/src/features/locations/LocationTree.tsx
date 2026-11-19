@@ -54,7 +54,7 @@ export function Tree({ locations, heading, onPick, onAddInside, onReorder }: Tre
       name={location.name}
       locationType={location.type}
       locationIcon={location.icon}
-      code={location.label_code ?? undefined}
+      code={location.id}
       itemCount={location.item_count}
       {...rowTarget(location, onPick)}
       onAddInside={onAddInside && (() => onAddInside(location))}

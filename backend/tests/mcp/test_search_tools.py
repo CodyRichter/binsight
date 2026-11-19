@@ -13,8 +13,8 @@ def test_where_is_the_hdmi_cable_gives_its_full_path_despite_a_typo(
     assert [step["name"] for step in first["item"]["path"]] == PATH_TO_CABLES
 
 
-def test_a_label_code_finds_its_location(claude: Claude, home: AcceptanceHome) -> None:
-    first = claude.call("search_home", query="b14")["results"][0]
+def test_a_location_code_finds_its_location(claude: Claude, home: AcceptanceHome) -> None:
+    first = claude.call("search_home", query=home.cables.lower())["results"][0]
     assert (first["kind"], first["location"]["id"]) == ("location", home.cables)
 
 

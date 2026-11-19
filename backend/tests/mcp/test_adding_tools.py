@@ -15,7 +15,7 @@ def test_several_items_go_into_a_bin_by_its_code_as_one_change(
     claude: Claude, signed_in: TestClient, home: AcceptanceHome
 ) -> None:
     added = claude.call(
-        "add_items", names=["Ethernet cable", "Patch cable"], home_location_id="B-014"
+        "add_items", names=["Ethernet cable", "Patch cable"], home_location_id=home.cables
     )
     assert [item["home_location_id"] for item in added["items"]] == [home.cables, home.cables]
     history = signed_in.get("/api/history", params={"item_id": added["items"][0]["id"]}).json()
@@ -27,7 +27,9 @@ def test_several_items_go_into_a_bin_by_its_code_as_one_change(
 def test_a_photo_sent_as_base64_adds_a_nameless_item_to_the_inbox(
     claude: Claude, home: AcceptanceHome
 ) -> None:
-    added = claude.call("add_item_by_photo", photo_base64=_photo_base64(), home_location_id="B-014")
+    added = claude.call(
+        "add_item_by_photo", photo_base64=_photo_base64(), home_location_id=home.cables
+    )
     assert (added["name"], added["home_location_id"]) == (None, home.cables)
     inbox = claude.call("list_inbox")
     assert [item["id"] for item in inbox["items"]] == [added["id"]]
