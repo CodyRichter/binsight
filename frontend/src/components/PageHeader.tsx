@@ -32,6 +32,7 @@ interface PageHeaderProps {
   counts?: string[];
   /** Since when the page's thing has been as it is, read under the title: "Deleted 2 days ago". */
   since?: { words: string; at: Date };
+  quantity?: ReactNode;
   actions?: ReactNode;
   menu?: ReactNode;
 }
@@ -99,7 +100,7 @@ function documentTitle({ title, untitled }: PageHeaderProps): string {
 }
 
 export function PageHeader(props: PageHeaderProps) {
-  const { parents = [], thumbnail, status, summary, actions, menu } = props;
+  const { parents = [], thumbnail, status, summary, quantity, actions, menu } = props;
   return (
     <header className={classes.header}>
       <title>{documentTitle(props)}</title>
@@ -118,6 +119,7 @@ export function PageHeader(props: PageHeaderProps) {
             />
           )}
           {metaLine(props)}
+          {quantity && <div className={classes.quantity}>{quantity}</div>}
         </div>
       </div>
       {(actions || menu) && (

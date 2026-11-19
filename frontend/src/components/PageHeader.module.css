@@ -68,6 +68,13 @@
   gap: var(--bs-space-sm);
 }
 
+/* Keep the stepper above Title's expanded tap area and space-sm below the lines above it. */
+.quantity {
+  position: relative;
+  z-index: 2;
+  margin-top: var(--bs-space-xs);
+}
+
 .thumbnailButton {
   flex: none;
   padding: 0;

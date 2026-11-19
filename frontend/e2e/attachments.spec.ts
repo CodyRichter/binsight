@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { addItem, siteRoomBin, uniqueName } from "./homeData";
 import { openAtPhoneWidth } from "./owner";
 
@@ -63,4 +63,35 @@ test("a bin's photo shows in its header", async ({ page }) => {
   });
   await expect(page.getByRole("status")).toContainText("Added a photo to");
   await expect(page.getByRole("main").locator('img[src^="/api/attachments/"]')).toBeVisible();
+});
+
+async function boxOf(locator: Locator) {
+  const box = await locator.boundingBox();
+  if (!box) throw new Error("Expected a visible bounding box");
+  return box;
+}
+
+test("tapping an item's placeholder thumbnail adds its photo beside the quantity stepper", async ({
+  page,
+}) => {
+  const { ids } = await siteRoomBin(page.request);
+  const itemId = await addItem(page.request, uniqueName("Bike"), ids.bin);
+  await openAtPhoneWidth(page, `/items/${itemId}`);
+  const header = page.getByRole("main").locator("header");
+  const addPhoto = header.getByRole("button", { name: "Add photo" });
+  const stepper = header.getByRole("button", { name: "One more" });
+  const move = header.getByRole("button", { name: "Move" });
+  const [thumbBox, stepperBox, moveBox] = await Promise.all([
+    boxOf(addPhoto),
+    boxOf(stepper),
+    boxOf(move),
+  ]);
+  expect(stepperBox.x).toBeGreaterThan(thumbBox.x + thumbBox.width);
+  expect(stepperBox.y).toBeLessThan(moveBox.y);
+
+  const [chooser] = await Promise.all([page.waitForEvent("filechooser"), addPhoto.click()]);
+  await chooser.setFiles({ name: "bike.png", mimeType: "image/png", buffer: PNG });
+  await expect(page.getByRole("status")).toContainText("Added a photo to");
+  await expect(header.locator('img[src^="/api/attachments/"]')).toBeVisible();
+  await expect(addPhoto).toHaveCount(0);
 });

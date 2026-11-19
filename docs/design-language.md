@@ -454,9 +454,11 @@ toast offers Undo.
 
 **Record** (`/items/{id}`)
 
-1. Header: the 96px thumbnail, with the path, the title and the status
-   badge beside it; up to two default buttons and More under both. The
-   quantity stepper under it, in the page lead. The first button is Move.
+1. Header: the 96px thumbnail, with the path, the title, the status
+   badge and the quantity stepper beside it; up to two default buttons
+   and More under both. When the item has no photo, tapping the
+   thumbnail opens the camera to add one, saying "Added a photo to
+   {name}" with Undo. The first button is Move.
    The second follows the status: "Mark missing" in place, which says
    "Marked {name} missing"; "Mark found" when missing, which opens the move
    sheet titled "Where is it now?" with the item's home first as "Where it
@@ -476,7 +478,8 @@ toast offers Undo.
    lent-out, archived or deleted item's page reads when, as a `muted`
    `text-small` line under the title: "Lent 2 weeks ago", "Sold 3 days
    ago", "Deleted {time ago}". A deleted item's page has the default button
-   "Restore" in place of Move, and no More; restoring says "Restored
+   "Restore" in place of Move, and no quantity stepper, no clickable
+   thumbnail and no More; restoring says "Restored
    {name}" with Undo. History says "Lent to {person}", "Returned", "Marked
    in use", "Back in place", "Sold", "Given away" or "Thrown away"; a
    merge says "Merged into another item" on the item folded in and
@@ -851,15 +854,17 @@ No other badges exist. Nothing is badged "New" or "Incomplete".
 outer height is exactly `touch-min`, so it lines up with a button beside it;
 the buttons' drawn size follows from that, and each has a `touch-min` tap
 area.
-On the item page always; in a row only when the quantity is above one. A
+On an item's page while not deleted; in a row only when the quantity is above one. A
 burst of taps is one change, one history entry, one Undo. Tapping the number
 types an exact value. Minus stops at 1. No "low" coloring.
 
 **Thumbnail.** A square, `radius-md`, hairline border: 48px in rows, 96px on
-an item page. Without a photo it is `surface` with a `muted` icon: `package`
-for an item, the location's icon for a location. It is not a prompt: no
-plus sign, no "Add photo". On a location's page it is a button named
-"Change type and icon", with the hover fill and focus ring of any button.
+an item or location page. Without a photo it is `surface` with a `muted`
+icon: `package` for an item, the location's icon for a location, with no
+plus sign or caption. On a location's page it is a button named "Change
+type and icon"; on an item's page without a photo (and not deleted) it is a
+button named "Add photo" that opens the camera to add one — both with the
+hover fill and focus ring of any button.
 
 **Item row.** Thumbnail, then the name over a line holding the path and any
 status badge, then the quantity stepper if shown. The whole row opens the
@@ -987,23 +992,25 @@ brings the bar back.
 
 **Page header.** In order, leaving out any line with nothing in it: the
 parent path; the title and large code chip; the summary, edited in place;
-the counts; at most two buttons and a More icon button. No
+the counts; at most two default buttons and a More icon button. No
 eyebrow above the title. It scrolls with the page. The lines before the
 buttons are one group, `space-xs` apart; the buttons sit `space-lg` below.
 It sets the document title. A labeled location's More menu holds
 "Download label".
 
-With a thumbnail (an item's page), the thumbnail is at the left and the
-path, title and status badge sit `space-md` to its right, top-aligned, at
-every width. The buttons run the column's full width, `space-lg` under the
-taller of the two.
+With a thumbnail (an item's or location's page), the thumbnail is at the
+left and the path, title, status badge and (on a live item) quantity
+stepper sit `space-md` to its right, top-aligned, at every width, with
+`space-sm` above the stepper so tappable controls stay separated. The
+buttons and More run the column's full width, `space-lg` under the taller
+of the two.
 
 **Page lead.** The top of a page: the page header, then the controls that
-belong to the whole page (add bar, "Here / Everything inside", filter chips,
-quantity stepper), each `space-lg` from the next. It gives its controls the
-gutter. The filter chip row is the exception: it runs edge to edge so it
-can scroll sideways, with the gutter inside the scroller. A page with no
-such controls uses the page header alone.
+belong to the whole page (add bar, "Here / Everything inside", filter
+chips), each `space-lg` from the next. It gives its controls the gutter.
+The filter chip row is the exception: it runs edge to edge so it can scroll
+sideways, with the gutter inside the scroller. A page with no such controls
+uses the page header alone.
 
 **Selection bar.** Takes the bottom bar's place, at its height, while rows
 are selected, and appears at the bottom of the column on wide screens:
