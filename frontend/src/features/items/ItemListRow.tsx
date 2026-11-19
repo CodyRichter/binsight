@@ -43,7 +43,8 @@ export function ItemListRow(props: ItemListRowProps) {
       status={item.status}
       lentTo={item.lent_to ?? undefined}
       since={since}
-      lastChecked={showPath && item.home_location_id ? lastChecked(item) : undefined}
+      // Beside a path and Move, the stamp would wrap the row on a phone, so rows with Move leave it out.
+      lastChecked={showPath && !onMove && item.home_location_id ? lastChecked(item) : undefined}
       quantity={quantity}
       onQuantityChange={changeQuantity}
       marks={marks}

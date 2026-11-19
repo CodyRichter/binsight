@@ -47,7 +47,8 @@ location carries last_checked_at, when the owner last confirmed that location's 
 check_location when the owner confirms a bin's contents. A list of things can be brought in
 at once with import_items, which asks first. Locations are renamed with update_location,
 and deleting or merging one asks first: see delete_location and merge_location. Many items
-can be moved, tagged, recategorized or given a status at once, after asking: see move_items.
+can be moved, tagged, recategorized, given a status, lent or deleted at once, after asking:
+see move_items.
 An item is copied with duplicate_item, and one recorded twice is merged into the other,
 after asking, with merge_item.
 Binsight backs itself up daily: see list_backups."""

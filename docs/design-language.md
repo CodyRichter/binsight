@@ -602,7 +602,9 @@ primary button.
 Check mode is a Task that opens over a location's page and has no address.
 Its name is "Check {name}"; the work area holds the location's add bar, then
 its items with checkboxes, and something added there starts ticked. The
-primary button is "Contents checked". With items unticked it first asks
+primary button is "Contents checked". Each row ends in Move: an item that
+belongs elsewhere is moved out ("Moved to {place}", with Undo), leaves the
+list and is not marked missing. With items unticked it first asks
 "Mark {n} unchecked items missing?" ("Keep checking", "Mark missing");
 either way it returns to the location's page, saying "Contents checked" or
 "Marked {n} items missing", with one Undo.
@@ -755,7 +757,7 @@ never holds more than one field.
 
 The category sheet is titled "Category". Its one field, "Search or make a
 category", narrows name rows of the categories items have, each with its
-count; when the typed name matches none, the first row is "Make
+count, up to five picked recently on this device first, then the rest; when the typed name matches none, the first row is "Make
 "{name}"", and Enter picks the typed name. A subtle "No category" follows
 the field while the item has one. The tag sheet is titled "Add tag": one
 field, "Tag", a primary "Add", and name rows of the tags in use that the
@@ -825,7 +827,8 @@ printed. Only for label codes.
 
 **Checked stamp.** An icon and "Checked 3 weeks ago" in `text-small`. Fresh:
 tick, `muted`. Over a year, or never: clock, `stale`, bold. In every
-location's page header, and in search and view rows only when stale. It
+location's page header, and in view rows only when stale; search rows,
+which end in Move, leave it out so they stay one line on a phone. It
 informs and never asks: no counts, no "overdue", not tappable.
 
 **Status badge.** Icon, word, 1.5px outline in one color, never filled. In
@@ -857,7 +860,8 @@ plus sign, no "Add photo".
 status badge, then the quantity stepper if shown. The whole row opens the
 item; no chevron. Inside a location's own contents the path is left out,
 and a Move icon button ends the row, so moving takes two taps: Move, then
-the destination. Under 48em a row with both puts the stepper on its own
+the destination. Search results and check mode's rows end in Move too,
+with the path kept in search. Under 48em a row with both puts the stepper on its own
 line under the name.
 Full width on `ground`, hairline below, at least `row-min` high, and a path does not make it taller. A checkbox in place of the thumbnail
 has its box at the gutter, and the name stays where a thumbnail row's name
@@ -1006,12 +1010,15 @@ have no box. Ticking any row starts the selection; it ends on Close, once an
 edit is stored, or on going to another list. The bar's verbs are Move, which
 opens the move sheet titled "Move {n} items to"; Tag, which opens "Add tag";
 and a More icon button whose menu holds "Change category…", opening the
-category sheet with "No category" offered, then Mark in use, Back in place,
-Sold, Given away and Thrown away. Each is one change with Undo: "Moved {n}
-items to {place}", "Tagged {n} items {tag}", "Changed the category of {n}
-items to {category}" or "Removed the category from {n} items", "Marked {n}
-items {status}" or "{n} items back in place". {n} counts only the items that
-changed. A move takes the rows out of the list at once.
+category sheet with "No category" offered, and "Lend to…" (`user-share`),
+opening the Lent to sheet; then Mark in use, Back in place, Sold, Given
+away and Thrown away; then, below a rule, Delete (`trash`, `danger`). Each
+is one change with Undo: "Moved {n} items to {place}", "Tagged {n} items
+{tag}", "Changed the category of {n} items to {category}" or "Removed the
+category from {n} items", "Lent {n} items to {name}", "Marked {n} items
+{status}" or "{n} items back in place", and "Deleted {n} items". {n} counts
+only the items that changed. A move or a delete takes the rows out of the
+list at once.
 
 **Task frame.** The frame for a Task. A `bar-height` row with Close at the
 gutter and the task's name in `text-heading`; the work area in the column;

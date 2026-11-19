@@ -14,6 +14,8 @@ from app.features.items import service
 from app.features.items.bulk_schemas import (
     ItemsCategory,
     ItemsChanged,
+    ItemsDelete,
+    ItemsLend,
     ItemsMove,
     ItemsStatus,
     ItemsTag,
@@ -64,9 +66,28 @@ CHANGE_ITEMS_STATUS = f"""Give many items one status at once, in two calls.
 
 Use this when the owner says several things are in use, back in place, or sold, given away
 or thrown away (the archive). status is in_place, in_use, sold, given_away or thrown_away;
-lending and marking missing or found go one item at a time with their own tools. Refused
+lending has lend_items, and marking missing or found goes one item at a time. Refused
 with status_unchanged when every item already has it, and use_mark_found when putting a
 missing item back in place, which mark_item_found does with where it was found.
+
+{TWO_CALLS}"""
+
+
+LEND_ITEMS = f"""Lend many items to one person at once, in two calls.
+
+Use this when the owner lends several things together, such as camping gear to a friend;
+for one item use lend_item. lent_to is the person's name; list_lent_to_names gives names
+used before. Each item keeps its home location to come back to. Refused with
+status_unchanged when every item is already lent to them, and item_archived when one is
+in the archive.
+
+{TWO_CALLS}"""
+
+DELETE_ITEMS = f"""Delete many items at once, in two calls: a preview, then the delete.
+
+Use this when the owner says several things are gone from the inventory, such as clearing
+out a bin they emptied; for one item use delete_item. Deleted items leave every list and
+search, and undo_history_entry brings them all back.
 
 {TWO_CALLS}"""
 
@@ -179,7 +200,40 @@ def _add_category_and_status_tools(server: MCPServer, app: FastAPI) -> None:
         )
 
 
+def _add_lend_and_delete_tools(server: MCPServer, app: FastAPI) -> None:
+    @server.tool(description=LEND_ITEMS)
+    async def lend_items(
+        item_ids: list[str], lent_to: str, confirmation_token: str | None = None
+    ) -> Annotated[CallToolResult, BulkAnswer]:
+        steps = (service.preview_lend_items, service.lend_items)
+        return await run_action(
+            app,
+            open_write_session,
+            lambda session: _in_two_calls(
+                session,
+                "lend_items",
+                ItemsLend(item_ids=item_ids, lent_to=lent_to),
+                steps,
+                confirmation_token,
+            ),
+        )
+
+    @server.tool(description=DELETE_ITEMS)
+    async def delete_items(
+        item_ids: list[str], confirmation_token: str | None = None
+    ) -> Annotated[CallToolResult, BulkAnswer]:
+        steps = (service.preview_delete_items, service.delete_items)
+        return await run_action(
+            app,
+            open_write_session,
+            lambda session: _in_two_calls(
+                session, "delete_items", ItemsDelete(item_ids=item_ids), steps, confirmation_token
+            ),
+        )
+
+
 def add_bulk_tools(server: MCPServer, app: FastAPI) -> None:
-    """Give Claude bulk edit: moving, tagging, recategorizing or restatusing many items at once."""
+    """Give Claude bulk edit: moving, tagging, recategorizing, restatusing, lending or deleting."""
     _add_move_and_tag_tools(server, app)
     _add_category_and_status_tools(server, app)
+    _add_lend_and_delete_tools(server, app)

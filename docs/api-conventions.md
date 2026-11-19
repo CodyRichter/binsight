@@ -161,14 +161,16 @@ One shape for every error:
   before, most recent first.
 - Bulk edit: `POST /api/items/bulk/move` (`location_id`),
   `/api/items/bulk/tag` (`tag`, added to each item's tags),
-  `/api/items/bulk/category` (`category`, null to clear) and
-  `/api/items/bulk/status` (`status`, as for one item) each take
+  `/api/items/bulk/category` (`category`, null to clear),
+  `/api/items/bulk/status` (`status`, as for one item),
+  `/api/items/bulk/lend` (`lent_to`) and `/api/items/bulk/delete` each take
   `item_ids`, 1 to 500, and answer with `items`, only those changed, and one
   `history_entry_id` that undoes the batch. An unknown or deleted item
   refuses the whole batch. Items already so are left out; when none would
   change it is refused with 409 `already_there`, `already_tagged`,
-  `category_unchanged` or `status_unchanged`. A missing item put back in
-  place is refused with `use_mark_found`.
+  `category_unchanged` or `status_unchanged` (for lending, every item
+  already lent to that name). A missing item put back in place is refused
+  with `use_mark_found`, and lending an archived item with `item_archived`.
 - `POST /api/items/{id}/links` takes `other_item_id` and `kind`
   (`belongs_with`, or `part_of` when this item is the part), and is refused
   with 422 `same_item` or `part_cycle`, or 409 `already_linked`. `GET
@@ -300,9 +302,9 @@ One shape for every error:
   inputs and the token. A token works once and expires after ten minutes;
   otherwise the call is refused with 409 `confirmation_invalid` or
   `confirmation_expired`. `delete_item` is one of these, as are
-  `delete_location`, `merge_location` and `merge_item`, and the four bulk edits,
-  `move_items`, `tag_items`, `change_items_category` and
-  `change_items_status`; the app has no
+  `delete_location`, `merge_location` and `merge_item`, and the bulk edits,
+  `move_items`, `tag_items`, `change_items_category`,
+  `change_items_status`, `lend_items` and `delete_items`; the app has no
   confirmation step, since its delete offers Undo. So are
   `remove_item_attachment` and `remove_location_photo`, and `import_items`,
   whose token is tied to the CSV text's hash.

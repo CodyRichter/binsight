@@ -20,10 +20,12 @@ from app.features.items.attachments import (
 )
 from app.features.items.attachments import remove_item_attachment as remove_item_attachment
 from app.features.items.bulk import change_items_category as change_items_category
+from app.features.items.bulk import delete_items as delete_items
 from app.features.items.bulk import move_items as move_items
 from app.features.items.bulk import (
     preview_change_items_category as preview_change_items_category,
 )
+from app.features.items.bulk import preview_delete_items as preview_delete_items
 from app.features.items.bulk import preview_move_items as preview_move_items
 from app.features.items.bulk import preview_tag_items as preview_tag_items
 from app.features.items.bulk import tag_items as tag_items
@@ -70,6 +72,7 @@ from app.features.items.statuses import change_item_status as change_item_status
 from app.features.items.statuses import change_items_status as change_items_status
 from app.features.items.statuses import items_to_mark_missing as items_to_mark_missing
 from app.features.items.statuses import lend_item as lend_item
+from app.features.items.statuses import lend_items as lend_items
 from app.features.items.statuses import list_lent_to_names as list_lent_to_names
 from app.features.items.statuses import mark_item_found as mark_item_found
 from app.features.items.statuses import mark_item_missing as mark_item_missing
@@ -77,6 +80,7 @@ from app.features.items.statuses import mark_items_missing as mark_items_missing
 from app.features.items.statuses import (
     preview_change_items_status as preview_change_items_status,
 )
+from app.features.items.statuses import preview_lend_items as preview_lend_items
 from app.features.items.statuses import return_item as return_item
 from app.features.items.views import ItemView as ItemView
 from app.features.items.views import count_items_in_order as count_items_in_order

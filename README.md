@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: item duplicates (Breadth 8b).** The requirements,
+> **Status: list leftovers (Breadth 8c).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -59,10 +59,12 @@ what's inside. Search for anything and get its full location path, e.g.
 > among its siblings, each with Undo; a deleted location's page and label
 > offer Restore. Claude can do the same, asking first before a delete or
 > merge. Items ticked in a location, search, view or the inbox are moved,
-> tagged, recategorized or given a status together, as one change with
-> Undo; Claude asks first before changing many at once. An item's page
+> tagged, recategorized, lent, given a status or deleted together, as one
+> change with Undo; Claude asks first before changing many at once. An item's page
 > duplicates it, opening the copy, and merges it into another recorded
-> twice, each with Undo; Claude asks first before a merge.
+> twice, each with Undo; Claude asks first before a merge. Search results
+> and check mode's rows offer Move, and the category sheet lists categories
+> picked recently on this device first.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 
@@ -139,15 +141,16 @@ binsight/
 │   │   └── types/           Shared data shapes, including the generated ones
 │   └── e2e/                 End-to-end tests, one per flow listed above, and checks of /design
 ├── deploy/                  Container image and compose file
-├── scripts/                 setup.sh, check.sh, check_container.sh, and the Claude Code hooks
+├── scripts/                 setup.sh, check.sh, check_container.sh, and the agent hooks
 ├── .claude/                 Shared Claude Code permissions and hooks
+├── .agents/                 The same rules, hooks and skills for Antigravity
 └── .github/                 Continuous integration and dependency updates
 ```
 
 ## Working on it
 
 Needs [uv](https://docs.astral.sh/uv/) and Node 24 or newer. The Claude Code
-hooks also need `jq`.
+and Antigravity hooks also need `jq`.
 
 ```
 scripts/setup.sh    # install tooling

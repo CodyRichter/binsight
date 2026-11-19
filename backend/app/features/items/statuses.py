@@ -8,7 +8,7 @@ from app.core.errors import AppError
 from app.core.pagination import Page, counted_page, decode_offset
 from app.features.history import service as history
 from app.features.items.bulk import changing_items, recorded
-from app.features.items.bulk_schemas import ItemsChanged, ItemsStatus
+from app.features.items.bulk_schemas import ItemsChanged, ItemsLend, ItemsStatus
 from app.features.items.records import live_item
 from app.features.items.schemas import (
     Item,
@@ -116,6 +116,30 @@ def lend_item(
     recorded = _status_change(item, ItemStatus.lent_out, now, lending.lent_to)
     entry_id = history.record(session, actor, "item.lent", [recorded], now)
     return ItemLent(**shaped(session, item).model_dump(), history_entry_id=entry_id)
+
+
+def _lending(session: Session, lending: ItemsLend) -> list[models.Item]:
+    items = changing_items(
+        session,
+        lending.item_ids,
+        lambda item: item.status != ItemStatus.lent_out or item.lent_to != lending.lent_to,
+        AppError(409, "status_unchanged", "Those items are already lent to them."),
+    )
+    return [_not_archived(item) for item in items]
+
+
+def preview_lend_items(session: Session, lending: ItemsLend) -> list[Item]:
+    """The items lending would lend, refused as lending them would be."""
+    return [shaped(session, item) for item in _lending(session, lending)]
+
+
+def lend_items(session: Session, lending: ItemsLend, actor: Actor, now: datetime) -> ItemsChanged:
+    """Lend many items to one person, as one change to undo; each keeps its home."""
+    changes = [
+        (item, _status_change(item, ItemStatus.lent_out, now, lending.lent_to))
+        for item in _lending(session, lending)
+    ]
+    return recorded(session, "item.lent", changes, actor, now)
 
 
 def return_item(session: Session, item_id: str, actor: Actor, now: datetime) -> ItemReturned:

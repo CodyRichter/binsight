@@ -61,3 +61,18 @@ def test_a_refused_batch_is_refused_before_any_token(claude: Claude, home: Accep
     assert there["code"] == "already_there"
     lent = claude.refusal("change_items_status", item_ids=_both(home), status="lent_out")
     assert lent["code"] == "validation_failed"
+
+
+def test_lend_and_delete_in_two_calls(claude: Claude, home: AcceptanceHome) -> None:
+    token = claude.call("lend_items", item_ids=_both(home), lent_to="Dana")["preview"][
+        "confirmation_token"
+    ]
+    lent = claude.call("lend_items", item_ids=_both(home), lent_to="Dana", confirmation_token=token)
+    assert [item["lent_to"] for item in lent["changed"]["items"]] == ["Dana", "Dana"]
+    asked = claude.call("delete_items", item_ids=_both(home))
+    assert claude.call("get_item", item_id=home.hdmi_cable)["deleted_at"] is None
+    token = asked["preview"]["confirmation_token"]
+    deleted = claude.call("delete_items", item_ids=_both(home), confirmation_token=token)
+    assert claude.call("get_item", item_id=home.hdmi_cable)["deleted_at"] is not None
+    claude.call("undo_history_entry", entry_id=deleted["changed"]["history_entry_id"])
+    assert claude.call("get_item", item_id=home.hdmi_cable)["status"] == "lent_out"

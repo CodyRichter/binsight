@@ -3,6 +3,7 @@ import { IconSearch } from "@tabler/icons-react";
 import { useState, type FormEvent } from "react";
 import { NameRow } from "@/components/NameRow";
 import { Sheet } from "@/components/Sheet";
+import { recentCategories, recentFirst, rememberCategory } from "./recentCategories";
 import { useCategories } from "./useNames";
 
 interface CategorySheetProps {
@@ -13,10 +14,13 @@ interface CategorySheetProps {
   onClose: () => void;
 }
 
-/** Picking an item's category: one already in use, a new one by name, or none. */
+/** Picking an item's category: a recent one, one already in use, a new one by name, or none. */
 export function CategorySheet({ opened, current, onPick, onClose }: CategorySheetProps) {
   const [query, setQuery] = useState("");
-  const categories = useCategories(opened).data?.items ?? [];
+  const categories = recentFirst(
+    useCategories(opened).data?.items ?? [],
+    opened ? recentCategories() : [],
+  );
   const typed = query.trim();
   const shown = categories.filter(
     (category) =>
@@ -26,6 +30,7 @@ export function CategorySheet({ opened, current, onPick, onClose }: CategoryShee
   const pick = (category: string | null) => {
     setQuery("");
     onClose();
+    if (category) rememberCategory(category);
     if (category !== current) onPick(category);
   };
   const submit = (event: FormEvent) => {

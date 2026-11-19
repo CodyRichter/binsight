@@ -7,6 +7,8 @@ from app.features.items import service
 from app.features.items.bulk_schemas import (
     ItemsCategory,
     ItemsChanged,
+    ItemsDelete,
+    ItemsLend,
     ItemsMove,
     ItemsStatus,
     ItemsTag,
@@ -36,3 +38,13 @@ def change_items_category(body: ItemsCategory, session: WriteSession) -> ItemsCh
 @router.post("/status", operation_id="change_items_status", responses=refusals(404, 409, 422))
 def change_items_status(body: ItemsStatus, session: WriteSession) -> ItemsChanged:
     return service.change_items_status(session, body, Actor.app, clock.now())
+
+
+@router.post("/lend", operation_id="lend_items", responses=refusals(404, 409, 422))
+def lend_items(body: ItemsLend, session: WriteSession) -> ItemsChanged:
+    return service.lend_items(session, body, Actor.app, clock.now())
+
+
+@router.post("/delete", operation_id="delete_items", responses=refusals(404, 409, 422))
+def delete_items(body: ItemsDelete, session: WriteSession) -> ItemsChanged:
+    return service.delete_items(session, body, Actor.app, clock.now())

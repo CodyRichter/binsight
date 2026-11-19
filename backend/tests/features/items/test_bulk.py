@@ -154,3 +154,52 @@ def test_a_batch_shows_in_each_item_s_history(signed_in: TestClient, home: Accep
     for item_id in _both(home):
         entries = signed_in.get("/api/history", params={"item_id": item_id}).json()["items"]
         assert entries[0]["action"] == "item.updated"
+
+
+def test_deleting_many_items_takes_them_out_of_view_and_one_undo_brings_them_back(
+    signed_in: TestClient, home: AcceptanceHome
+) -> None:
+    deleted = signed_in.post(f"{BULK}/delete", json={"item_ids": _both(home)}).json()
+    assert [item["name"] for item in deleted["items"]] == ["HDMI cable", "USB-C charger"]
+    assert _item(signed_in, home.hdmi_cable)["deleted_at"] is not None
+    entries = signed_in.get("/api/history", params={"item_id": home.usb_c_charger}).json()
+    assert entries["items"][0]["action"] == "item.deleted"
+    _undo(signed_in, deleted)
+    assert _item(signed_in, home.usb_c_charger)["deleted_at"] is None
+    assert _item(signed_in, home.hdmi_cable)["deleted_at"] is None
+
+
+def test_a_deleted_item_refuses_the_whole_delete(
+    signed_in: TestClient, home: AcceptanceHome
+) -> None:
+    signed_in.delete(f"/api/items/{home.hdmi_cable}")
+    assert _refusal(signed_in, "delete", {"item_ids": _both(home)}) == (409, "item_deleted")
+    assert _item(signed_in, home.usb_c_charger)["deleted_at"] is None
+
+
+def test_lending_many_items_to_one_person_and_undoing_it(
+    signed_in: TestClient, home: AcceptanceHome
+) -> None:
+    lent = signed_in.post(f"{BULK}/lend", json={"item_ids": _both(home), "lent_to": "Dana"}).json()
+    assert [(item["status"], item["lent_to"]) for item in lent["items"]] == [
+        ("lent_out", "Dana"),
+        ("lent_out", "Dana"),
+    ]
+    assert _item(signed_in, home.hdmi_cable)["home_location_id"] == home.cables
+    _undo(signed_in, lent)
+    assert _item(signed_in, home.hdmi_cable)["status"] == "in_place"
+    assert _item(signed_in, home.usb_c_charger)["lent_to"] is None
+
+
+def test_items_already_lent_to_them_are_left_out_and_archived_ones_refused(
+    signed_in: TestClient, home: AcceptanceHome
+) -> None:
+    signed_in.post(f"/api/items/{home.hdmi_cable}/lend", json={"lent_to": "Dana"})
+    lent = signed_in.post(f"{BULK}/lend", json={"item_ids": _both(home), "lent_to": "Dana"}).json()
+    assert [item["id"] for item in lent["items"]] == [home.usb_c_charger]
+    body = {"item_ids": _both(home), "lent_to": "Dana"}
+    assert _refusal(signed_in, "lend", body) == (409, "status_unchanged")
+    signed_in.post(f"/api/items/{home.hdmi_cable}/status", json={"status": "sold"})
+    body = {"item_ids": _both(home), "lent_to": "Sam"}
+    assert _refusal(signed_in, "lend", body) == (409, "item_archived")
+    assert _item(signed_in, home.usb_c_charger)["lent_to"] == "Dana"

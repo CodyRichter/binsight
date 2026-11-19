@@ -1,9 +1,16 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { FrameAdditionsContext } from "@/components/frameAdditions";
 import { ItemRow } from "@/components/ItemRow";
 import { ListSection } from "@/components/ListSection";
 import { TaskFrame } from "@/components/TaskFrame";
-import { ItemAdder, useLocationItems, type Destination } from "@/features/items";
+import {
+  ItemAdder,
+  useLocationItems,
+  useMoveItem,
+  type Destination,
+  type Item,
+} from "@/features/items";
 import { useCheckLocation } from "./useCheckLocation";
 
 interface CheckModeProps {
@@ -13,7 +20,7 @@ interface CheckModeProps {
   onAdded: () => void;
 }
 
-/** Ticking through a location's items; finishing records a check and marks the rest missing. */
+/** Ticking through a location's items, moving out what belongs elsewhere; finishing marks the rest missing. */
 export function CheckMode({ location, onClose, onAdded }: CheckModeProps) {
   const items = useLocationItems(location.id, false).data ?? [];
   const inPlace = items.filter((item) => item.status === "in_place");
@@ -22,6 +29,9 @@ export function CheckMode({ location, onClose, onAdded }: CheckModeProps) {
   const [ticked, setTicked] = useState<string[]>([]);
   const [asking, setAsking] = useState(false);
   const check = useCheckLocation(location.id);
+  const { MoveSheet } = useContext(FrameAdditionsContext);
+  const [moving, setMoving] = useState<Item>();
+  const move = useMoveItem();
   const isTicked = (id: string) => !listed.has(id) || ticked.includes(id);
   const unticked = inPlace.filter((item) => !isTicked(item.id)).map((item) => item.id);
   const finish = () => {
@@ -44,6 +54,7 @@ export function CheckMode({ location, onClose, onAdded }: CheckModeProps) {
             key={item.id}
             name={item.name}
             to={`/items/${item.id}`}
+            onMove={MoveSheet && (() => setMoving(item))}
             check={{
               checked: isTicked(item.id),
               onChange: (on) =>
@@ -52,6 +63,14 @@ export function CheckMode({ location, onClose, onAdded }: CheckModeProps) {
           />
         ))}
       </ListSection>
+      {MoveSheet && (
+        <MoveSheet
+          opened={moving !== undefined}
+          onClose={() => setMoving(undefined)}
+          currentId={location.id}
+          onPick={(place) => moving && move(moving, place)}
+        />
+      )}
       <ConfirmDialog
         opened={asking}
         title={`Mark ${unticked.length} unchecked ${unticked.length === 1 ? "item" : "items"} missing?`}

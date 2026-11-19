@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { answer, bin, cable, renderRoutes, signedIn, site } from "@/lib/testing/routeTesting";
 import { routes } from "./routes";
+import { memoryStorage } from "@/lib/testing/memoryStorage";
 
 const detect = vi.fn<() => Promise<{ rawValue: string }[]>>();
 vi.mock("@/features/scan/detector", () => ({ qrDetector: () => ({ detect }) }));
@@ -23,15 +24,6 @@ const box = {
   path: [...bin.path, { id: "box", name: "Small box", type: "bin", label_code: "B-016" }],
 };
 const charger = { ...cable, id: "charger", name: "USB-C charger", quantity: 1 };
-
-// Node's own localStorage, absent without a file, hides jsdom's, so the tests bring one.
-function memoryStorage(): Pick<Storage, "getItem" | "setItem"> {
-  const stored = new Map<string, string>();
-  return {
-    getItem: (key) => stored.get(key) ?? null,
-    setItem: (key, value) => void stored.set(key, value),
-  };
-}
 
 beforeEach(() => {
   vi.stubGlobal("localStorage", memoryStorage());

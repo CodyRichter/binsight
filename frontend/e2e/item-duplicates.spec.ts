@@ -20,7 +20,10 @@ test("duplicating an item opens a copy with its name and details, and Undo remov
   await expect(page).not.toHaveURL(`/items/${itemId}`);
   await expect(page.getByRole("heading", { name })).toBeVisible();
   await expect(page.getByText("Makita")).toBeVisible();
+  // Nothing on the copy's page changes once it is undone, so wait for the answer before leaving.
+  const undone = page.waitForResponse((answer) => answer.url().endsWith("/undo"));
   await page.getByRole("button", { name: "Undo" }).click();
+  await undone;
   await page.goto(`/locations/${ids.bin}`);
   await expect(page.getByRole("link", { name })).toHaveCount(1);
 });
