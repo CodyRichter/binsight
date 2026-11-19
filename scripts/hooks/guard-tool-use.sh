@@ -15,7 +15,7 @@ check_command() {
   local command
   command=$(jq -r '.toolCall.args.CommandLine // empty' <<<"$input")
   case "$command" in
-    scripts/check.sh | ./scripts/check.sh) decide auto_approve ;;
+    scripts/check.sh | ./scripts/check.sh | "$repo/scripts/check.sh") decide auto_approve ;;
   esac
   if grep -qE 'git push( .*)? (--force|-f)( |$)' <<<"$command"; then
     decide deny "Force-pushing is not allowed in this repository."
