@@ -39,11 +39,26 @@ test("an unknown code says nothing is there", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Show all locations" })).toBeVisible();
 });
 
-test("a location's More menu downloads its label", async ({ page }) => {
+test("the Label button shows a location's label, which downloads as its code", async ({ page }) => {
   const { ids } = await siteRoomBin(page.request);
   await openAtPhoneWidth(page, `/locations/${ids.bin}`);
-  await page.getByRole("button", { name: "More" }).click();
+  await page.getByRole("button", { name: "Label", exact: true }).click();
+  const sheet = page.getByRole("dialog", { name: "Label" });
+  await expect(sheet.getByRole("img", { name: `Label ${ids.bin}` })).toBeVisible();
+  await expect(sheet.getByRole("link", { name: "Open to print" })).toHaveAttribute(
+    "target",
+    "_blank",
+  );
   const download = page.waitForEvent("download");
-  await page.getByRole("menuitem", { name: "Download label" }).click();
+  await sheet.getByRole("link", { name: "Download" }).click();
   expect((await download).suggestedFilename()).toBe(`${ids.bin}.png`);
+});
+
+test("tapping the code beside a location's name shows its label", async ({ page }) => {
+  const { ids } = await siteRoomBin(page.request);
+  await openAtPhoneWidth(page, `/locations/${ids.bin}`);
+  await page.getByRole("button", { name: `Label ${ids.bin}` }).click();
+  await expect(
+    page.getByRole("dialog", { name: "Label" }).getByRole("img", { name: `Label ${ids.bin}` }),
+  ).toBeVisible();
 });

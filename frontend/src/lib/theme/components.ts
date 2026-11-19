@@ -12,6 +12,7 @@ import {
   SegmentedControl,
   Switch,
 } from "@mantine/core";
+import { DateInput } from "@mantine/dates";
 import { Notifications } from "@mantine/notifications";
 import classes from "./mantine.module.css";
 import { sizes } from "./tokens";
@@ -96,6 +97,20 @@ export const components = {
   Badge: Badge.extend({
     defaultProps: { variant: "outline" },
     classNames: { root: classes.tag },
+  }),
+  DateInput: DateInput.extend({
+    defaultProps: {
+      popoverProps: { shadow: "md", classNames: { dropdown: classes.calendar } },
+    },
+    classNames: {
+      calendarHeader: classes.calendarHeader,
+      calendarHeaderControl: classes.calendarControl,
+      calendarHeaderLevel: classes.calendarLevel,
+      weekday: classes.calendarWeekday,
+      day: classes.calendarDay,
+      monthsListControl: classes.calendarPick,
+      yearsListControl: classes.calendarPick,
+    },
   }),
   Menu: Menu.extend({
     // The placeholder is a focusable child a menu may not hold, so screen readers trip on it.

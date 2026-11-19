@@ -1,7 +1,6 @@
 import { Menu } from "@mantine/core";
 import {
   IconArrowMerge,
-  IconDownload,
   IconFileText,
   IconIcons,
   IconPhoto,
@@ -12,7 +11,6 @@ import {
 } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
-import { labelImageAddress } from "@/lib/api/labelImageAddress";
 import type { Location } from "./useLocations";
 
 export interface LocationMenuProps {
@@ -70,7 +68,28 @@ function removalItems(removal: RemovalChoices): ReactNode {
   );
 }
 
-/** The More menu of a location's page header. */
+function printItems({ location }: LocationMenuProps): ReactNode {
+  return (
+    <>
+      <Menu.Item
+        component={Link}
+        to={`/locations/${location.id}/sheet`}
+        leftSection={<IconFileText aria-hidden size={20} />}
+      >
+        Contents sheet
+      </Menu.Item>
+      <Menu.Item
+        component={Link}
+        to={`/locations/${location.id}/insurance`}
+        leftSection={<IconShieldCheck aria-hidden size={20} />}
+      >
+        Insurance list
+      </Menu.Item>
+    </>
+  );
+}
+
+/** The More menu of a location's page header: adding, print pages, its look, then removing it. */
 export function moreMenu(
   props: LocationMenuProps,
   movable: boolean,
@@ -80,33 +99,17 @@ export function moreMenu(
   return (
     <>
       {movable && props.onAddLocation && (
-        <Menu.Item leftSection={<IconPlus aria-hidden size={20} />} onClick={props.onAddLocation}>
-          Add location
-        </Menu.Item>
+        <>
+          <Menu.Item leftSection={<IconPlus aria-hidden size={20} />} onClick={props.onAddLocation}>
+            Add location
+          </Menu.Item>
+          <Menu.Divider />
+        </>
       )}
-      <Menu.Item
-        component="a"
-        href={labelImageAddress(props.location.id)}
-        download
-        leftSection={<IconDownload aria-hidden size={20} />}
-      >
-        Download label
-      </Menu.Item>
-      <Menu.Item
-        component={Link}
-        to={`/locations/${props.location.id}/sheet`}
-        leftSection={<IconFileText aria-hidden size={20} />}
-      >
-        Contents sheet
-      </Menu.Item>
-      <Menu.Item
-        component={Link}
-        to={`/locations/${props.location.id}/insurance`}
-        leftSection={<IconShieldCheck aria-hidden size={20} />}
-      >
-        Insurance list
-      </Menu.Item>
+      {printItems(props)}
+      <Menu.Divider />
       {lookItems(props, look)}
+      <Menu.Divider />
       {removalItems(removal)}
     </>
   );

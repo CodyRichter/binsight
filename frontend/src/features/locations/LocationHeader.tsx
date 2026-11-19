@@ -1,9 +1,10 @@
 import { Button } from "@mantine/core";
-import { IconArrowsMove } from "@tabler/icons-react";
+import { IconArrowsMove, IconQrcode } from "@tabler/icons-react";
 import { useRef, useState, type ChangeEvent } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { pathSegments } from "@/features/items";
 import { countWords } from "./countWords";
+import { LabelSheet } from "./LabelSheet";
 import { moreMenu, type LocationMenuProps } from "./locationMenu";
 import { MoveSheet } from "./MoveSheet";
 import { RemovalSheet, type Removal } from "./RemovalSheet";
@@ -39,6 +40,7 @@ export function LocationHeader(props: LocationHeaderProps) {
   const { location, onAddLocation } = props;
   const [moving, setMoving] = useState(false);
   const [restyling, setRestyling] = useState(false);
+  const [showingLabel, setShowingLabel] = useState(false);
   const move = useMoveLocation(location);
   const change = useChangeLocation(location);
   const setPhoto = useLocationPhoto(location);
@@ -63,6 +65,7 @@ export function LocationHeader(props: LocationHeaderProps) {
         onRename={(name) => change({ name })}
         parents={pathSegments(location.path.slice(0, -1))}
         code={location.id}
+        onCodeClick={() => setShowingLabel(true)}
         thumbnail={{
           photoUrl: location.photo_url ?? undefined,
           locationType: location.type,
@@ -79,6 +82,9 @@ export function LocationHeader(props: LocationHeaderProps) {
               </Button>
             )}
             {!movable && onAddLocation && <Button onClick={onAddLocation}>Add location</Button>}
+            <Button leftSection={<IconQrcode aria-hidden />} onClick={() => setShowingLabel(true)}>
+              Label
+            </Button>
           </>
         }
         menu={moreMenu(props, movable, lookChoices, removing.choices)}
@@ -101,6 +107,7 @@ export function LocationHeader(props: LocationHeaderProps) {
           onPick={move}
         />
       )}
+      <LabelSheet code={location.id} opened={showingLabel} onClose={() => setShowingLabel(false)} />
       <TypeAndIconSheet
         opened={restyling}
         location={location}

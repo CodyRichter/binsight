@@ -47,6 +47,28 @@
   outline: none;
 }
 
+/* The chip is drawn shorter than touch-min; its tap area grows to it without moving the line. */
+.codeButton {
+  position: relative;
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: var(--bs-radius-sm);
+  background: none;
+  cursor: pointer;
+}
+
+.codeButton::before {
+  content: "";
+  position: absolute;
+  inset: min(0px, (100% - var(--bs-touch-min)) / 2) 0;
+}
+
+.codeButton:focus-visible {
+  outline: 2px solid var(--bs-focus);
+  outline-offset: 2px;
+}
+
 .meta {
   display: flex;
   flex-wrap: wrap;

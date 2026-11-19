@@ -1,5 +1,5 @@
 import { ActionIcon, Button, Group, Menu, TextInput } from "@mantine/core";
-import { IconListDetails, IconQrcode, IconScan, IconSearch, IconTrash } from "@tabler/icons-react";
+import { IconListDetails, IconPhoto, IconScan, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { LocationRow } from "@/components/LocationRow";
@@ -30,10 +30,10 @@ export function OverlaysSpecimen() {
             <Button>Menu</Button>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Item leftSection={<IconQrcode aria-hidden size={20} />}>Download label</Menu.Item>
             <Menu.Item leftSection={<IconListDetails aria-hidden size={20} />}>
               Contents sheet
             </Menu.Item>
+            <Menu.Item leftSection={<IconPhoto aria-hidden size={20} />}>Add photo</Menu.Item>
             <Menu.Divider />
             <Menu.Item color="danger" leftSection={<IconTrash aria-hidden size={20} />}>
               Delete location

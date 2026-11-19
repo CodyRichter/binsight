@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from "react";
+import { DateField } from "./DateField";
 import classes from "./EditableText.module.css";
 
 interface EditableTextProps {
@@ -15,6 +16,43 @@ interface EditableTextProps {
 }
 
 type Field = HTMLInputElement | HTMLTextAreaElement;
+
+type TextFieldProps = Pick<
+  EditableTextProps,
+  "value" | "label" | "multiline" | "type" | "inputMode"
+>;
+
+function textField(
+  { value, label, multiline, type, inputMode }: TextFieldProps,
+  onBlur: (event: FocusEvent<Field>) => void,
+  onKeyDown: (event: KeyboardEvent<Field>) => void,
+) {
+  if (multiline) {
+    return (
+      <textarea
+        className={classes.field}
+        aria-label={label}
+        defaultValue={value}
+        rows={4}
+        autoFocus
+        onBlur={onBlur}
+        onKeyDown={onKeyDown}
+      />
+    );
+  }
+  return (
+    <input
+      className={classes.field}
+      aria-label={label}
+      defaultValue={value}
+      type={type}
+      inputMode={inputMode}
+      autoFocus
+      onBlur={onBlur}
+      onKeyDown={onKeyDown}
+    />
+  );
+}
 
 export function EditableText({
   value,
@@ -57,32 +95,23 @@ export function EditableText({
     }
   }
 
-  if (editing && multiline) {
+  const ended = (then: () => void) => {
+    restoreFocus.current = true;
+    then();
+  };
+  if (editing && type === "date") {
     return (
-      <textarea
-        className={classes.field}
-        aria-label={label}
-        defaultValue={value}
-        rows={4}
-        autoFocus
-        onBlur={(event) => save(event.currentTarget.value)}
-        onKeyDown={handleKey}
+      <DateField
+        value={value}
+        label={label}
+        onSave={(picked) => ended(() => save(picked))}
+        onCancel={() => ended(() => setEditing(false))}
       />
     );
   }
   if (editing) {
-    return (
-      <input
-        className={classes.field}
-        aria-label={label}
-        defaultValue={value}
-        type={type}
-        inputMode={inputMode}
-        autoFocus
-        onBlur={(event) => save(event.currentTarget.value)}
-        onKeyDown={handleKey}
-      />
-    );
+    const onBlur = (event: FocusEvent<Field>) => save(event.currentTarget.value);
+    return textField({ value, label, multiline, type, inputMode }, onBlur, handleKey);
   }
   const shown = display ?? value;
   if (!shown && !invitation) return null;
