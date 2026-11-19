@@ -20,7 +20,7 @@ from app.features.items.schemas import (
 )
 from app.features.locations import service as locations
 from app.mcp.actions import run_action, run_photo_action
-from app.models import Actor
+from app.models import MCP_ACTOR
 
 CREATE_ITEM = """Add an item to the home by name.
 
@@ -130,7 +130,7 @@ def _add_changing_tools(server: MCPServer, app: FastAPI) -> None:
             lambda session: service.create_item(
                 session,
                 NewItem(name=name, home_location_id=_home(home_location_id)),
-                Actor.mcp,
+                MCP_ACTOR,
                 clock.now(),
             ),
         )
@@ -144,7 +144,7 @@ def _add_changing_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             open_write_session,
             lambda session: service.update_item(
-                session, item_id, ItemChanges.model_validate(changes), Actor.mcp, clock.now()
+                session, item_id, ItemChanges.model_validate(changes), MCP_ACTOR, clock.now()
             ),
         )
 
@@ -160,7 +160,7 @@ def _add_adding_tools(server: MCPServer, app: FastAPI) -> None:
             lambda session: service.create_items(
                 session,
                 NewItems(names=names, home_location_id=_home(home_location_id)),
-                Actor.mcp,
+                MCP_ACTOR,
                 clock.now(),
             ),
         )
@@ -173,7 +173,7 @@ def _add_adding_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             photo_base64,
             lambda session, photo: service.create_item_by_photo(
-                session, photo, _home(home_location_id), Actor.mcp, clock.now()
+                session, photo, _home(home_location_id), MCP_ACTOR, clock.now()
             ),
         )
 

@@ -30,9 +30,21 @@ endpoint does not set them by accident. Terms are from the
 
 ## Sign-in
 
-- Every route needs a login session except `/api/health` and the four in
-  `auth`: `get_auth_status`, `create_owner`, `sign_in` and `sign_out`. A
-  request without one gets 401 `not_signed_in`.
+- Who may call a route depends on its group, set where `main.py` includes
+  its router ([decision 0022](decisions/0022-accounts-and-roles.md)):
+
+  | Group   | Routes                                                       |
+  | ------- | ------------------------------------------------------------ |
+  | Anyone  | Reading the home: locations, items, labels, search, views, saved searches, contents sheets, photos; `/api/health` and `auth`'s `get_auth_status`, `create_first_admin`, `sign_in`, `sign_out`. |
+  | Viewer  | Private details: `list_item_attachments`' files, `get_attachment_file` for a file, `get_insurance_list`, `list_history`; and `change_own_password`. |
+  | Editor  | Every change to the home, undo included.                     |
+  | Admin   | Accounts, MCP credentials, backups, `export_everything`, `import_items`. |
+
+  Each role can do everything the roles before it can. A request without a
+  login session where one is needed gets 401 `not_signed_in`; one whose
+  role is too low gets 403 `not_allowed`.
+- A visitor's item has `serial_number`, `price_cents` and `order_link` set
+  to null.
 - The session is a cookie the browser sends itself; pages never read it.
 - A write (any method but `GET`) sent from another site is refused with
   403 `cross_site_request`. There is no CORS.
@@ -100,7 +112,7 @@ One shape for every error:
 | ------ | -------------------------------------------------------------- |
 | 400    | The request makes no sense as sent.                            |
 | 401    | Not signed in, or the credential is invalid or revoked.        |
-| 403    | Sent from another site.                                        |
+| 403    | Sent from another site, or the account's role does not allow it. |
 | 404    | No such record.                                                |
 | 409    | The request conflicts with the current state.                  |
 | 422    | A field failed validation.                                     |
@@ -262,7 +274,8 @@ One shape for every error:
   change to the home, so neither writes history; restoring is done on the
   server, as `deploy/README.md` describes, and has no route.
 - The actor is taken from how the request was authenticated, never from the
-  request body: a session cookie is `app`, an MCP credential is `mcp`.
+  request body: a session cookie is `app` with its account's username, an
+  MCP credential is `mcp`.
 - Signing in and out are not changes to the home, so `auth`'s routes write
   no history entry and return no `history_entry_id`.
 
@@ -274,11 +287,11 @@ One shape for every error:
 - Every route has an operation name in the same `verb_noun` form, and the
   tool for that action has the same name. The parity test compares the two
   lists; the few routes Claude has no use for, such as signing in, are
-  named in that test: `get_health`, `get_auth_status`, `create_owner`,
-  `sign_in` and `sign_out`. The MCP credential routes,
-  `create_mcp_credential`, `list_mcp_credentials` and
-  `revoke_mcp_credential`, have no tool either: a credential that could make
-  credentials would make revoking one meaningless.
+  named in that test: `get_health`, `get_auth_status`, `create_first_admin`,
+  `sign_in`, `sign_out` and `change_own_password`. The MCP credential and
+  account routes have no tool either: a credential that could make
+  credentials or accounts would make revoking one meaningless.
+- An MCP credential acts with the editor role.
 - A client authenticates with an MCP credential sent as a bearer token
   ([decision 0010](decisions/0010-mcp-access.md)). A request to `/mcp`
   without a current one, including one with only a session cookie, gets 401

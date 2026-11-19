@@ -5,17 +5,19 @@ from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 
 from app.core import clock
+from app.core.access import AppActor
 from app.core.database import ReadSession, open_write_session
 from app.core.errors import refusals
 from app.core.settings import AppSettings
 from app.features.import_export import service
 from app.features.import_export.schemas import ContentsSheet, ImportDone, InsuranceList
-from app.models import Actor
 
 router = APIRouter()
+insurance_router = APIRouter()
+everything_router = APIRouter()
 
 
-@router.get(
+@everything_router.get(
     "/export",
     operation_id="export_everything",
     response_class=FileResponse,
@@ -32,15 +34,17 @@ def export_everything(session: ReadSession, settings: AppSettings) -> FileRespon
     )
 
 
-@router.post("/import", operation_id="import_items", responses=refusals(404, 422))
-def import_items(request: Request, csv: Annotated[UploadFile, File()]) -> ImportDone:
+@everything_router.post("/import", operation_id="import_items", responses=refusals(404, 422))
+def import_items(
+    request: Request, csv: Annotated[UploadFile, File()], actor: AppActor
+) -> ImportDone:
     raw = csv.file.read(service.MAX_CSV_BYTES + 1)
     # The file is read before the write transaction starts, so the lock is held only briefly.
     with open_write_session(request.app.state.engine) as session:
-        return service.import_items(session, raw, Actor.app, clock.now())
+        return service.import_items(session, raw, actor, clock.now())
 
 
-@router.get("/insurance-list", operation_id="get_insurance_list", responses=refusals(404))
+@insurance_router.get("/insurance-list", operation_id="get_insurance_list", responses=refusals(404))
 def get_insurance_list(session: ReadSession, location_id: str | None = None) -> InsuranceList:
     return service.get_insurance_list(session, location_id, clock.now())
 

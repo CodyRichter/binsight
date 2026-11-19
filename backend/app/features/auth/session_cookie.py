@@ -1,7 +1,7 @@
 from fastapi import Request, Response
 
 from app.core.settings import Settings
-from app.features.auth.service import SESSION_LIFETIME
+from app.features.auth.sessions import SESSION_LIFETIME
 
 COOKIE_NAME = "binsight_session"
 

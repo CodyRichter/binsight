@@ -4,6 +4,7 @@ import { ListSection } from "@/components/ListSection";
 import { useMoveItem, type Item, type ItemSelection } from "@/features/items";
 import { SearchResult } from "./SearchResult";
 import type { SearchResult as Result } from "./useSearch";
+import { useAccess } from "@/lib/api/useAccess";
 
 interface FoundListProps {
   found: Result[];
@@ -17,6 +18,7 @@ function resultKey(result: Result): string {
 /** What a search found, each item with Move, so it can be put right where it was found. */
 export function FoundList({ found, selection }: FoundListProps) {
   const { MoveSheet } = useContext(FrameAdditionsContext);
+  const { canEdit } = useAccess();
   const [moving, setMoving] = useState<Item>();
   const move = useMoveItem();
   return (
@@ -27,7 +29,7 @@ export function FoundList({ found, selection }: FoundListProps) {
             key={resultKey(result)}
             result={result}
             selection={selection}
-            onMove={MoveSheet && setMoving}
+            onMove={canEdit && MoveSheet ? setMoving : undefined}
           />
         ))}
       </ListSection>

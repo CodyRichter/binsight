@@ -1,5 +1,12 @@
 import { VisuallyHidden } from "@mantine/core";
-import { IconHome, IconInbox, IconListDetails, IconPlus, IconSettings } from "@tabler/icons-react";
+import {
+  IconHome,
+  IconInbox,
+  IconListDetails,
+  IconLogin,
+  IconPlus,
+  IconSettings,
+} from "@tabler/icons-react";
 import { Link } from "react-router";
 import type { Destination } from "./navigation";
 import classes from "./BottomBar.module.css";
@@ -8,6 +15,8 @@ interface BottomBarProps {
   current: Destination | null;
   inboxCount?: number;
   onAdd?: () => void;
+  /** For a visitor: where signing in is, shown in the place of Inbox and Settings. */
+  signInAt?: string;
 }
 
 const destinations = [
@@ -17,8 +26,19 @@ const destinations = [
   { destination: "settings", name: "Settings", to: "/settings", Icon: IconSettings },
 ] as const;
 
-export function BottomBar({ current, inboxCount = 0, onAdd }: BottomBarProps) {
-  const links = destinations.map(({ destination, name, to, Icon }) => {
+function shownTo(signInAt: string | undefined) {
+  if (!signInAt) return destinations;
+  const signIn = {
+    destination: "sign-in",
+    name: "Sign in",
+    to: signInAt,
+    Icon: IconLogin,
+  } as const;
+  return [destinations[0], destinations[1], signIn];
+}
+
+export function BottomBar({ current, inboxCount = 0, onAdd, signInAt }: BottomBarProps) {
+  const links = shownTo(signInAt).map(({ destination, name, to, Icon }) => {
     const hasCount = destination === "inbox" && inboxCount > 0;
     return (
       <Link

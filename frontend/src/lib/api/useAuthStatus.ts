@@ -6,10 +6,12 @@ export type AuthStatus = components["schemas"]["AuthStatus"];
 
 export const authStatusKey = ["auth", "status"] as const;
 
-/** Asks whether the install has an owner yet and whether this device is signed in. */
+export const authStatusQuery = {
+  queryKey: authStatusKey,
+  queryFn: ({ signal }: { signal: AbortSignal }) => api.get<AuthStatus>("/api/auth/status", signal),
+};
+
+/** Asks whether the install still needs its first admin, and who this device is signed in as. */
 export function useAuthStatus() {
-  return useQuery({
-    queryKey: authStatusKey,
-    queryFn: ({ signal }) => api.get<AuthStatus>("/api/auth/status", signal),
-  });
+  return useQuery(authStatusQuery);
 }

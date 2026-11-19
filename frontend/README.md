@@ -6,8 +6,8 @@ home screen, built into static files that the backend serves
 
 > **Status: MCP credentials in settings (phase F4).** The design
 > language's components are shown at `/design` by `npm run dev`. `/login`
-> creates the owner or signs in, and `/settings` makes and revokes MCP
-> credentials and signs out. `/` shows the
+> makes the first admin or signs in, and `/settings` manages accounts, makes
+> and revokes MCP credentials and signs out. `/` shows the
 > location tree and adds sites, a location's page adds locations and items
 > inside it, and an item's page changes its quantity and shows its history.
 

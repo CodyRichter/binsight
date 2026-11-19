@@ -50,7 +50,7 @@ export function ViewRows({ view }: { view: ViewName }) {
               item={item}
               showPath
               since={since(view, view === "lent-out" ? item.lent_at : item.retired_at)}
-              select={selection.select(item)}
+              select={selection.select?.(item)}
             />
           ))}
         </ListSection>

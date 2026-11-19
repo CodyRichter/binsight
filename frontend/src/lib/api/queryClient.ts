@@ -14,10 +14,10 @@ function isSignedOut(error: unknown): boolean {
 
 /** Makes the one cache of server data the app reads and writes through. */
 export function createQueryClient(): QueryClient {
-  // A session that ended mid-use sends the page to the Gate rather than to an error.
+  // A session that ended mid-use leaves the page as a visitor sees it, rather than an error.
   const noticeSignOut = (error: unknown) => {
     if (!isSignedOut(error)) return;
-    client.setQueryData<AuthStatus>(authStatusKey, { owner_exists: true, signed_in: false });
+    client.setQueryData<AuthStatus>(authStatusKey, { setup_needed: false, account: null });
   };
   const client = new QueryClient({
     queryCache: new QueryCache({ onError: noticeSignOut }),

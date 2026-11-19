@@ -184,6 +184,7 @@ Rules:
 | ----------- | ------------------------------------------------------------ |
 | `at`        | When.                                                        |
 | `actor`     | `app` or `mcp`.                                              |
+| `username`  | For `app`, the username of the account that made the change, kept as text so it outlives the account. Null for `mcp`. |
 | `action`    | What happened, e.g. `item.moved`, `location.merged`.         |
 | `changes`   | One per record changed: the record, and its changed fields' values before and after. |
 | `undone_by` | The history entry that reversed this one, if any.            |
@@ -211,16 +212,27 @@ Rules:
 ## Export
 
 - The export holds every stored row of the home's tables, and leaves out
-  the owner, login sessions, MCP credentials and confirmations: they are
+  accounts, login sessions, MCP credentials and confirmations: they are
   secrets for signing in, not the household's things.
 - An import only adds: it makes items and the locations they name, never
   changes or removes what is there.
 
-## Owner and access
+## Accounts and access
 
-- One owner record, with a password hash. It is created on the first visit
-  to a new install, by choosing a password.
-- A login session is a random secret held in a cookie and stored as a hash.
+| Field           | Notes                                                    |
+| --------------- | -------------------------------------------------------- |
+| `username`      | Required, unique, 1 to 40 letters, digits, `.`, `_` or `-`. Stored lower-cased, so signing in ignores case. |
+| `password_hash` | scrypt, with its salt and cost.                          |
+| `role`          | `viewer`, `editor` or `admin`.                           |
+
+- The first account is made on the first visit to a new install, and is an
+  admin. Admins make every other account.
+- There is always at least one admin: the last one can be neither demoted
+  nor deleted.
+- Deleting an account, or setting its password, ends its login sessions.
+  The role is read on every request, so a change takes effect at once.
+- A login session belongs to one account. It is a random secret held in a
+  cookie and stored as a hash.
   Nothing is signed, so an install has no session secret to configure.
 - An MCP credential has a required name, such as "Claude Desktop", so it
   can be told apart when revoking it. Its secret is stored as a hash with a

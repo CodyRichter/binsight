@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { useAccess } from "@/lib/api/useAccess";
 import { ItemSelectionBar } from "./ItemSelectionBar";
 import type { Item } from "./useItems";
 
@@ -9,13 +10,15 @@ export interface RowSelect {
 }
 
 export interface ItemSelection {
-  select: (item: Pick<Item, "id">) => RowSelect;
+  /** Left out for someone who may not change items, so rows show no select box. */
+  select?: (item: Pick<Item, "id">) => RowSelect;
   /** The selection bar, for the page's frame; undefined while nothing is selected. */
   bar: ReactNode;
 }
 
 /** The items selected in one list; `list` names it, so another list starts with none. */
 export function useItemSelection(list: string, here: string | null = null): ItemSelection {
+  const { canEdit } = useAccess();
   const [selection, setSelection] = useState<{ list: string; ids: string[] }>({ list, ids: [] });
   const ids = selection.list === list ? selection.ids : [];
   const end = () => setSelection({ list, ids: [] });
@@ -28,5 +31,5 @@ export function useItemSelection(list: string, here: string | null = null): Item
       }),
   });
   const bar = ids.length > 0 && <ItemSelectionBar ids={ids} here={here} onEnd={end} />;
-  return { select, bar: bar || undefined };
+  return { select: canEdit ? select : undefined, bar: bar || undefined };
 }

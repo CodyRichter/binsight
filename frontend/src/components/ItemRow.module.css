@@ -115,3 +115,12 @@
   line-height: var(--bs-text-small-line-height);
   font-weight: var(--bs-text-small-weight);
 }
+
+/* A quantity shown to someone who may not change it, where the stepper would be. */
+.count {
+  color: var(--bs-muted);
+  font-size: var(--bs-text-small-size);
+  line-height: var(--bs-text-small-line-height);
+  font-weight: var(--bs-text-small-weight);
+  white-space: nowrap;
+}

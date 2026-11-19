@@ -21,7 +21,7 @@ from app.mcp.removal_answers import (
     remove_item_attachment_in_two_calls,
     remove_location_photo_in_two_calls,
 )
-from app.models import Actor
+from app.models import MCP_ACTOR
 
 GET_ATTACHMENT_FILE = """Look at a photo, or read a file such as a receipt or a manual.
 
@@ -106,7 +106,10 @@ def _add_reading_tools(server: MCPServer, app: FastAPI) -> None:
     @server.tool(description=GET_ATTACHMENT_FILE)
     async def get_attachment_file(attachment_id: str) -> CallToolResult:
         return await run_file_reading_action(
-            app, lambda session: attachments.attachment_file(session, settings, attachment_id)
+            app,
+            lambda session: attachments.attachment_file(
+                session, settings, attachment_id, visitor=False
+            ),
         )
 
     @server.tool(description=LIST_ITEM_ATTACHMENTS)
@@ -117,7 +120,7 @@ def _add_reading_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             open_read_session,
             lambda session: items.list_item_attachments(
-                session, item_id, PageLimit(limit=limit).limit, cursor
+                session, item_id, PageLimit(limit=limit).limit, cursor, visitor=False
             ),
         )
 
@@ -131,7 +134,7 @@ def _add_item_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             photo_base64,
             lambda session, photo: items.add_item_photo(
-                session, item_id, photo, Actor.mcp, clock.now()
+                session, item_id, photo, MCP_ACTOR, clock.now()
             ),
         )
 
@@ -142,7 +145,7 @@ def _add_item_tools(server: MCPServer, app: FastAPI) -> None:
         return await run_file_action(
             app,
             (file_base64, filename),
-            lambda session, file: items.attach_file(session, item_id, file, Actor.mcp, clock.now()),
+            lambda session, file: items.attach_file(session, item_id, file, MCP_ACTOR, clock.now()),
         )
 
     @server.tool(description=ATTACH_WEB_LINK)
@@ -153,7 +156,7 @@ def _add_item_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             open_write_session,
             lambda session: items.attach_web_link(
-                session, item_id, NewWebLink(url=url, name=name), Actor.mcp, clock.now()
+                session, item_id, NewWebLink(url=url, name=name), MCP_ACTOR, clock.now()
             ),
         )
 
@@ -167,7 +170,7 @@ def _add_location_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             photo_base64,
             lambda session, photo: locations.set_location_photo(
-                session, locations.location_code(location_id), photo, Actor.mcp, clock.now()
+                session, locations.location_code(location_id), photo, MCP_ACTOR, clock.now()
             ),
         )
 

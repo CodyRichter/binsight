@@ -4,21 +4,20 @@ import classes from "./HistoryRow.module.css";
 interface HistoryRowProps {
   happened: string;
   at: Date;
-  actor: "app" | "mcp";
+  /** Who made the change, as it reads after the time: "You", "Claude" or a username. */
+  by: string;
 }
-
-const actorNames = { app: "You", mcp: "Claude" };
 
 function sentenceCase(words: string): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
-export function HistoryRow({ happened, at, actor }: HistoryRowProps) {
+export function HistoryRow({ happened, at, by }: HistoryRowProps) {
   return (
     <li className={classes.row}>
       <span className={classes.happened}>{happened}</span>
       <span className={classes.when}>
-        {sentenceCase(timeAgo(at))} · {actorNames[actor]}
+        {sentenceCase(timeAgo(at))} · {by}
       </span>
     </li>
   );

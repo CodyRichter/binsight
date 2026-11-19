@@ -315,3 +315,30 @@ def test_locations_from_before_codes_are_given_codes_everything_still_points_at(
         (codes["Cables"], f'{{"parent_id": "{codes["Home"]}"}}')
     ]
     assert actions == ["location.created"]
+
+
+def test_the_old_owner_is_dropped_and_the_home_is_kept(settings: Settings) -> None:
+    settings.data_directory.mkdir()
+    engine = create_database_engine(settings.database_path)
+    config = Config()
+    config.set_main_option("script_location", str(BACKEND_DIRECTORY / "migrations"))
+    with engine.begin() as connection:
+        config.attributes["connection"] = connection
+        command.upgrade(config, "0016")
+        for statement in (
+            "INSERT INTO owner (id, password_hash, created_at, updated_at)"
+            " VALUES ('owner', 'scrypt$hash', :at, :at)",
+            "INSERT INTO login_session (id, owner_id, secret_hash, created_at, updated_at,"
+            " expires_at) VALUES ('device', 'owner', 'secret', :at, :at, :at)",
+            "INSERT INTO item (id, name, quantity, status, created_at, updated_at)"
+            " VALUES ('drill', 'Drill', 1, 'in_place', :at, :at)",
+            "INSERT INTO history_entry (id, at, actor, action) VALUES ('made', :at, 'app', 'x')",
+        ):
+            connection.execute(text(statement), {"at": "2026-11-20 12:00:00"})
+    migrate_database(engine, settings)
+    with engine.connect() as connection:
+        names = connection.execute(text("SELECT name FROM item")).scalars().all()
+        accounts = connection.execute(text("SELECT count(*) FROM account")).scalar()
+        username = connection.execute(text("SELECT username FROM history_entry")).scalar()
+    engine.dispose()
+    assert (names, accounts, username) == (["Drill"], 0, None)

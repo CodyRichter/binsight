@@ -14,6 +14,7 @@ from app.core.security_headers import add_security_headers
 from app.core.settings import Settings, load_settings
 from app.features.attachments import routes as attachments
 from app.features.auth import routes as auth
+from app.features.auth.access import require
 from app.features.backups import routes as backups
 from app.features.backups import service as backup_schedule
 from app.features.history import routes as history
@@ -26,26 +27,49 @@ from app.features.locations import routes as locations
 from app.features.search import routes as search
 from app.features.views import routes as views
 from app.mcp.server import add_mcp_server
+from app.models import Role
 
 
-def _signed_in_routes() -> APIRouter:
-    # Every feature router goes in here, so a route is signed-in-only unless added in build_app.
-    signed_in = APIRouter(dependencies=[Depends(auth.require_sign_in)])
-    signed_in.include_router(auth.mcp_credentials_router)
-    signed_in.include_router(locations.router)
-    signed_in.include_router(bulk_items.router)
-    signed_in.include_router(items.router)
-    signed_in.include_router(items.categories_and_tags_router)
-    signed_in.include_router(item_attachments.router)
-    signed_in.include_router(labels.router)
-    signed_in.include_router(history.router)
-    signed_in.include_router(attachments.router)
-    signed_in.include_router(search.router)
-    signed_in.include_router(views.router)
-    signed_in.include_router(views.saved_searches_router)
-    signed_in.include_router(import_export.router)
-    signed_in.include_router(backups.router)
-    return signed_in
+def _routes_by_role() -> APIRouter:
+    # Every feature router goes in exactly one group; tests/test_access.py fails on any left out.
+    groups: dict[Role | None, list[APIRouter]] = {
+        None: [
+            auth.router,
+            locations.router,
+            items.router,
+            items.categories_and_tags_router,
+            item_attachments.router,
+            labels.router,
+            attachments.router,
+            search.router,
+            views.router,
+            views.saved_searches_router,
+            import_export.router,
+        ],
+        Role.viewer: [auth.own_account_router, history.router, import_export.insurance_router],
+        Role.editor: [
+            locations.write_router,
+            bulk_items.router,
+            items.write_router,
+            items.unlink_router,
+            item_attachments.write_router,
+            history.undo_router,
+            views.saved_search_changes_router,
+        ],
+        Role.admin: [
+            auth.accounts_router,
+            auth.mcp_credentials_router,
+            import_export.everything_router,
+            backups.router,
+        ],
+    }
+    api = APIRouter()
+    for role, routers in groups.items():
+        group = APIRouter(dependencies=[Depends(require(role))])
+        for router in routers:
+            group.include_router(router)
+        api.include_router(group)
+    return api
 
 
 def build_app(settings: Settings) -> FastAPI:
@@ -78,8 +102,7 @@ def build_app(settings: Settings) -> FastAPI:
     refuse_cross_site_writes(app, settings.app_address)
     add_security_headers(app)
     app.include_router(health.router, prefix="/api")
-    app.include_router(auth.router, prefix="/api")
-    app.include_router(_signed_in_routes(), prefix="/api")
+    app.include_router(_routes_by_role(), prefix="/api")
     mcp_server = add_mcp_server(app)
     add_frontend_files(app, settings.frontend_directory)
     return app

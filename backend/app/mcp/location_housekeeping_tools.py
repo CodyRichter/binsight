@@ -25,7 +25,7 @@ from app.features.locations.schemas import (
 )
 from app.mcp import confirmation
 from app.mcp.actions import run_action
-from app.models import Actor
+from app.models import MCP_ACTOR
 
 UPDATE_LOCATION = """Rename a location, or change its one-line summary, its type or its icon.
 
@@ -130,7 +130,7 @@ def _delete(
     now = clock.now()
     confirmation.redeem(session, "delete_location", inputs, token, now)
     delete = LocationDelete(move_contents_to=destination_id)
-    deleted = housekeeping.delete_location(session, location_id, delete, Actor.mcp, now)
+    deleted = housekeeping.delete_location(session, location_id, delete, MCP_ACTOR, now)
     return DeleteLocationAnswer(preview=None, deleted=deleted)
 
 
@@ -144,7 +144,7 @@ def _merge(session: Session, location: str, into: str, token: str | None) -> Mer
     now = clock.now()
     confirmation.redeem(session, "merge_location", inputs, token, now)
     merge = LocationMerge(into=into_id)
-    merged = housekeeping.merge_location(session, location_id, merge, Actor.mcp, now)
+    merged = housekeeping.merge_location(session, location_id, merge, MCP_ACTOR, now)
     return MergeLocationAnswer(preview=None, merged=merged)
 
 
@@ -185,7 +185,7 @@ def _add_update_tool(server: MCPServer, app: FastAPI) -> None:
                 session,
                 locations.location_code(location_id),
                 LocationChanges.model_validate(changes),
-                Actor.mcp,
+                MCP_ACTOR,
                 clock.now(),
             ),
         )
@@ -202,7 +202,7 @@ def add_location_housekeeping_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             open_write_session,
             lambda session: service.restore_location(
-                session, locations.location_code(location_id), Actor.mcp, clock.now()
+                session, locations.location_code(location_id), MCP_ACTOR, clock.now()
             ),
         )
 
@@ -217,7 +217,7 @@ def add_location_housekeeping_tools(server: MCPServer, app: FastAPI) -> None:
                 session,
                 locations.location_code(location_id),
                 LocationReorder(position=position),
-                Actor.mcp,
+                MCP_ACTOR,
                 clock.now(),
             ),
         )

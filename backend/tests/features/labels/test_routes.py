@@ -14,9 +14,9 @@ def _site(client: TestClient) -> str:
     return location_id
 
 
-def test_labels_need_sign_in(client: TestClient) -> None:
-    response = client.get(f"{LABELS}/K7Q-4MZ/image")
-    assert (response.status_code, response.json()["error"]["code"]) == (401, "not_signed_in")
+def test_a_visitor_can_see_a_label(visitor: TestClient) -> None:
+    response = visitor.get(f"{LABELS}/ZZZ-999/image")
+    assert (response.status_code, response.json()["error"]["code"]) == (404, "location_not_found")
 
 
 def test_an_unknown_code_is_not_found(signed_in: TestClient) -> None:

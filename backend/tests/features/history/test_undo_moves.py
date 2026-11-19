@@ -9,9 +9,9 @@ from app.features.items import service as items
 from app.features.items.schemas import ItemMove
 from app.features.locations import service as locations
 from app.features.locations.schemas import LocationMove
-from app.models import Actor, Item, Location
+from app.models import Item, Location
 from tests import builders
-from tests.builders import AcceptanceHome
+from tests.builders import APP_ACTOR, AcceptanceHome
 
 
 @pytest.fixture
@@ -23,19 +23,19 @@ def home(migrated_engine: Engine) -> AcceptanceHome:
 def _move_item(engine: Engine, item_id: str, location_id: str) -> str:
     with open_write_session(engine) as session:
         move = ItemMove(location_id=location_id)
-        return items.move_item(session, item_id, move, Actor.app, builders.NOW).history_entry_id
+        return items.move_item(session, item_id, move, APP_ACTOR, builders.NOW).history_entry_id
 
 
 def _move_location(engine: Engine, location_id: str, parent_id: str) -> str:
     with open_write_session(engine) as session:
         move = LocationMove(parent_id=parent_id)
-        moved = locations.move_location(session, location_id, move, Actor.app, builders.NOW)
+        moved = locations.move_location(session, location_id, move, APP_ACTOR, builders.NOW)
         return moved.history_entry_id
 
 
 def _undo(engine: Engine, settings: Settings, entry_id: str) -> None:
     with open_write_session(engine) as session:
-        service.undo(session, settings, entry_id, Actor.app, builders.NOW)
+        service.undo(session, settings, entry_id, APP_ACTOR, builders.NOW)
 
 
 def _refusal(engine: Engine, settings: Settings, entry_id: str) -> str:

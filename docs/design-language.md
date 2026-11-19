@@ -323,6 +323,9 @@ column, then Scan and Add when available.
   leaves clear margin for focus rings without growing the bar.
 
 **Bottom bar.** Exactly five slots: Home, Views, Add, Inbox, Settings.
+Someone who may not change the home has no Add; a visitor, not signed in,
+sees three: Home, Views, and "Sign in" (`login`) in Inbox and Settings'
+place.
 
 - Add is its only `accent` item. The current destination gets a
   `highlight` block behind its icon and its label in 650; pages below a
@@ -338,7 +341,8 @@ and `Inbox` with its count when present); extensible grouped sections
 separated by a hairline (such as `Views`, with its header linking to
 `/views` and underneath each built-in view that lists something, then each
 pinned saved search with `pin`, all with their counts); then
-`Settings`, pinned to the bottom while the entries above it scroll.
+`Settings`, pinned to the bottom while the entries above it scroll. A
+visitor has no Inbox, and "Sign in" in Settings' place.
 
 - An entry is `text-body`; the current one is `text-body-strong` on
   `highlight`. A long name wraps; its icon and count stay on the first
@@ -521,10 +525,24 @@ goes back, or home when `/scan` was the first page.
 3. One primary button, pinned to the bottom above the safe area, the full
    width of the column. A toast shows above it.
 
-**Settings** (`/settings`). Header ("Settings"), then sections of value
-rows, each with `space-xl` above its header like every section. A section
-whose action is the only way to add to it shows even when empty: "MCP
-credentials", whose action is "Add MCP credential".
+**Settings** (`/settings`, signed in only). Header ("Settings"), then
+sections of value rows, each with `space-xl` above its header like every
+section. A section whose action is the only way to add to it shows even when
+empty: "MCP credentials", whose action is "Add MCP credential".
+
+"Your account" comes first, for every role: "Signed in as" ("sam · Edit"),
+"Password" with a default "Change" button that opens the "Change password"
+sheet (current password, then the new one twice), and "This device" with
+"Sign out". The sections after it are an admin's only.
+
+"Accounts", whose action is "Add account": one value row per account, its
+username as the name and its role ("View", "Edit", "Admin") as a chosen
+value. Tapping the role opens a sheet titled with the username: the three
+roles as name rows, the current one checked, picking one changes it at
+once; then the new password twice and a default "Set password" button;
+then a `danger` "Delete account", which closes the sheet and asks in a
+dialog. "Add account" opens a sheet with Username, the password twice and
+the three role rows, View checked, and a primary "Add".
 
 "Export and import", after "MCP credentials", has three value rows. "Export
 everything" holds a default "Download" button that downloads the zip.
@@ -577,10 +595,14 @@ count; an empty one is its header with 0. Rows on both read "{quantity} ×
 and name, a muted status word, then its details as `text-small` name and
 value pairs and its photos at 96px. No controls.
 
-**Gate** (`/login`, and creating the owner on a new install). The gate
-frame: a `gate-width` column, centered across and placed in the upper
-third, holding Binsight in `text-title`, one or two fields, and one
-primary button.
+**Gate** (`/login`, and creating the first account on a new install). The
+gate frame: a `gate-width` column, centered across and placed in the upper
+third, holding Binsight in `text-title`, its fields and one primary
+button. Signing in is Username and Password, then "Sign in". A new install
+says "Make the first account. It is an admin, and can add everyone else.",
+then Username, Password and Repeat password, then "Create account". It is
+reached from "Sign in" in the navigation, and by opening a page that needs
+an account; it is never in the way of reading the home.
 
 | Path              | Template | Lit navigation item |
 | ----------------- | -------- | ------------------- |
@@ -616,7 +638,8 @@ specimen, which is then deleted
 | Unknown address or code | An empty state stating the fact, with no header ("No label has the code B-9999" or "Nothing at this address"), and one button, inside the frame whenever possible. |
 | Backend unreachable | The empty state "Can't reach Binsight" with a "Try again" button, inside the frame whenever possible. Changes already on screen roll back with a refusal toast. |
 | Unexpected error (500) | The empty state "Something went wrong" with a "Try again" button, caught inside the frame's error boundary so navigation stays usable. |
-| Signed out | The Gate, then back to the address that was asked for. |
+| Signed out | The home, read-only (below). A page that needs an account, such as Settings or an insurance list, sends to the Gate, then back to the address that was asked for. |
+| Read-only | For a visitor, and for a View account: every control that changes the home is left out, never shown disabled. No add bar, Add, Move, stepper, select box, rename, invitation or More action that changes things; values read as plain text and empty ones are not shown. Label and the print pages stay. A visitor also sees no prices, serial numbers, order links, files or history. |
 | Long content | Names and paths wrap. A 60-character name and a six-segment path never push a row's controls off screen or overlap them. |
 
 ### Sheets and the keyboard
@@ -737,7 +760,9 @@ page is edited where it is shown: plain text at rest, `hover` fill on hover,
 a focused field on tap. Enter or leaving saves, Escape cancels. No Save
 button. An empty optional value shows as a `muted` invitation ("Add a
 summary") only on the thing's own page. A date is edited in the date field
-and reads at rest in the owner's own date style ("1 Mar 2027").
+and reads at rest in the owner's own date style ("1 Mar 2027"). For
+someone who may not change it, it is plain `ink` text with no hover and no
+tap, and an empty value shows nothing.
 
 **Date field** (`DateField`, built on Mantine `DateInput`). A text field
 that opens a calendar under it as it takes focus. A date can be typed
@@ -874,7 +899,9 @@ button named "Add photo" that opens the camera to add one — both with the
 hover fill and focus ring of any button.
 
 **Item row.** Thumbnail, then the name over a line holding the path and any
-status badge, then the quantity stepper if shown. The whole row opens the
+status badge, then the quantity stepper if shown; for someone who may
+not change it, a quantity above one reads "×3" in `muted` `text-small`
+where the stepper would be. The whole row opens the
 item; no chevron. Inside a location's own contents the path is left out,
 and a Move icon button ends the row, so moving takes two taps: Move, then
 the destination. Search results end in Move too, with the path kept. Under 48em a row with both puts the stepper on its own
@@ -920,8 +947,9 @@ refusal puts the order back.
 **History row.** One change to the thing, in a Record page's History
 section. A line saying what happened in `text-body` ("Added", "Quantity
 changed from 3 to 4"), and under it one `text-small`, `muted` line: when, in
-words ("3 weeks ago"), then who ("You" for the app, "Claude"
-for MCP). Full width, hairline below, at least `row-min` high, and its text
+words ("3 weeks ago"), then who ("You" for this account, another
+account's username, "Claude" for MCP, "Someone" for a change from before
+accounts). Full width, hairline below, at least `row-min` high, and its text
 wraps. Not tappable: no icon, no badge, no chevron.
 
 **View row** (`ViewRow`). A view or saved search on `/views`: a 20px

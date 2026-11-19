@@ -5,6 +5,7 @@ import { ItemListRow } from "./ItemListRow";
 import { useMoveItem } from "./useMoveItem";
 import type { RowSelect } from "./useItemSelection";
 import type { Item } from "./useItems";
+import { useAccess } from "@/lib/api/useAccess";
 
 interface ItemsSectionProps {
   items: Item[];
@@ -14,11 +15,12 @@ interface ItemsSectionProps {
 
 export function ItemsSection({ items, showPath, select }: ItemsSectionProps) {
   const { MoveSheet } = useContext(FrameAdditionsContext);
+  const { canEdit } = useAccess();
   const [moving, setMoving] = useState<Item>();
   const move = useMoveItem();
   if (items.length === 0) return null;
   // A location's own contents, shown without paths, is where rows offer Move.
-  const movable = !showPath && MoveSheet !== undefined;
+  const movable = canEdit && !showPath && MoveSheet !== undefined;
   return (
     <>
       <ListSection title="Items" count={items.length}>

@@ -3,12 +3,13 @@ import { IconPrinter, IconX } from "@tabler/icons-react";
 import { useEffect, type ReactNode } from "react";
 import { barIconVars } from "./barControls";
 import { ErrorBoundary } from "./ErrorBoundary";
-import { SessionCheck } from "./SessionCheck";
+import { SessionCheck, type PageAudience } from "./SessionCheck";
 import classes from "./PrintFrame.module.css";
 
 interface PrintFrameProps {
   name: string;
   onClose: () => void;
+  audience?: PageAudience;
   children: ReactNode;
 }
 
@@ -35,7 +36,7 @@ function usePrintedLight() {
   }, []);
 }
 
-export function PrintFrame({ name, onClose, children }: PrintFrameProps) {
+export function PrintFrame({ name, onClose, audience = "anyone", children }: PrintFrameProps) {
   usePrintedLight();
   return (
     <div className={classes.frame} data-frame="print">
@@ -54,7 +55,7 @@ export function PrintFrame({ name, onClose, children }: PrintFrameProps) {
       </header>
       <main id="content" className={classes.paper}>
         <ErrorBoundary onGoHome={onClose}>
-          <SessionCheck>{children}</SessionCheck>
+          <SessionCheck audience={audience}>{children}</SessionCheck>
         </ErrorBoundary>
       </main>
     </div>

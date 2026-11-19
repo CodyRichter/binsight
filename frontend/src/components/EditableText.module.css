@@ -65,3 +65,11 @@ textarea.field {
   padding: var(--bs-space-md);
   resize: vertical;
 }
+
+/* Read-only, for someone who may not change it: the same text, with nothing to tap. */
+.shown {
+  display: block;
+  color: var(--bs-ink);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

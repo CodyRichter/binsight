@@ -10,7 +10,7 @@ from app.features.items.schemas import AttachmentRemoved
 from app.features.locations import service as locations
 from app.features.locations.schemas import Location, LocationPhotoChanged
 from app.mcp import confirmation
-from app.models import Actor
+from app.models import MCP_ACTOR
 
 
 class AttachmentPreview(BaseModel):
@@ -55,7 +55,7 @@ def remove_item_attachment_in_two_calls(
         )
         return RemoveItemAttachmentAnswer(preview=preview, removed=None)
     confirmation.redeem(session, "remove_item_attachment", inputs, token, now)
-    removed = items.remove_item_attachment(session, item_id, attachment_id, Actor.mcp, now)
+    removed = items.remove_item_attachment(session, item_id, attachment_id, MCP_ACTOR, now)
     return RemoveItemAttachmentAnswer(preview=None, removed=removed)
 
 
@@ -73,5 +73,5 @@ def remove_location_photo_in_two_calls(
         )
         return RemoveLocationPhotoAnswer(preview=preview, removed=None)
     confirmation.redeem(session, "remove_location_photo", inputs, token, now)
-    removed = locations.remove_location_photo(session, location_id, Actor.mcp, now)
+    removed = locations.remove_location_photo(session, location_id, MCP_ACTOR, now)
     return RemoveLocationPhotoAnswer(preview=None, removed=removed)

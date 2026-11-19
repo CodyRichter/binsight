@@ -24,7 +24,9 @@ def record(
     session: Session, actor: Actor, action: str, changes: list[RecordChange], now: datetime
 ) -> str:
     """Write down one change to the home, so it shows in history and can be undone."""
-    entry = models.HistoryEntry(id=new_identifier(), at=now, actor=actor, action=action)
+    entry = models.HistoryEntry(
+        id=new_identifier(), at=now, actor=actor.kind, username=actor.username, action=action
+    )
     entry.changes = [
         models.HistoryChange(
             id=new_identifier(),

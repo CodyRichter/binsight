@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app import models
+from app.core.pagination import Page
 from app.features.attachments import service as attachments
 from app.features.items.categories import category_name
 from app.features.items.schemas import Item
@@ -47,4 +48,18 @@ def shaped(session: Session, item: models.Item) -> Item:
         photo_url=attachments.photo_url(session, item.id),
         created_at=item.created_at,
         deleted_at=item.deleted_at,
+    )
+
+
+def item_for(item: Item, visitor: bool) -> Item:
+    """The item as someone sees it: a visitor, not signed in, sees none of its private details."""
+    if not visitor:
+        return item
+    return item.model_copy(update={"serial_number": None, "price_cents": None, "order_link": None})
+
+
+def page_for(page: Page[Item], visitor: bool) -> Page[Item]:
+    """A page of items as someone sees them, private details left out for a visitor."""
+    return Page(
+        items=[item_for(item, visitor) for item in page.items], next_cursor=page.next_cursor
     )

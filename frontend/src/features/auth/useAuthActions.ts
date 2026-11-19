@@ -2,22 +2,32 @@ import { hashKey, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import { authStatusKey, type AuthStatus } from "@/lib/api/useAuthStatus";
 
+export interface SignInWords {
+  username: string;
+  password: string;
+}
+
 function useSignedInWith(path: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (password: string) => api.post<AuthStatus>(path, { password }),
-    onSuccess: (status) => queryClient.setQueryData(authStatusKey, status),
+    mutationFn: (words: SignInWords) => api.post<AuthStatus>(path, words),
+    onSuccess: (status) => {
+      // What was read as a visitor left private details out, so it is read again.
+      queryClient.setQueryData(authStatusKey, status);
+      const statusHash = hashKey(authStatusKey);
+      void queryClient.invalidateQueries({ predicate: (query) => query.queryHash !== statusHash });
+    },
   });
 }
 
-/** Signs this device in with the owner's password. */
+/** Signs this device in with an account's username and password. */
 export function useSignIn() {
   return useSignedInWith("/api/auth/sign-in");
 }
 
-/** Sets the owner's password on a new install, which also signs this device in. */
-export function useCreateOwner() {
-  return useSignedInWith("/api/auth/owner");
+/** Makes a new install's first account, an admin, which also signs this device in. */
+export function useCreateFirstAdmin() {
+  return useSignedInWith("/api/auth/first-admin");
 }
 
 /** Signs this device out and forgets everything read while signed in. */
@@ -28,8 +38,7 @@ export function useSignOut() {
     onSuccess: () => {
       const status = hashKey(authStatusKey);
       queryClient.removeQueries({ predicate: (query) => query.queryHash !== status });
-      // The page's session check then sends it to the Gate, which returns here after sign-in.
-      queryClient.setQueryData<AuthStatus>(authStatusKey, { owner_exists: true, signed_in: false });
+      queryClient.setQueryData<AuthStatus>(authStatusKey, { setup_needed: false, account: null });
     },
   });
 }

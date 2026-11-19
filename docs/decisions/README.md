@@ -29,3 +29,4 @@ it and mark the old one as replaced. Do not quietly work around one.
 | 0019 | [A location's icon is a Tabler icon name, loaded when shown](0019-location-icons-from-tabler.md) | Accepted |
 | 0020 | [Location contents are not checked](0020-no-checks.md) | Accepted |
 | 0021 | [A location is known by its code](0021-location-codes.md) | Accepted |
+| 0022 | [Accounts with three fixed roles, and reading without signing in](0022-accounts-and-roles.md) | Accepted |

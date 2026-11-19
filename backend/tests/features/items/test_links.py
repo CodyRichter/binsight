@@ -10,9 +10,9 @@ from app.core.settings import Settings
 from app.features.history import service as history
 from app.features.items import service
 from app.features.items.schemas import ItemLinkNew
-from app.models import Actor, LinkKind
+from app.models import LinkKind
 from tests import builders
-from tests.builders import AcceptanceHome
+from tests.builders import APP_ACTOR, AcceptanceHome
 
 LATER = builders.NOW + timedelta(days=1)
 
@@ -26,7 +26,7 @@ def home(migrated_engine: Engine) -> AcceptanceHome:
 def _link(engine: Engine, item_id: str, other_item_id: str, kind: LinkKind) -> tuple[str, str]:
     with open_write_session(engine) as session:
         linked = service.link_items(
-            session, item_id, ItemLinkNew(other_item_id=other_item_id, kind=kind), Actor.app, LATER
+            session, item_id, ItemLinkNew(other_item_id=other_item_id, kind=kind), APP_ACTOR, LATER
         )
     return linked.link_id, linked.history_entry_id
 
@@ -44,7 +44,7 @@ def _linked(engine: Engine, item_id: str) -> list[tuple[str, str | None]]:
 
 def _undo(engine: Engine, settings: Settings, entry_id: str, minutes: int = 60) -> None:
     with open_write_session(engine) as session:
-        history.undo(session, settings, entry_id, Actor.app, LATER + timedelta(minutes=minutes))
+        history.undo(session, settings, entry_id, APP_ACTOR, LATER + timedelta(minutes=minutes))
 
 
 def test_each_side_of_a_link_reads_from_its_own_item(
@@ -88,12 +88,12 @@ def test_a_removed_link_comes_back_with_undo_unless_made_again(
     hdmi, charger = home.hdmi_cable, home.usb_c_charger
     link_id, _ = _link(migrated_engine, hdmi, charger, LinkKind.belongs_with)
     with open_write_session(migrated_engine) as session:
-        removed = service.unlink_items(session, link_id, Actor.app, LATER)
+        removed = service.unlink_items(session, link_id, APP_ACTOR, LATER)
     assert _linked(migrated_engine, hdmi) == []
     _undo(migrated_engine, settings, removed.history_entry_id)
     assert _linked(migrated_engine, hdmi) == [("belongs_with", "USB-C charger")]
     with open_write_session(migrated_engine) as session:
-        again = service.unlink_items(session, link_id, Actor.app, LATER + timedelta(hours=2))
+        again = service.unlink_items(session, link_id, APP_ACTOR, LATER + timedelta(hours=2))
     _link(migrated_engine, charger, hdmi, LinkKind.belongs_with)
     with pytest.raises(AppError) as refused:
         _undo(migrated_engine, settings, again.history_entry_id, minutes=180)
@@ -121,7 +121,7 @@ def test_both_items_history_shows_the_link(migrated_engine: Engine, home: Accept
     for item_id in (home.hdmi_cable, home.usb_c_charger):
         assert _latest_entry(migrated_engine, item_id) == (entry_id, "item.linked")
     with open_write_session(migrated_engine) as session:
-        removed = service.unlink_items(session, link_id, Actor.app, LATER + timedelta(minutes=1))
+        removed = service.unlink_items(session, link_id, APP_ACTOR, LATER + timedelta(minutes=1))
     for item_id in (home.hdmi_cable, home.usb_c_charger):
         assert _latest_entry(migrated_engine, item_id) == (
             removed.history_entry_id,
@@ -134,7 +134,7 @@ def test_a_deleted_item_is_left_out_of_links_and_keeps_its_own(
 ) -> None:
     _link(migrated_engine, home.hdmi_cable, home.usb_c_charger, LinkKind.belongs_with)
     with open_write_session(migrated_engine) as session:
-        service.delete_item(session, home.usb_c_charger, Actor.app, LATER)
+        service.delete_item(session, home.usb_c_charger, APP_ACTOR, LATER)
     assert _linked(migrated_engine, home.hdmi_cable) == []
     assert _linked(migrated_engine, home.usb_c_charger) == [("belongs_with", "HDMI cable")]
 

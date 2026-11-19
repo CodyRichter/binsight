@@ -1,9 +1,9 @@
 from app.models.attachments import Attachment, AttachmentKind
-from app.models.auth import LoginSession, McpCredential, Owner
+from app.models.auth import Account, LoginSession, McpCredential, Role
 from app.models.base import Model
 from app.models.categories import Category
 from app.models.confirmations import Confirmation
-from app.models.history import Actor, HistoryChange, HistoryEntry
+from app.models.history import MCP_ACTOR, Actor, ActorKind, HistoryChange, HistoryEntry
 from app.models.items import ARCHIVED, Item, ItemStatus, ItemTag
 from app.models.links import ItemLink, LinkKind
 from app.models.locations import Location, LocationType
@@ -11,7 +11,10 @@ from app.models.saved_searches import SavedSearch
 
 __all__ = [
     "ARCHIVED",
+    "MCP_ACTOR",
+    "Account",
     "Actor",
+    "ActorKind",
     "Attachment",
     "AttachmentKind",
     "Category",
@@ -28,6 +31,6 @@ __all__ = [
     "LoginSession",
     "McpCredential",
     "Model",
-    "Owner",
+    "Role",
     "SavedSearch",
 ]

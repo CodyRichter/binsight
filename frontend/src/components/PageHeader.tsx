@@ -29,7 +29,7 @@ interface PageHeaderProps {
   onCodeClick?: () => void;
   thumbnail?: PageThumbnail;
   status?: { status: Status; lentTo?: string };
-  summary?: { value: string; onSave: (summary: string) => void };
+  summary?: { value: string; onSave?: (summary: string) => void };
   counts?: string[];
   /** Since when the page's thing has been as it is, read under the title: "Deleted 2 days ago". */
   since?: { words: string; at: Date };

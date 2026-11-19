@@ -47,8 +47,8 @@ export function RowsSpecimen() {
       <LocationTreeDemo />
       <ItemListDemo />
       <ListSection title="History">
-        <HistoryRow happened="Quantity changed from 3 to 4" at={daysAgo(0)} actor="app" />
-        <HistoryRow happened="Added" at={daysAgo(21)} actor="mcp" />
+        <HistoryRow happened="Quantity changed from 3 to 4" at={daysAgo(0)} by="You" />
+        <HistoryRow happened="Added" at={daysAgo(21)} by="Claude" />
       </ListSection>
       <ListSection title="Name rows">
         <NameRow name={'Make "Adapters"'} onPick={() => undefined} />

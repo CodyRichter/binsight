@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FocusEvent,
+  type KeyboardEvent,
+  type RefObject,
+} from "react";
 import { DateField } from "./DateField";
 import classes from "./EditableText.module.css";
 
@@ -12,7 +19,8 @@ interface EditableTextProps {
   inputMode?: "decimal";
   /** How the value reads at rest, when that differs from how it is typed (a date). */
   display?: string;
-  onSave: (value: string) => void;
+  /** Left out for someone who may not change it: the value shows as plain text. */
+  onSave?: (value: string) => void;
 }
 
 type Field = HTMLInputElement | HTMLTextAreaElement;
@@ -54,6 +62,34 @@ function textField(
   );
 }
 
+interface Resting {
+  value: string;
+  shown: string;
+  label: string;
+  invitation?: string;
+}
+
+function resting(
+  { value, shown, label, invitation }: Resting,
+  buttonRef: RefObject<HTMLButtonElement | null>,
+  onEdit: () => void,
+) {
+  if (!shown && !invitation) return null;
+  return (
+    <button
+      ref={buttonRef}
+      type="button"
+      className={classes.text}
+      data-empty={!value || undefined}
+      // A name must include the words shown, so an empty field is named by its invitation.
+      aria-label={`${label}: ${shown || invitation}`}
+      onClick={onEdit}
+    >
+      {shown || invitation}
+    </button>
+  );
+}
+
 export function EditableText({
   value,
   label,
@@ -77,7 +113,7 @@ export function EditableText({
 
   function save(typed: string) {
     setEditing(false);
-    if (typed.trim() !== value) onSave(typed.trim());
+    if (typed.trim() !== value) onSave?.(typed.trim());
   }
 
   function handleKey(event: KeyboardEvent<Field>) {
@@ -114,18 +150,6 @@ export function EditableText({
     return textField({ value, label, multiline, type, inputMode }, onBlur, handleKey);
   }
   const shown = display ?? value;
-  if (!shown && !invitation) return null;
-  return (
-    <button
-      ref={buttonRef}
-      type="button"
-      className={classes.text}
-      data-empty={!value || undefined}
-      // A name must include the words shown, so an empty field is named by its invitation.
-      aria-label={`${label}: ${shown || invitation}`}
-      onClick={() => setEditing(true)}
-    >
-      {shown || invitation}
-    </button>
-  );
+  if (!onSave) return shown ? <span className={classes.shown}>{shown}</span> : null;
+  return resting({ value, shown, label, invitation }, buttonRef, () => setEditing(true));
 }

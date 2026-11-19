@@ -9,8 +9,8 @@ from app.core.errors import AppError
 from app.core.settings import Settings
 from app.features.attachments import service
 from app.features.items import service as items
-from app.models import Actor
 from tests import builders
+from tests.builders import APP_ACTOR
 from tests.photos import ORIENTATION_TAG, PDF, photo
 
 
@@ -74,10 +74,12 @@ def test_an_item_s_photo_url_names_its_first_photo(
         service.saved_photo(settings, photo(), None) as stored,
         open_write_session(migrated_engine) as session,
     ):
-        item = items.create_item_by_photo(session, stored, None, Actor.app, builders.NOW)
+        item = items.create_item_by_photo(session, stored, None, APP_ACTOR, builders.NOW)
     with open_read_session(migrated_engine) as session:
         assert service.photo_url(session, item.id) == f"/api/attachments/{stored.id}/file"
-        assert service.attachment_file(session, settings, stored.id).path.read_bytes()
+        assert service.attachment_file(
+            session, settings, stored.id, visitor=False
+        ).path.read_bytes()
 
 
 @pytest.mark.parametrize(

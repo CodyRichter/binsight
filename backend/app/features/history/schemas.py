@@ -3,7 +3,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel
 
-from app.models import Actor
+from app.models import ActorKind
 
 RecordType = Literal["attachment", "item", "link", "location", "saved_search"]
 
@@ -18,7 +18,9 @@ class HistoryChange(BaseModel):
 class HistoryEntry(BaseModel):
     id: str
     at: datetime
-    actor: Actor
+    actor: ActorKind
+    # For an app change, who made it; it outlives the account.
+    username: str | None
     action: str
     changes: list[HistoryChange]
     undone_by: str | None

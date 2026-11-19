@@ -97,6 +97,13 @@ class ItemMove(BaseModel):
     location_id: str
 
 
+class ItemsKept(BaseModel):
+    """Which location's items to list, and whether to include those in locations inside it."""
+
+    location_id: str
+    everything_inside: bool = False
+
+
 class Item(BaseModel):
     id: str
     name: str | None

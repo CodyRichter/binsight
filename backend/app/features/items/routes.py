@@ -1,8 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, File, Form, Request, UploadFile
+from fastapi import APIRouter, File, Form, Query, Request, UploadFile
 
 from app.core import clock
+from app.core.access import AppActor, IsVisitor
 from app.core.database import ReadSession, WriteSession, open_write_session
 from app.core.errors import refusals
 from app.core.pagination import DEFAULT_LIMIT, Limit, Page
@@ -30,6 +31,7 @@ from app.features.items.schemas import (
     ItemRestored,
     ItemReturned,
     ItemsCreated,
+    ItemsKept,
     ItemStatusChange,
     ItemStatusChanged,
     ItemUnlinked,
@@ -40,32 +42,34 @@ from app.features.items.schemas import (
     NewItems,
     Tag,
 )
-from app.models import Actor
 
 router = APIRouter(prefix="/items")
+write_router = APIRouter(prefix="/items")
 # Categories, tags and links exist only on items, so items owns them, at their own addresses.
 categories_and_tags_router = APIRouter()
+unlink_router = APIRouter()
 
 
-@router.post("", operation_id="create_item", status_code=201, responses=refusals(404, 422))
-def create_item(body: NewItem, session: WriteSession) -> ItemCreated:
-    return service.create_item(session, body, Actor.app, clock.now())
+@write_router.post("", operation_id="create_item", status_code=201, responses=refusals(404, 422))
+def create_item(body: NewItem, session: WriteSession, actor: AppActor) -> ItemCreated:
+    return service.create_item(session, body, actor, clock.now())
 
 
-@router.post(
+@write_router.post(
     "/add-several", operation_id="add_items", status_code=201, responses=refusals(404, 422)
 )
-def add_items(body: NewItems, session: WriteSession) -> ItemsCreated:
-    return service.create_items(session, body, Actor.app, clock.now())
+def add_items(body: NewItems, session: WriteSession, actor: AppActor) -> ItemsCreated:
+    return service.create_items(session, body, actor, clock.now())
 
 
-@router.post(
+@write_router.post(
     "/add-by-photo", operation_id="add_item_by_photo", status_code=201, responses=refusals(404, 422)
 )
 def add_item_by_photo(
     request: Request,
     settings: AppSettings,
     photo: Annotated[UploadFile, File()],
+    actor: AppActor,
     home_location_id: Annotated[str | None, Form()] = None,
 ) -> ItemCreated:
     raw = photo.file.read(attachments.MAX_PHOTO_BYTES + 1)
@@ -74,27 +78,29 @@ def add_item_by_photo(
         attachments.saved_photo(settings, raw, photo.filename) as stored,
         open_write_session(request.app.state.engine) as session,
     ):
-        return service.create_item_by_photo(
-            session, stored, home_location_id, Actor.app, clock.now()
-        )
+        return service.create_item_by_photo(session, stored, home_location_id, actor, clock.now())
 
 
 @router.get("", operation_id="list_items", responses=refusals(400, 404, 422))
 def list_items(
     session: ReadSession,
-    location_id: str,
-    everything_inside: bool = False,
+    visitor: IsVisitor,
+    kept: Annotated[ItemsKept, Query()],
     limit: Limit = DEFAULT_LIMIT,
     cursor: str | None = None,
 ) -> Page[Item]:
-    return service.list_items(session, location_id, everything_inside, limit, cursor)
+    listed = service.list_items(session, kept.location_id, kept.everything_inside, limit, cursor)
+    return service.page_for(listed, visitor)
 
 
 @router.get("/inbox", operation_id="list_inbox", responses=refusals(400, 422))
 def list_inbox(
-    session: ReadSession, limit: Limit = DEFAULT_LIMIT, cursor: str | None = None
+    session: ReadSession,
+    visitor: IsVisitor,
+    limit: Limit = DEFAULT_LIMIT,
+    cursor: str | None = None,
 ) -> Page[Item]:
-    return service.list_inbox(session, limit, cursor)
+    return service.page_for(service.list_inbox(session, limit, cursor), visitor)
 
 
 @router.get("/inbox/count", operation_id="count_inbox")
@@ -110,76 +116,80 @@ def list_lent_to_names(
 
 
 @router.get("/{item_id}", operation_id="get_item", responses=refusals(404))
-def get_item(item_id: str, session: ReadSession) -> Item:
-    return service.get_item(session, item_id)
+def get_item(item_id: str, session: ReadSession, visitor: IsVisitor) -> Item:
+    return service.item_for(service.get_item(session, item_id), visitor)
 
 
-@router.patch("/{item_id}", operation_id="update_item", responses=refusals(404, 422))
-def update_item(item_id: str, body: ItemChanges, session: WriteSession) -> ItemUpdated:
-    return service.update_item(session, item_id, body, Actor.app, clock.now())
+@write_router.patch("/{item_id}", operation_id="update_item", responses=refusals(404, 422))
+def update_item(
+    item_id: str, body: ItemChanges, session: WriteSession, actor: AppActor
+) -> ItemUpdated:
+    return service.update_item(session, item_id, body, actor, clock.now())
 
 
-@router.post("/{item_id}/move", operation_id="move_item", responses=refusals(404, 409, 422))
-def move_item(item_id: str, body: ItemMove, session: WriteSession) -> ItemMoved:
-    return service.move_item(session, item_id, body, Actor.app, clock.now())
+@write_router.post("/{item_id}/move", operation_id="move_item", responses=refusals(404, 409, 422))
+def move_item(item_id: str, body: ItemMove, session: WriteSession, actor: AppActor) -> ItemMoved:
+    return service.move_item(session, item_id, body, actor, clock.now())
 
 
-@router.delete("/{item_id}", operation_id="delete_item", responses=refusals(404, 409))
-def delete_item(item_id: str, session: WriteSession) -> ItemDeleted:
-    return service.delete_item(session, item_id, Actor.app, clock.now())
+@write_router.delete("/{item_id}", operation_id="delete_item", responses=refusals(404, 409))
+def delete_item(item_id: str, session: WriteSession, actor: AppActor) -> ItemDeleted:
+    return service.delete_item(session, item_id, actor, clock.now())
 
 
-@router.post(
+@write_router.post(
     "/{item_id}/duplicate",
     operation_id="duplicate_item",
     status_code=201,
     responses=refusals(404, 409),
 )
-def duplicate_item(item_id: str, session: WriteSession) -> ItemCreated:
-    return service.duplicate_item(session, item_id, Actor.app, clock.now())
+def duplicate_item(item_id: str, session: WriteSession, actor: AppActor) -> ItemCreated:
+    return service.duplicate_item(session, item_id, actor, clock.now())
 
 
-@router.post("/{item_id}/merge", operation_id="merge_item", responses=refusals(404, 409, 422))
-def merge_item(item_id: str, body: ItemMerge, session: WriteSession) -> ItemMerged:
-    return service.merge_item(session, item_id, body, Actor.app, clock.now())
+@write_router.post("/{item_id}/merge", operation_id="merge_item", responses=refusals(404, 409, 422))
+def merge_item(item_id: str, body: ItemMerge, session: WriteSession, actor: AppActor) -> ItemMerged:
+    return service.merge_item(session, item_id, body, actor, clock.now())
 
 
-@router.post("/{item_id}/restore", operation_id="restore_item", responses=refusals(404, 409))
-def restore_item(item_id: str, session: WriteSession) -> ItemRestored:
-    return service.restore_item(session, item_id, Actor.app, clock.now())
+@write_router.post("/{item_id}/restore", operation_id="restore_item", responses=refusals(404, 409))
+def restore_item(item_id: str, session: WriteSession, actor: AppActor) -> ItemRestored:
+    return service.restore_item(session, item_id, actor, clock.now())
 
 
-@router.post(
+@write_router.post(
     "/{item_id}/mark-missing", operation_id="mark_item_missing", responses=refusals(404, 409)
 )
-def mark_item_missing(item_id: str, session: WriteSession) -> ItemMarkedMissing:
-    return service.mark_item_missing(session, item_id, Actor.app, clock.now())
+def mark_item_missing(item_id: str, session: WriteSession, actor: AppActor) -> ItemMarkedMissing:
+    return service.mark_item_missing(session, item_id, actor, clock.now())
 
 
-@router.post(
+@write_router.post(
     "/{item_id}/mark-found", operation_id="mark_item_found", responses=refusals(404, 409, 422)
 )
-def mark_item_found(item_id: str, body: ItemFound, session: WriteSession) -> ItemMarkedFound:
-    return service.mark_item_found(session, item_id, body, Actor.app, clock.now())
+def mark_item_found(
+    item_id: str, body: ItemFound, session: WriteSession, actor: AppActor
+) -> ItemMarkedFound:
+    return service.mark_item_found(session, item_id, body, actor, clock.now())
 
 
-@router.post(
+@write_router.post(
     "/{item_id}/status", operation_id="change_item_status", responses=refusals(404, 409, 422)
 )
 def change_item_status(
-    item_id: str, body: ItemStatusChange, session: WriteSession
+    item_id: str, body: ItemStatusChange, session: WriteSession, actor: AppActor
 ) -> ItemStatusChanged:
-    return service.change_item_status(session, item_id, body, Actor.app, clock.now())
+    return service.change_item_status(session, item_id, body, actor, clock.now())
 
 
-@router.post("/{item_id}/lend", operation_id="lend_item", responses=refusals(404, 409, 422))
-def lend_item(item_id: str, body: ItemLending, session: WriteSession) -> ItemLent:
-    return service.lend_item(session, item_id, body, Actor.app, clock.now())
+@write_router.post("/{item_id}/lend", operation_id="lend_item", responses=refusals(404, 409, 422))
+def lend_item(item_id: str, body: ItemLending, session: WriteSession, actor: AppActor) -> ItemLent:
+    return service.lend_item(session, item_id, body, actor, clock.now())
 
 
-@router.post("/{item_id}/return", operation_id="return_item", responses=refusals(404, 409))
-def return_item(item_id: str, session: WriteSession) -> ItemReturned:
-    return service.return_item(session, item_id, Actor.app, clock.now())
+@write_router.post("/{item_id}/return", operation_id="return_item", responses=refusals(404, 409))
+def return_item(item_id: str, session: WriteSession, actor: AppActor) -> ItemReturned:
+    return service.return_item(session, item_id, actor, clock.now())
 
 
 @router.get("/{item_id}/links", operation_id="list_item_links", responses=refusals(400, 404, 422))
@@ -189,21 +199,21 @@ def list_item_links(
     return service.list_item_links(session, item_id, limit, cursor)
 
 
-@router.post(
+@write_router.post(
     "/{item_id}/links",
     operation_id="link_items",
     status_code=201,
     responses=refusals(404, 409, 422),
 )
-def link_items(item_id: str, body: ItemLinkNew, session: WriteSession) -> ItemLinked:
-    return service.link_items(session, item_id, body, Actor.app, clock.now())
+def link_items(
+    item_id: str, body: ItemLinkNew, session: WriteSession, actor: AppActor
+) -> ItemLinked:
+    return service.link_items(session, item_id, body, actor, clock.now())
 
 
-@categories_and_tags_router.delete(
-    "/item-links/{link_id}", operation_id="unlink_items", responses=refusals(404)
-)
-def unlink_items(link_id: str, session: WriteSession) -> ItemUnlinked:
-    return service.unlink_items(session, link_id, Actor.app, clock.now())
+@unlink_router.delete("/item-links/{link_id}", operation_id="unlink_items", responses=refusals(404))
+def unlink_items(link_id: str, session: WriteSession, actor: AppActor) -> ItemUnlinked:
+    return service.unlink_items(session, link_id, actor, clock.now())
 
 
 @categories_and_tags_router.get(

@@ -1,31 +1,24 @@
-import { SegmentedControl } from "@mantine/core";
 import { useState } from "react";
 import { useParams } from "react-router";
 import { AppFrame } from "@/components/AppFrame";
 import { EmptyState } from "@/components/EmptyState";
-import { PageLead } from "@/components/PageLead";
 import { PageState } from "@/components/PageState";
 import {
-  ItemAdder,
   ItemsSection,
   useItemSelection,
   useLocationItems,
   type ItemSelection,
 } from "@/features/items";
 import { pageStatusOf } from "@/lib/api/pageStatus";
+import { useAccess } from "@/lib/api/useAccess";
 import { AddLocationSheet } from "./AddLocationSheet";
 import { ChildLocations } from "./ChildLocations";
 import { DeletedLocation } from "./DeletedLocation";
-import { LocationHeader } from "./LocationHeader";
+import { LocationLead } from "./LocationLead";
 import { newLocationType } from "./newLocationType";
 import { parentPage } from "./parentPage";
 import { childrenOf } from "./treeRows";
-import {
-  useCreateLocation,
-  useLocationTree,
-  useRefreshLocationTree,
-  type Location,
-} from "./useLocations";
+import { useCreateLocation, useLocationTree, type Location } from "./useLocations";
 
 interface LocationBodyProps {
   location: Location;
@@ -36,35 +29,24 @@ interface LocationBodyProps {
 function LocationBody({ location, locations, selection }: LocationBodyProps) {
   const [scope, setScope] = useState("here");
   const [addingLocation, setAddingLocation] = useState(false);
+  const { canEdit } = useAccess();
   const everythingInside = scope === "inside";
   const children = childrenOf(locations, location.id);
   const items = useLocationItems(location.id, everythingInside);
-  const refreshTree = useRefreshLocationTree();
   const createLocation = useCreateLocation();
-  const scopes = [
-    { label: `Here ${location.direct_item_count}`, value: "here" },
-    { label: `Everything inside ${location.item_count}`, value: "inside" },
-  ];
   const openSheet = () => setAddingLocation(true);
   const empty = children.length === 0 && items.data?.length === 0;
   return (
     <>
-      <PageLead
-        header={
-          <LocationHeader
-            location={location}
-            onAddLocation={children.length === 0 ? openSheet : undefined}
-            hasChildren={children.length > 0}
-          />
-        }
-      >
-        <ItemAdder home={location} onSettled={refreshTree} />
-        {children.length > 0 && (
-          <SegmentedControl data={scopes} value={scope} onChange={setScope} />
-        )}
-      </PageLead>
+      <LocationLead
+        location={location}
+        hasChildren={children.length > 0}
+        scope={scope}
+        onScope={setScope}
+        onAddLocation={openSheet}
+      />
       {!everythingInside && children.length > 0 && (
-        <ChildLocations locations={children} onAddLocation={openSheet} />
+        <ChildLocations locations={children} onAddLocation={canEdit ? openSheet : undefined} />
       )}
       <PageState status={pageStatusOf(items)} onRetry={() => void items.refetch()}>
         {empty && <EmptyState statement={`This ${location.type} is empty`} />}

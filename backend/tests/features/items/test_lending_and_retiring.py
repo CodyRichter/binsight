@@ -14,9 +14,9 @@ from app.features.items.schemas import Item, ItemLending, ItemStatusChange
 from app.features.locations import service as locations
 from app.features.search import service as search
 from app.features.search.schemas import ItemResult, Search
-from app.models import Actor, ItemStatus
+from app.models import ItemStatus
 from tests import builders
-from tests.builders import AcceptanceHome
+from tests.builders import APP_ACTOR, AcceptanceHome
 
 LATER = builders.NOW + timedelta(days=1)
 
@@ -33,7 +33,7 @@ def _lend(engine: Engine, item_id: str, name: str, minute: int = 0) -> str:
             session,
             item_id,
             ItemLending(lent_to=name),
-            Actor.app,
+            APP_ACTOR,
             LATER + timedelta(minutes=minute),
         )
     return lent.history_entry_id
@@ -43,7 +43,7 @@ def _status(engine: Engine, item_id: str, status: str, minute: int = 0) -> str:
     change = ItemStatusChange.model_validate({"status": status})
     with open_write_session(engine) as session:
         changed = service.change_item_status(
-            session, item_id, change, Actor.app, LATER + timedelta(minutes=minute)
+            session, item_id, change, APP_ACTOR, LATER + timedelta(minutes=minute)
         )
     return changed.history_entry_id
 
@@ -55,7 +55,7 @@ def _item(engine: Engine, item_id: str) -> Item:
 
 def _undo(engine: Engine, settings: Settings, entry_id: str) -> None:
     with open_write_session(engine) as session:
-        history.undo(session, settings, entry_id, Actor.app, LATER + timedelta(hours=1))
+        history.undo(session, settings, entry_id, APP_ACTOR, LATER + timedelta(hours=1))
 
 
 def test_lending_keeps_the_home_and_returning_clears_the_name(
@@ -68,7 +68,7 @@ def test_lending_keeps_the_home_and_returning_clears_the_name(
     _lend(migrated_engine, home.hdmi_cable, "Alex", minute=1)
     assert _item(migrated_engine, home.hdmi_cable).lent_to == "Alex"
     with open_write_session(migrated_engine) as session:
-        service.return_item(session, home.hdmi_cable, Actor.app, LATER + timedelta(minutes=2))
+        service.return_item(session, home.hdmi_cable, APP_ACTOR, LATER + timedelta(minutes=2))
     returned = _item(migrated_engine, home.hdmi_cable)
     assert (returned.status, returned.lent_to, returned.lent_at) == ("in_place", None, None)
 
@@ -78,7 +78,7 @@ def test_undoing_a_return_lends_it_to_the_same_person_again(
 ) -> None:
     _lend(migrated_engine, home.hdmi_cable, "Sam")
     with open_write_session(migrated_engine) as session:
-        returned = service.return_item(session, home.hdmi_cable, Actor.app, LATER)
+        returned = service.return_item(session, home.hdmi_cable, APP_ACTOR, LATER)
     _undo(migrated_engine, settings, returned.history_entry_id)
     item = _item(migrated_engine, home.hdmi_cable)
     assert (item.status, item.lent_to, item.lent_at) == ("lent_out", "Sam", LATER)
@@ -89,7 +89,7 @@ def test_marking_a_lent_item_missing_forgets_who_had_it(
 ) -> None:
     _lend(migrated_engine, home.hdmi_cable, "Sam")
     with open_write_session(migrated_engine) as session:
-        service.mark_item_missing(session, home.hdmi_cable, Actor.app, LATER)
+        service.mark_item_missing(session, home.hdmi_cable, APP_ACTOR, LATER)
     item = _item(migrated_engine, home.hdmi_cable)
     assert (item.status, item.lent_to) == ("missing", None)
 
@@ -144,14 +144,14 @@ def test_undoing_a_retire_brings_it_back_into_its_location(
 
 def _attempt(session: Session, item_id: str, action: str) -> None:
     if action == "lend":
-        service.lend_item(session, item_id, ItemLending(lent_to="Sam"), Actor.app, LATER)
+        service.lend_item(session, item_id, ItemLending(lent_to="Sam"), APP_ACTOR, LATER)
     elif action == "return":
-        service.return_item(session, item_id, Actor.app, LATER)
+        service.return_item(session, item_id, APP_ACTOR, LATER)
     elif action == "missing":
-        service.mark_item_missing(session, item_id, Actor.app, LATER)
+        service.mark_item_missing(session, item_id, APP_ACTOR, LATER)
     else:
         change = ItemStatusChange.model_validate({"status": action})
-        service.change_item_status(session, item_id, change, Actor.app, LATER)
+        service.change_item_status(session, item_id, change, APP_ACTOR, LATER)
 
 
 def _refused(engine: Engine, home: AcceptanceHome, action: str) -> str:
@@ -170,7 +170,7 @@ def test_changes_that_make_no_sense_are_refused(
     assert _refused(migrated_engine, home, "missing") == "item_archived"
     _status(migrated_engine, home.hdmi_cable, "in_use", minute=1)
     with open_write_session(migrated_engine) as session:
-        service.mark_item_missing(session, home.hdmi_cable, Actor.app, LATER)
+        service.mark_item_missing(session, home.hdmi_cable, APP_ACTOR, LATER)
     assert _refused(migrated_engine, home, "in_place") == "use_mark_found"
 
 

@@ -13,11 +13,13 @@ from app.models import Actor, AttachmentKind
 
 
 def list_item_attachments(
-    session: Session, item_id: str, limit: int, cursor: str | None
+    session: Session, item_id: str, limit: int, cursor: str | None, visitor: bool
 ) -> Page[Attachment]:
-    """An item's photos, files and web links, photos first."""
+    """An item's photos, files and web links, photos first; a visitor is shown photos only."""
     item_record(session, item_id)
     rows = attachments.list_item_attachments(session, item_id)
+    if visitor:
+        rows = [row for row in rows if row.kind == AttachmentKind.photo]
     return counted_page(rows, decode_offset(cursor) if cursor else 0, limit)
 
 

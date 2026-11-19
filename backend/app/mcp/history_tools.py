@@ -10,7 +10,7 @@ from app.core.pagination import DEFAULT_LIMIT, Page, PageLimit
 from app.features.history import service
 from app.features.history.schemas import HistoryEntry, Undone
 from app.mcp.actions import run_action
-from app.models import Actor
+from app.models import MCP_ACTOR
 
 LIST_HISTORY = """List the changes made to one item, newest first, a page at a time.
 
@@ -46,7 +46,7 @@ def add_history_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             open_write_session,
             lambda session: service.undo(
-                session, app.state.settings, entry_id, Actor.mcp, clock.now()
+                session, app.state.settings, entry_id, MCP_ACTOR, clock.now()
             ),
         )
 

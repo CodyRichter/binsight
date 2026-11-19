@@ -19,7 +19,7 @@ export function SearchResult({ result, selection, onMove }: SearchResultProps) {
         showPath
         marks={result.marks}
         onMove={onMove && (() => onMove(item))}
-        select={selection.select(item)}
+        select={selection.select?.(item)}
       />
     );
   }

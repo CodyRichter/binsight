@@ -1,4 +1,4 @@
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from pathlib import Path
 
 import pytest
@@ -10,6 +10,7 @@ from app.core.migrate import migrate_database
 from app.core.settings import Settings
 from app.features.auth import passwords
 from app.main import build_app
+from app.models import Role
 
 
 @pytest.fixture(autouse=True)
@@ -53,7 +54,31 @@ def migrated_engine(settings: Settings) -> Iterator[Engine]:
     database_engine.dispose()
 
 
+FIRST_ADMIN = {"username": "sam", "password": "correct horse"}
+
+
 @pytest.fixture
 def signed_in(client: TestClient) -> TestClient:
-    client.post("/api/auth/owner", json={"password": "correct horse"})
+    """The client signed in as the install's first account, an admin."""
+    client.post("/api/auth/first-admin", json=FIRST_ADMIN)
     return client
+
+
+@pytest.fixture
+def sign_in_as(signed_in: TestClient) -> Callable[[Role], TestClient]:
+    """Make an account with a role, and give a second client signed in as it."""
+
+    def signed_in_as(role: Role) -> TestClient:
+        account = {"username": f"{role}-account", "password": "correct horse"}
+        signed_in.post("/api/auth/accounts", json={**account, "role": role})
+        other = TestClient(signed_in.app)
+        other.post("/api/auth/sign-in", json=account)
+        return other
+
+    return signed_in_as
+
+
+@pytest.fixture
+def visitor(signed_in: TestClient) -> TestClient:
+    """A client on the same install that has not signed in."""
+    return TestClient(signed_in.app)

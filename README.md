@@ -11,8 +11,9 @@ what's inside. Search for anything and get its full location path, e.g.
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
-> generated API types. A new install asks for a password at `/login`, every
-> other page needs sign-in, and `/settings` signs out. `/` shows the
+> generated API types. A new install makes its first admin at `/login`;
+> anyone can browse read-only, accounts sign in to change things by role,
+> and `/settings` manages accounts and signs out. `/` shows the
 > location tree, a location's page adds locations and items inside it, and
 > an item's page shows its path, changes its quantity and lists its
 > history, which records every change. Claude Code and Claude Desktop can
@@ -165,7 +166,7 @@ plan for all of them; a folder that exists must be listed here.
 
 | Feature         | What it covers                                              |
 | --------------- | ----------------------------------------------------------- |
-| `auth`          | Owner login, long-lived sessions, MCP credentials           |
+| `auth`          | Accounts and roles, long-lived sessions, MCP credentials    |
 | `locations`     | The nested tree of places, their codes, moving, merging, deleting |
 | `labels`        | A location's label as a printable QR image                  |
 | `items`         | Items, quantity, status, "lent to", links, categories, tags, quick and batch add, bulk edit, inbox |
@@ -197,7 +198,7 @@ The frontend folder for `import_export` is named `import-export`.
 | `/insurance`        | The insurance list of the whole home, to print          |
 | `/locations/{id}/insurance` | The insurance list of one location, to print   |
 | `/locations/{id}/sheet` | A location's contents sheet, to print               |
-| `/login`            | Sign in, and creating the owner on a new install        |
+| `/login`            | Sign in, and making the first admin on a new install    |
 | `/design`           | Development builds only: every component and token      |
 
 `/l/{code}` is printed on every label, so it can never change

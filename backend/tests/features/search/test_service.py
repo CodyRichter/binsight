@@ -9,9 +9,9 @@ from app.features.locations import service as locations
 from app.features.locations.schemas import NewLocation
 from app.features.search import service
 from app.features.search.schemas import ItemResult, LocationResult, Search, SearchResults
-from app.models import Actor, LocationType
+from app.models import LocationType
 from tests import builders
-from tests.builders import AcceptanceHome
+from tests.builders import APP_ACTOR, AcceptanceHome
 
 TODAY = date(2026, 11, 16)
 PATH_TO_CABLES = ["Home", "Garage", "Shelf 2", "Cables"]
@@ -73,7 +73,7 @@ def test_a_word_in_a_summary_finds_its_location(migrated_engine: Engine) -> None
         new = NewLocation(
             name="Top drawer", type=LocationType.drawer, parent_id=home.garage, summary="Batteries"
         )
-        drawer = locations.create_location(session, new, Actor.app, builders.NOW).id
+        drawer = locations.create_location(session, new, APP_ACTOR, builders.NOW).id
     assert [
         result.location.id
         for result in _search(migrated_engine, "batteries").results
@@ -119,7 +119,7 @@ def test_an_item_is_found_by_its_serial_number_a_tag_or_a_word_in_its_notes(
     home = _home(migrated_engine)
     changes = ItemChanges(serial_number="SN-0042", tags=["video"], notes="Spare for the projector")
     with open_write_session(migrated_engine) as session:
-        items.update_item(session, home.hdmi_cable, changes, Actor.app, builders.NOW)
+        items.update_item(session, home.hdmi_cable, changes, APP_ACTOR, builders.NOW)
     for query in ("sn 0042", "video", "projector"):
         assert _names(_search(migrated_engine, query)) == ["HDMI cable"]
 
@@ -128,7 +128,7 @@ def test_a_name_ranks_above_a_word_in_another_item_s_details(migrated_engine: En
     home = _home(migrated_engine)
     changes = ItemChanges(notes="Plugs into the HDMI cable")
     with open_write_session(migrated_engine) as session:
-        items.update_item(session, home.usb_c_charger, changes, Actor.app, builders.NOW)
+        items.update_item(session, home.usb_c_charger, changes, APP_ACTOR, builders.NOW)
     assert _names(_search(migrated_engine, "hdmi cable")) == ["HDMI cable", "USB-C charger"]
 
 
@@ -143,7 +143,7 @@ def test_filters_keep_only_the_items_that_match_every_one(migrated_engine: Engin
     home = _home(migrated_engine)
     with open_write_session(migrated_engine) as session:
         tagged = ItemChanges(category="Cables", tags=["4k"], warranty_ends=TODAY)
-        items.update_item(session, home.hdmi_cable, tagged, Actor.app, builders.NOW)
+        items.update_item(session, home.hdmi_cable, tagged, APP_ACTOR, builders.NOW)
     assert _filtered(migrated_engine, category="CABLES") == ["HDMI cable"]
     assert _filtered(migrated_engine, tag="4K") == ["HDMI cable"]
     assert _filtered(migrated_engine, status="in_place", warranty="ending_soon") == ["HDMI cable"]

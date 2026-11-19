@@ -31,7 +31,7 @@ export function InboxList() {
       >
         <ListSection>
           {items.map((item) => (
-            <ItemListRow key={item.id} item={item} showPath select={selection.select(item)} />
+            <ItemListRow key={item.id} item={item} showPath select={selection.select?.(item)} />
           ))}
         </ListSection>
         {inbox.hasNextPage && (

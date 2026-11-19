@@ -2,14 +2,19 @@ from app.core.settings import Settings
 from app.main import build_app
 from tests.mcp.conftest import Claude
 
-# Routes Claude has no use for: health and sign-in, and the MCP credentials themselves,
-# because a credential that could make credentials could not be revoked for good.
+# Routes Claude has no use for: health and sign-in, and accounts and MCP credentials,
+# because a credential that could make credentials or accounts could not be revoked for good.
 NO_TOOL = {
     "get_health",
     "get_auth_status",
-    "create_owner",
+    "create_first_admin",
     "sign_in",
     "sign_out",
+    "change_own_password",
+    "list_accounts",
+    "create_account",
+    "update_account",
+    "delete_account",
     "create_mcp_credential",
     "list_mcp_credentials",
     "revoke_mcp_credential",

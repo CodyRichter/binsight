@@ -5,8 +5,8 @@ Claude calls, and the frontend's built files, in one process.
 
 > **Status: labels (phase B6).** The app starts,
 > opens SQLite with the agreed settings, migrates the database and serves
-> the frontend's files. `auth` creates the owner and signs devices in; every
-> other API route needs a session. `locations` creates locations and lists
+> the frontend's files. `auth` makes accounts and signs devices in; each
+> API route needs the role `main.py` groups it under, and reading needs none. `locations` creates locations and lists
 > the tree, `items` adds items by name and lists a location's items with
 > their paths, and `history` records each change in the same transaction.
 > `auth` also creates, lists and revokes MCP credentials, and the MCP

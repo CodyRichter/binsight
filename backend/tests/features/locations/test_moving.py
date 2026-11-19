@@ -7,9 +7,9 @@ from app.core.errors import AppError
 from app.features.items import service as items
 from app.features.locations import service
 from app.features.locations.schemas import LocationMove, LocationMoved
-from app.models import Actor, HistoryEntry, Item, LocationType
+from app.models import HistoryEntry, Item, LocationType
 from tests import builders
-from tests.builders import AcceptanceHome
+from tests.builders import APP_ACTOR, AcceptanceHome
 
 
 @pytest.fixture
@@ -21,7 +21,7 @@ def home(migrated_engine: Engine) -> AcceptanceHome:
 def _move(engine: Engine, location_id: str, parent_id: str) -> LocationMoved:
     with open_write_session(engine) as session:
         return service.move_location(
-            session, location_id, LocationMove(parent_id=parent_id), Actor.app, builders.NOW
+            session, location_id, LocationMove(parent_id=parent_id), APP_ACTOR, builders.NOW
         )
 
 

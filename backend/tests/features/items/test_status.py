@@ -10,9 +10,9 @@ from app.core.settings import Settings
 from app.features.history import service as history
 from app.features.items import service
 from app.features.items.schemas import ItemFound
-from app.models import Actor, HistoryEntry, ItemStatus
+from app.models import MCP_ACTOR, HistoryEntry, ItemStatus
 from tests import builders
-from tests.builders import AcceptanceHome
+from tests.builders import APP_ACTOR, AcceptanceHome
 
 LATER = builders.NOW + timedelta(days=1)
 
@@ -25,7 +25,7 @@ def home(migrated_engine: Engine) -> AcceptanceHome:
 
 def _missing(engine: Engine, item_id: str) -> str:
     with open_write_session(engine) as session:
-        marked = service.mark_item_missing(session, item_id, Actor.app, LATER)
+        marked = service.mark_item_missing(session, item_id, APP_ACTOR, LATER)
     return marked.history_entry_id
 
 
@@ -33,7 +33,7 @@ def _found(engine: Engine, item_id: str, location_id: str) -> str:
     with open_write_session(engine) as session:
         found = ItemFound(location_id=location_id)
         return service.mark_item_found(
-            session, item_id, found, Actor.mcp, LATER + timedelta(minutes=1)
+            session, item_id, found, MCP_ACTOR, LATER + timedelta(minutes=1)
         ).id
 
 
@@ -46,7 +46,7 @@ def test_a_missing_item_keeps_its_home_and_stays_listed(
         listed = service.list_items(session, home.cables, False, 50, None).items
         entry = session.get(HistoryEntry, entry_id)
         assert entry is not None
-        assert (entry.action, entry.actor) == ("item.marked_missing", Actor.app)
+        assert (entry.action, entry.actor) == ("item.marked_missing", APP_ACTOR.kind)
     assert (item.status, item.home_location_id) == (ItemStatus.missing, home.cables)
     assert [each.name for each in listed] == ["HDMI cable", "USB-C charger"]
 
@@ -60,7 +60,7 @@ def test_found_somewhere_else_moves_it_there_in_place(
         item = service.get_item(session, home.hdmi_cable)
         page = history.list_item_history(session, home.hdmi_cable, 50, None)
     assert (item.status, item.home_location_id) == (ItemStatus.in_place, home.tools)
-    assert (page.items[0].action, page.items[0].actor) == ("item.found", Actor.mcp)
+    assert (page.items[0].action, page.items[0].actor) == ("item.found", MCP_ACTOR.kind)
 
 
 def test_found_where_it_was_keeps_its_home(migrated_engine: Engine, home: AcceptanceHome) -> None:
@@ -78,9 +78,9 @@ def test_undoing_found_makes_it_missing_where_it_was(
     with open_write_session(migrated_engine) as session:
         found = ItemFound(location_id=home.tools)
         entry_id = service.mark_item_found(
-            session, home.hdmi_cable, found, Actor.app, builders.NOW
+            session, home.hdmi_cable, found, APP_ACTOR, builders.NOW
         ).history_entry_id
-        history.undo(session, settings, entry_id, Actor.app, LATER)
+        history.undo(session, settings, entry_id, APP_ACTOR, LATER)
     with open_read_session(migrated_engine) as session:
         item = service.get_item(session, home.hdmi_cable)
     assert (item.status, item.home_location_id) == (ItemStatus.missing, home.cables)

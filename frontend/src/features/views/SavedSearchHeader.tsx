@@ -2,6 +2,7 @@ import { Button, Menu } from "@mantine/core";
 import { IconPencil, IconPin, IconPinnedOff, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useAccess } from "@/lib/api/useAccess";
 import { PageHeader } from "@/components/PageHeader";
 import { resultCount } from "@/features/search";
 import { NameSheet } from "./NameSheet";
@@ -13,6 +14,7 @@ export function SavedSearchHeader({ saved }: { saved: SavedSearch }) {
   const change = useChangeSavedSearch();
   const remove = useDeleteSavedSearch();
   const navigate = useNavigate();
+  const { canEdit } = useAccess();
   const PinIcon = saved.pinned ? IconPinnedOff : IconPin;
   const menu = (
     <>
@@ -40,14 +42,16 @@ export function SavedSearchHeader({ saved }: { saved: SavedSearch }) {
         title={saved.name}
         counts={resultCount(saved.count)}
         actions={
-          <Button
-            leftSection={<PinIcon aria-hidden />}
-            onClick={() => change({ id: saved.id, pinned: !saved.pinned })}
-          >
-            {saved.pinned ? "Unpin" : "Pin"}
-          </Button>
+          canEdit && (
+            <Button
+              leftSection={<PinIcon aria-hidden />}
+              onClick={() => change({ id: saved.id, pinned: !saved.pinned })}
+            >
+              {saved.pinned ? "Unpin" : "Pin"}
+            </Button>
+          )
         }
-        menu={menu}
+        menu={canEdit && menu}
       />
       <NameSheet
         key={String(renaming)}

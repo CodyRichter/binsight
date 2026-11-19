@@ -141,3 +141,14 @@ def search_home(
         next_cursor=encode_offset(end) if end < len(ranked) else None,
         count=len(ranked),
     )
+
+
+def results_for(results: SearchResults, visitor: bool) -> SearchResults:
+    """Search results as someone sees them, items' private details left out for a visitor."""
+    shown = [
+        result.model_copy(update={"item": items.item_for(result.item, visitor)})
+        if isinstance(result, ItemResult)
+        else result
+        for result in results.results
+    ]
+    return results.model_copy(update={"results": shown})
