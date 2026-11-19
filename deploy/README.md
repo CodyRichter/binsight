@@ -42,6 +42,11 @@ mkdir -p deploy/data && sudo chown 1000:1000 deploy/data
 To upgrade, pull the new code and run the same `up --build -d`. The
 database is copied into `backups/` before any migration runs.
 
+Every commit on `main` that passes CI is also published as an image,
+`ghcr.io/codyrichter/binsight:main`, with a fixed tag `:sha-<commit>` beside
+it. To run that instead of building, use `image:` in place of `build:` in
+your own compose file, and upgrade with `docker compose pull` and `up -d`.
+
 ## Settings
 
 Set in `deploy/.env`, once at install time.

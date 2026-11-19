@@ -100,3 +100,28 @@ jobs:
           path: |
             frontend/playwright-report/
             frontend/test-results/
+
+  # Every green commit on main becomes an image, so an install can pull it instead of building.
+  publish:
+    name: publish
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: [check, container, design]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/binsight
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Sign in to the GitHub container registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Build
+        run: >-
+          docker build -f deploy/Dockerfile
+          --label org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          --label org.opencontainers.image.revision=${{ github.sha }}
+          -t "${IMAGE,,}:main" -t "${IMAGE,,}:sha-${GITHUB_SHA::7}" .
+      - name: Push
+        run: docker push --all-tags "${IMAGE,,}"
