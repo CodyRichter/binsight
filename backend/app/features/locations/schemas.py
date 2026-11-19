@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Annotated, Self
 
-from pydantic import BaseModel, StringConstraints, model_validator
+from pydantic import BaseModel, Field, StringConstraints, model_validator
 from pydantic_core import PydanticCustomError
 
 from app.models import LocationType
@@ -46,6 +46,7 @@ class Location(BaseModel):
     item_count: int
     last_checked_at: datetime | None
     photo_url: str | None
+    deleted_at: datetime | None
 
 
 class LocationCreated(Location):
@@ -62,6 +63,66 @@ class LocationMove(BaseModel):
 
 class LocationMoved(Location):
     history_entry_id: str
+
+
+class LocationChanges(BaseModel):
+    """Only the fields sent are changed; a summary sent as null is cleared."""
+
+    name: LocationName | None = None
+    summary: Annotated[str, StringConstraints(strip_whitespace=True, max_length=500)] | None = None
+
+    @model_validator(mode="after")
+    def a_name_is_never_cleared(self) -> Self:
+        if "name" in self.model_fields_set and self.name is None:
+            raise PydanticCustomError("name_required", "A location always has a name.")
+        return self
+
+
+class LocationUpdated(Location):
+    history_entry_id: str
+
+
+class LocationDelete(BaseModel):
+    """Where the location's items and the locations inside it go; none when it is empty."""
+
+    move_contents_to: str | None = None
+
+
+class LocationDeleted(Location):
+    history_entry_id: str
+
+
+class LocationMerge(BaseModel):
+    into: str
+
+
+class LocationMerged(Location):
+    """The location merged into, now holding everything the merged one held."""
+
+    history_entry_id: str
+
+
+class LocationRestored(Location):
+    history_entry_id: str
+
+
+class LocationReorder(BaseModel):
+    """The place among its siblings, counting from 0; past the end means last."""
+
+    position: Annotated[int, Field(ge=0)]
+
+
+class LocationReordered(Location):
+    history_entry_id: str
+
+
+class RemovalPreview(BaseModel):
+    """What deleting or merging a location would move, before it is done."""
+
+    location: Location
+    destination: Location | None
+    items_moving: int
+    locations_moving: int
 
 
 class LocationTree(BaseModel):

@@ -20,7 +20,7 @@ from app.features.items.schemas import (
     ItemStatusChanged,
     LentToName,
 )
-from app.features.items.shaping import path_of, shaped
+from app.features.items.shaping import refuse_deleted_home, shaped
 from app.models import ARCHIVED, Actor, ItemStatus
 
 
@@ -145,7 +145,7 @@ def mark_item_found(
     item = live_item(session, item_id)
     if item.status != ItemStatus.missing:
         raise AppError(409, "not_missing", "That item isn't marked missing.")
-    path_of(session, found.location_id)
+    refuse_deleted_home(session, found.location_id)
     before = {"status": item.status.value, "home_location_id": item.home_location_id}
     item.status = ItemStatus.in_place
     item.home_location_id = found.location_id

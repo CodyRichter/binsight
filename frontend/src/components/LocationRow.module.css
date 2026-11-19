@@ -34,6 +34,23 @@
   margin-right: calc((20px - var(--bs-touch-min)) / 2);
 }
 
+/* Pulled into the row's padding like the add button; touch-action lets a finger drag it. */
+.handle {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  margin-right: calc((20px - var(--bs-touch-min)) / 2);
+  color: var(--bs-muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+/* Drawn above its neighbours while it moves between them. */
+.row[data-dragging] {
+  z-index: 2;
+  background: var(--bs-surface);
+}
+
 .toggleSpace {
   flex: none;
   width: var(--bs-touch-min);

@@ -15,6 +15,12 @@ def path_of(session: Session, home_location_id: str | None) -> list[PathStep]:
     return locations.location_path(session, home_location_id)
 
 
+def refuse_deleted_home(session: Session, home_location_id: str | None) -> None:
+    """Refuse putting an item in a location that has been deleted, or does not exist."""
+    if home_location_id is not None:
+        locations.live_location_path(session, home_location_id)
+
+
 def shaped(session: Session, item: models.Item) -> Item:
     """An item as the API answers with it: its details, its path and its picture."""
     return Item(

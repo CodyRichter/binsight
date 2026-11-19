@@ -15,6 +15,7 @@ from app.mcp.item_tools import add_item_tools
 from app.mcp.label_tools import add_label_tools
 from app.mcp.lending_tools import add_lending_tools
 from app.mcp.link_tools import add_link_tools
+from app.mcp.location_housekeeping_tools import add_location_housekeeping_tools
 from app.mcp.location_tools import add_location_tools
 from app.mcp.move_tools import add_move_tools
 from app.mcp.print_tools import add_print_tools
@@ -42,14 +43,16 @@ manuals, and web links: see list_item_attachments and get_attachment_file. Every
 location carries last_checked_at, when the owner last confirmed that location's contents
 (null if never); say how old it is, so old information is recognizably old, and use
 check_location when the owner confirms a bin's contents. A list of things can be brought in
-at once with import_items, which asks first. Binsight backs itself up daily: see
-list_backups."""
+at once with import_items, which asks first. Locations are renamed with update_location,
+and deleting or merging one asks first: see delete_location and merge_location. Binsight
+backs itself up daily: see list_backups."""
 
 
 def add_mcp_server(app: FastAPI) -> MCPServer:
     """Serve the MCP tools at /mcp; its session manager must run inside the app's lifespan."""
     server = MCPServer(name="Binsight", instructions=INSTRUCTIONS)
     add_location_tools(server, app)
+    add_location_housekeeping_tools(server, app)
     add_item_tools(server, app)
     add_label_tools(server, app)
     add_history_tools(server, app)

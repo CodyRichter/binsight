@@ -153,10 +153,12 @@ export interface paths {
         get: operations["get_location"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete Location */
+        delete: operations["delete_location"];
         options?: never;
         head?: never;
-        patch?: never;
+        /** Update Location */
+        patch: operations["update_location"];
         trace?: never;
     };
     "/api/locations/{location_id}/move": {
@@ -189,6 +191,57 @@ export interface paths {
         post: operations["set_location_photo"];
         /** Remove Location Photo */
         delete: operations["remove_location_photo"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/locations/{location_id}/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Merge Location */
+        post: operations["merge_location"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/locations/{location_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore Location */
+        post: operations["restore_location"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/locations/{location_id}/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reorder Location */
+        post: operations["reorder_location"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -2041,6 +2094,18 @@ export interface components {
             last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
+            /** Deleted At */
+            deleted_at: string | null;
+        };
+        /**
+         * LocationChanges
+         * @description Only the fields sent are changed; a summary sent as null is cleared.
+         */
+        LocationChanges: {
+            /** Name */
+            name?: string | null;
+            /** Summary */
+            summary?: string | null;
         };
         /** LocationChecked */
         LocationChecked: {
@@ -2065,6 +2130,8 @@ export interface components {
             last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
+            /** Deleted At */
+            deleted_at: string | null;
             /** Marked Missing */
             marked_missing: components["schemas"]["Item"][];
             /** History Entry Id */
@@ -2093,6 +2160,72 @@ export interface components {
             last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
+            /** Deleted At */
+            deleted_at: string | null;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** LocationDeleted */
+        LocationDeleted: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            type: components["schemas"]["LocationType"];
+            /** Parent Id */
+            parent_id: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Label Code */
+            label_code: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Direct Item Count */
+            direct_item_count: number;
+            /** Item Count */
+            item_count: number;
+            /** Last Checked At */
+            last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
+            /** Deleted At */
+            deleted_at: string | null;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** LocationMerge */
+        LocationMerge: {
+            /** Into */
+            into: string;
+        };
+        /**
+         * LocationMerged
+         * @description The location merged into, now holding everything the merged one held.
+         */
+        LocationMerged: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            type: components["schemas"]["LocationType"];
+            /** Parent Id */
+            parent_id: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Label Code */
+            label_code: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Direct Item Count */
+            direct_item_count: number;
+            /** Item Count */
+            item_count: number;
+            /** Last Checked At */
+            last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
+            /** Deleted At */
+            deleted_at: string | null;
             /** History Entry Id */
             history_entry_id: string;
         };
@@ -2124,6 +2257,8 @@ export interface components {
             last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
+            /** Deleted At */
+            deleted_at: string | null;
             /** History Entry Id */
             history_entry_id: string;
         };
@@ -2150,6 +2285,72 @@ export interface components {
             last_checked_at: string | null;
             /** Photo Url */
             photo_url: string | null;
+            /** Deleted At */
+            deleted_at: string | null;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /**
+         * LocationReorder
+         * @description The place among its siblings, counting from 0; past the end means last.
+         */
+        LocationReorder: {
+            /** Position */
+            position: number;
+        };
+        /** LocationReordered */
+        LocationReordered: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            type: components["schemas"]["LocationType"];
+            /** Parent Id */
+            parent_id: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Label Code */
+            label_code: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Direct Item Count */
+            direct_item_count: number;
+            /** Item Count */
+            item_count: number;
+            /** Last Checked At */
+            last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
+            /** Deleted At */
+            deleted_at: string | null;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
+        /** LocationRestored */
+        LocationRestored: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            type: components["schemas"]["LocationType"];
+            /** Parent Id */
+            parent_id: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Label Code */
+            label_code: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Direct Item Count */
+            direct_item_count: number;
+            /** Item Count */
+            item_count: number;
+            /** Last Checked At */
+            last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
+            /** Deleted At */
+            deleted_at: string | null;
             /** History Entry Id */
             history_entry_id: string;
         };
@@ -2174,6 +2375,34 @@ export interface components {
          * @enum {string}
          */
         LocationType: "site" | "room" | "furniture" | "shelf" | "bin" | "drawer" | "box";
+        /** LocationUpdated */
+        LocationUpdated: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            type: components["schemas"]["LocationType"];
+            /** Parent Id */
+            parent_id: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Label Code */
+            label_code: string | null;
+            /** Path */
+            path: components["schemas"]["PathStep"][];
+            /** Direct Item Count */
+            direct_item_count: number;
+            /** Item Count */
+            item_count: number;
+            /** Last Checked At */
+            last_checked_at: string | null;
+            /** Photo Url */
+            photo_url: string | null;
+            /** Deleted At */
+            deleted_at: string | null;
+            /** History Entry Id */
+            history_entry_id: string;
+        };
         /**
          * Mark
          * @description Where matched text starts and ends in a name, counted in characters.
@@ -2946,6 +3175,110 @@ export interface operations {
             };
         };
     };
+    delete_location: {
+        parameters: {
+            query?: {
+                move_contents_to?: string | null;
+            };
+            header?: never;
+            path: {
+                location_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LocationDeleted"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_location: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                location_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LocationChanges"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LocationUpdated"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     move_location: {
         parameters: {
             query?: never;
@@ -3079,6 +3412,161 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    merge_location: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                location_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LocationMerge"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LocationMerged"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    restore_location: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                location_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LocationRestored"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reorder_location: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                location_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LocationReorder"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LocationReordered"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };

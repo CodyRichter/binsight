@@ -5,11 +5,13 @@ import { ListSection } from "@/components/ListSection";
 import { LocationRow } from "@/components/LocationRow";
 import { PageHeader } from "@/components/PageHeader";
 import { PageState } from "@/components/PageState";
+import { SortableList, type SortableRowParts } from "@/components/SortableList";
 import { pageStatusOf } from "@/lib/api/pageStatus";
 import { AddLocationSheet } from "./AddLocationSheet";
 import { countWords } from "./countWords";
 import { newLocationType } from "./newLocationType";
-import { childrenOf, treeRows } from "./treeRows";
+import { childrenOf, treeRows, type TreeRow } from "./treeRows";
+import { useReorderLocation } from "./useLocationChanges";
 import { useCreateLocation, useLocationTree, type Location } from "./useLocations";
 
 function useOpenBranches() {
@@ -27,6 +29,8 @@ interface TreeProps {
   heading?: { title: string; action?: ReactNode };
   onPick?: (location: Location) => void;
   onAddInside?: (location: Location) => void;
+  /** Sites can be put in order while every branch is closed, when the rows are just the sites. */
+  onReorder?: (site: Location, index: number) => void;
 }
 
 function rowTarget(location: Location, onPick?: (location: Location) => void) {
@@ -34,9 +38,17 @@ function rowTarget(location: Location, onPick?: (location: Location) => void) {
 }
 
 /** Every location as a tree; rows open their location, or are picked when onPick is given. */
-export function Tree({ locations, heading, onPick, onAddInside }: TreeProps) {
+export function Tree({ locations, heading, onPick, onAddInside, onReorder }: TreeProps) {
   const { open, toggle } = useOpenBranches();
-  const rows = treeRows(locations, open).map(({ location, depth, hasChildren, expanded }) => (
+  const shown = treeRows(locations, open).map((row) => ({
+    ...row,
+    id: row.location.id,
+    name: row.location.name,
+  }));
+  const row = (
+    { location, depth, hasChildren, expanded }: TreeRow,
+    sortable?: SortableRowParts,
+  ) => (
     <LocationRow
       key={location.id}
       name={location.name}
@@ -49,8 +61,17 @@ export function Tree({ locations, heading, onPick, onAddInside }: TreeProps) {
       depth={depth}
       expanded={hasChildren ? expanded : undefined}
       onToggle={hasChildren ? () => toggle(location.id) : undefined}
+      sortable={sortable}
     />
-  ));
+  );
+  const rows =
+    onReorder && open.size === 0 ? (
+      <SortableList rows={shown} onMove={(site, index) => onReorder(site.location, index)}>
+        {row}
+      </SortableList>
+    ) : (
+      shown.map((each) => row(each))
+    );
   return heading ? (
     <ListSection {...heading}>{rows}</ListSection>
   ) : (
@@ -61,6 +82,7 @@ export function Tree({ locations, heading, onPick, onAddInside }: TreeProps) {
 function Sites({ locations }: { locations: Location[] }) {
   const [adding, setAdding] = useState(false);
   const create = useCreateLocation();
+  const reorder = useReorderLocation();
   const sites = childrenOf(locations, null);
   const itemCount = sites.reduce((total, site) => total + site.item_count, 0);
   return (
@@ -74,7 +96,7 @@ function Sites({ locations }: { locations: Location[] }) {
         status={sites.length > 0 ? "ready" : "empty"}
         empty={{ statement: "No locations" }}
       >
-        <Tree locations={locations} />
+        <Tree locations={locations} onReorder={reorder} />
       </PageState>
       <AddLocationSheet
         opened={adding}

@@ -214,8 +214,22 @@ test("/locations/{id} shows the location's items", async () => {
   expect(await screen.findByRole("link", { name: "HDMI cable" })).toBeVisible();
 });
 
+test("/locations/{id} for a deleted location says so and offers Restore", async () => {
+  const deleted = { ...bin, deleted_at: "2026-11-16T12:00:00Z" };
+  stubPaths({ "/api/locations": { locations: [site] }, "/api/locations/cables": deleted });
+  renderRoutes(routes, "/locations/cables");
+  expect(await screen.findByRole("heading", { level: 1, name: "Cables" })).toBeVisible();
+  expect(screen.getByRole("button", { name: "Restore" })).toBeVisible();
+  expect(screen.getByText(/^Deleted/)).toBeVisible();
+  expect(screen.queryByRole("button", { name: "Contents checked" })).not.toBeInTheDocument();
+});
+
 test("/locations/{id} for a location that does not exist says so", async () => {
-  stubPaths({ "/api/locations": { locations: [site] } });
+  const missing = { code: "location_not_found", message: "That location does not exist." };
+  stubPaths({
+    "/api/locations": { locations: [site] },
+    "/api/locations/made-up": answer(404, { error: { ...missing, details: {} } }),
+  });
   renderRoutes(routes, "/locations/made-up");
   expect(
     await screen.findByRole("heading", { level: 1, name: "Nothing at this address" }),

@@ -118,11 +118,13 @@ One shape for every error:
   category, tags or details, moving an item or a location, deleting or restoring an item,
   marking an item missing or found, changing its status, lending and
   returning it, linking items and removing a link, checking a
+  location, renaming, deleting, merging, restoring and reordering a
   location, and saving, renaming, pinning, unpinning and deleting a saved
   search; undoing a removed link is refused with `changed_since` once the
   same link has been made again; undoing a location's move is refused with `changed_since` when its
   old parent has since been moved inside it, and any other change to an
-  item that has since been deleted is refused with `changed_since`.
+  item or location that has since been deleted is refused with
+  `changed_since`.
 - `PATCH /api/items/{id}` changes only the fields given. A detail given as
   `null` is cleared; `name`, `quantity` and `tags` can be changed but not
   cleared, and an empty body is refused. `category` is a name, matched
@@ -175,6 +177,28 @@ One shape for every error:
   removes it. `GET /api/saved-searches/{id}/results` runs it. Each saved
   search carries `count`, what it finds now. Over MCP,
   `delete_saved_search` goes through the confirmation step.
+- `PATCH /api/locations/{id}` changes `name` or `summary`; a `summary`
+  given as `null` or empty is cleared, and `name` cannot be cleared.
+  `DELETE /api/locations/{id}` deletes a location, refused with 409
+  `location_has_contents` while items or locations are directly in it,
+  unless `?move_contents_to={id}` names where they go first. Its items
+  that are not deleted, archived ones included, move with it; archived
+  items left in a deleted empty location keep it as their home. `POST
+  /api/locations/{id}/merge` takes `into` and moves the location's items,
+  the locations inside it and its checks there, and its label too when
+  `into` has none, then deletes it; it answers with the location merged
+  into. Either refuses a destination that is the location or inside it
+  with 409 `move_into_itself`. `POST /api/locations/{id}/restore` brings a
+  deleted location back, empty, refused with 409 `not_deleted`, or
+  `parent_deleted` when the location it sat in is deleted too. `POST
+  /api/locations/{id}/reorder` takes `position`, its place among its
+  siblings from 0 (past the end means last), refused with 409
+  `already_there` when nothing would move. A deleted location is left out
+  of the tree, search and views; `GET /api/locations/{id}` still answers
+  with it, its `deleted_at` set, and its label still names it. Changing a
+  deleted location, or putting anything in it, is refused with 409
+  `location_deleted`. Over MCP, `delete_location` and `merge_location` go
+  through the confirmation step.
 - A move is refused with 409 `already_there` when the thing is already in
   that location, `move_into_itself` when a location would go into itself
   or anything inside it, and `site_cannot_move` for a site.
@@ -260,7 +284,8 @@ One shape for every error:
   a confirmation token first, and acts only when called again with the same
   inputs and the token. A token works once and expires after ten minutes;
   otherwise the call is refused with 409 `confirmation_invalid` or
-  `confirmation_expired`. `delete_item` is one of these; the app has no
+  `confirmation_expired`. `delete_item` is one of these, as are
+  `delete_location` and `merge_location`; the app has no
   confirmation step, since its delete offers Undo. So are
   `remove_item_attachment` and `remove_location_photo`, and `import_items`,
   whose token is tied to the CSV text's hash.

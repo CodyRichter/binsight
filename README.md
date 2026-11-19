@@ -7,7 +7,7 @@ Stick a QR label on a bin, scan it with your phone camera, and see or update
 what's inside. Search for anything and get its full location path, e.g.
 `Garage > Shelf 2 > Bin B-014`. Claude can do everything you can through MCP.
 
-> **Status: scheduled backups (Breadth 6).** The requirements,
+> **Status: location housekeeping (Breadth 7).** The requirements,
 > data model, conventions and checks are in place, and the frontend has the
 > design language as working components, shown at `/design` in development.
 > The backend starts, migrates its database and serves the frontend, with
@@ -54,6 +54,11 @@ what's inside. Search for anything and get its full location path, e.g.
 > Binsight backs up its database and files on starting and daily, keeping
 > 14, listed in `/settings` with "Back up now", and through MCP; restoring
 > is done on the server, as [deploy/README.md](deploy/README.md) describes.
+> A location is renamed and described in place, merged into another,
+> deleted once its contents have somewhere to go, and dragged into order
+> among its siblings, each with Undo; a deleted location's page and label
+> offer Restore. Claude can do the same, asking first before a delete or
+> merge.
 > Each backend phase is now followed by its frontend phase; see the
 > [build order](docs/build-order.md).
 

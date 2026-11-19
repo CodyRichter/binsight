@@ -25,3 +25,4 @@ it and mark the old one as replaced. Do not quietly work around one.
 | 0015 | [A template's specimen is deleted when its real page lands](0015-specimens-end-with-their-page.md) | Accepted |
 | 0016 | [Search scores names in Python, with no index](0016-search-in-python.md) | Accepted |
 | 0017 | [The in-app scanner reads QR codes with the BarcodeDetector ponyfill](0017-scanning-in-the-browser.md) | Accepted |
+| 0018 | [Deleting and merging locations are run from the locations folder, outside its service](0018-location-housekeeping-owner.md) | Accepted |

@@ -353,8 +353,16 @@ Every page is one of seven templates. "Header" is the page header component.
    "Download label", "Check mode", then "Add photo" ("Replace photo" when
    it has one), which opens the camera, and "Remove photo" when it has
    one, then "Contents sheet" and "Insurance list", which open the
-   location's print pages. "Contents checked" says "Contents checked" with Undo; a photo says
-   "Added a photo to {place}" or "Removed the photo", with Undo.
+   location's print pages, then "Merge into…" (`arrow-merge`) and "Delete
+   location" (`trash`, `danger`) last. "Contents checked" says "Contents checked" with Undo; a photo says
+   "Added a photo to {place}" or "Removed the photo", with Undo. The title
+   and the summary ("Add a summary" when empty) are edited in place, saying
+   "Renamed to {name}" or "Summary changed", with Undo. "Merge into…" opens
+   the move sheet titled "Merge into", then goes to the location picked,
+   saying "Merged {name} into {name}". "Delete location" deletes an empty
+   location at once; one with items or locations in it first opens the move
+   sheet titled "Move contents to". Either way it goes to the parent (`/`
+   for a site), saying "Deleted {name}". Both offer Undo and no dialog.
 2. The add bar, on a location only. The page's one accent.
 3. "Here / Everything inside", only when the location contains other
    locations.
@@ -373,6 +381,13 @@ count: Lent out (`user`), Missing (`zoom-question`), Warranty expiring soon
 section "Saved searches" with its count, pinned ones first (`pin`, the rest
 `search`), left out when there are none. `/l/{code}` shows the same page
 as `/locations/{id}`.
+
+A deleted location's page, at `/locations/{id}` or its label's `/l/{code}`,
+is its header alone: the parent path, the title and code chip, "Deleted
+{time ago}" in `muted`, and the one default button "Restore"
+(`arrow-back-up`), which says "Restored {name}" with Undo. No More, no add
+bar, no sections. Restoring brings it back empty, so the page becomes the
+location's page with "This bin is empty".
 
 A blank label's `/l/{code}` has its own layout. The header holds the title
 "Blank label", the large dashed code chip, and the default button "Add
@@ -860,6 +875,16 @@ the type icon sits at the gutter. The list says which it is. The toggle
 expands in place; the rest of the row opens the location. No summary in the
 tree. On `/search` the matched parts of its name are marked with
 `highlight`, as in an item row.
+
+In a location's "Locations" section, and on `/` while every branch is
+closed (so the rows are just the sites), each row ends in a drag handle:
+a `grip-vertical` icon button, `touch-min`, in `muted`, named "Reorder
+{name}", pulled into the row's padding as the add button is. Dragging it
+moves the row among its siblings; the dragged row is drawn on `surface`
+above the others. With the keyboard, Space picks the row up, the arrow
+keys move it, Space drops it and Escape puts it back, each step announced.
+Dropping updates the list at once and says "Moved {name}" with Undo; a
+refusal puts the order back.
 
 In a view's rows the row adds the checked stamp after the code chip, only
 once stale.
