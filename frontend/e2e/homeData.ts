@@ -36,18 +36,6 @@ export async function siteRoomBin(request: APIRequestContext) {
   return { names, ids: { site, room, bin } };
 }
 
-/** Makes blank labels through the API, giving back their codes. */
-export async function makeLabels(request: APIRequestContext, count: number): Promise<string[]> {
-  const response = await request.post("/api/labels/blank", { data: { count } });
-  const made = (await response.json()) as { labels: { code: string }[] };
-  return made.labels.map((label) => label.code);
-}
-
-/** Claims a blank label for a location through the API. */
-export async function claim(request: APIRequestContext, code: string, locationId: string) {
-  await request.post(`/api/labels/${code}/claim`, { data: { location_id: locationId } });
-}
-
 /** The photo the tests add items by, as a phone camera would hand it over. */
 export const photoFile = new URL("./fixtures/photo.jpg", import.meta.url).pathname;
 

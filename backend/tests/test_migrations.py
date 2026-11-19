@@ -1,3 +1,5 @@
+import re
+
 from alembic import command
 from alembic.autogenerate import compare_metadata
 from alembic.config import Config
@@ -219,12 +221,12 @@ def test_locations_from_before_ordering_keep_their_order_among_siblings(
     migrate_database(engine, settings)
     with engine.connect() as connection:
         rows = connection.execute(
-            text("SELECT id, position, deleted_at FROM location ORDER BY id")
+            text("SELECT name, position, deleted_at FROM location ORDER BY name")
         ).all()
     assert [tuple(row) for row in rows] == [
-        ("attic", 0, None),
-        ("home", 0, None),
-        ("shed", 1, None),
+        ("Attic", 0, None),
+        ("Home", 0, None),
+        ("Shed", 1, None),
     ]
 
 
@@ -262,3 +264,54 @@ def test_checks_are_dropped_and_the_items_a_check_marked_missing_stay_recorded(
         kept = connection.execute(text("SELECT record_type FROM history_change")).scalars().all()
     assert tables == []
     assert kept == ["item"]
+
+
+def _a_labeled_home_at_0015(settings: Settings) -> Engine:
+    settings.data_directory.mkdir()
+    engine = create_database_engine(settings.database_path)
+    config = Config()
+    config.set_main_option("script_location", str(BACKEND_DIRECTORY / "migrations"))
+    with engine.begin() as connection:
+        config.attributes["connection"] = connection
+        command.upgrade(config, "0015")
+        for statement in (
+            "INSERT INTO location (id, name, type, parent_id, position, created_at, updated_at)"
+            " VALUES ('old-home', 'Home', 'site', NULL, 0, :at, :at),"
+            " ('old-bin', 'Cables', 'bin', 'old-home', 0, :at, :at)",
+            "INSERT INTO item (id, name, quantity, status, home_location_id, created_at,"
+            " updated_at) VALUES ('drill', 'Drill', 1, 'in_place', 'old-bin', :at, :at)",
+            "INSERT INTO label (id, number, code, location_id, claimed_at, created_at, updated_at)"
+            " VALUES ('sticker', 14, 'B-014', 'old-bin', :at, :at, :at)",
+            "INSERT INTO saved_search (id, name, query, location_id, pinned, created_at,"
+            " updated_at) VALUES ('kept', 'In cables', '', 'old-bin', 0, :at, :at)",
+            "INSERT INTO history_entry (id, at, actor, action) VALUES"
+            " ('made', :at, 'app', 'location.created'), ('claimed', :at, 'app', 'label.claimed')",
+            "INSERT INTO history_change (id, entry_id, record_type, record_id, before, after)"
+            " VALUES ('made-bin', 'made', 'location', 'old-bin', NULL,"
+            ' \'{"parent_id": "old-home"}\'),'
+            " ('claimed-label', 'claimed', 'label', 'sticker', NULL,"
+            ' \'{"location_id": "old-bin"}\')',
+        ):
+            connection.execute(text(statement), {"at": "2026-11-16 12:00:00"})
+    return engine
+
+
+def test_locations_from_before_codes_are_given_codes_everything_still_points_at(
+    settings: Settings,
+) -> None:
+    engine = _a_labeled_home_at_0015(settings)
+    migrate_database(engine, settings)
+    with engine.connect() as connection:
+        rows = connection.execute(text("SELECT name, id FROM location")).all()
+        codes: dict[str, str] = dict(rows)
+        parent = connection.execute(text("SELECT parent_id FROM location WHERE name = 'Cables'"))
+        home = connection.execute(text("SELECT home_location_id FROM item")).scalar()
+        kept = connection.execute(text("SELECT location_id FROM saved_search")).scalar()
+        changes = connection.execute(text("SELECT record_id, after FROM history_change")).all()
+        actions = connection.execute(text("SELECT action FROM history_entry")).scalars().all()
+    assert all(re.fullmatch(r"[A-Z0-9]{3}-[A-Z0-9]{3}", code) for code in codes.values())
+    assert (parent.scalar(), home, kept) == (codes["Home"], codes["Cables"], codes["Cables"])
+    assert [tuple(change) for change in changes] == [
+        (codes["Cables"], f'{{"parent_id": "{codes["Home"]}"}}')
+    ]
+    assert actions == ["location.created"]

@@ -33,7 +33,7 @@ function deletedHeader(location: Location, deletedAt: string, onRestore: () => v
     <PageHeader
       title={location.name}
       parents={pathSegments(location.path.slice(0, -1))}
-      code={location.label_code ?? undefined}
+      code={location.id}
       since={{ words: "Deleted", at: new Date(deletedAt) }}
       actions={
         <Button leftSection={<IconArrowBackUp aria-hidden />} onClick={onRestore}>

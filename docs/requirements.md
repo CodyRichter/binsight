@@ -30,7 +30,7 @@ PRINCIPLES
 - Rough and right beats detailed and wrong. A bin with one photo and a
   one-line summary is a valid, complete record.
 - Every item shows where it lives as a full path, e.g.
-  Garage > Shelf 2 > Bin B-014.
+  Garage > Shelf 2 > Cables.
 - You own the data: self-hosted, full export, nothing hidden in proprietary
   formats.
 - When in doubt, leave it out. A new feature must make finding or updating
@@ -74,10 +74,14 @@ PLACES
 
 LABELS AND QR CODES
 -------------------
-- Any location can have a label. Bins are the common case, but drawers,
+- Every location has a label. Bins are the common case, but drawers,
   shelves and boxes work the same way.
-- A short, readable code on every label (e.g. B-014) printed with its QR
-  code, so it can be read without scanning and typed into search.
+- Every location has a short, readable code (e.g. K7Q-4MZ) from the moment
+  it is made: six letters and digits, drawn at random. It is the location's
+  address in the app, and is printed with its QR code so it can be read
+  without scanning and typed into search, in any case and with or without
+  the hyphen.
+- A code never spells anything offensive; such codes are never drawn.
 - Codes are permanent and never reused, even after a bin is deleted.
 - The app's address is set once per install and treated as permanent. QR
   codes point at that address, so they are specific to each install.
@@ -85,8 +89,6 @@ LABELS AND QR CODES
   No app install.
 - Each label is downloadable as an image (QR code plus the readable code),
   to print on any ordinary printer. The app does no print layout itself.
-- Generate a batch of blank labels ahead of time, stick them on bins, and
-  claim each one the first time you scan it.
 - The page after a scan shows contents, quick add, quick remove and "move
   this bin".
 - Scan-to-move from inside the app: pick an item or scan a bin, then scan

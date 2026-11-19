@@ -52,14 +52,18 @@ def test_removing_an_attachment_asks_first(
     assert signed_in.get(f"/api/items/{home.hdmi_cable}/attachments").json()["items"] == []
 
 
-def test_claude_sets_a_bin_s_photo_by_its_label_code_and_removes_it_after_asking(
+def test_claude_sets_a_bin_s_photo_by_its_code_and_removes_it_after_asking(
     claude: Claude, home: AcceptanceHome
 ) -> None:
-    changed = claude.call("set_location_photo", location_id="B-014", photo_base64=_text(photo()))
+    changed = claude.call(
+        "set_location_photo", location_id=home.cables, photo_base64=_text(photo())
+    )
     assert (changed["id"], changed["photo_url"] is not None) == (home.cables, True)
-    asked = claude.call("remove_location_photo", location_id="B-014")
+    asked = claude.call("remove_location_photo", location_id=home.cables)
     token = asked["preview"]["confirmation_token"]
-    removed = claude.call("remove_location_photo", location_id="B-014", confirmation_token=token)
+    removed = claude.call(
+        "remove_location_photo", location_id=home.cables, confirmation_token=token
+    )
     assert removed["removed"]["photo_url"] is None
 
 

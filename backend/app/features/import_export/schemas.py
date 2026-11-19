@@ -104,7 +104,6 @@ class SheetGroup(BaseModel):
 
     location_id: str
     path: list[PathStep]
-    label_code: str | None
     items: list[SheetItem]
 
 

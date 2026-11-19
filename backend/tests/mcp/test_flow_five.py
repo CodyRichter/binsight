@@ -12,27 +12,29 @@ def _actors(client: TestClient, item_id: str) -> list[str]:
     return [entry["actor"] for entry in history["items"]]
 
 
-@pytest.mark.usefixtures("home")
-def test_what_is_in_b_014_gives_both_items_and_the_bin_s_path(claude: Claude) -> None:
-    listed = claude.call("list_items", location_id="B-014")
+def test_what_is_in_cables_gives_both_items_and_the_bin_s_path(
+    claude: Claude, home: AcceptanceHome
+) -> None:
+    listed = claude.call("list_items", location_id=home.cables)
     assert [item["name"] for item in listed["items"]] == ["HDMI cable", "USB-C charger"]
     path = [step["name"] for step in listed["items"][0]["path"]]
     assert path == ["Home", "Garage", "Shelf 2", "Cables"]
 
 
-def test_adding_ethernet_cable_to_b_014_puts_it_in_cables(
+def test_adding_ethernet_cable_to_cables_puts_it_in_cables(
     claude: Claude, signed_in: TestClient, home: AcceptanceHome
 ) -> None:
-    added = claude.call("create_item", name="Ethernet cable", home_location_id="B-014")
+    added = claude.call("create_item", name="Ethernet cable", home_location_id=home.cables)
     assert signed_in.get(f"/api/items/{added['id']}").json()["home_location_id"] == home.cables
     assert _actors(signed_in, added["id"]) == ["mcp"]
 
 
-@pytest.mark.usefixtures("home")
-def test_where_is_the_hdmi_cable_gives_its_path_code_and_quantity(claude: Claude) -> None:
+def test_where_is_the_hdmi_cable_gives_its_path_code_and_quantity(
+    claude: Claude, home: AcceptanceHome
+) -> None:
     found = claude.call("search_home", query="HDMI cable")["results"][0]["item"]
     assert [step["name"] for step in found["path"]] == ["Home", "Garage", "Shelf 2", "Cables"]
-    assert found["path"][-1]["label_code"] == "B-014"
+    assert found["path"][-1]["id"] == home.cables
     assert found["quantity"] == 3
 
 
@@ -41,10 +43,10 @@ def test_do_i_own_a_multimeter_is_a_clear_no(claude: Claude) -> None:
     assert claude.call("search_home", query="multimeter")["results"] == []
 
 
-def test_moving_the_usb_c_charger_to_b_015_puts_it_in_tools(
+def test_moving_the_usb_c_charger_to_tools_puts_it_in_tools(
     claude: Claude, signed_in: TestClient, home: AcceptanceHome
 ) -> None:
-    claude.call("move_item", item_id=home.usb_c_charger, location_id="B-015")
+    claude.call("move_item", item_id=home.usb_c_charger, location_id=home.tools)
     item = signed_in.get(f"/api/items/{home.usb_c_charger}").json()
     assert item["home_location_id"] == home.tools
     assert _actors(signed_in, home.usb_c_charger)[0] == "mcp"

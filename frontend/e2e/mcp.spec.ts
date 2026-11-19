@@ -1,21 +1,12 @@
 import { expect, test } from "@playwright/test";
-import {
-  addItem,
-  callTool,
-  claim,
-  makeLabels,
-  mcpSecret,
-  siteRoomBin,
-  uniqueName,
-} from "./homeData";
+import { addItem, callTool, mcpSecret, siteRoomBin, uniqueName } from "./homeData";
 import { openAtPhoneWidth } from "./owner";
 
 test("changes Claude makes through MCP show in the app, and deleting waits for confirmation", async ({
   page,
 }) => {
   const { ids } = await siteRoomBin(page.request);
-  const [code = ""] = await makeLabels(page.request, 1);
-  await claim(page.request, code, ids.bin);
+  const code = ids.bin;
   const charger = uniqueName("USB-C charger");
   const chargerId = await addItem(page.request, charger, ids.bin);
   const secret = await mcpSecret(page.request);

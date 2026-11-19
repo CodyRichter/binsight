@@ -159,12 +159,11 @@ def test_a_deleted_location_leaves_search_and_takes_nothing_new(
     assert renamed.json()["error"]["code"] == "location_deleted"
 
 
-def test_a_deleted_location_s_label_still_names_it_and_it_can_be_restored(
+def test_a_deleted_location_s_code_still_names_it_and_it_can_be_restored(
     signed_in: TestClient, home: AcceptanceHome
 ) -> None:
     signed_in.delete(f"{LOCATIONS}/{home.tools}")
-    label = signed_in.get("/api/labels/B-015").json()
-    assert label["location_id"] == home.tools
+    assert signed_in.get(f"/api/labels/{home.tools}/image").status_code == 200
     assert _location(signed_in, home.tools)["deleted_at"] is not None
     restored = signed_in.post(f"{LOCATIONS}/{home.tools}/restore").json()
     assert restored["deleted_at"] is None
@@ -185,25 +184,16 @@ def test_a_location_inside_a_deleted_one_can_t_be_restored_first(
     assert signed_in.post(f"{LOCATIONS}/{home.tools}/restore").status_code == 200
 
 
-def test_merging_moves_items_and_the_label_when_the_target_has_none(
+def test_merging_moves_items_and_the_merged_location_keeps_its_code(
     signed_in: TestClient, home: AcceptanceHome
 ) -> None:
     target = _add(signed_in, "Everything bin", home.shelf)
     merged = signed_in.post(f"{LOCATIONS}/{home.cables}/merge", json={"into": target}).json()
     assert (merged["id"], merged["direct_item_count"]) == (target, 2)
-    assert merged["label_code"] == "B-014"
     assert _location(signed_in, home.cables)["deleted_at"] is not None
     _undo(signed_in, merged)
-    assert _location(signed_in, home.cables)["label_code"] == "B-014"
+    assert _location(signed_in, home.cables)["deleted_at"] is None
     assert _location(signed_in, target)["direct_item_count"] == 0
-
-
-def test_merging_into_a_labeled_location_leaves_the_label_on_the_merged_one(
-    signed_in: TestClient, home: AcceptanceHome
-) -> None:
-    merged = signed_in.post(f"{LOCATIONS}/{home.cables}/merge", json={"into": home.tools}).json()
-    assert merged["label_code"] == "B-015"
-    assert signed_in.get("/api/labels/B-014").json()["location_id"] == home.cables
 
 
 def test_reordering_renumbers_siblings_and_new_locations_go_last(

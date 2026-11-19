@@ -19,10 +19,3 @@
   font-size: var(--bs-code-lg-size);
   line-height: var(--bs-code-lg-line-height);
 }
-
-.chip[data-blank] {
-  border-style: dashed;
-  border-color: var(--bs-control-border);
-  background: none;
-  color: var(--bs-muted);
-}

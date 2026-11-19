@@ -13,7 +13,7 @@ test("/search lists items with their paths and locations, with the matched text 
     "/api/search": {
       results: [
         { kind: "item", item: cable, marks: [{ start: 0, end: 4 }] },
-        { kind: "location", location: { ...bin, label_code: "B-014", item_count: 1 }, marks: [] },
+        { kind: "location", location: { ...bin, item_count: 1 }, marks: [] },
       ],
       next_cursor: null,
       count: 2,

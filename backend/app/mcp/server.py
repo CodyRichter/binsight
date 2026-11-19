@@ -35,8 +35,9 @@ away, which is the archive), and can be linked to items it belongs with or is pa
 Built-in views answer questions across the whole home, such as what is lent out, missing
 or due back to a shop: see list_views and list_view_rows. The owner's saved searches are
 run with list_saved_search_rows. A
-location can carry a label, a sticker with a code such as B-014; wherever a tool takes a
-location identifier, the code works too. Every change is recorded in history with the
+location is known by its code, such as K7Q-4MZ, which is also printed on its label (see
+get_label_image); wherever a tool takes a location identifier, the code may be typed in any
+case and with or without the hyphen. Every change is recorded in history with the
 actor "mcp"; an item added or changed, moved or deleted by mistake can be put back with
 undo_history_entry and the history_entry_id the change returned. Deleting asks for the
 owner's confirmation first: see delete_item. Items carry photos, files such as receipts and

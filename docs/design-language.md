@@ -18,7 +18,7 @@ garage, not like a dashboard.
 2. **White means write.** `surface` is label stock. Fields, the add bar and
    sheets are white; the page behind them (`ground`) is not. If it is white,
    you can type on it or it is floating above the page.
-3. **A code looks like its sticker.** A label code is always a code chip:
+3. **A code looks like its sticker.** A location's code is always a code chip:
    mono, boxed, paper-white even in dark mode.
 4. **Rows, not cards.** Content is full-width rows divided by a hairline.
    Nothing on the page is a rounded box with a shadow.
@@ -58,9 +58,9 @@ Write the way you would label a bin: short, literal, no decoration.
 - A button is a verb that names what happens: "Move", "Mark found",
   "Mark missing". Never "OK", "Submit" or "Yes".
 - A toast is the past tense of the button and names the thing: "Moved to
-  Bin B-015".
-- An error says what is wrong, then what to do: "No label has the code
-  B-9999. Check the sticker and try again." No apology.
+  Tools".
+- An error says what is wrong, then what to do: "No location has the code
+  ZZZ-999. Check the sticker and try again." No apology.
 - Relative time in words: "3 weeks ago".
 - Never nag. Nothing says "incomplete" or "needs attention". Optional fields
   are invisible until wanted.
@@ -126,7 +126,7 @@ rem (px ÷ 16), so they follow the owner's own text size setting.
 | `text-small`       | 14 / 20     | 400    | Paths, counts, tags, field errors, side navigation section headers (650). |
 | `text-nav`         | 14 / 16     | 500    | Bottom bar labels and its count badge. Nowhere else. |
 | `code`             | 14 / 20     | 700    | A label code in a code chip (mono). |
-| `code-lg`          | 22 / 32     | 700    | The code in the header of a labeled location (mono). |
+| `code-lg`          | 22 / 32     | 700    | The code in the header of a location's page (mono). |
 
 - 14px is the smallest text anywhere.
 - A screen shows at most four sizes: 24 once, 18, 16 and 14. A row uses
@@ -393,22 +393,15 @@ count: Lent out (`user`), Missing (`zoom-question`), Warranty expiring soon
 (`shield-check`), Return window closing (`receipt-refund`), Recently added
 (`square-plus`), Recently moved (`arrows-move`), Possible duplicates (`copy`) and Archive (`archive`). Then
 section "Saved searches" with its count, pinned ones first (`pin`, the rest
-`search`), left out when there are none. `/l/{code}` shows the same page
-as `/locations/{id}`.
+`search`), left out when there are none. `/l/{code}` opens
+`/locations/{code}`, since a location's code is its identifier.
 
-A deleted location's page, at `/locations/{id}` or its label's `/l/{code}`,
+A deleted location's page, reached at `/locations/{id}` or from its label,
 is its header alone: the parent path, the title and code chip, "Deleted
 {time ago}" in `muted`, and the one default button "Restore"
 (`arrow-back-up`), which says "Restored {name}" with Undo. No More, no add
 bar, no sections. Restoring brings it back empty, so the page becomes the
 location's page with "This bin is empty".
-
-A blank label's `/l/{code}` has its own layout. The header holds the title
-"Blank label", the large dashed code chip, and the default button "Add
-location", which makes a new site. Below it is the tree of every location
-with no section header, as on `/`. Tapping a row claims the label for that
-location, and the page becomes that location's page at the same address; a
-toast offers Undo.
 
 **List** (`/search`, `/views/{view}`, `/inbox`)
 
@@ -531,16 +524,9 @@ goes back, or home when `/scan` was the first page.
 **Settings** (`/settings`). Header ("Settings"), then sections of value
 rows, each with `space-xl` above its header like every section. A section
 whose action is the only way to add to it shows even when empty: "MCP
-credentials", whose action is "Add MCP credential", and "Labels", whose
-action is "Make blank labels".
+credentials", whose action is "Add MCP credential".
 
-"Make blank labels" opens a sheet with one field, "How many", from 1 to
-100, and a primary "Make". The section's rows are value rows, newest
-first, each named by its location or "Blank" and holding the code chip
-(dashed while blank) and a default "Download" button. "Show more" loads the
-next page.
-
-"Export and import", after "Labels", has three value rows. "Export
+"Export and import", after "MCP credentials", has three value rows. "Export
 everything" holds a default "Download" button that downloads the zip.
 "Insurance list" holds a default "Open" button that opens `/insurance`.
 "Import from CSV" holds a default "Choose file" button that opens the file
@@ -733,13 +719,13 @@ at a time. Every reversible action shows one with Undo for 6 seconds; this
 replaces "Are you sure?". A refusal puts the screen back, says what is now
 true, offers Retry, and stays until dismissed. No titles, ticks or stacking.
 Adding says "Added {name} to {place}", "Added {n} items to {place}" or
-"Added a photo to {place}", where the place reads as a path segment does
-("Bin B-014") or "Inbox"; "Add to existing" says "Added 1 more {name}"; a
+"Added a photo to {place}", where the place is the location's name
+("Cables") or "Inbox"; "Add to existing" says "Added 1 more {name}"; a
 burst on the quantity stepper says "Quantity of {name} changed to {n}";
 naming an item says "Named {name}".
 
 **Dialog** (`ConfirmDialog`, built on `Modal`). Only for what cannot be
-undone: emptying deleted items for good, deleting blank labels, revoking an
+undone: emptying deleted items for good, revoking an
 MCP credential. The title is the question and names
 the thing and the number. Two verb buttons, the safe one first and focused:
 "Keep them", "Delete forever". The safe button carries `data-autofocus`.
@@ -799,9 +785,9 @@ flat location rows: up to five recently used on this device, then the rest
 in tree order. It leaves out where the thing already is and, when a
 location is moving, the location and everything inside it. A scanned label
 that cannot be the destination says why in the scanner's line ("Already in
-Bin B-014", "Can't move into Bin B-016", "B-020 isn't on a location yet")
+Cables", "Can't move into Small box", "No location has the code ZZZ-999")
 and scanning carries on. Picking moves the thing on screen at once; the
-toast reads "Moved to {place}", naming a labeled place "Bin B-015", with
+toast reads "Moved to {place}", naming the place by its name, with
 Undo. Move is a default button in the header of an item's page and of every
 location's page except a site's.
 
@@ -830,13 +816,12 @@ with `space-xl`.
 `ink`. Each line is `text-small`'s 20px; a linked segment's `touch-min` tap
 area reaches past the line instead of growing it. Never truncated; it wraps. A page header shows the parents only, each
 segment a link. A row shows the full path to the home location as plain
-text, since the whole row opens the item. A labeled
-location's segment reads "Bin B-014" in the same style, with no code chip.
+text, since the whole row opens the item. Each segment
+is the location's name; its code is shown only in code chips.
 
 **Code chip.** `label` fill, `on-label` text and 1.5px border, `radius-sm`,
-mono. Regular beside a location's name; large once, in a labeled location's
-page header. A blank label is dashed with no fill. Shows the code exactly as
-printed. Only for label codes.
+mono. Regular beside a location's name; large once, in a location's
+page header. Shows the code exactly as printed. Only for location codes.
 
 **Status badge.** Icon, word, 1.5px outline in one color, never filled. In
 place shows nothing.
@@ -888,7 +873,7 @@ whole row opens it in a new tab. Full width on `ground`, hairline below, at
 least `row-min` high.
 
 **Location row.** Expand toggle (only with children), type icon, name, code
-chip if labeled, count of every item inside in `muted` at the right.
+chip, count of every item inside in `muted` at the right.
 `touch-min` high. In a tree (a list where a row can expand, as on `/`) every
 row keeps the toggle's room, each level indents `space-xl`, and at the top
 level the toggle's glyph sits at the gutter. In a flat list (a location's
@@ -907,10 +892,6 @@ above the others. With the keyboard, Space picks the row up, the arrow
 keys move it, Space drops it and Escape puts it back, each step announced.
 Dropping updates the list at once and says "Moved {name}" with Undo; a
 refusal puts the order back.
-
-On the claim page only, a row can end with an "Add location inside {name}"
-icon button (`IconPlus`, `touch-min`), which opens the one-field "Add
-location" sheet.
 
 **History row.** One change to the thing, in a Record page's History
 section. A line saying what happened in `text-body` ("Added", "Quantity
@@ -995,7 +976,7 @@ parent path; the title and large code chip; the summary, edited in place;
 the counts; at most two default buttons and a More icon button. No
 eyebrow above the title. It scrolls with the page. The lines before the
 buttons are one group, `space-xs` apart; the buttons sit `space-lg` below.
-It sets the document title. A labeled location's More menu holds
+It sets the document title. A location's More menu holds
 "Download label".
 
 With a thumbnail (an item's or location's page), the thumbnail is at the

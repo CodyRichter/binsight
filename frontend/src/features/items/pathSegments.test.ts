@@ -1,13 +1,13 @@
 import { expect, test } from "vitest";
 import { pathSegments } from "./pathSegments";
 
-test("a labeled location reads by its type and code, others by name", () => {
+test("a path reads by name and links to each location by its code", () => {
   const path = [
-    { id: "home", name: "Home", type: "site", label_code: null },
-    { id: "cables", name: "Cables", type: "bin", label_code: "B-014" },
+    { id: "K7Q-4MZ", name: "Home", type: "site" },
+    { id: "B2R-W9T", name: "Cables", type: "bin" },
   ] as const;
   expect(pathSegments([...path])).toEqual([
-    { name: "Home", to: "/locations/home" },
-    { name: "Bin B-014", to: "/locations/cables" },
+    { name: "Home", to: "/locations/K7Q-4MZ" },
+    { name: "Cables", to: "/locations/B2R-W9T" },
   ]);
 });

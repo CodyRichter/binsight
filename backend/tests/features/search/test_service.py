@@ -52,12 +52,12 @@ def test_a_typo_and_reversed_words_still_find_it(migrated_engine: Engine) -> Non
     assert _names(_search(migrated_engine, "cable hdmi")) == ["HDMI cable"]
 
 
-def test_a_label_code_typed_loosely_finds_its_location(migrated_engine: Engine) -> None:
+def test_a_location_code_typed_loosely_finds_its_location(migrated_engine: Engine) -> None:
     home = _home(migrated_engine)
-    for typed in ("b14", "B-014", "b-14"):
+    for typed in (home.cables, home.cables.lower(), home.cables.replace("-", "").lower()):
         first = _search(migrated_engine, typed).results[0]
         assert isinstance(first, LocationResult)
-        assert (first.location.id, first.location.label_code) == (home.cables, "B-014")
+        assert first.location.id == home.cables
 
 
 def test_a_location_is_found_by_its_name_with_its_counts(migrated_engine: Engine) -> None:

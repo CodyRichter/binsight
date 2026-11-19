@@ -23,7 +23,7 @@ export function LocationTreeDemo() {
             name="Network cables"
             to="/design"
             locationType="bin"
-            code="B-014"
+            code="K7Q-4MZ"
             itemCount={6}
             tree
             depth={1}

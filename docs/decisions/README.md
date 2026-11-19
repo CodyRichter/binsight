@@ -11,7 +11,7 @@ it and mark the old one as replaced. Do not quietly work around one.
 | 0001 | [SQLite is the only database](0001-sqlite-only.md)        | Accepted |
 | 0002 | [One backend process, with MCP inside it](0002-single-process.md) | Accepted |
 | 0003 | [Code is organized by feature, with one service layer](0003-feature-folders.md) | Accepted |
-| 0004 | [Label addresses and codes are permanent](0004-permanent-labels.md) | Accepted |
+| 0004 | [Label addresses and codes are permanent](0004-permanent-labels.md) | Accepted, amended by 0021 |
 | 0005 | [Files live on disk, not in the database](0005-files-on-disk.md) | Accepted |
 | 0006 | [Frontend types are generated from the backend](0006-generated-api-types.md) | Accepted |
 | 0007 | [Rules are enforced by tools, not prose](0007-enforce-with-tools.md) | Accepted |
@@ -28,3 +28,4 @@ it and mark the old one as replaced. Do not quietly work around one.
 | 0018 | [Deleting and merging locations are run from the locations folder, outside its service](0018-location-housekeeping-owner.md) | Accepted |
 | 0019 | [A location's icon is a Tabler icon name, loaded when shown](0019-location-icons-from-tabler.md) | Accepted |
 | 0020 | [Location contents are not checked](0020-no-checks.md) | Accepted |
+| 0021 | [A location is known by its code](0021-location-codes.md) | Accepted |

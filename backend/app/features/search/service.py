@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 from app.core.pagination import decode_offset, encode_offset
 from app.features.items import service as items
 from app.features.items.service import ItemFilters
-from app.features.labels import service as labels
 from app.features.locations import service as locations
 from app.features.search.matching import (
     EXACT,
@@ -25,8 +24,8 @@ from app.features.search.schemas import SearchResults as SearchResults
 # A name counts double against other words, so a bin called "Cables" beats one that mentions them.
 NAME_WEIGHT = 2
 CODE_SCORE = EXACT * NAME_WEIGHT
-# A code is typed as one word, so the hyphen in B-014 must not split it in two.
-CODE_HYPHEN = re.compile(r"\b(b)-(?=\d)", re.IGNORECASE)
+# A code is typed as one word, so the hyphen in K7Q-4MZ must not split it in two.
+CODE_HYPHEN = re.compile(r"\b([a-z0-9]{3})-(?=[a-z0-9]{3}\b)", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -46,7 +45,7 @@ class _Candidate:
     name_text: str
     # A location's summary, or an item's details and tags.
     details: list[Word]
-    code_number: int | None
+    code: str | None
 
 
 def _candidates(session: Session, filters: ItemFilters, today: date) -> list[_Candidate]:
@@ -65,15 +64,14 @@ def _candidates(session: Session, filters: ItemFilters, today: date) -> list[_Ca
     for location in locations.searchable_locations(session):
         if within is not None and location.id not in within:
             continue
-        code = labels.label_number(location.label_code) if location.label_code else None
         details = words(location.summary or "")
         name = words(location.name)
-        found.append(_Candidate("location", location.id, name, location.name, details, code))
+        found.append(_Candidate("location", location.id, name, location.name, details, location.id))
     return found
 
 
-def _word_score(candidate: _Candidate, found: dict[str, int], code: int | None) -> int:
-    if code is not None and code == candidate.code_number:
+def _word_score(candidate: _Candidate, found: dict[str, int], code: str) -> int:
+    if code == candidate.code:
         return CODE_SCORE
     return max(
         best_score(found, candidate.name) * NAME_WEIGHT, best_score(found, candidate.details)
@@ -81,7 +79,7 @@ def _word_score(candidate: _Candidate, found: dict[str, int], code: int | None) 
 
 
 def _score(
-    candidate: _Candidate, query: list[str], found: list[dict[str, int]], codes: list[int | None]
+    candidate: _Candidate, query: list[str], found: list[dict[str, int]], codes: list[str]
 ) -> _Found | None:
     total = 0
     for word_found, code in zip(found, codes, strict=True):
@@ -107,7 +105,7 @@ def _ranked(session: Session, query: str, filters: ItemFilters, today: date) -> 
         return _everything_kept(candidates)
     vocabulary = {word.text for each in candidates for word in each.name + each.details}
     found = match_vocabulary(query_words, vocabulary)
-    codes = [labels.label_number(word) for word in query_words]
+    codes = [locations.location_code(word) for word in query_words]
     scored = [_score(candidate, query_words, found, codes) for candidate in candidates]
     matched = [each for each in scored if each is not None]
     return sorted(

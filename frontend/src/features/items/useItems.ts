@@ -12,7 +12,6 @@ export const inboxKey = ["items", "inbox"] as const;
 export interface Destination {
   id: string;
   name: string;
-  label_code: string | null;
   path: Item["path"];
 }
 

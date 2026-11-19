@@ -10,7 +10,6 @@ function parent(type: Location["type"]): Location {
     parent_id: null,
     summary: null,
     icon: null,
-    label_code: null,
     path: [],
     direct_item_count: 0,
     photo_url: null,

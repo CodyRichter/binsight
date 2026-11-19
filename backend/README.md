@@ -11,9 +11,10 @@ Claude calls, and the frontend's built files, in one process.
 > their paths, and `history` records each change in the same transaction.
 > `auth` also creates, lists and revokes MCP credentials, and the MCP
 > server at `/mcp` has a tool for every one of those actions, recorded with
-> the actor `mcp`. `labels` makes blank labels in one series of codes,
-> claims them for a location, and draws each as a PNG of its QR code and
-> code; MCP tools accept a label's code wherever they take a location.
+> the actor `mcp`. Every location is known by a random code such as
+> `K7Q-4MZ`; `labels` draws a location's label as a PNG of its QR code and
+> code, and MCP tools read a code typed in any case, with or without its
+> hyphen.
 
 ## Tech stack
 

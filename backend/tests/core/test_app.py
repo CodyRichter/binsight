@@ -19,7 +19,7 @@ def test_an_unknown_api_address_gets_the_error_shape(client: TestClient) -> None
 
 
 def test_a_page_address_is_answered_with_the_frontend(client: TestClient) -> None:
-    response = client.get("/l/B-014")
+    response = client.get("/l/K7Q-4MZ")
     assert response.status_code == 200
     assert "<title>Binsight</title>" in response.text
 

@@ -20,14 +20,14 @@ def test_a_sheet_groups_everything_inside_by_location_parents_first(
     sheet = _sheet(signed_in, home.garage)
     assert sheet["location"]["name"] == "Garage"
     groups = [
-        (group["path"][-1]["name"], group["label_code"], [item["name"] for item in group["items"]])
+        (group["path"][-1]["name"], group["location_id"], [item["name"] for item in group["items"]])
         for group in sheet["groups"]
     ]
     assert groups == [
-        ("Garage", None, ["Tape"]),
-        ("Shelf 2", None, []),
-        ("Cables", "B-014", ["HDMI cable", "USB-C charger"]),
-        ("Tools", "B-015", ["Drill"]),
+        ("Garage", home.garage, ["Tape"]),
+        ("Shelf 2", home.shelf, []),
+        ("Cables", home.cables, ["HDMI cable", "USB-C charger"]),
+        ("Tools", home.tools, ["Drill"]),
     ]
     assert sheet["groups"][2]["items"][0]["quantity"] == 3
 

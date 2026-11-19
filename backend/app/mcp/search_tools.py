@@ -3,13 +3,12 @@ from typing import Annotated
 from fastapi import FastAPI
 from mcp.server.mcpserver import MCPServer
 from mcp.types import CallToolResult
-from sqlalchemy.orm import Session
 
 from app.core import clock
 from app.core.database import open_read_session
 from app.core.pagination import DEFAULT_LIMIT, PageLimit
 from app.features.items.service import ItemFilters
-from app.features.labels import service as labels
+from app.features.locations import service as locations
 from app.features.search import service
 from app.features.search.schemas import Search, SearchResults
 from app.mcp.actions import run_action
@@ -18,13 +17,13 @@ SEARCH_HOME = """Search the whole home for items and locations by what they are 
 
 Use this first for "do we have a ...?" and "where is ...?". The query is matched word by
 word in any order, finds a word from its first letters, and allows a typo or two in
-longer words, so "hdmi cabel" and "cable hdmi" both find "HDMI cable". A label code works
-too, in any case and with or without the hyphen: "b14" finds the location labelled B-014.
+longer words, so "hdmi cabel" and "cable hdmi" both find "HDMI cable". A location's code works
+too, in any case and with or without the hyphen: "k7q4mz" finds the location K7Q-4MZ.
 Location summaries are searched as well. An item added by photo and not yet named is not
 found; see list_inbox.
 
 filters keeps only the items that match every filter given: location_id (that location and
-everything inside it; a label code works too), category (its name), tag, status (in_place,
+everything inside it, by its code), category (its name), tag, status (in_place,
 in_use, lent_out, missing, sold, given_away, thrown_away) and warranty ("active",
 "ending_soon" within 30 days, or "ended"). Locations are left out when any filter but
 location_id is given. With filters, query may be empty to list every item they keep, by
@@ -34,14 +33,14 @@ left out); when next_cursor is not null, pass it as cursor for the next page.
 
 Returns {"results": [...], "next_cursor": ..., "count": ...}, best match first. Each
 result has kind "item", with the item and its full location path, or kind "location",
-with the location, its label_code and how many items it holds; marks give the matched
-parts of the name. Follow up with get_item, or list_items for what a location holds."""
+with the location, its id (the code on its label) and how many items it holds; marks give
+the matched parts of the name. Follow up with get_item, or list_items for what a location holds."""
 
 
-def _search(session: Session, query: str, filters: ItemFilters | None) -> Search:
+def _search(query: str, filters: ItemFilters | None) -> Search:
     kept = filters or ItemFilters()
     if kept.location_id is not None:
-        location_id = labels.location_id_for(session, kept.location_id)
+        location_id = locations.location_code(kept.location_id)
         kept = kept.model_copy(update={"location_id": location_id})
     return Search(query=query, **kept.model_dump())
 
@@ -61,7 +60,7 @@ def add_search_tools(server: MCPServer, app: FastAPI) -> None:
             open_read_session,
             lambda session: service.search_home(
                 session,
-                _search(session, query, filters),
+                _search(query, filters),
                 clock.now().date(),
                 PageLimit(limit=limit).limit,
                 cursor,

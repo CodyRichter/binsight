@@ -21,7 +21,7 @@ export const sampleViews: NavItem[] = [
 export const binPath: PathSegment[] = [
   { name: "Garage", to: "/design" },
   { name: "Shelf 2", to: "/design" },
-  { name: "Bin B-014", to: "/design" },
+  { name: "Network cables", to: "/design" },
 ];
 
 export const shelfPath: PathSegment[] = binPath.slice(0, 2);

@@ -18,8 +18,8 @@ interface AddedItem {
 }
 
 const destinations: (Destination & { type: "bin" | "furniture"; count: number })[] = [
-  { code: "B-014", name: "Network cables", type: "bin", count: 6 },
-  { code: "B-015", name: "Power tools", type: "bin", count: 9 },
+  { code: "K7Q-4MZ", name: "Network cables", type: "bin", count: 6 },
+  { code: "B2R-W9T", name: "Power tools", type: "bin", count: 9 },
   { name: "Workbench", type: "furniture", count: 22 },
 ];
 

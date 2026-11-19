@@ -3,7 +3,6 @@ from typing import Annotated
 from fastapi import FastAPI
 from mcp.server.mcpserver import MCPServer
 from mcp.types import CallToolResult
-from sqlalchemy.orm import Session
 
 from app.core import clock
 from app.core.database import open_read_session, open_write_session
@@ -19,15 +18,15 @@ from app.features.items.schemas import (
     NewItem,
     NewItems,
 )
-from app.features.labels import service as labels
+from app.features.locations import service as locations
 from app.mcp.actions import run_action, run_photo_action
 from app.models import Actor
 
 CREATE_ITEM = """Add an item to the home by name.
 
 Use this when the owner says they have something, or asks to add or put a thing somewhere.
-home_location_id is where it lives: find it with list_locations, or give the label code of
-the bin it goes in, such as B-014. Leave it out and the item
+home_location_id is where it lives: find it with list_locations, or give the code on the
+label of the bin it goes in, such as K7Q-4MZ. Leave it out and the item
 goes to the inbox, the items still waiting for a name or a home location. A new item has
 quantity 1; change it afterwards with update_item.
 
@@ -36,8 +35,8 @@ location, and the history_entry_id of the change."""
 
 LIST_ITEMS = """List the items in one location, oldest first, a page at a time.
 
-Use this to answer what is in a location. location_id may be the location's label code,
-such as B-014. With everything_inside set to true it also
+Use this to answer what is in a location. location_id is the location's code,
+such as K7Q-4MZ. With everything_inside set to true it also
 includes the items in every location beneath it, such as every bin on a shelf. limit is
 1 to 200 (50 if left out); when next_cursor is not null, pass it as cursor for the next page.
 
@@ -116,8 +115,8 @@ def add_item_tools(server: MCPServer, app: FastAPI) -> None:
     _add_adding_tools(server, app)
 
 
-def _home(session: Session, home_location_id: str | None) -> str | None:
-    return labels.location_id_for(session, home_location_id) if home_location_id else None
+def _home(home_location_id: str | None) -> str | None:
+    return locations.location_code(home_location_id) if home_location_id else None
 
 
 def _add_changing_tools(server: MCPServer, app: FastAPI) -> None:
@@ -130,7 +129,7 @@ def _add_changing_tools(server: MCPServer, app: FastAPI) -> None:
             open_write_session,
             lambda session: service.create_item(
                 session,
-                NewItem(name=name, home_location_id=_home(session, home_location_id)),
+                NewItem(name=name, home_location_id=_home(home_location_id)),
                 Actor.mcp,
                 clock.now(),
             ),
@@ -160,7 +159,7 @@ def _add_adding_tools(server: MCPServer, app: FastAPI) -> None:
             open_write_session,
             lambda session: service.create_items(
                 session,
-                NewItems(names=names, home_location_id=_home(session, home_location_id)),
+                NewItems(names=names, home_location_id=_home(home_location_id)),
                 Actor.mcp,
                 clock.now(),
             ),
@@ -174,7 +173,7 @@ def _add_adding_tools(server: MCPServer, app: FastAPI) -> None:
             app,
             photo_base64,
             lambda session, photo: service.create_item_by_photo(
-                session, photo, _home(session, home_location_id), Actor.mcp, clock.now()
+                session, photo, _home(home_location_id), Actor.mcp, clock.now()
             ),
         )
 
@@ -192,7 +191,7 @@ def _add_reading_tools(server: MCPServer, app: FastAPI) -> None:
             open_read_session,
             lambda session: service.list_items(
                 session,
-                labels.location_id_for(session, location_id),
+                locations.location_code(location_id),
                 everything_inside,
                 PageLimit(limit=limit).limit,
                 cursor,

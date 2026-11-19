@@ -6,8 +6,8 @@ from mcp.types import CallToolResult
 
 from app.core import clock
 from app.core.database import open_read_session, open_write_session
-from app.features.labels import service as labels
 from app.features.locations import service
+from app.features.locations import service as locations
 from app.features.locations.schemas import Location, LocationCreated, LocationTree, NewLocation
 from app.mcp.actions import run_action
 from app.models import Actor, LocationType
@@ -16,7 +16,7 @@ CREATE_LOCATION = """Add a location to the home: a site, or a place inside anoth
 
 Use this when the owner names a new room, shelf, bin, drawer or box. A site is the top of
 a tree and has no parent_id; every other type needs the parent_id of the location it sits
-in, which list_locations gives, or that location's label code. summary is an optional
+in, which list_locations gives, or the code on its label. summary is an optional
 one-line description.
 
 Returns the new location with its path from the site down, its item counts, and the
@@ -31,12 +31,12 @@ Sibling names can repeat, so pick by path when two match.
 Returns {"locations": [...]}, each with direct_item_count (items directly in it) and
 item_count (items in it and every location beneath it)."""
 
-GET_LOCATION = """Read one location by its identifier, or by its label's code, such as B-014.
+GET_LOCATION = """Read one location by its code, such as K7Q-4MZ, as printed on its label.
 
 Use this to get a location's path and how many items it holds. To see the items
 themselves, call list_items with its identifier.
 
-Returns the location with its label_code, or the error location_not_found."""
+Returns the location, or the error location_not_found."""
 
 
 def add_location_tools(server: MCPServer, app: FastAPI) -> None:
@@ -54,7 +54,7 @@ def add_location_tools(server: MCPServer, app: FastAPI) -> None:
                 NewLocation(
                     name=name,
                     type=type,
-                    parent_id=labels.location_id_for(session, parent_id) if parent_id else None,
+                    parent_id=locations.location_code(parent_id) if parent_id else None,
                     summary=summary,
                 ),
                 Actor.mcp,
@@ -71,7 +71,5 @@ def add_location_tools(server: MCPServer, app: FastAPI) -> None:
         return await run_action(
             app,
             open_read_session,
-            lambda session: service.get_location(
-                session, labels.location_id_for(session, location_id)
-            ),
+            lambda session: service.get_location(session, locations.location_code(location_id)),
         )

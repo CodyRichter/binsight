@@ -39,7 +39,7 @@ def test_an_import_adds_items_with_their_details_into_existing_and_new_locations
         "name,quantity,location,category,tags,price,purchase_date,serial_number\n"
         "Drill,1,home > garage > Shelf 3 > Bin 7,Tools,power; cordless,89.99,2025-03-01,SN-1\n"
         "AA batteries,12,Home > Garage > Shelf 3 > Bin 7,,,,,\n"
-        "Spare HDMI,,B-014,,,,,\n"
+        f"Spare HDMI,,{home.cables.lower()},,,,,\n"
         "Mystery cable,,,,,,,\n"
     )
     response = _import(signed_in, text)
@@ -100,14 +100,14 @@ def test_a_file_with_bad_rows_is_refused_whole_saying_which_rows(signed_in: Test
 
 
 @pytest.mark.usefixtures("home")
-def test_unknown_columns_and_unclaimed_label_codes_are_refused(signed_in: TestClient) -> None:
+def test_unknown_columns_and_unknown_location_codes_are_refused(signed_in: TestClient) -> None:
     unknown = _import(signed_in, "name,colour\nDrill,red\n").json()["error"]
     assert unknown["details"]["rows"][0]["message"] == "Unknown or missing columns: colour."
-    blank = _import(signed_in, "name,location\nDrill,B-001\n").json()["error"]
-    assert blank["details"]["rows"][0] == {
+    unknown_code = _import(signed_in, "name,location\nDrill,zzz-999\n").json()["error"]
+    assert unknown_code["details"]["rows"][0] == {
         "row": 2,
         "column": "location",
-        "message": "No location has the label B-001; claim it first.",
+        "message": "No location has the code ZZZ-999.",
     }
 
 

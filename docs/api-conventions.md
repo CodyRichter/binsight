@@ -194,8 +194,7 @@ One shape for every error:
   that are not deleted, archived ones included, move with it; archived
   items left in a deleted empty location keep it as their home. `POST
   /api/locations/{id}/merge` takes `into` and moves the location's items,
-  and the locations inside it there, and its label too when
-  `into` has none, then deletes it; it answers with the location merged
+  and the locations inside it there, then deletes it; it answers with the location merged
   into. Either refuses a destination that is the location or inside it
   with 409 `move_into_itself`. `POST /api/locations/{id}/restore` brings a
   deleted location back, empty, refused with 409 `not_deleted`, or
@@ -204,7 +203,7 @@ One shape for every error:
   siblings from 0 (past the end means last), refused with 409
   `already_there` when nothing would move. A deleted location is left out
   of the tree, search and views; `GET /api/locations/{id}` still answers
-  with it, its `deleted_at` set, and its label still names it. Changing a
+  with it, its `deleted_at` set, and its code still names it. Changing a
   deleted location, or putting anything in it, is refused with 409
   `location_deleted`. Over MCP, `delete_location` and `merge_location` go
   through the confirmation step.
@@ -240,7 +239,7 @@ One shape for every error:
   `order_link`, `warranty_ends`, `return_ends`, `status` and `lent_to`;
   any other column refuses the file. `location` is a path such as
   `Garage > Shelf 3 > Bin 7`: each step matches by name under the one
-  before, ignoring case, or by a claimed label code; missing steps are made,
+  before, ignoring case, or by a location code; missing steps are made,
   a new top level as a site and the rest as bins; an empty one is the
   inbox. Every row is checked before anything is written, and any problem
   refuses the whole file with 422 `import_rows_invalid`, whose
@@ -255,7 +254,7 @@ One shape for every error:
   quantity; `items_without_price` counts the rest.
 - `GET /api/contents-sheet/{location_id}` answers with the location and
   `groups`: the location itself, then every location inside it, parents
-  first, each with its path, label code and the items still owned kept
+  first, each with its path, code and the items still owned kept
   directly in it.
 - `GET /api/backups` answers with `backups`, newest first, each with its
   `name` (its folder in `backups/`), `taken_at` and `size` in bytes.

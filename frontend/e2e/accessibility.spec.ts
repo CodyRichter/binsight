@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { addItem, makeLabels, siteRoomBin, uniqueName } from "./homeData";
+import { addItem, siteRoomBin, uniqueName } from "./homeData";
 import { openAtPhoneWidth } from "./owner";
 
 const standards = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
@@ -19,12 +19,11 @@ async function home(page: Page) {
   const itemId = await addItem(page.request, `${word} lantern`, ids.bin);
   const lentId = await addItem(page.request, `${word} tent`, ids.bin);
   await page.request.post(`/api/items/${lentId}/lend`, { data: { lent_to: "Dana" } });
-  const [blank] = await makeLabels(page.request, 1);
-  return { ids, word, itemId, blank };
+  return { ids, word, itemId };
 }
 
 async function pages(page: Page): Promise<string[]> {
-  const { ids, word, itemId, blank } = await home(page);
+  const { ids, word, itemId } = await home(page);
   return [
     "/",
     `/locations/${ids.bin}`,
@@ -38,7 +37,6 @@ async function pages(page: Page): Promise<string[]> {
     "/settings",
     "/insurance",
     `/locations/${ids.bin}/sheet`,
-    `/l/${blank}`,
     "/nowhere",
   ];
 }

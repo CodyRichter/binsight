@@ -10,21 +10,21 @@ import { Specimen } from "./Specimen";
 export function OverlaysSpecimen() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const undoToast = () => showToast({ message: "Moved to Bin B-015", onUndo: () => undefined });
+  const undoToast = () => showToast({ message: "Moved to Power tools", onUndo: () => undefined });
   const moveTo = (destination: string) => {
     setSheetOpen(false);
     showToast({ message: `Moved to ${destination}`, onUndo: () => undefined });
   };
   const refusalToast = () =>
     showToast({
-      message: "Could not save. Cat6 patch cable is back in B-014.",
+      message: "Could not save. Cat6 patch cable is back in Network cables.",
       onRetry: () => undefined,
     });
   return (
     <Specimen title="Overlays and toast">
       <Group gap="sm">
         <Button onClick={() => setSheetOpen(true)}>Move</Button>
-        <Button onClick={() => setDialogOpen(true)}>Delete blank labels</Button>
+        <Button onClick={() => setDialogOpen(true)}>Revoke a credential</Button>
         <Menu position="bottom-start">
           <Menu.Target>
             <Button>Menu</Button>
@@ -51,9 +51,9 @@ export function OverlaysSpecimen() {
           <>
             <LocationRow
               name="Power tools"
-              onPick={() => moveTo("Bin B-015")}
+              onPick={() => moveTo("Power tools")}
               locationType="bin"
-              code="B-015"
+              code="B2R-W9T"
               itemCount={9}
             />
             <LocationRow
@@ -78,10 +78,10 @@ export function OverlaysSpecimen() {
       </Sheet>
       <ConfirmDialog
         opened={dialogOpen}
-        title="Delete 12 blank labels?"
-        detail="Their codes can never be used again. Any that are already printed will stop working."
-        cancelLabel="Keep them"
-        confirmLabel="Delete forever"
+        title="Revoke Claude Desktop?"
+        detail="Claude stops reaching Binsight with it."
+        cancelLabel="Keep it"
+        confirmLabel="Revoke"
         onCancel={() => setDialogOpen(false)}
         onConfirm={() => setDialogOpen(false)}
       />

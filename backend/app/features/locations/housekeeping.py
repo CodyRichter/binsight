@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from app.core.errors import AppError
 from app.features.history import service as history
 from app.features.items import service as items
-from app.features.labels import service as labels
 from app.features.locations import service as locations
 from app.features.locations.schemas import (
     LocationDelete,
@@ -83,11 +82,10 @@ def delete_location(
 def merge_location(
     session: Session, location_id: str, merge: LocationMerge, actor: Actor, now: datetime
 ) -> LocationMerged:
-    """Merge a location into another: its items, locations and label move, then it goes."""
+    """Merge a location into another: its items and locations move, then it goes."""
     _refused_destination(session, location_id, merge.into)
     changes = [
         *_move_contents(session, location_id, merge.into, now),
-        *labels.move_label(session, location_id, merge.into, now),
         locations.mark_deleted(session, location_id, now),
     ]
     session.flush()

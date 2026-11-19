@@ -1,6 +1,7 @@
 # 0004: Label addresses and codes are permanent
 
-Status: Accepted
+Status: Accepted, amended by [0021](0021-location-codes.md): codes are each
+location's random identifier, such as `K7Q-4MZ`, and there are no blank labels.
 
 ## Context
 

@@ -34,7 +34,9 @@ test("locations are added from the tree and from each location's page", async ({
   await page.goto("/");
   await page.getByRole("button", { name: `Expand ${site}` }).click();
   await page.getByRole("button", { name: `Expand ${room}` }).click();
-  for (const name of [site, room, bin]) await expect(treeRow(page, name)).toHaveText(`${name}0`);
+  for (const name of [site, room, bin]) {
+    await expect(treeRow(page, name)).toHaveText(new RegExp(`^${name}[A-Z0-9]{3}-[A-Z0-9]{3}0$`));
+  }
 });
 
 test("an item added in a bin shows at once and raises the counts", async ({ page }) => {
@@ -50,8 +52,8 @@ test("an item added in a bin shows at once and raises the counts", async ({ page
 
   await page.goto("/");
   await page.getByRole("button", { name: `Expand ${names.site}` }).click();
-  await expect(treeRow(page, names.site)).toHaveText(`${names.site}1`);
-  await expect(treeRow(page, names.room)).toHaveText(`${names.room}1`);
+  await expect(treeRow(page, names.site)).toHaveText(`${names.site}${ids.site}1`);
+  await expect(treeRow(page, names.room)).toHaveText(`${names.room}${ids.room}1`);
 });
 
 test("an item's page shows its path, and a burst of taps is one history entry", async ({

@@ -37,7 +37,7 @@ def test_the_export_holds_the_data_as_json_and_csv_with_every_file(
     assert document["format_version"] == 1
     assert len(document["locations"]) == 5
     assert {row["name"] for row in document["items"]} == {"HDMI cable", "USB-C charger"}
-    assert len(document["labels"]) == 15
+    assert "labels" not in document
     assert document["history_entries"]
     assert document["history_changes"]
     stored = next(row for row in document["attachments"] if row["id"] == attached["id"])
@@ -45,7 +45,7 @@ def test_the_export_holds_the_data_as_json_and_csv_with_every_file(
     items = _csv_rows(archive, "items.csv")
     assert {row["location"] for row in items} == {"Home > Garage > Shelf 2 > Cables"}
     places = {row["location"]: row for row in _csv_rows(archive, "locations.csv")}
-    assert places["Home > Garage > Shelf 2 > Cables"]["label_code"] == "B-014"
+    assert places["Home > Garage > Shelf 2 > Cables"]["code"] == home.cables
 
 
 @pytest.mark.usefixtures("home")

@@ -21,7 +21,7 @@ from app.models import Actor
 
 EXPORT_EVERYTHING = """Export everything in the home as one zip file, for a backup or a move.
 
-The zip holds binsight.json (every location, item, label, saved search, attachment
+The zip holds binsight.json (every location, item, saved search, attachment
 record and history entry), items.csv and locations.csv, and every photo and file under
 attachments/. It can be large when there are many photos. Returns the zip as an embedded
 application/zip resource."""
@@ -32,8 +32,8 @@ csv_text has a header row. Only the name column is required; the others are quan
 location, category, tags (separated by ;), notes, brand, model, serial_number,
 purchase_date, price (such as 12.50), order_link, warranty_ends, return_ends (dates as
 YYYY-MM-DD), status and lent_to. location is a path such as "Garage > Shelf 3 > Bin 7":
-each step is matched by name under the one before, ignoring case, or by a label code such
-as B-014, and steps that don't exist are made (a new top level as a site, the rest as
+each step is matched by name under the one before, ignoring case, or by a location code such
+as K7Q-4MZ, and steps that don't exist are made (a new top level as a site, the rest as
 bins). An empty location puts the item in the inbox.
 
 Call it first with csv_text alone: nothing is added, and it returns {"preview":

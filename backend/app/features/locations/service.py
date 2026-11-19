@@ -6,11 +6,14 @@ from sqlalchemy.orm import Session
 
 from app import models
 from app.core.errors import AppError
-from app.core.identifiers import new_identifier
 from app.core.table_rows import ExportTables, table_rows
 from app.features.attachments import service as attachments
 from app.features.attachments.service import StoredFile
 from app.features.history import service as history
+from app.features.locations.codes import (
+    location_code as location_code,
+)  # re-exported: MCP tools read a typed code with it
+from app.features.locations.codes import new_location_code
 from app.features.locations.editing import live_child_count as live_child_count
 from app.features.locations.editing import mark_deleted as mark_deleted
 from app.features.locations.editing import move_children as move_children
@@ -75,7 +78,7 @@ def make_location(session: Session, new: NewLocation, now: datetime) -> history.
     if new.parent_id is not None:
         live_record(session, new.parent_id)
     location = models.Location(
-        id=new_identifier(),
+        id=new_location_code(session),
         position=_next_position(session, new.parent_id),
         created_at=now,
         updated_at=now,
@@ -210,9 +213,9 @@ def location_ids_within(session: Session, location_id: str) -> list[str]:
 
 
 def searchable_locations(session: Session) -> list[SearchableLocation]:
-    """Every location's name, summary and label code, for search to score."""
+    """Every location's code, name and summary, for search to score."""
     return [
-        SearchableLocation(row.id, row.name, row.summary, row.label_code)
+        SearchableLocation(row.id, row.name, row.summary)
         for row in session.scalars(
             select(models.Location).where(models.Location.deleted_at.is_(None))
         )

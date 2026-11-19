@@ -16,14 +16,14 @@ Typing a name is not counted as a tap.
 ## Setup used by every flow
 
 - Site `Home` contains room `Garage`, which contains shelf `Shelf 2`.
-- `Shelf 2` contains bin `Cables` with label `B-014`, and bin `Tools` with
-  label `B-015`.
+- `Shelf 2` contains bin `Cables` and bin `Tools`. Below, `{Cables}` and
+  `{Tools}` stand for their codes, such as `K7Q-4MZ`.
 - `Cables` holds `HDMI cable` (quantity 3) and `USB-C charger`.
 - The owner is signed in.
 
 ## 1. Scan a bin label and see what's in it
 
-1. Open the label address for `B-014`.
+1. Open the label address for `{Cables}`.
 
 Results:
 
@@ -35,14 +35,14 @@ Results:
 
 Also:
 
-- A blank label's address opens a page offering to claim it for an existing
-  or new location.
-- An unknown code opens a page saying so, with search.
+- The label address opens the location's page at `/locations/{Cables}`,
+  and a code typed in lower case without its hyphen does the same.
+- An unknown code opens a page saying nothing is there, with a way home.
 - A signed-out owner is sent to sign in and then lands on the same bin.
 
 ## 2. Scan a bin label and add things to it
 
-1. Open the label address for `B-014`.
+1. Open the label address for `{Cables}`.
 2. Tap quick add.
 3. Type `Ethernet cable` and submit.
 
@@ -115,11 +115,11 @@ Using the MCP tools with a valid MCP credential:
 
 | Request                              | Result                                   |
 | ------------------------------------ | ---------------------------------------- |
-| What is in `B-014`?                  | Both items and the bin's path.           |
-| Add `Ethernet cable` to `B-014`.     | The item exists with home location `Cables`. |
-| Where is the HDMI cable?             | `Home > Garage > Shelf 2 > Cables`, code `B-014`, quantity 3. |
+| What is in `{Cables}`?               | Both items and the bin's path.           |
+| Add `Ethernet cable` to `{Cables}`.  | The item exists with home location `Cables`. |
+| Where is the HDMI cable?             | `Home > Garage > Shelf 2 > Cables`, code `{Cables}`, quantity 3. |
 | Do I own a multimeter?               | A clear no, not an error.                |
-| Move the USB-C charger to `B-015`.   | The item's home location is `Tools`.     |
+| Move the USB-C charger to `{Tools}`. | The item's home location is `Tools`.     |
 
 Results:
 
