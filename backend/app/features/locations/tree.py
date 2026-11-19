@@ -44,7 +44,7 @@ def path(session: Session, location: models.Location) -> list[PathStep]:
 
 def all_locations(session: Session) -> list[Location]:
     """Every location, deleted ones included, siblings in their order."""
-    # Counts and last checked are computed on load, so rows already in the session are reloaded.
+    # Counts and label codes are computed on load, so rows already in the session are reloaded.
     query = (
         select(models.Location)
         .order_by(models.Location.position, models.Location.created_at, models.Location.id)
@@ -72,7 +72,6 @@ def all_locations(session: Session) -> list[Location]:
             path=path(session, row),
             direct_item_count=row.direct_item_count,
             item_count=item_count(row),
-            last_checked_at=row.last_checked_at,
             photo_url=photos.get(row.id),
             deleted_at=row.deleted_at,
         )

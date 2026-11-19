@@ -30,7 +30,6 @@ function item(id: string, name: string): Item {
     lent_at: null,
     retired_at: null,
     path: [],
-    last_checked_at: null,
     photo_url: null,
     created_at: "2026-11-16T12:00:00Z",
     deleted_at: null,

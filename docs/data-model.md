@@ -9,7 +9,6 @@ schema; column types and indexes are decided when each table is built.
 ```
 Location ──parent──> Location          (a tree; sites have no parent)
 Location <──0..1── Label               (a label is blank until claimed)
-Location <──many── Check
 Item ──home location──> Location       (optional; none means inbox)
 Item ──0..1──> Category
 Item <──many──> Tag
@@ -53,7 +52,7 @@ Rules:
   identifier.
 - Deleting a location requires choosing where its items and child locations
   go. A location is never deleted with contents still in it.
-- Merging location A into B moves A's items, children and checks to B, then
+- Merging location A into B moves A's items and children to B, then
   deletes A. A's label, if any, is re-pointed to B only if B has none.
 - Deleting or merging moves every item in the location that is not
   deleted, archived ones included. Deleted items stay with the deleted
@@ -184,20 +183,6 @@ Rules:
   place.
 - Removing an attachment deletes its record but leaves its file on disk, so
   Undo can bring it back. An unnamed item's only photo can't be removed.
-
-## Check
-
-| Field        | Notes                              |
-| ------------ | ---------------------------------- |
-| `location`   | The location that was checked.     |
-| `checked_at` | When.                              |
-| `actor`      | Who.                               |
-
-- A check covers the items directly in that location. It says nothing about
-  locations beneath it.
-- A location's **last checked** is its most recent check.
-- An item's last checked is its home location's last checked.
-- Adding, removing or moving items does not count as a check.
 
 ## History entry
 

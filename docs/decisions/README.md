@@ -27,3 +27,4 @@ it and mark the old one as replaced. Do not quietly work around one.
 | 0017 | [The in-app scanner reads QR codes with the BarcodeDetector ponyfill](0017-scanning-in-the-browser.md) | Accepted |
 | 0018 | [Deleting and merging locations are run from the locations folder, outside its service](0018-location-housekeeping-owner.md) | Accepted |
 | 0019 | [A location's icon is a Tabler icon name, loaded when shown](0019-location-icons-from-tabler.md) | Accepted |
+| 0020 | [Location contents are not checked](0020-no-checks.md) | Accepted |

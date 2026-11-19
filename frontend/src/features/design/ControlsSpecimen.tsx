@@ -29,7 +29,7 @@ export function ControlsSpecimen() {
     <Specimen title="Buttons and controls" gap="xl">
       <Group gap="sm">
         <Button variant="primary" leftSection={<IconCheck aria-hidden />}>
-          Contents checked
+          Mark found
         </Button>
         <Button leftSection={<IconArrowsMove aria-hidden />}>Move</Button>
         <Button variant="subtle">Add several</Button>

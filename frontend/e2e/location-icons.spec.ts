@@ -24,6 +24,10 @@ test("changing a bin's type and icon from its thumbnail, and Undo", async ({ pag
   await expect(thumbnail.locator("svg.tabler-icon-archive")).toBeVisible();
   await thumbnail.click();
   await sheet(page).getByRole("button", { name: "Bike", exact: true }).click();
+  await expect(thumbnail.locator("svg.tabler-icon-bike")).toBeVisible();
+  await expect
+    .poll(async () => (await page.request.get(`/api/locations/${ids.bin}`)).json())
+    .toMatchObject({ icon: "bike" });
   await page.goto(`/locations/${ids.room}`);
   const row = page.getByRole("listitem").filter({ hasText: names.bin });
   await expect(row.locator("svg.tabler-icon-bike")).toBeVisible();

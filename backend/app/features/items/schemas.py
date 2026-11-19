@@ -118,7 +118,6 @@ class Item(BaseModel):
     lent_at: datetime | None
     retired_at: datetime | None
     path: list[PathStep]
-    last_checked_at: datetime | None
     photo_url: str | None
     created_at: datetime
     deleted_at: datetime | None

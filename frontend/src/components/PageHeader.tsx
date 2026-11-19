@@ -1,7 +1,6 @@
 import { ActionIcon, Menu, Title } from "@mantine/core";
 import { IconDotsVertical } from "@tabler/icons-react";
 import type { ReactNode } from "react";
-import { CheckedStamp } from "./CheckedStamp";
 import { CodeChip } from "./CodeChip";
 import { EditableText } from "./EditableText";
 import { Path, type PathSegment } from "./Path";
@@ -30,7 +29,6 @@ interface PageHeaderProps {
   thumbnail?: PageThumbnail;
   status?: { status: Status; lentTo?: string };
   summary?: { value: string; onSave: (summary: string) => void };
-  lastChecked?: Date | null;
   counts?: string[];
   /** Since when the page's thing has been as it is, read under the title: "Deleted 2 days ago". */
   since?: { words: string; at: Date };
@@ -38,12 +36,11 @@ interface PageHeaderProps {
   menu?: ReactNode;
 }
 
-function metaLine({ lastChecked, counts = [], since }: PageHeaderProps): ReactNode {
+function metaLine({ counts = [], since }: PageHeaderProps): ReactNode {
   const words = since ? [...counts, `${since.words} ${timeAgo(since.at)}`] : counts;
-  if (lastChecked === undefined && words.length === 0) return null;
+  if (words.length === 0) return null;
   return (
     <div className={classes.meta}>
-      {lastChecked !== undefined && <CheckedStamp lastChecked={lastChecked} />}
       {words.map((word) => (
         <span key={word} className={classes.count}>
           {word}

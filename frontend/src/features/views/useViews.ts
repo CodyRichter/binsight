@@ -6,7 +6,6 @@ export type ViewSummary = components["schemas"]["ViewSummary"];
 export type ViewName = ViewSummary["view"];
 type ViewSummaries = components["schemas"]["Page_ViewSummary_"];
 type ViewRows = operations["list_view_rows"]["responses"][200]["content"]["application/json"];
-export type ViewRow = ViewRows["items"][number];
 
 export const viewsKey = ["views"] as const;
 

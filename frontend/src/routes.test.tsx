@@ -221,7 +221,7 @@ test("/locations/{id} for a deleted location says so and offers Restore", async 
   expect(await screen.findByRole("heading", { level: 1, name: "Cables" })).toBeVisible();
   expect(screen.getByRole("button", { name: "Restore" })).toBeVisible();
   expect(screen.getByText(/^Deleted/)).toBeVisible();
-  expect(screen.queryByRole("button", { name: "Contents checked" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Move" })).not.toBeInTheDocument();
 });
 
 test("/locations/{id} for a location that does not exist says so", async () => {

@@ -65,30 +65,10 @@ test("moving a search result from the result list changes its path", async ({ pa
   const otherName = uniqueName("Shelf");
   await addLocation(page.request, otherName, "shelf", ids.room);
   await openAtPhoneWidth(page, `/search?q=${encodeURIComponent(word)}`);
-  const row = page.getByRole("listitem").filter({ hasText: first });
-  await expect(row.getByText("Never checked")).toBeVisible();
   await page.getByRole("button", { name: `Move ${first}` }).click();
   await moveTo(page, otherName);
   await expect(page.getByText(`Moved to ${otherName}`)).toBeVisible();
   await expect.poll(async () => (await itemOf(page, firstId)).path.at(-1)?.name).toBe(otherName);
-});
-
-test("an item moved out during check mode is not marked missing", async ({ page }) => {
-  const { ids, first, second, firstId, secondId } = await twoItemsInABin(page);
-  const otherName = uniqueName("Shelf");
-  await addLocation(page.request, otherName, "shelf", ids.room);
-  await openAtPhoneWidth(page, `/locations/${ids.bin}`);
-  await page.getByRole("button", { name: "More", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Check mode" }).click();
-  await page.getByRole("button", { name: `Move ${first}` }).click();
-  await moveTo(page, otherName);
-  await expect(page.getByRole("checkbox", { name: first })).toHaveCount(0);
-  await page.getByText(second, { exact: true }).click();
-  await page.getByRole("button", { name: "Contents checked" }).click();
-  await expect(page.getByText("Checked today")).toBeVisible();
-  expect((await itemOf(page, firstId)).status).toBe("in_place");
-  expect((await itemOf(page, firstId)).path.at(-1)?.name).toBe(otherName);
-  expect((await itemOf(page, secondId)).status).toBe("in_place");
 });
 
 test("a category picked once is listed first the next time", async ({ page }) => {

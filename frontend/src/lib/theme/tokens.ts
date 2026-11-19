@@ -19,7 +19,6 @@ export const colorTokens = {
   danger: { light: "#b3261e", dark: "#ff8a80" },
   "on-danger": { light: "#ffffff", dark: "#14171a" },
   lent: { light: "#1f5fbf", dark: "#8ab4ff" },
-  stale: { light: "#8a5a00", dark: "#e3a857" },
   scrim: { light: "rgba(20,23,26,0.45)", dark: "rgba(0,0,0,0.6)" },
 } as const;
 

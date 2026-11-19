@@ -15,7 +15,6 @@ function item(id: string, name: string | null): Item {
     deleted_at: null,
     status: "in_place",
     ...noDetails,
-    last_checked_at: null,
   };
 }
 

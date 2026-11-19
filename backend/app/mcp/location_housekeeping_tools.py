@@ -61,8 +61,8 @@ confirmation_expired."""
 MERGE_LOCATION = """Merge one location into another, in two calls: a preview, then the merge.
 
 Use this when two locations are really the same place, such as two entries for one shelf.
-Everything in location_id moves into into: its items, the locations inside it and its
-checks. Its label moves too, if into has none. Then location_id is deleted. Both accept a
+Everything in location_id moves into into: its items, and the locations inside it.
+Its label moves too, if into has none. Then location_id is deleted. Both accept a
 label code. Call it first without a confirmation_token, tell the owner what will move, and
 only when they agree call it again with the same inputs and the token (once, ten minutes).
 

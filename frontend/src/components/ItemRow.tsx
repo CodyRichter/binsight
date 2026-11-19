@@ -1,8 +1,7 @@
 import { ActionIcon, Checkbox } from "@mantine/core";
 import { IconArrowsMove, IconUnlink } from "@tabler/icons-react";
-import { useId, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Link } from "react-router";
-import { CheckedStamp } from "./CheckedStamp";
 import { markedText, type Mark } from "./markedText";
 import { Path, type PathSegment } from "./Path";
 import { QuantityStepper } from "./QuantityStepper";
@@ -19,8 +18,6 @@ type ItemRowProps = {
   lentTo?: string;
   /** Since when it has had its status, read after the badge: "Lent 2 days ago". */
   since?: string;
-  /** When the item's home was last checked; shown only once stale, as in search results. */
-  lastChecked?: Date | null;
   quantity?: number;
   onQuantityChange?: (quantity: number) => void;
   onMove?: () => void;
@@ -29,7 +26,6 @@ type ItemRowProps = {
   /** The parts of the name a search matched. */
   marks?: Mark[];
   selected?: boolean;
-  check?: { checked: boolean; onChange: (checked: boolean) => void };
   /** For bulk edit: a box on the thumbnail's corner, the thumbnail its target, selects the row. */
   select?: { selected: boolean; onChange: (selected: boolean) => void };
 } & (
@@ -38,7 +34,7 @@ type ItemRowProps = {
   | { onPick: () => void; to?: never }
 );
 
-function rowName(props: ItemRowProps, checkId: string): ReactNode {
+function rowName(props: ItemRowProps): ReactNode {
   const name = markedText(props.name ?? "Unnamed", props.marks, classes.match);
   const unnamed = props.name === null || undefined;
   if (props.to === undefined) {
@@ -48,29 +44,21 @@ function rowName(props: ItemRowProps, checkId: string): ReactNode {
       </button>
     );
   }
-  if (!props.check) {
-    return (
-      <Link className={classes.name} data-unnamed={unnamed} to={props.to}>
-        {name}
-      </Link>
-    );
-  }
   return (
-    <label className={classes.name} htmlFor={checkId}>
+    <Link className={classes.name} data-unnamed={unnamed} to={props.to}>
       {name}
-    </label>
+    </Link>
   );
 }
 
 function metaLine(props: ItemRowProps): ReactNode {
-  const { path, status = "in_place", lentTo, since, lastChecked } = props;
-  if (!path && status === "in_place" && lastChecked === undefined) return null;
+  const { path, status = "in_place", lentTo, since } = props;
+  if (!path && status === "in_place") return null;
   return (
     <div className={classes.meta}>
       {path && <Path segments={path} />}
       <StatusBadge status={status} lentTo={lentTo} />
       {since && <span className={classes.since}>{since}</span>}
-      {lastChecked !== undefined && <CheckedStamp lastChecked={lastChecked} onlyStale />}
     </div>
   );
 }
@@ -106,18 +94,8 @@ function rowControls(props: ItemRowProps): ReactNode {
   );
 }
 
-function leading(props: ItemRowProps, checkId: string): ReactNode {
-  const { check, select, photoUrl, name } = props;
-  if (check) {
-    return (
-      <Checkbox
-        id={checkId}
-        className={classes.check}
-        checked={check.checked}
-        onChange={(event) => check.onChange(event.currentTarget.checked)}
-      />
-    );
-  }
+function leading(props: ItemRowProps): ReactNode {
+  const { select, photoUrl, name } = props;
   if (!select) return <Thumbnail photoUrl={photoUrl} />;
   // The whole thumbnail is the box's target, so the box can be a small badge on its corner.
   return (
@@ -135,16 +113,15 @@ function leading(props: ItemRowProps, checkId: string): ReactNode {
 }
 
 export function ItemRow(props: ItemRowProps) {
-  const checkId = useId();
   return (
     <li
       className={classes.row}
       data-selected={props.selected || props.select?.selected || undefined}
       data-movable={props.onMove || props.onRemoveLink ? true : undefined}
     >
-      {leading(props, checkId)}
+      {leading(props)}
       <div className={classes.main}>
-        {rowName(props, checkId)}
+        {rowName(props)}
         {metaLine(props)}
       </div>
       {rowControls(props)}

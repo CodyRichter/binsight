@@ -11,7 +11,7 @@ const fixedWords: Record<string, string> = {
   "item.restored": "Restored",
   "item.marked_missing": "Marked missing",
   "item.found": "Found",
-  // An item's history shows a check only when the check marked it missing.
+  // Checks are gone (decision 0020), but an item's history keeps those that marked it missing.
   "location.checked": "Marked missing in a check",
   "history.undone": "Undone",
   "item.returned": "Returned",

@@ -52,7 +52,6 @@ type Undoable = (
     models.Item
     | models.Attachment
     | models.Location
-    | models.Check
     | models.Label
     | models.ItemLink
     | models.SavedSearch
@@ -75,8 +74,6 @@ def _record(session: Session, change: models.HistoryChange) -> Undoable | None:
         return session.get(models.Attachment, change.record_id)
     if change.record_type == "location":
         return session.get(models.Location, change.record_id)
-    if change.record_type == "check":
-        return session.get(models.Check, change.record_id)
     if change.record_type == "label":
         return session.get(models.Label, change.record_id)
     if change.record_type == "link":
@@ -142,7 +139,6 @@ def _remove_location(session: Session, location: models.Location) -> None:
         select(models.Item.id).where(models.Item.home_location_id == location.id),
         select(models.Location.id).where(models.Location.parent_id == location.id),
         select(models.Label.id).where(models.Label.location_id == location.id),
-        select(models.Check.id).where(models.Check.location_id == location.id),
         select(models.Attachment.id).where(models.Attachment.location_id == location.id),
     )
     if any(session.scalar(query) is not None for query in held):

@@ -55,7 +55,7 @@ Write the way you would label a bin: short, literal, no decoration.
 - Use the [glossary](glossary.md)'s words and only those.
 - Sentence case everywhere. No full stop on buttons, headings or
   one-sentence toasts.
-- A button is a verb that names what happens: "Move", "Contents checked",
+- A button is a verb that names what happens: "Move", "Mark found",
   "Mark missing". Never "OK", "Submit" or "Yes".
 - A toast is the past tense of the button and names the thing: "Moved to
   Bin B-015".
@@ -80,7 +80,7 @@ theme in the same change, before it is used.
 | `surface`        | `#ffffff` | `#1b1e21` | What you write on or what floats: fields, add bar, sheets, dialogs, menus. |
 | `hover`          | `#e1e5e8` | `#262a2e` | Hover and pressed fill behind a row, icon button or menu item. |
 | `ink`            | `#14171a` | `#eef0f1` | Primary text and icons. The rule under a section header. |
-| `muted`          | `#55606a` | `#a3acb4` | Secondary text: paths, counts, placeholders, last checked. |
+| `muted`          | `#55606a` | `#a3acb4` | Secondary text: paths, counts, placeholders. |
 | `hairline`       | `#cfd4d8` | `#30353a` | 1px row separators. Carries no meaning. |
 | `control-border` | `#7c8791` | `#6b757e` | 1.5px border of every control. |
 | `accent`         | `#ffd21f` | `#ffd21f` | The one action color. A fill, never text on a light page. |
@@ -96,12 +96,11 @@ theme in the same change, before it is used.
 | `danger`         | `#b3261e` | `#ff8a80` | Missing status, field errors, destructive menu items. Also the fill of the destructive dialog button. |
 | `on-danger`      | `#ffffff` | `#14171a` | Text on a `danger` fill. |
 | `lent`           | `#1f5fbf` | `#8ab4ff` | Lent out status. |
-| `stale`          | `#8a5a00` | `#e3a857` | Last checked more than a year ago, or never. |
 | `scrim`          | `rgba(20,23,26,0.45)` | `rgba(0,0,0,0.6)` | Dimmed page behind a sheet or dialog. |
 
 - `highlight` shows where you are or what you picked. It never marks an
   action.
-- `danger`, `lent` and `stale` always come with a word and an icon. Color
+- `danger` and `lent` always come with a word and an icon. Color
   alone never carries meaning. There is no green: things being fine is the
   default and shows nothing.
 - Dark mode is the same design on a tote-black ground, not an inversion.
@@ -124,7 +123,7 @@ rem (px ÷ 16), so they follow the owner's own text size setting.
 | `text-heading`     | 18 / 24     | 700    | Section headers, sheet and dialog titles, the task name, Binsight in the side navigation. |
 | `text-body-strong` | 16 / 24     | 650    | Item names in rows, button labels, the current navigation entry. |
 | `text-body`        | 16 / 24     | 400    | Everything else, and everything typed. |
-| `text-small`       | 14 / 20     | 400    | Paths, last checked, counts, tags, field errors, side navigation section headers (650). |
+| `text-small`       | 14 / 20     | 400    | Paths, counts, tags, field errors, side navigation section headers (650). |
 | `text-nav`         | 14 / 16     | 500    | Bottom bar labels and its count badge. Nowhere else. |
 | `code`             | 14 / 20     | 700    | A label code in a code chip (mono). |
 | `code-lg`          | 22 / 32     | 700    | The code in the header of a labeled location (mono). |
@@ -359,17 +358,16 @@ Every page is one of seven templates. "Header" is the page header component.
 **Browse** (`/`, `/l/{code}`, `/locations/{id}`, `/views`)
 
 1. Header: the parent path; the title and large code chip; the summary; the
-   checked stamp and counts; up to two default buttons and More. A
+   counts; up to two default buttons and More. A
    location always has the 96px thumbnail beside the title: its photo,
    shown nowhere larger, or else its icon. Tapping the thumbnail opens the
-   type and icon sheet. On a location the buttons are
-   "Contents checked" and Move ("Add location" in place of Move on a
-   site); More holds "Add location" when there is no Locations section,
-   "Download label", "Check mode", then "Add photo" ("Replace photo" when
+   type and icon sheet. On a location the button is Move ("Add
+   location" in place of Move on a site); More holds "Add location" when
+   there is no Locations section, "Download label", then "Add photo" ("Replace photo" when
    it has one), which opens the camera, and "Remove photo" when it has
    one, then "Contents sheet" and "Insurance list", which open the
    location's print pages, then "Type and icon…" (`icons`), then "Merge into…" (`arrow-merge`) and "Delete
-   location" (`trash`, `danger`) last. "Contents checked" says "Contents checked" with Undo; a photo says
+   location" (`trash`, `danger`) last. A photo says
    "Added a photo to {place}" or "Removed the photo", with Undo; the type and
    icon sheet says "Changed to {type}", "Icon changed" or "Icon reset",
    with Undo. The title
@@ -393,8 +391,7 @@ header; the navigation item stays "Home". `/views` is a header ("Views")
 and one list of view rows, every built-in view in this order with its
 count: Lent out (`user`), Missing (`zoom-question`), Warranty expiring soon
 (`shield-check`), Return window closing (`receipt-refund`), Recently added
-(`square-plus`), Recently moved (`arrows-move`), Not checked in a long time
-(`clock`), Possible duplicates (`copy`) and Archive (`archive`). Then
+(`square-plus`), Recently moved (`arrows-move`), Possible duplicates (`copy`) and Archive (`archive`). Then
 section "Saved searches" with its count, pinned ones first (`pin`, the rest
 `search`), left out when there are none. `/l/{code}` shows the same page
 as `/locations/{id}`.
@@ -441,15 +438,12 @@ toast offers Undo.
    button "Save search" opens the "Save search" sheet: one field "Name",
    starting as the words, and a primary "Save". It says "Saved {name}"
    with Undo.
-   `/views/{view}` lists a built-in view: item rows with their paths, or
-   for Not checked in a long time flat location rows with their stale
-   stamp, the longest unchecked first. Lent out and Archive rows add how
-   long ago after the badge, `muted` `text-small`. The count reads "3
-   items" or "4 locations". The empty states: "Nothing is lent out",
+   `/views/{view}` lists a built-in view: item rows with their paths. Lent
+   out and Archive rows add how long ago after the badge, `muted`
+   `text-small`. The count reads "3 items". The empty states: "Nothing is lent out",
    "Nothing is missing", "No warranties end in the next 30 days", "No
    return windows close in the next 30 days", "Nothing added in the last
-   30 days", "Nothing moved in the last 30 days", "Everything was checked
-   in the last year", "No possible duplicates", "The archive is empty".
+   30 days", "Nothing moved in the last 30 days", "No possible duplicates", "The archive is empty".
    A saved search at `/views/{id}` is titled with its name, counts its
    results and lists them as `/search` does, without chips. Its default
    button is "Pin" (`pin`) or "Unpin" (`pinned-off`), saying "Pinned
@@ -517,7 +511,7 @@ toast offers Undo.
    names, so the sections say which item. A deleted item's page has none.
 3. Section "History", last: a list of history rows, newest first.
 
-**Task** (`/scan`, check mode). Full screen in the task frame, so nothing
+**Task** (`/scan`). Full screen in the task frame, so nothing
 is tapped by mistake.
 
 `/scan` is the task "Scan": the scanner in the work area, held to the
@@ -568,8 +562,8 @@ navigation, top bar or bottom bar, on `surface` at `content-max`.
    (or to the location, or `/settings`, when opened from its address), the
    page's name, and the primary button "Print", which opens the browser's
    print dialog.
-2. The page header: the path above, the title, the large code chip, the
-   checked stamp and counts. No buttons and no More.
+2. The page header: the path above, the title, the large code chip and
+   the counts. No buttons and no More.
 3. Sections of print item rows.
 
 Printed, the bar is left out, the colors are the light ones even in dark
@@ -615,16 +609,6 @@ primary button.
 | `/locations/{id}/insurance` | Print | None |
 | `/locations/{id}/sheet` | Print | None |
 | `/login`          | Gate     | None     |
-
-Check mode is a Task that opens over a location's page and has no address.
-Its name is "Check {name}"; the work area holds the location's add bar, then
-its items with checkboxes, and something added there starts ticked. The
-primary button is "Contents checked". Each row ends in Move: an item that
-belongs elsewhere is moved out ("Moved to {place}", with Undo), leaves the
-list and is not marked missing. With items unticked it first asks
-"Mark {n} unchecked items missing?" ("Keep checking", "Mark missing");
-either way it returns to the location's page, saying "Contents checked" or
-"Marked {n} items missing", with one Undo.
 
 `/design` exists only in development builds and is outside the templates:
 it renders every token and component, in the frame, for checking the
@@ -718,8 +702,7 @@ leading icon; batch add is its multi-line form, one name per line.
 
 **Checkbox** (`Checkbox`). A `control-border` box in a `touch-min` target,
 its border `ink` on hover; ticked is `accent` with an `on-accent` tick that
-fades in. Check mode's box is 28px, and replaces the thumbnail with the whole
-row as the target. Bulk selection's box is a 20px badge over the
+fades in. A box is 28px. Bulk selection's box is a 20px badge over the
 thumbnail's top left corner, labeled "Select {name}", with the whole
 thumbnail as its target; a selected row takes `highlight` and its photo
 dims. Settings that are on or off use `Switch`.
@@ -852,12 +835,6 @@ mono. Regular beside a location's name; large once, in a labeled location's
 page header. A blank label is dashed with no fill. Shows the code exactly as
 printed. Only for label codes.
 
-**Checked stamp.** An icon and "Checked 3 weeks ago" in `text-small`. Fresh:
-tick, `muted`. Over a year, or never: clock, `stale`, bold. In every
-location's page header, and in view and search rows only when stale. On a
-phone a stale search row, which also ends in Move, takes a second line. It
-informs and never asks: no counts, no "overdue", not tappable.
-
 **Status badge.** Icon, word, 1.5px outline in one color, never filled. In
 place shows nothing.
 
@@ -888,12 +865,9 @@ plus sign, no "Add photo". On a location's page it is a button named
 status badge, then the quantity stepper if shown. The whole row opens the
 item; no chevron. Inside a location's own contents the path is left out,
 and a Move icon button ends the row, so moving takes two taps: Move, then
-the destination. Search results and check mode's rows end in Move too,
-with the path kept in search. Under 48em a row with both puts the stepper on its own
+the destination. Search results end in Move too, with the path kept. Under 48em a row with both puts the stepper on its own
 line under the name.
-Full width on `ground`, hairline below, at least `row-min` high, and a path does not make it taller. A checkbox in place of the thumbnail
-has its box at the gutter, and the name stays where a thumbnail row's name
-starts. In a list that allows bulk edit, every row's thumbnail carries its
+Full width on `ground`, hairline below, at least `row-min` high, and a path does not make it taller. In a list that allows bulk edit, every row's thumbnail carries its
 select box, so the row keeps its layout. Names wrap;
 nothing is cut with an ellipsis. Matched search text is marked with
 `highlight`. No swipe gestures. An item added by photo and not named yet
@@ -929,9 +903,6 @@ keys move it, Space drops it and Escape puts it back, each step announced.
 Dropping updates the list at once and says "Moved {name}" with Undo; a
 refusal puts the order back.
 
-In a view's rows the row adds the checked stamp after the code chip, only
-once stale.
-
 On the claim page only, a row can end with an "Add location inside {name}"
 icon button (`IconPlus`, `touch-min`), which opens the one-field "Add
 location" sheet.
@@ -939,7 +910,7 @@ location" sheet.
 **History row.** One change to the thing, in a Record page's History
 section. A line saying what happened in `text-body` ("Added", "Quantity
 changed from 3 to 4"), and under it one `text-small`, `muted` line: when, in
-words as the checked stamp says it, then who ("You" for the app, "Claude"
+words ("3 weeks ago"), then who ("You" for the app, "Claude"
 for MCP). Full width, hairline below, at least `row-min` high, and its text
 wraps. Not tappable: no icon, no badge, no chevron.
 
@@ -1016,7 +987,7 @@ brings the bar back.
 
 **Page header.** In order, leaving out any line with nothing in it: the
 parent path; the title and large code chip; the summary, edited in place;
-the checked stamp and counts; at most two buttons and a More icon button. No
+the counts; at most two buttons and a More icon button. No
 eyebrow above the title. It scrolls with the page. The lines before the
 buttons are one group, `space-xs` apart; the buttons sit `space-lg` below.
 It sets the document title. A labeled location's More menu holds

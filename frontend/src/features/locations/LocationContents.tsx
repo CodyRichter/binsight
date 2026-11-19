@@ -5,7 +5,6 @@ import { AppFrame } from "@/components/AppFrame";
 import { EmptyState } from "@/components/EmptyState";
 import { PageLead } from "@/components/PageLead";
 import { PageState } from "@/components/PageState";
-import { CheckMode } from "@/features/checks";
 import {
   ItemAdder,
   ItemsSection,
@@ -31,11 +30,10 @@ import {
 interface LocationBodyProps {
   location: Location;
   locations: Location[];
-  onCheckMode: () => void;
   selection: ItemSelection;
 }
 
-function LocationBody({ location, locations, onCheckMode, selection }: LocationBodyProps) {
+function LocationBody({ location, locations, selection }: LocationBodyProps) {
   const [scope, setScope] = useState("here");
   const [addingLocation, setAddingLocation] = useState(false);
   const everythingInside = scope === "inside";
@@ -57,7 +55,6 @@ function LocationBody({ location, locations, onCheckMode, selection }: LocationB
             location={location}
             onAddLocation={children.length === 0 ? openSheet : undefined}
             hasChildren={children.length > 0}
-            onCheckMode={onCheckMode}
           />
         }
       >
@@ -86,19 +83,12 @@ function LocationBody({ location, locations, onCheckMode, selection }: LocationB
   );
 }
 
-/** A location's page: its header, quick add, and what it holds; or check mode over it. */
+/** A location's page: its header, quick add, and what it holds. */
 export function LocationView({ id }: { id: string }) {
   const tree = useLocationTree();
-  const refreshTree = useRefreshLocationTree();
-  const [checking, setChecking] = useState(false);
   const selection = useItemSelection(id, id);
   const location = tree.data?.find((candidate) => candidate.id === id);
   if (tree.data && !location) return <DeletedLocation id={id} />;
-  if (checking && location) {
-    return (
-      <CheckMode location={location} onClose={() => setChecking(false)} onAdded={refreshTree} />
-    );
-  }
   return (
     <AppFrame
       current="home"
@@ -112,7 +102,6 @@ export function LocationView({ id }: { id: string }) {
             key={location.id}
             location={location}
             locations={tree.data}
-            onCheckMode={() => setChecking(true)}
             selection={selection}
           />
         )}

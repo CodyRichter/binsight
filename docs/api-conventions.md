@@ -38,7 +38,7 @@ endpoint does not set them by accident. Terms are from the
   403 `cross_site_request`. There is no CORS.
 - No trailing slashes, and the frontend never adds one.
 - Actions that are not plain create, read, update or delete are a verb under
-  the record: `POST /api/items/{id}/move`, `POST /api/locations/{id}/check`.
+  the record: `POST /api/items/{id}/move`, `POST /api/items/{id}/mark-missing`.
 
 ## Methods
 
@@ -61,9 +61,7 @@ There is no `PUT`.
   `_cents`. An install has one currency.
 - A missing optional value is `null`, never an empty string or a missing
   key.
-- Anything that returns an item includes its `path` and its
-  `last_checked_at`, its home location's; every location carries its own.
-  Either is `null` until the location is first checked.
+- Anything that returns an item includes its `path`.
 
 ## Lists
 
@@ -117,8 +115,7 @@ One shape for every error:
   cover yet. It covers adding items, changing an item's name, quantity,
   category, tags or details, moving an item or a location, deleting or restoring an item,
   marking an item missing or found, changing its status, lending and
-  returning it, linking items and removing a link, checking a
-  location, renaming, deleting, merging, restoring and reordering a
+  returning it, linking items and removing a link, renaming, deleting, merging, restoring and reordering a
   location, and saving, renaming, pinning, unpinning and deleting a saved
   search; undoing a removed link is refused with `changed_since` once the
   same link has been made again; undoing a location's move is refused with `changed_since` when its
@@ -143,13 +140,9 @@ One shape for every error:
   takes `into`, folds the item into that one and deletes it, answering with
   the item merged into; merging an item into itself is refused with 409
   `same_item`, and either being deleted with 409 `item_deleted`.
-- `POST /api/locations/{id}/check` records a check and marks any
-  `missing_item_ids` missing, as one entry that one undo reverses. An item
-  not directly in that location is refused with 422 `not_in_location`.
-  `POST /api/items/{id}/mark-missing` is refused with 409
+- `POST /api/items/{id}/mark-missing` is refused with 409
   `already_missing`, and `POST /api/items/{id}/mark-found`, which takes the
-  `location_id` where it turned up, with 409 `not_missing`. Over MCP,
-  `check_location` with missing items goes through the confirmation step.
+  `location_id` where it turned up, with 409 `not_missing`.
 - `POST /api/items/{id}/status` sets `in_place`, `in_use`, `sold`,
   `given_away` or `thrown_away`. It is refused with 409 `status_unchanged`
   for the status the item already has, and `use_mark_found` for a missing
@@ -185,8 +178,7 @@ One shape for every error:
   out when any filter but `location_id` is given. With a filter and no
   words, every item it keeps is listed by name. An unknown location is 404.
 - `GET /api/views` lists the built-in views with their counts, and `GET
-  /api/views/{view}` one view's rows, each `kind` `item`, or `location` for
-  `not-checked`. An unknown view is 422. Dates count from the server's day
+  /api/views/{view}` one view's items. An unknown view is 422. Dates count from the server's day
   in UTC.
 - `POST /api/saved-searches` keeps a search (`name`, `query` and the
   filters); `PATCH /api/saved-searches/{id}` changes `name` or `pinned`,
@@ -202,7 +194,7 @@ One shape for every error:
   that are not deleted, archived ones included, move with it; archived
   items left in a deleted empty location keep it as their home. `POST
   /api/locations/{id}/merge` takes `into` and moves the location's items,
-  the locations inside it and its checks there, and its label too when
+  and the locations inside it there, and its label too when
   `into` has none, then deletes it; it answers with the location merged
   into. Either refuses a destination that is the location or inside it
   with 409 `move_into_itself`. `POST /api/locations/{id}/restore` brings a
@@ -278,7 +270,7 @@ One shape for every error:
 ## MCP tools
 
 - Named `verb_noun` in `snake_case`: `search_home`, `move_item`,
-  `check_location`.
+  `mark_item_missing`.
 - One tool per user action, calling the same service function as its route.
 - Every route has an operation name in the same `verb_noun` form, and the
   tool for that action has the same name. The parity test compares the two

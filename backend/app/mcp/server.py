@@ -8,7 +8,6 @@ from app.mcp.attachment_tools import add_attachment_tools
 from app.mcp.backup_tools import add_backup_tools
 from app.mcp.bulk_tools import add_bulk_tools
 from app.mcp.category_and_tag_tools import add_category_and_tag_tools
-from app.mcp.check_tools import add_check_tools
 from app.mcp.delete_tools import add_delete_tools
 from app.mcp.duplicate_tools import add_duplicate_tools
 from app.mcp.history_tools import add_history_tools
@@ -41,14 +40,11 @@ location identifier, the code works too. Every change is recorded in history wit
 actor "mcp"; an item added or changed, moved or deleted by mistake can be put back with
 undo_history_entry and the history_entry_id the change returned. Deleting asks for the
 owner's confirmation first: see delete_item. Items carry photos, files such as receipts and
-manuals, and web links: see list_item_attachments and get_attachment_file. Every item and
-location carries last_checked_at, when the owner last confirmed that location's contents
-(null if never); say how old it is, so old information is recognizably old, and use
-check_location when the owner confirms a bin's contents. A list of things can be brought in
-at once with import_items, which asks first. Locations are renamed with update_location,
-and deleting or merging one asks first: see delete_location and merge_location. Many items
-can be moved, tagged, recategorized, given a status, lent or deleted at once, after asking:
-see move_items.
+manuals, and web links: see list_item_attachments and get_attachment_file. A list of
+things can be brought in at once with import_items, which asks first. Locations are renamed
+with update_location, and deleting or merging one asks first: see delete_location and
+merge_location. Many items can be moved, tagged, recategorized, given a status, lent or
+deleted at once, after asking: see move_items.
 An item is copied with duplicate_item, and one recorded twice is merged into the other,
 after asking, with merge_item.
 Binsight backs itself up daily: see list_backups."""
@@ -66,7 +62,6 @@ def add_mcp_server(app: FastAPI) -> MCPServer:
     add_search_tools(server, app)
     add_move_tools(server, app)
     add_delete_tools(server, app)
-    add_check_tools(server, app)
     add_status_tools(server, app)
     add_category_and_tag_tools(server, app)
     add_link_tools(server, app)

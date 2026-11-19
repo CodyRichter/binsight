@@ -1,6 +1,5 @@
 import { Button, Group, Stack } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
-import { CheckedStamp } from "@/components/CheckedStamp";
 import { CodeChip } from "@/components/CodeChip";
 import { EmptyState } from "@/components/EmptyState";
 import { HistoryRow } from "@/components/HistoryRow";
@@ -36,11 +35,6 @@ export function RowsSpecimen() {
           <StatusBadge status="in_use" />
           <StatusBadge status="sold" />
           <StatusBadge status="given_away" />
-        </Group>
-        <Group gap="lg">
-          <CheckedStamp lastChecked={daysAgo(21)} />
-          <CheckedStamp lastChecked={daysAgo(430)} />
-          <CheckedStamp lastChecked={null} />
         </Group>
         <Path segments={binPath} linked />
         <IconGrid

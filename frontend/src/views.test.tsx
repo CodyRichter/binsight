@@ -40,12 +40,7 @@ test("a built-in view lists its items with their paths and who has them", async 
   stubPaths({
     "/api/views": { items: [lentOut, archive], next_cursor: null },
     "/api/views/lent-out": {
-      items: [
-        {
-          kind: "item",
-          item: { ...cable, status: "lent_out", lent_to: "Sam", lent_at: "2026-11-16T12:00:00Z" },
-        },
-      ],
+      items: [{ ...cable, status: "lent_out", lent_to: "Sam", lent_at: "2026-11-16T12:00:00Z" }],
       next_cursor: null,
     },
   });

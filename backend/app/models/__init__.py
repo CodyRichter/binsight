@@ -2,7 +2,6 @@ from app.models.attachments import Attachment, AttachmentKind
 from app.models.auth import LoginSession, McpCredential, Owner
 from app.models.base import Model
 from app.models.categories import Category
-from app.models.checks import Check
 from app.models.confirmations import Confirmation
 from app.models.history import Actor, HistoryChange, HistoryEntry
 from app.models.items import ARCHIVED, Item, ItemStatus, ItemTag
@@ -17,7 +16,6 @@ __all__ = [
     "Attachment",
     "AttachmentKind",
     "Category",
-    "Check",
     "Confirmation",
     "HistoryChange",
     "HistoryEntry",
