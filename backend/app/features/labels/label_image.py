@@ -5,14 +5,20 @@ from pathlib import Path
 import segno
 from PIL import Image, ImageDraw, ImageFont
 
-MODULE_PIXELS = 22
-QUIET_ZONE_MODULES = 3
+# 2x3 inches at 300 DPI, with a ~1 mm margin inside the canvas for thermal feed drift.
+LABEL_WIDTH = 600
+LABEL_HEIGHT = 900
+OUTER_MARGIN = 12
 BORDER_WIDTH = 10
-CORNER_RADIUS = 42
-OUTER_MARGIN = 4
+CORNER_RADIUS = 36
+HEADER_HEIGHT = 108
+FOOTER_HEIGHT = 172
+QR_MAX_PIXELS = 456
 SUPERSAMPLE = 2
 FONT_WEIGHT = 700
-FONT_PATH = Path(__file__).with_name("atkinson-hyperlegible-mono.woff2")
+BRAND_NAME = "Binsight"
+MONO_FONT_PATH = Path(__file__).with_name("atkinson-hyperlegible-mono.woff2")
+SANS_FONT_PATH = Path(__file__).with_name("atkinson-hyperlegible-next.woff2")
 BLACK = 0
 WHITE = 255
 
@@ -73,8 +79,9 @@ def _draw_module(
         draw.rectangle((x + half, y + half, x1, y1), fill=BLACK)
 
 
-def _draw_qr(matrix: Sequence[Sequence[int]], cell: int) -> Image.Image:
+def _draw_qr(matrix: Sequence[Sequence[int]]) -> Image.Image:
     size = len(matrix)
+    cell = max(6, QR_MAX_PIXELS // size)
     step = cell * SUPERSAMPLE
     canvas = Image.new("L", (size * step, size * step), color=WHITE)
     draw = ImageDraw.Draw(canvas)
@@ -117,83 +124,69 @@ def _draw_tote_mark(draw: ImageDraw.ImageDraw, x: float, y: float, size: float) 
     )
 
 
-def _load_code_font(code: str, footer_height: int, max_width: int) -> ImageFont.FreeTypeFont:
-    size = int(footer_height * 0.62)
-    # Bundled variable woff2 matches the frontend's code chip font with no network call.
-    font = ImageFont.truetype(FONT_PATH, size)
-    font.set_variation_by_axes([FONT_WEIGHT])
-    width = font.getbbox(code)[2] - font.getbbox(code)[0]
-    if width <= max_width:
-        return font
-    fitted = max(16, int(size * max_width / width))
-    font = ImageFont.truetype(FONT_PATH, fitted)
+def _load_font(path: Path, size: int) -> ImageFont.FreeTypeFont:
+    # Bundled variable woff2 matches the frontend's fonts with no network call.
+    font = ImageFont.truetype(path, size)
     font.set_variation_by_axes([FONT_WEIGHT])
     return font
 
 
-def _draw_frame(
-    draw: ImageDraw.ImageDraw, card_width: int, qr_area_height: int, card_height: int
-) -> None:
+def _draw_frame(draw: ImageDraw.ImageDraw) -> None:
     x0, y0 = OUTER_MARGIN, OUTER_MARGIN
-    x1, y1 = x0 + card_width - 1, y0 + card_height - 1
+    x1, y1 = LABEL_WIDTH - 1 - OUTER_MARGIN, LABEL_HEIGHT - 1 - OUTER_MARGIN
     draw.rounded_rectangle((x0, y0, x1, y1), radius=CORNER_RADIUS, fill=BLACK)
-    draw.rounded_rectangle(
-        (x0 + BORDER_WIDTH, y0 + BORDER_WIDTH, x1 - BORDER_WIDTH, y0 + qr_area_height),
-        radius=max(8, CORNER_RADIUS - BORDER_WIDTH),
-        fill=WHITE,
-    )
     draw.rectangle(
-        (
-            x0 + BORDER_WIDTH,
-            y0 + qr_area_height - CORNER_RADIUS,
-            x1 - BORDER_WIDTH,
-            y0 + qr_area_height,
-        ),
+        (x0 + BORDER_WIDTH, y0 + HEADER_HEIGHT, x1 - BORDER_WIDTH, y1 - FOOTER_HEIGHT),
         fill=WHITE,
     )
 
 
-def _draw_footer(
-    draw: ImageDraw.ImageDraw,
-    code: str,
-    card_width: int,
-    qr_area_height: int,
-    footer_height: int,
-) -> None:
-    icon_size = int(footer_height * 0.56)
-    gap = int(icon_size * 0.34)
-    max_text_width = card_width - 2 * CORNER_RADIUS - icon_size - gap
-    font = _load_code_font(code, footer_height, max_text_width)
-    left, top, right, bottom = draw.textbbox((0, 0), code, font=font)
+def _draw_header(draw: ImageDraw.ImageDraw) -> None:
+    font = _load_font(SANS_FONT_PATH, 46)
+    left, _, right, _ = draw.textbbox((0, 0), BRAND_NAME, font=font)
+    _, cap_top, _, cap_bottom = draw.textbbox((0, 0), "B", font=font)
     text_width = right - left
-    text_height = bottom - top
-    group_x = OUTER_MARGIN + (card_width - (icon_size + gap + text_width)) / 2
-    center_y = OUTER_MARGIN + qr_area_height + footer_height / 2
+    icon_size = 50
+    gap = 18
+    group_x = (LABEL_WIDTH - (icon_size + gap + text_width)) / 2
+    center_y = OUTER_MARGIN + HEADER_HEIGHT / 2
     _draw_tote_mark(draw, group_x, center_y - icon_size / 2, icon_size)
     text_x = group_x + icon_size + gap - left
-    text_y = center_y - text_height / 2 - top
+    text_y = center_y - (cap_bottom - cap_top) / 2 - cap_top
+    draw.text((text_x, text_y), BRAND_NAME, fill=WHITE, font=font)
+
+
+def _draw_footer(draw: ImageDraw.ImageDraw, code: str) -> None:
+    base_size = 98
+    max_width = LABEL_WIDTH - 2 * OUTER_MARGIN - 2 * CORNER_RADIUS
+    font = _load_font(MONO_FONT_PATH, base_size)
+    left, top, right, bottom = draw.textbbox((0, 0), code, font=font)
+    width = right - left
+    if width > max_width:
+        font = _load_font(MONO_FONT_PATH, max(20, int(base_size * max_width / width)))
+        left, top, right, bottom = draw.textbbox((0, 0), code, font=font)
+    center_y = LABEL_HEIGHT - OUTER_MARGIN - FOOTER_HEIGHT / 2
+    text_x = LABEL_WIDTH / 2 - (right - left) / 2 - left
+    text_y = center_y - (bottom - top) / 2 - top
     draw.text((text_x, text_y), code, fill=WHITE, font=font)
 
 
 def draw_label(code: str, address: str) -> bytes:
-    """A PNG of the QR code holding the label address, framed above its code nameplate."""
+    """A 2x3-ratio PNG of the QR code holding the label address, framed between brand and code."""
     qr_code = segno.make(address, error="m")
-    qr_image = _draw_qr(qr_code.matrix, MODULE_PIXELS)
-    quiet = BORDER_WIDTH + MODULE_PIXELS * QUIET_ZONE_MODULES
-    card_width = qr_image.width + quiet * 2
-    qr_area_height = qr_image.height + quiet * 2
-    footer_height = int(card_width * 0.23)
-    card_height = qr_area_height + footer_height
+    qr_image = _draw_qr(qr_code.matrix)
 
-    label = Image.new(
-        "L",
-        (card_width + OUTER_MARGIN * 2, card_height + OUTER_MARGIN * 2),
-        color=WHITE,
-    )
+    label = Image.new("L", (LABEL_WIDTH, LABEL_HEIGHT), color=WHITE)
     draw = ImageDraw.Draw(label)
-    _draw_frame(draw, card_width, qr_area_height, card_height)
-    label.paste(qr_image, (OUTER_MARGIN + quiet, OUTER_MARGIN + quiet))
-    _draw_footer(draw, code, card_width, qr_area_height, footer_height)
+    _draw_frame(draw)
+    _draw_header(draw)
+    qr_top = OUTER_MARGIN + HEADER_HEIGHT
+    qr_area_height = LABEL_HEIGHT - 2 * OUTER_MARGIN - HEADER_HEIGHT - FOOTER_HEIGHT
+    label.paste(
+        qr_image,
+        ((LABEL_WIDTH - qr_image.width) // 2, qr_top + (qr_area_height - qr_image.height) // 2),
+    )
+    _draw_footer(draw, code)
 
     image = BytesIO()
     label.save(image, format="PNG")

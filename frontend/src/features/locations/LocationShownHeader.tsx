@@ -1,5 +1,5 @@
-import { Button, Menu } from "@mantine/core";
-import { IconFileText, IconQrcode, IconShieldCheck } from "@tabler/icons-react";
+import { Menu } from "@mantine/core";
+import { IconFileText, IconShieldCheck } from "@tabler/icons-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { PageHeader } from "@/components/PageHeader";
@@ -27,11 +27,6 @@ export function LocationShownHeader({ location }: { location: Location }) {
         }}
         summary={location.summary ? { value: location.summary } : undefined}
         counts={[countWords(location.item_count, "item")]}
-        actions={
-          <Button leftSection={<IconQrcode aria-hidden />} onClick={() => setShowingLabel(true)}>
-            Label
-          </Button>
-        }
         menu={
           <>
             <Menu.Item

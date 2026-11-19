@@ -366,9 +366,9 @@ Every page is one of seven templates. "Header" is the page header component.
    counts; up to two default buttons and More. A
    location always has the 96px thumbnail beside the title: its photo,
    shown nowhere larger, or else its icon. Tapping the thumbnail opens the
-   type and icon sheet. On a location the buttons are Move ("Add
-   location" in place of Move on a site) and Label (`qrcode`), which opens
-   the label sheet, as tapping the large code chip does. More holds, in
+   type and icon sheet. On a location the button is Move ("Add
+   location" in place of Move on a site); tapping the large code chip opens
+   the label sheet. More holds, in
    groups split by rules: "Add location" when there is no Locations section
    (not on a site); "Contents sheet" and "Insurance list", which open the
    location's print pages; "Add photo" ("Replace photo" when it has one),
@@ -640,7 +640,7 @@ specimen, which is then deleted
 | Backend unreachable | The empty state "Can't reach Binsight" with a "Try again" button, inside the frame whenever possible. Changes already on screen roll back with a refusal toast. |
 | Unexpected error (500) | The empty state "Something went wrong" with a "Try again" button, caught inside the frame's error boundary so navigation stays usable. |
 | Signed out | The home, read-only (below). A page that needs an account, such as Settings or an insurance list, sends to the Gate, then back to the address that was asked for. |
-| Read-only | For a visitor, and for a View account: every control that changes the home is left out, never shown disabled. No add bar, Add, Move, stepper, select box, rename, invitation or More action that changes things; values read as plain text and empty ones are not shown. Label and the print pages stay. A visitor also sees no prices, serial numbers, order links, files or history. |
+| Read-only | For a visitor, and for a View account: every control that changes the home is left out, never shown disabled. No add bar, Add, Move, stepper, select box, rename, invitation or More action that changes things; values read as plain text and empty ones are not shown. The code chip's label sheet and the print pages stay. A visitor also sees no prices, serial numbers, order links, files or history. |
 | Long content | Names and paths wrap. A 60-character name and a six-segment path never push a row's controls off screen or overlap them. |
 
 ### Sheets and the keyboard

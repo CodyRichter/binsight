@@ -1,5 +1,5 @@
 import { Button } from "@mantine/core";
-import { IconArrowsMove, IconQrcode } from "@tabler/icons-react";
+import { IconArrowsMove } from "@tabler/icons-react";
 import { useRef, useState, type ChangeEvent } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { pathSegments } from "@/features/items";
@@ -75,17 +75,13 @@ export function LocationHeader(props: LocationHeaderProps) {
         summary={{ value: location.summary ?? "", onSave: (summary) => change({ summary }) }}
         counts={[countWords(location.item_count, "item")]}
         actions={
-          <>
-            {movable && (
-              <Button leftSection={<IconArrowsMove aria-hidden />} onClick={() => setMoving(true)}>
-                Move
-              </Button>
-            )}
-            {!movable && onAddLocation && <Button onClick={onAddLocation}>Add location</Button>}
-            <Button leftSection={<IconQrcode aria-hidden />} onClick={() => setShowingLabel(true)}>
-              Label
+          movable ? (
+            <Button leftSection={<IconArrowsMove aria-hidden />} onClick={() => setMoving(true)}>
+              Move
             </Button>
-          </>
+          ) : (
+            onAddLocation && <Button onClick={onAddLocation}>Add location</Button>
+          )
         }
         menu={moreMenu(props, movable, lookChoices, removing.choices)}
       />
