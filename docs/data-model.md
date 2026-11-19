@@ -122,6 +122,16 @@ Rules:
   the same one.
 - Individually tracked things (a drill with a serial number) are items with
   quantity 1. There is no separate kind of item.
+- A duplicate is a new item with quantity 1 and the original's name, home,
+  category, tags, brand, model, notes, purchase date, price, order link and
+  warranty and return dates. Its history entry is `item.created`.
+- Merging an item into another adds its quantity to the other's, joins
+  their tags, and copies each detail the other has empty; the other's own
+  values win. Its attachments move to the other after the other's own. Its
+  links are pointed at the other, and any that would then link the other
+  to itself, repeat a link it has, or make a part of one of its own parts
+  are removed. It is then deleted. All of it is one `item.merged` entry,
+  undone in one step.
 
 ## Category and tag
 

@@ -176,6 +176,29 @@ def count_item_photos(session: Session, item_id: str) -> int:
     return session.scalar(query) or 0
 
 
+type Moved = tuple[str, dict[str, Any], dict[str, Any]]
+
+
+def move_item_attachments(
+    session: Session, item_id: str, to_item_id: str, now: datetime
+) -> list[Moved]:
+    """Give every attachment of one item to another, after its own; each id, before and after."""
+    query = (
+        select(models.Attachment)
+        .where(models.Attachment.item_id == item_id)
+        .order_by(models.Attachment.position, models.Attachment.id)
+    )
+    position = _next_position(session, to_item_id)
+    moved: list[Moved] = []
+    for attachment in list(session.scalars(query)):
+        before = {"item_id": item_id, "position": attachment.position}
+        attachment.item_id, attachment.position = to_item_id, position
+        attachment.updated_at = now
+        moved.append((attachment.id, before, {"item_id": to_item_id, "position": position}))
+        position += 1
+    return moved
+
+
 def detach(session: Session, attachment_id: str) -> dict[str, Any]:
     """Remove an attachment's record, keeping its file so Undo can bring it back."""
     attachment = _get(session, attachment_id)

@@ -10,6 +10,7 @@ from app.mcp.bulk_tools import add_bulk_tools
 from app.mcp.category_and_tag_tools import add_category_and_tag_tools
 from app.mcp.check_tools import add_check_tools
 from app.mcp.delete_tools import add_delete_tools
+from app.mcp.duplicate_tools import add_duplicate_tools
 from app.mcp.history_tools import add_history_tools
 from app.mcp.import_export_tools import add_import_export_tools
 from app.mcp.item_tools import add_item_tools
@@ -47,6 +48,8 @@ check_location when the owner confirms a bin's contents. A list of things can be
 at once with import_items, which asks first. Locations are renamed with update_location,
 and deleting or merging one asks first: see delete_location and merge_location. Many items
 can be moved, tagged, recategorized or given a status at once, after asking: see move_items.
+An item is copied with duplicate_item, and one recorded twice is merged into the other,
+after asking, with merge_item.
 Binsight backs itself up daily: see list_backups."""
 
 
@@ -73,6 +76,7 @@ def add_mcp_server(app: FastAPI) -> MCPServer:
     add_saved_search_tools(server, app)
     add_backup_tools(server, app)
     add_bulk_tools(server, app)
+    add_duplicate_tools(server, app)
     mcp_app = server.streamable_http_app(
         streamable_http_path="/mcp",
         json_response=True,

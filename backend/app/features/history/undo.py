@@ -21,6 +21,7 @@ UNDOABLE = {
     "item.moved",
     "item.deleted",
     "item.restored",
+    "item.merged",
     "item.marked_missing",
     "item.found",
     "item.status_changed",

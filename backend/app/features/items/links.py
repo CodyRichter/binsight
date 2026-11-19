@@ -87,6 +87,45 @@ def unlink_items(session: Session, link_id: str, actor: Actor, now: datetime) ->
     return ItemUnlinked(history_entry_id=entry_id)
 
 
+def _fields(row: models.ItemLink) -> dict[str, str]:
+    return {"item_id": row.item_id, "other_item_id": row.other_item_id, "kind": row.kind.value}
+
+
+def _repointed(session: Session, row: models.ItemLink, item_id: str, to_item_id: str) -> bool:
+    """Points a link at to_item_id in item_id's place, unless that would make a wrong link."""
+    swap = {item_id: to_item_id}
+    part, whole = swap.get(row.item_id, row.item_id), swap.get(row.other_item_id, row.other_item_id)
+    if part == whole or _refused_ends(session, part, whole, row.kind):
+        return False
+    row.item_id, row.other_item_id = _ends(part, whole, row.kind)
+    return True
+
+
+def _refused_ends(session: Session, part: str, whole: str, kind: LinkKind) -> bool:
+    first, second = _ends(part, whole, kind)
+    same = select(models.ItemLink.id).filter_by(item_id=first, other_item_id=second, kind=kind)
+    cycle = kind == LinkKind.part_of and part in _wholes_above(session, whole)
+    return session.scalar(same) is not None or cycle
+
+
+def move_links(session: Session, item_id: str, to_item_id: str) -> list[history.RecordChange]:
+    """Give one item's links to another, removing any that would repeat one or link it to itself."""
+    query = select(models.ItemLink).where(
+        or_(models.ItemLink.item_id == item_id, models.ItemLink.other_item_id == item_id)
+    )
+    changes = []
+    for row in list(session.scalars(query)):
+        before = _fields(row)
+        if _repointed(session, row, item_id, to_item_id):
+            session.flush()
+            changes.append(history.RecordChange("link", row.id, before, _fields(row)))
+        else:
+            session.delete(row)
+            session.flush()
+            changes.append(history.RecordChange("link", row.id, before, {}))
+    return changes
+
+
 type LinkSide = Literal["belongs_with", "part_of", "part"]
 SIDE_ORDER: dict[LinkSide, int] = {"belongs_with": 0, "part_of": 1, "part": 2}
 

@@ -1,20 +1,14 @@
-import { Button, Menu } from "@mantine/core";
-import {
-  IconArrowBackUp,
-  IconArrowsMove,
-  IconLink,
-  IconPaperclip,
-  IconTrash,
-} from "@tabler/icons-react";
+import { Button } from "@mantine/core";
+import { IconArrowBackUp, IconArrowsMove } from "@tabler/icons-react";
 import { useContext, useState } from "react";
 import { FrameAdditionsContext } from "@/components/frameAdditions";
 import { PageHeader } from "@/components/PageHeader";
 import { LendSheet } from "./LendSheet";
+import { ItemMenu } from "./ItemMenu";
 import { LinkSheet } from "./LinkSheet";
+import { MergeSheet } from "./MergeSheet";
 import { pathSegments } from "./pathSegments";
 import { StatusButton } from "./StatusButton";
-import { StatusMenuItems } from "./StatusMenuItems";
-import { useDeleteItem } from "./useDeleteItem";
 import { useRename } from "./useItemChange";
 import { useMoveItem } from "./useMoveItem";
 import { useRestoreItem } from "./useRestoreItem";
@@ -65,10 +59,10 @@ interface ItemHeaderProps {
 export function ItemHeader({ item, linkedIds, onAttach }: ItemHeaderProps) {
   const rename = useRename(item);
   const restore = useRestoreItem();
-  const deleteItem = useDeleteItem();
   const lend = useLend();
   const [lending, setLending] = useState(false);
   const [linking, setLinking] = useState(false);
+  const [merging, setMerging] = useState(false);
   const deleted = item.deleted_at !== null;
   const actions = deleted ? (
     <Button leftSection={<IconArrowBackUp aria-hidden />} onClick={() => restore(item)}>
@@ -81,22 +75,13 @@ export function ItemHeader({ item, linkedIds, onAttach }: ItemHeaderProps) {
     </>
   );
   const menu = (
-    <>
-      <StatusMenuItems item={item} onLend={() => setLending(true)} />
-      <Menu.Item leftSection={<IconLink aria-hidden size={20} />} onClick={() => setLinking(true)}>
-        Link an item
-      </Menu.Item>
-      <Menu.Item leftSection={<IconPaperclip aria-hidden size={20} />} onClick={onAttach}>
-        Attach…
-      </Menu.Item>
-      <Menu.Item
-        color="danger"
-        leftSection={<IconTrash aria-hidden size={20} />}
-        onClick={() => deleteItem(item)}
-      >
-        Delete item
-      </Menu.Item>
-    </>
+    <ItemMenu
+      item={item}
+      onLend={() => setLending(true)}
+      onLink={() => setLinking(true)}
+      onAttach={onAttach}
+      onMerge={() => setMerging(true)}
+    />
   );
   return (
     <>
@@ -122,6 +107,7 @@ export function ItemHeader({ item, linkedIds, onAttach }: ItemHeaderProps) {
         linkedIds={linkedIds}
         onClose={() => setLinking(false)}
       />
+      <MergeSheet opened={merging} item={item} onClose={() => setMerging(false)} />
     </>
   );
 }

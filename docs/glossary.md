@@ -45,6 +45,7 @@ before naming it in code.
 | **Add by photo**  | Adding an item with a photo and no name; it is named later. |
 | **Likely duplicate** | An item already in the destination with the name being typed, ignoring case. |
 | **Add to existing** | Raising a likely duplicate's quantity by one instead of adding a second item. |
+| **Duplicate**     | Adding a copy of an item beside it, to record a similar thing: its name, category, tags and descriptive details, but not its serial number, attachments, links or status. |
 | **Category**      | The one kind of thing an item is, e.g. cable, tool.        |
 | **Tag**           | A keyword on an item. An item can have many.               |
 | **Link**          | A relationship between two items: `belongs_with` or `part_of`. |
@@ -72,7 +73,7 @@ before naming it in code.
 | **Undo**          | Reversing a history entry.                                 |
 | **Delete**        | Removing an item or location from view. Deleted things can be restored. Different from archive. |
 | **Restore**       | Bringing a deleted item or location back into view, where it was. A restored location comes back empty. |
-| **Merge**         | Folding one location into another: its items, the locations inside it, its checks and, if the other has none, its label move across, then it is deleted. |
+| **Merge**         | Folding one location into another: its items, the locations inside it, its checks and, if the other has none, its label move across, then it is deleted. Folding one item into another, when it was recorded twice: its quantity is added, its tags joined, its details fill only what the other lacks, its attachments and links move across, then it is deleted. |
 | **Reorder**       | Changing where a location comes among the locations beside it. |
 | **Preview**       | What an MCP tool returns in place of acting, when the action deletes, merges or changes many records. |
 | **Confirmation**  | The single-use token returned with a preview, sent back to make the action happen. |
