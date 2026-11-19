@@ -5,13 +5,16 @@ import { Link } from "react-router";
 import { CheckedStamp } from "./CheckedStamp";
 import { CodeChip } from "./CodeChip";
 import { markedText, type Mark } from "./markedText";
-import { locationTypeIcons, type LocationType } from "./locationTypeIcons";
+import { LocationIcon } from "./LocationIcon";
+import type { LocationType } from "./locationIcons";
 import type { SortableRowParts } from "./SortableList";
 import classes from "./LocationRow.module.css";
 
 type LocationRowProps = {
   name: string;
   locationType: LocationType;
+  /** The icon chosen for it, shown in place of its type's. */
+  locationIcon?: string | null;
   code?: string;
   itemCount: number;
   /** The parts of the name a search matched. */
@@ -74,7 +77,6 @@ function endControls({ name, onAddInside, sortable }: LocationRowProps): ReactNo
 export function LocationRow(props: LocationRowProps) {
   const { name, code, itemCount, tree, depth = 0 } = props;
   const shownName = markedText(name, props.marks, classes.match);
-  const TypeIcon = locationTypeIcons[props.locationType];
   const { sortable } = props;
   return (
     <li
@@ -85,7 +87,12 @@ export function LocationRow(props: LocationRowProps) {
       style={{ "--depth": depth, ...sortable?.rowStyle } as CSSProperties}
     >
       {toggleControl(props)}
-      <TypeIcon aria-hidden size={20} className={classes.type} />
+      <LocationIcon
+        type={props.locationType}
+        icon={props.locationIcon}
+        size={20}
+        className={classes.type}
+      />
       {nameControl(props, shownName)}
       {code && <CodeChip code={code} />}
       {props.lastChecked !== undefined && (

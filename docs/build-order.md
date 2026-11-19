@@ -163,3 +163,15 @@ In this order, each as its own step shipping both sides together:
 9. Install-to-home-screen polish and an accessibility pass.
 
 **Everything in the requirements is built at this point. Tag `v1.0.0`.**
+
+## After 1.0
+
+Fixes found by using the app, each as its own step shipping both sides
+together:
+
+1. Location icons: change a location's type, and pick an optional icon for
+   it from the Tabler set in the "Type and icon" sheet, opened from the
+   location page's thumbnail ([decision
+   0019](decisions/0019-location-icons-from-tabler.md)). The thumbnail
+   shows the photo or the icon on every location page. `update_location`
+   takes `type` and `icon` in the API and MCP.

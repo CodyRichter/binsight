@@ -9,6 +9,7 @@ function place(id: string, path: string[], parentId: string | null): Location {
     type: "bin",
     parent_id: parentId,
     summary: null,
+    icon: null,
     label_code: null,
     path: path.map((step) => ({ id: step, name: step, type: "bin", label_code: null })),
     direct_item_count: 0,

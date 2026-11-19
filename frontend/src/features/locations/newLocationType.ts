@@ -1,4 +1,4 @@
-import type { LocationType } from "@/components/locationTypeIcons";
+import type { LocationType } from "@/components/locationIcons";
 import type { Location } from "./useLocations";
 
 /** The type a new location starts with, which its own page can change. */

@@ -6,9 +6,18 @@ import { CodeChip } from "./CodeChip";
 import { EditableText } from "./EditableText";
 import { Path, type PathSegment } from "./Path";
 import { StatusBadge, type Status } from "./StatusBadge";
+import type { LocationType } from "./locationIcons";
 import { Thumbnail } from "./Thumbnail";
 import { timeAgo } from "./timeAgo";
 import classes from "./PageHeader.module.css";
+
+interface PageThumbnail {
+  photoUrl?: string;
+  locationType?: LocationType;
+  locationIcon?: string | null;
+  /** Makes the thumbnail a button with this name. */
+  action?: { label: string; onClick: () => void };
+}
 
 interface PageHeaderProps {
   title: string;
@@ -18,7 +27,7 @@ interface PageHeaderProps {
   parents?: PathSegment[];
   code?: string;
   blankCode?: boolean;
-  thumbnail?: { photoUrl?: string };
+  thumbnail?: PageThumbnail;
   status?: { status: Status; lentTo?: string };
   summary?: { value: string; onSave: (summary: string) => void };
   lastChecked?: Date | null;
@@ -60,6 +69,21 @@ function titleLine(props: PageHeaderProps): ReactNode {
   );
 }
 
+function thumbnailControl({ action, ...picture }: PageThumbnail): ReactNode {
+  const shown = <Thumbnail {...picture} large />;
+  if (!action) return shown;
+  return (
+    <button
+      type="button"
+      className={classes.thumbnailButton}
+      aria-label={action.label}
+      onClick={action.onClick}
+    >
+      {shown}
+    </button>
+  );
+}
+
 function moreMenu(menu: ReactNode): ReactNode {
   return (
     <Menu position="bottom-end">
@@ -83,7 +107,7 @@ export function PageHeader(props: PageHeaderProps) {
     <header className={classes.header}>
       <title>{documentTitle(props)}</title>
       <div className={classes.top}>
-        {thumbnail && <Thumbnail photoUrl={thumbnail.photoUrl} large />}
+        {thumbnail && thumbnailControl(thumbnail)}
         <div className={classes.identity}>
           {parents.length > 0 && <Path segments={parents} linked />}
           {titleLine(props)}

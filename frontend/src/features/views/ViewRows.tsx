@@ -40,6 +40,7 @@ function Row({ view, row, selection }: RowProps) {
     <LocationRow
       name={location.name}
       locationType={location.type}
+      locationIcon={location.icon}
       code={location.label_code ?? undefined}
       itemCount={location.direct_item_count}
       lastChecked={location.last_checked_at ? new Date(location.last_checked_at) : null}

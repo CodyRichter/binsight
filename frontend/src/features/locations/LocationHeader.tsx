@@ -8,6 +8,7 @@ import { countWords } from "./countWords";
 import { moreMenu, type LocationMenuProps } from "./locationMenu";
 import { MoveSheet } from "./MoveSheet";
 import { RemovalSheet, type Removal } from "./RemovalSheet";
+import { TypeAndIconSheet } from "./TypeAndIconSheet";
 import { useChangeLocation } from "./useLocationChanges";
 import { useLocationPhoto } from "./useLocationPhoto";
 import { useDeleteLocation } from "./useLocationRemoval";
@@ -38,6 +39,7 @@ function useRemoval(props: LocationHeaderProps) {
 export function LocationHeader(props: LocationHeaderProps) {
   const { location, onAddLocation } = props;
   const [moving, setMoving] = useState(false);
+  const [restyling, setRestyling] = useState(false);
   const move = useMoveLocation(location);
   const change = useChangeLocation(location);
   const check = useCheckLocation(location.id);
@@ -49,9 +51,10 @@ export function LocationHeader(props: LocationHeaderProps) {
     event.currentTarget.value = "";
     if (photo) setPhoto(photo);
   };
-  const photoChoices = {
+  const lookChoices = {
     onTakePhoto: () => photoInput.current?.click(),
     onRemovePhoto: () => setPhoto(null),
+    onTypeAndIcon: () => setRestyling(true),
   };
   // A site is the top of its tree, so it has nowhere to move to.
   const movable = location.parent_id !== null;
@@ -62,7 +65,12 @@ export function LocationHeader(props: LocationHeaderProps) {
         onRename={(name) => change({ name })}
         parents={pathSegments(location.path.slice(0, -1))}
         code={location.label_code ?? undefined}
-        thumbnail={location.photo_url ? { photoUrl: location.photo_url } : undefined}
+        thumbnail={{
+          photoUrl: location.photo_url ?? undefined,
+          locationType: location.type,
+          locationIcon: location.icon,
+          action: { label: "Change type and icon", onClick: () => setRestyling(true) },
+        }}
         summary={{ value: location.summary ?? "", onSave: (summary) => change({ summary }) }}
         lastChecked={location.last_checked_at ? new Date(location.last_checked_at) : null}
         counts={[countWords(location.item_count, "item")]}
@@ -79,7 +87,7 @@ export function LocationHeader(props: LocationHeaderProps) {
             {!movable && onAddLocation && <Button onClick={onAddLocation}>Add location</Button>}
           </>
         }
-        menu={moreMenu(props, movable, photoChoices, removing.choices)}
+        menu={moreMenu(props, movable, lookChoices, removing.choices)}
       />
       <input
         ref={photoInput}
@@ -99,6 +107,12 @@ export function LocationHeader(props: LocationHeaderProps) {
           onPick={move}
         />
       )}
+      <TypeAndIconSheet
+        opened={restyling}
+        location={location}
+        onPick={change}
+        onClose={() => setRestyling(false)}
+      />
       <RemovalSheet
         location={location}
         removal={removing.removal}

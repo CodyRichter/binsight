@@ -56,7 +56,10 @@ PLACES
 - More than one top-level place: the home, a storage unit, a car, a relative's
   house.
 - Location types (site, room, furniture, shelf, bin, drawer, box) with matching
-  icons. A fixed built-in list, not user-defined.
+  icons. A fixed built-in list, not user-defined. A location's type can be
+  changed later.
+- Optional icon per location, picked from a built-in icon set, so a bakers
+  rack can look like a rack. Without one, the type's icon shows.
 - Drill-down pages for each location showing what's directly in it, what's in
   its children, and item counts.
 - Tree view of the whole home with counts. Collapse or expand any branch.

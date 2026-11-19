@@ -10,6 +10,7 @@ function place(id: string, parentId: string | null): Location {
     type: "bin",
     parent_id: parentId,
     summary: null,
+    icon: null,
     label_code: null,
     path: [],
     direct_item_count: 0,
