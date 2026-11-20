@@ -4,9 +4,7 @@ import {
   IconArmchair,
   IconFileText,
   IconListSearch,
-  IconIcons,
   IconPhoto,
-  IconPhotoOff,
   IconPlus,
   IconShieldCheck,
   IconTrash,
@@ -39,33 +37,6 @@ function ownItemItems(own: OwnItemChoices): ReactNode {
       </Menu.Item>
       <Menu.Item leftSection={<IconListSearch aria-hidden size={20} />} onClick={own.onUseExisting}>
         Use an existing item…
-      </Menu.Item>
-    </>
-  );
-}
-
-interface LookChoices {
-  onTakePhoto: () => void;
-  onRemovePhoto: () => void;
-  onTypeAndIcon: () => void;
-}
-
-function lookItems({ location }: LocationMenuProps, look: LookChoices): ReactNode {
-  return (
-    <>
-      <Menu.Item leftSection={<IconPhoto aria-hidden size={20} />} onClick={look.onTakePhoto}>
-        {location.photo_url ? "Replace photo" : "Add photo"}
-      </Menu.Item>
-      {location.photo_url && (
-        <Menu.Item
-          leftSection={<IconPhotoOff aria-hidden size={20} />}
-          onClick={look.onRemovePhoto}
-        >
-          Remove photo
-        </Menu.Item>
-      )}
-      <Menu.Item leftSection={<IconIcons aria-hidden size={20} />} onClick={look.onTypeAndIcon}>
-        Type and icon…
       </Menu.Item>
     </>
   );
@@ -113,9 +84,9 @@ function printItems({ location }: LocationMenuProps): ReactNode {
 export function moreMenu(
   props: LocationMenuProps,
   movable: boolean,
-  choices: { look: LookChoices; own: OwnItemChoices; removal: RemovalChoices },
+  choices: { onPicture: () => void; own: OwnItemChoices; removal: RemovalChoices },
 ): ReactNode {
-  const { look, own, removal } = choices;
+  const { onPicture, own, removal } = choices;
   return (
     <>
       {movable && props.onAddLocation && (
@@ -128,7 +99,9 @@ export function moreMenu(
       )}
       {printItems(props)}
       <Menu.Divider />
-      {lookItems(props, look)}
+      <Menu.Item leftSection={<IconPhoto aria-hidden size={20} />} onClick={onPicture}>
+        Photo and icon…
+      </Menu.Item>
       <Menu.Divider />
       {props.location.own_item_id === null && (
         <>

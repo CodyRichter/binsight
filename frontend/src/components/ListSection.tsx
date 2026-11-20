@@ -5,11 +5,21 @@ type ListSectionProps = {
   children: ReactNode;
 } & (
   | { title: string; count?: number; action?: ReactNode }
-  | { title?: never; count?: never; action?: never }
+  | {
+      title?: never;
+      count?: never;
+      action?: never;
+      /** Starts at the top of its container, with nothing above it to keep apart from. */
+      flush?: boolean;
+    }
 );
 
-export function ListSection({ title, count, action, children }: ListSectionProps) {
-  if (title === undefined) return <ul className={`${classes.rows} ${classes.bare}`}>{children}</ul>;
+export function ListSection(props: ListSectionProps) {
+  const { title, count, action, children } = props;
+  if (title === undefined) {
+    const spacing = props.flush ? "" : ` ${classes.bare}`;
+    return <ul className={`${classes.rows}${spacing}`}>{children}</ul>;
+  }
   return (
     <section>
       <div className={classes.header}>

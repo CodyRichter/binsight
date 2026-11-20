@@ -19,9 +19,17 @@
   background: var(--bs-surface);
 }
 
-.bar :global(.mantine-ActionIcon-root) {
+.bar :global(.mantine-ActionIcon-root),
+.bar :global(.mantine-Button-root) {
   position: relative;
   overflow: visible;
+}
+
+/* Drawn at the bar's control height; the tap area grows back to touch-min. */
+.bar :global(.mantine-Button-root)::after {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
 }
 
 .bar :global(.mantine-ActionIcon-root)::after {

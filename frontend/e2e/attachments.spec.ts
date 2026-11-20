@@ -51,18 +51,25 @@ test("a web link is attached, removed and put back with Undo", async ({ page }) 
   await expect(page.getByRole("link", { name: "Manual" })).toBeVisible();
 });
 
-test("a bin's photo shows in its header", async ({ page }) => {
+test("a bin's photo is added from its picture, shows in its header, and can be removed", async ({
+  page,
+}) => {
   const { ids } = await siteRoomBin(page.request);
   await openAtPhoneWidth(page, `/locations/${ids.bin}`);
-  await page.getByRole("button", { name: "More", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Add photo" }).click();
-  await page.getByLabel("Location photo").setInputFiles({
-    name: "bin.png",
-    mimeType: "image/png",
-    buffer: PNG,
-  });
+  const picture = page.getByRole("button", { name: "Change photo and icon" });
+  const sheet = page.getByRole("dialog", { name: "Photo and icon" });
+  await picture.click();
+  const [chooser] = await Promise.all([
+    page.waitForEvent("filechooser"),
+    sheet.getByRole("button", { name: "Add photo" }).click(),
+  ]);
+  await chooser.setFiles({ name: "bin.png", mimeType: "image/png", buffer: PNG });
   await expect(page.getByRole("status")).toContainText("Added a photo to");
-  await expect(page.getByRole("main").locator('img[src^="/api/attachments/"]')).toBeVisible();
+  await expect(picture.locator('img[src^="/api/attachments/"]')).toBeVisible();
+  await picture.click();
+  await sheet.getByRole("button", { name: "Remove photo" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Removed the photo" })).toBeVisible();
+  await expect(picture.locator("img")).toHaveCount(0);
 });
 
 async function boxOf(locator: Locator) {

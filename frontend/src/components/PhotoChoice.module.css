@@ -1,0 +1,11 @@
+.choice {
+  display: flex;
+  align-items: center;
+  gap: var(--bs-space-md);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--bs-space-sm);
+}

@@ -3,13 +3,13 @@ import { siteRoomBin } from "./homeData";
 import { openAtPhoneWidth } from "./owner";
 
 function sheet(page: Page) {
-  return page.getByRole("dialog", { name: "Type and icon" });
+  return page.getByRole("dialog", { name: "Photo and icon" });
 }
 
 test("changing a bin's type and icon from its thumbnail, and Undo", async ({ page }) => {
   const { ids, names } = await siteRoomBin(page.request);
   await openAtPhoneWidth(page, `/locations/${ids.bin}`);
-  const thumbnail = page.getByRole("button", { name: "Change type and icon" });
+  const thumbnail = page.getByRole("button", { name: "Change photo and icon" });
   await thumbnail.click();
   await sheet(page).getByRole("button", { name: "Drawer", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: "Changed to drawer" })).toBeVisible();
@@ -37,7 +37,7 @@ test("a site's sheet offers icons but no type", async ({ page }) => {
   const { ids } = await siteRoomBin(page.request);
   await openAtPhoneWidth(page, `/locations/${ids.site}`);
   await page.getByRole("button", { name: "More", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Type and icon…" }).click();
+  await page.getByRole("menuitem", { name: "Photo and icon…" }).click();
   await expect(sheet(page).getByRole("button", { name: "Type's icon" })).toHaveAttribute(
     "aria-pressed",
     "true",

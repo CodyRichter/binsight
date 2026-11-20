@@ -114,3 +114,20 @@
   outline: 2px solid var(--bs-focus);
   outline-offset: 2px;
 }
+
+/* A wide screen has room for the page's actions beside its title instead of under it. */
+@media (min-width: 62em) {
+  .header {
+    flex-direction: row;
+  }
+
+  .top {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .actions {
+    flex: none;
+    flex-wrap: nowrap;
+  }
+}

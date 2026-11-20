@@ -11,19 +11,10 @@ import { AddLocationSheet } from "./AddLocationSheet";
 import { countWords } from "./countWords";
 import { newLocationType } from "./newLocationType";
 import { childrenOf, treeRows, type TreeRow } from "./treeRows";
+import { useOpenBranches, type OpenBranches } from "./useOpenBranches";
 import { useReorderLocation } from "./useLocationChanges";
 import { useCreateLocation, useLocationTree, type Location } from "./useLocations";
 import { useAccess } from "@/lib/api/useAccess";
-
-function useOpenBranches() {
-  const [open, setOpen] = useState(new Set<string>());
-  const toggle = (id: string) => {
-    const next = new Set(open);
-    if (!next.delete(id)) next.add(id);
-    setOpen(next);
-  };
-  return { open, toggle };
-}
 
 interface TreeProps {
   locations: Location[];
@@ -32,6 +23,12 @@ interface TreeProps {
   onAddInside?: (location: Location) => void;
   /** Sites can be put in order while every branch is closed, when the rows are just the sites. */
   onReorder?: (site: Location, index: number) => void;
+  /** The location whose page is showing, lit in the tree. */
+  current?: string;
+  /** Branches kept open outside the tree, as the location pane's are. */
+  branches?: OpenBranches;
+  /** One line per row with no codes, for the narrow location pane. */
+  compact?: boolean;
 }
 
 function rowTarget(location: Location, onPick?: (location: Location) => void) {
@@ -39,8 +36,10 @@ function rowTarget(location: Location, onPick?: (location: Location) => void) {
 }
 
 /** Every location as a tree; rows open their location, or are picked when onPick is given. */
-export function Tree({ locations, heading, onPick, onAddInside, onReorder }: TreeProps) {
-  const { open, toggle } = useOpenBranches();
+export function Tree(props: TreeProps) {
+  const { locations, heading, onPick, onAddInside, onReorder, current, compact } = props;
+  const ownBranches = useOpenBranches();
+  const { open, toggle } = props.branches ?? ownBranches;
   const shown = treeRows(locations, open).map((row) => ({
     ...row,
     id: row.location.id,
@@ -55,7 +54,8 @@ export function Tree({ locations, heading, onPick, onAddInside, onReorder }: Tre
       name={location.name}
       locationType={location.type}
       locationIcon={location.icon}
-      code={location.id}
+      code={compact ? undefined : location.id}
+      compact={compact}
       itemCount={location.item_count}
       {...rowTarget(location, onPick)}
       onAddInside={onAddInside && (() => onAddInside(location))}
@@ -64,6 +64,7 @@ export function Tree({ locations, heading, onPick, onAddInside, onReorder }: Tre
       expanded={hasChildren ? expanded : undefined}
       onToggle={hasChildren ? () => toggle(location.id) : undefined}
       sortable={sortable}
+      current={location.id === current}
     />
   );
   const rows =
@@ -77,7 +78,7 @@ export function Tree({ locations, heading, onPick, onAddInside, onReorder }: Tre
   return heading ? (
     <ListSection {...heading}>{rows}</ListSection>
   ) : (
-    <ListSection>{rows}</ListSection>
+    <ListSection flush={compact}>{rows}</ListSection>
   );
 }
 

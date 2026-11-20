@@ -64,10 +64,11 @@ test("only one navigation is in the page", () => {
   expect(screen.getAllByRole("navigation", { name: "Main" })).toHaveLength(1);
 });
 
-test("the selection bar takes the bottom bar's place", () => {
+test("the selection bar floats over the page, and the bottom bar stays", () => {
   renderFrame(["/locations/1"], { selectionBar: <p>2 selected</p> });
   expect(screen.getByText("2 selected")).toBeInTheDocument();
-  expect(screen.queryByRole("navigation", { name: "Main" })).not.toBeInTheDocument();
+  expect(screen.getByRole("navigation", { name: "Main" })).toBeInTheDocument();
+  expect(screen.getByRole("main")).not.toContainElement(screen.getByText("2 selected"));
 });
 
 test("omitted actions are not rendered in the skeleton", () => {

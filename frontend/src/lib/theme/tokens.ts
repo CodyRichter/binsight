@@ -72,11 +72,15 @@ export const radius = { sm: "2px", md: "6px", lg: "12px" } as const;
 
 export const sizes = {
   "touch-min": "48px",
+  "touch-min-mouse": "40px",
   "row-min": "64px",
   "bar-height": "56px",
   "nav-height": "64px",
   "content-max": "720px",
+  "content-max-wide": "960px",
   "nav-width": "264px",
+  "nav-width-rail": "64px",
+  "pane-width": "320px",
   "gate-width": "360px",
 } as const;
 

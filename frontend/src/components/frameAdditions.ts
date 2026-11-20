@@ -27,10 +27,12 @@ export interface MoveSheetProps {
   onPick: (place: Location) => void;
 }
 
-/** What the app's features add to every frame: the Add and Move sheets, and what the navigation counts. */
+/** What the app's features add to every frame: the sheets, the location pane, and the navigation's counts. */
 export interface FrameAdditions {
   AddSheet?: ComponentType<AddSheetProps>;
   MoveSheet?: ComponentType<MoveSheetProps>;
+  /** The location tree beside a page on a wide screen, with the location given lit. */
+  LocationPane?: ComponentType<{ current: string }>;
   useInboxCount: () => number | undefined;
   /** The navigation's Views section, given the view showing and whether /views is. */
   useViewsSection: (currentView: string | undefined, onViews: boolean) => NavSection | undefined;

@@ -19,7 +19,7 @@ it and mark the old one as replaced. Do not quietly work around one.
 | 0009 | [One transaction per action, with history recorded inside it](0009-transactions-and-history.md) | Accepted |
 | 0010 | [Claude reaches the MCP server from local clients](0010-mcp-access.md) | Accepted |
 | 0011 | [The interface follows one design language](0011-design-language.md) | Accepted |
-| 0012 | [The frame has three widths and one column, and text starts at 14px](0012-three-width-frame.md) | Accepted |
+| 0012 | [The frame has three widths and one column, and text starts at 14px](0012-three-width-frame.md) | Accepted, amended by 0023 |
 | 0013 | [The backend is built through the five flows before the frontend is wired](0013-backend-first.md) | Replaced by 0014 |
 | 0014 | [Each backend phase is followed by its frontend phase](0014-paired-phases.md) | Accepted, amended by 0015 |
 | 0015 | [A template's specimen is deleted when its real page lands](0015-specimens-end-with-their-page.md) | Accepted |
@@ -30,3 +30,5 @@ it and mark the old one as replaced. Do not quietly work around one.
 | 0020 | [Location contents are not checked](0020-no-checks.md) | Accepted |
 | 0021 | [A location is known by its code](0021-location-codes.md) | Accepted |
 | 0022 | [Accounts with three fixed roles, and reading without signing in](0022-accounts-and-roles.md) | Accepted |
+| 0023 | [Wide screens get a location pane, and a mouse gets denser controls](0023-desktop-panes-and-mouse-density.md) | Accepted |
+| 0024 | [The selection bar floats over the content column](0024-floating-selection-bar.md) | Accepted |

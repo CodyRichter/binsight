@@ -1,10 +1,9 @@
-import { AppShell, useMantineTheme } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
+import { AppShell } from "@mantine/core";
 import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { sizes } from "@/lib/theme/tokens";
 import { BottomBar } from "./BottomBar";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { shellConfig, useNavCollapsed, useWiderThan } from "./frameWidths";
 import type { Destination, NavSection } from "./navigation";
 import { SideNavigation } from "./SideNavigation";
 import { TopBar } from "./TopBar";
@@ -19,6 +18,8 @@ interface FrameProps {
   parent?: string;
   destination?: boolean;
   selectionBar?: ReactNode;
+  /** The location pane, shown beside the content from the widest arrangement. */
+  pane?: ReactNode;
   children: ReactNode;
 }
 
@@ -36,21 +37,18 @@ function useFocusSearch(): boolean {
   return Boolean((state as { focusSearch?: boolean } | null)?.focusSearch);
 }
 
-function useWide(): boolean {
-  const theme = useMantineTheme();
-  return useMediaQuery(`(min-width: ${theme.breakpoints.md})`, false, {
-    getInitialValueInEffect: false,
-  });
+/** The location pane, only in the widest arrangement. */
+function useShownPane(pane: ReactNode): ReactNode {
+  return useWiderThan("lg") ? pane : undefined;
 }
 
-function shellConfig(wide: boolean, hasFooter: boolean) {
-  return {
-    header: { height: `calc(${sizes["bar-height"]} + env(safe-area-inset-top))` },
-    navbar: wide ? { width: sizes["nav-width"], breakpoint: 0 } : undefined,
-    footer: hasFooter
-      ? { height: `calc(${sizes["nav-height"]} + env(safe-area-inset-bottom))` }
-      : undefined,
-  };
+function PaneAside({ pane }: { pane: ReactNode }) {
+  if (!pane) return null;
+  return (
+    <aside className={classes.pane} aria-label="Locations">
+      {pane}
+    </aside>
+  );
 }
 
 export function Frame(props: FrameProps) {
@@ -65,19 +63,22 @@ export function Frame(props: FrameProps) {
   } = props;
   const location = useLocation();
   const navigate = useNavigate();
-  const wide = useWide();
+  const wide = useWiderThan("md");
+  const pane = useShownPane(props.pane);
+  const [navCollapsed, setNavCollapsed] = useNavCollapsed();
   const focusSearch = useFocusSearch();
   const back = useBack(parent, props.destination);
   useTitleFocusAfterNavigating();
-  const footer = selectionBar ?? (!wide && <BottomBar {...navigation} onAdd={actions.onAdd} />);
+  const footer = !wide && <BottomBar {...navigation} onAdd={actions.onAdd} />;
   return (
     <AppShell
       className={classes.frame}
       data-frame="app"
       data-selecting={selectionBar ? true : undefined}
+      data-pane={Boolean(pane) || undefined}
       layout="alt"
       transitionDuration={0}
-      {...shellConfig(wide, Boolean(footer))}
+      {...shellConfig(wide, Boolean(footer), navCollapsed)}
     >
       <a className={classes.skip} href="#content">
         Skip to content
@@ -95,7 +96,12 @@ export function Frame(props: FrameProps) {
       </AppShell.Header>
       {wide && (
         <AppShell.Navbar>
-          <SideNavigation sections={sections} {...navigation} />
+          <SideNavigation
+            sections={sections}
+            {...navigation}
+            collapsed={navCollapsed}
+            onCollapsedChange={setNavCollapsed}
+          />
         </AppShell.Navbar>
       )}
       <AppShell.Main id="content" tabIndex={-1} className={classes.main}>
@@ -114,6 +120,12 @@ export function Frame(props: FrameProps) {
           <div className={classes.column}>{footer}</div>
         </AppShell.Footer>
       )}
+      {selectionBar && (
+        <div className={classes.selection}>
+          <div className={classes.column}>{selectionBar}</div>
+        </div>
+      )}
+      <PaneAside pane={pane} />
     </AppShell>
   );
 }

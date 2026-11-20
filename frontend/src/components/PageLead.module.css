@@ -37,3 +37,11 @@
     overflow-x: visible;
   }
 }
+
+/* Beside the title, the actions no longer leave a row that needs a rule to close it. */
+@media (min-width: 62em) {
+  .controls {
+    padding-top: 0;
+    border-top: 0;
+  }
+}

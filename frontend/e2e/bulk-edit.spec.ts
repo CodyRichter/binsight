@@ -27,12 +27,18 @@ function toast(page: Page, words: string) {
   return page.getByRole("status").filter({ hasText: words });
 }
 
-test("selecting items in a bin swaps the bottom bar, and Close ends it", async ({ page }) => {
+test("selecting items in a bin floats the bar above the bottom bar, and Close ends it", async ({
+  page,
+}) => {
   const { ids, first } = await twoItemsInABin(page);
   await openAtPhoneWidth(page, `/locations/${ids.bin}`);
-  await expect(page.getByRole("navigation", { name: "Main" })).toBeVisible();
+  const navigation = page.getByRole("navigation", { name: "Main" });
+  await expect(navigation).toBeVisible();
   await select(page, first);
-  await expect(page.getByRole("navigation", { name: "Main" })).toHaveCount(0);
+  await expect(navigation).toBeVisible();
+  const barBox = await bar(page).boundingBox();
+  const navigationBox = await navigation.boundingBox();
+  expect((barBox?.y ?? 0) + (barBox?.height ?? 0)).toBeLessThan(navigationBox?.y ?? 0);
   await bar(page).getByRole("button", { name: "Close" }).click();
   await expect(bar(page)).toHaveCount(0);
   await expect(page.getByRole("checkbox", { name: `Select ${first}` })).not.toBeChecked();

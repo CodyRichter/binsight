@@ -375,13 +375,47 @@ textarea.input {
   }
 }
 
+/* While rows are selected the toast rises above the floating selection bar. */
+:global(body:has([data-frame="app"][data-selecting])) .toasts[data-position="bottom-left"] {
+  --toast-above: calc(
+    var(--bs-nav-height) + 2 * var(--bs-space-sm) + var(--bs-touch-min) + 2 * var(--bs-space-xs)
+  );
+}
+
 @media (min-width: 62em) {
-  :global(body:has([data-frame="app"]:not([data-selecting]))) .toasts[data-position="bottom-left"] {
+  :global(body:has([data-frame="app"])) .toasts[data-position="bottom-left"] {
     --toast-above: var(--bs-space-lg);
+    left: calc(var(--app-shell-navbar-offset, 0rem) + var(--bs-space-lg));
+    width: calc(
+      min(var(--bs-content-max), 100% - var(--app-shell-navbar-offset, 0rem)) - 2 *
+        var(--bs-space-lg)
+    );
   }
 
+  :global(body:has([data-frame="app"][data-selecting])) .toasts[data-position="bottom-left"] {
+    --toast-above: calc(
+      var(--bs-space-lg) + var(--bs-space-sm) + var(--bs-touch-min) + 2 * var(--bs-space-xs)
+    );
+  }
+}
+
+/* The toast keeps to the content column, which the pane pushes right. */
+@media (min-width: 75em) {
   :global(body:has([data-frame="app"])) .toasts[data-position="bottom-left"] {
-    left: calc(var(--bs-nav-width) + var(--bs-space-lg));
-    width: calc(min(var(--bs-content-max), 100% - var(--bs-nav-width)) - 2 * var(--bs-space-lg));
+    width: calc(
+      min(var(--bs-content-max-wide), 100% - var(--app-shell-navbar-offset, 0rem)) - 2 *
+        var(--bs-space-lg)
+    );
+  }
+
+  :global(body:has([data-frame="app"][data-pane])) .toasts[data-position="bottom-left"] {
+    left: calc(var(--app-shell-navbar-offset, 0rem) + var(--bs-pane-width) + var(--bs-space-lg));
+    width: calc(
+      min(
+          var(--bs-content-max-wide),
+          100% - var(--app-shell-navbar-offset, 0rem) - var(--bs-pane-width)
+        ) -
+        2 * var(--bs-space-lg)
+    );
   }
 }

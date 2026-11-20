@@ -76,6 +76,7 @@ export function LocationView({ id }: { id: string }) {
       current="home"
       parent={parentPage(location)}
       addTo={location?.id}
+      paneLocation={location?.id}
       selectionBar={selection.bar}
     >
       <PageState status={pageStatusOf(tree)} standalone onRetry={() => void tree.refetch()}>

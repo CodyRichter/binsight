@@ -27,6 +27,7 @@ export function LocationTreeDemo() {
             itemCount={6}
             tree
             depth={1}
+            current
           />
           <LocationRow
             name="Workbench"
