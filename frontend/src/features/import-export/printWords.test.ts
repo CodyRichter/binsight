@@ -42,6 +42,11 @@ describe("printWords", () => {
     ]);
   });
 
+  it("prints the price of several as their total, with the price of each", () => {
+    const blankets = { ...item, quantity: 3, price_cents: 200 };
+    expect(insuredDetails(blankets)).toContainEqual({ name: "Price", value: "6.00 (2.00 each)" });
+  });
+
   it("counts the items, totals them and says how many have no price", () => {
     expect(insuranceCounts(list)).toEqual(["3 items", "Total 259.00", "1 item has no price"]);
     expect(insuranceCounts({ ...list, item_count: 1, items_without_price: 0 })).toEqual([

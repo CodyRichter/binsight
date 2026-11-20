@@ -638,8 +638,10 @@ with its first row.
 times its quantity), "{n} items have no price" when any lack one, and
 "Made {date}". One section, "Items", holds every item still owned, by
 path, then name; each row lists Where (the path, or Inbox), Brand, Model,
-Serial number, Purchase date, Price, Order link and Receipts (every file
-and web link by name), leaving out those not entered, then every photo.
+Serial number, Purchase date, Price (times its quantity, followed by
+"({price} each)" when there are several), Order link and Receipts (every
+file and web link by name), leaving out those not entered, then every
+photo.
 "Contents sheet" is titled with the location's name, shows its label
 under the header so the paper scans like the bin, and has one section per
 location: the location itself, then each one inside it, parents first,

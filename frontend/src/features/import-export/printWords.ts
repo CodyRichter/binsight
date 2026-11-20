@@ -15,6 +15,13 @@ export function statusNote(status: ItemStatus): string | undefined {
   return statusWords[status];
 }
 
+/** An item's price times its quantity, with the price of one when there are several. */
+function insuredPrice({ price_cents, quantity }: InsuredItem): string | undefined {
+  if (price_cents === null) return undefined;
+  const total = priceText(price_cents * quantity);
+  return quantity > 1 ? `${total} (${priceText(price_cents)} each)` : total;
+}
+
 /** The details an insurance list prints for an item, leaving out the ones not entered. */
 export function insuredDetails(item: InsuredItem): { name: string; value: string }[] {
   const details: [string, string | undefined][] = [
@@ -23,7 +30,7 @@ export function insuredDetails(item: InsuredItem): { name: string; value: string
     ["Model", item.model ?? undefined],
     ["Serial number", item.serial_number ?? undefined],
     ["Purchase date", dateText(item.purchase_date)],
-    ["Price", item.price_cents === null ? undefined : priceText(item.price_cents)],
+    ["Price", insuredPrice(item)],
     ["Order link", item.order_link ?? undefined],
     ["Receipts", item.receipts.map((receipt) => receipt.name).join(", ") || undefined],
   ];
