@@ -10,11 +10,8 @@ interface PrintedLabelProps {
 /** A location's label as its image, so the paper or screen can be checked and scanned like the bin. */
 export function PrintedLabel({ code, imageUrl, large = false }: PrintedLabelProps) {
   return (
-    <img
-      className={classes.label}
-      data-large={large || undefined}
-      src={imageUrl}
-      alt={`Label ${code}`}
-    />
+    <span className={classes.frame} data-large={large || undefined}>
+      <img className={classes.image} src={imageUrl} alt={`Label ${code}`} />
+    </span>
   );
 }
