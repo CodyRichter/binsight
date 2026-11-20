@@ -124,3 +124,28 @@
   font-weight: var(--bs-text-small-weight);
   white-space: nowrap;
 }
+
+/* With a mouse the box gets its own column, drawn while the row is pointed at or picking. */
+@media (width >= 62em) and (hover: hover) and (pointer: fine) {
+  .row:not(:hover, :focus-within) .move {
+    opacity: 0;
+  }
+
+  .pick {
+    align-items: center;
+    gap: var(--bs-space-md);
+  }
+
+  .pickBox {
+    position: static;
+    order: -1;
+  }
+
+  .row:not(:hover, :focus-within, [data-selected]) .pickBox {
+    opacity: 0;
+  }
+
+  :global([data-selecting]) .row .pickBox {
+    opacity: 1;
+  }
+}

@@ -110,3 +110,22 @@ test("the name field can start with a name, ready to add", async () => {
   await user.click(screen.getByRole("button", { name: "Add" }));
   expect(onAdd).toHaveBeenCalledWith(["Multimeter"]);
 });
+
+test("from 62em, Add several and Add sit inside the bar beside the name field", () => {
+  const narrow = vi.mocked(window.matchMedia).getMockImplementation();
+  vi.mocked(window.matchMedia).mockImplementation((query: string) => ({
+    matches: query.includes("min-width: 62em"),
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+  renderBar();
+  const field = screen.getByRole("textbox", { name: "Add an item" });
+  expect(field.parentElement).toContainElement(screen.getByRole("button", { name: "Add" }));
+  expect(field.parentElement).toContainElement(screen.getByRole("button", { name: "Add several" }));
+  if (narrow) vi.mocked(window.matchMedia).mockImplementation(narrow);
+});

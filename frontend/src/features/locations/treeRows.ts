@@ -23,3 +23,13 @@ export function treeRows(locations: Location[], open: Set<string>): TreeRow[] {
     });
   return rowsUnder(null, 0);
 }
+
+/** The locations above one, from its parent up to its site. */
+export function ancestorIds(locations: Location[], id: string): string[] {
+  const byId = new Map(locations.map((location) => [location.id, location]));
+  const ids: string[] = [];
+  for (let parent = byId.get(id)?.parent_id; parent; parent = byId.get(parent)?.parent_id) {
+    ids.push(parent);
+  }
+  return ids;
+}

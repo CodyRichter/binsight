@@ -21,6 +21,10 @@ type LocationRowProps = {
   onAddInside?: () => void;
   /** Given inside a SortableList, so the row can be dragged by its handle. */
   sortable?: SortableRowParts;
+  /** The location whose page is showing, lit in the location pane. */
+  current?: boolean;
+  /** Keeps the name to one line, cut short with its full name on hover. */
+  compact?: boolean;
 } & ({ to: string; onPick?: never } | { onPick: () => void; to?: never }) &
   (
     | { tree: true; depth: number; expanded?: boolean; onToggle?: () => void }
@@ -44,7 +48,12 @@ function toggleControl({ name, tree, expanded, onToggle }: LocationRowProps): Re
 
 function nameControl(props: LocationRowProps, shownName: ReactNode): ReactNode {
   return props.to !== undefined ? (
-    <Link className={classes.name} to={props.to}>
+    <Link
+      className={classes.name}
+      to={props.to}
+      aria-current={props.current ? "page" : undefined}
+      title={props.compact ? props.name : undefined}
+    >
       {shownName}
     </Link>
   ) : (
@@ -81,6 +90,8 @@ export function LocationRow(props: LocationRowProps) {
       className={classes.row}
       data-tree={tree || undefined}
       data-dragging={sortable?.dragging || undefined}
+      data-current={props.current || undefined}
+      data-compact={props.compact || undefined}
       style={{ "--depth": depth, ...sortable?.rowStyle } as CSSProperties}
     >
       {toggleControl(props)}

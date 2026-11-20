@@ -64,9 +64,9 @@ async function auditLocationOverlays(page: Page) {
   await expect(page.getByRole("dialog", { name: "Move to" })).toBeVisible();
   expect(await violations(page), "Move").toEqual([]);
   await page.keyboard.press("Escape");
-  await page.getByRole("button", { name: "Change type and icon" }).click();
-  await expect(page.getByRole("dialog", { name: "Type and icon" })).toBeVisible();
-  expect(await violations(page), "Type and icon").toEqual([]);
+  await page.getByRole("button", { name: "Change photo and icon" }).click();
+  await expect(page.getByRole("dialog", { name: "Photo and icon" })).toBeVisible();
+  expect(await violations(page), "Photo and icon").toEqual([]);
   await page.keyboard.press("Escape");
   await page.getByRole("checkbox", { name: `Select ${word} lantern` }).check();
   const bar = page.getByRole("toolbar", { name: "Selected rows" });

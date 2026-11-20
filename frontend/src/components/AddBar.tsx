@@ -1,8 +1,10 @@
-import { Button, Textarea } from "@mantine/core";
+import { Textarea } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useRef, useState, type ClipboardEvent, type KeyboardEvent, type ReactNode } from "react";
 import { AddByPhotoButton } from "./AddByPhotoButton";
+import { AddBarActions } from "./AddBarActions";
 import { CodeChip } from "./CodeChip";
+import { useWiderThan } from "./frameWidths";
 import classes from "./AddBar.module.css";
 
 interface AddBarProps {
@@ -51,6 +53,7 @@ export function AddBar(props: AddBarProps) {
   const [switched, setSwitched] = useState(false);
   const [lines, setLines] = useState("");
   const nameInput = useRef<HTMLInputElement>(null);
+  const inBar = useWiderThan("md");
 
   function clearName() {
     if (nameInput.current) nameInput.current.value = "";
@@ -91,6 +94,14 @@ export function AddBar(props: AddBarProps) {
     setLines("");
   }
 
+  const actions = (
+    <AddBarActions
+      several={several}
+      inBar={inBar}
+      onSwitch={props.onAddSeveral && switchField}
+      onAdd={several ? addSeveral : submitOne}
+    />
+  );
   return (
     <div className={classes.addBar}>
       <div className={classes.bar}>
@@ -122,16 +133,10 @@ export function AddBar(props: AddBarProps) {
         )}
         {destinationButton(props)}
         {props.onAddByPhoto && <AddByPhotoButton onAddByPhoto={props.onAddByPhoto} />}
+        {inBar && actions}
       </div>
       {!several && props.suggestion?.(clearName)}
-      <div className={classes.below}>
-        {props.onAddSeveral && (
-          <Button variant="subtle" onClick={switchField}>
-            {several ? "Add one" : "Add several"}
-          </Button>
-        )}
-        <Button onClick={several ? addSeveral : submitOne}>Add</Button>
-      </div>
+      {!inBar && <div className={classes.below}>{actions}</div>}
     </div>
   );
 }

@@ -45,8 +45,69 @@
   padding-bottom: var(--bs-space-2xl);
 }
 
+/* Floats over the column's foot while rows are selected; the page scrolls clear of it. */
+.selection {
+  position: fixed;
+  right: 0;
+  bottom: calc(var(--app-shell-footer-offset, 0rem) + var(--bs-space-sm));
+  left: var(--app-shell-navbar-offset, 0rem);
+  z-index: calc(var(--mantine-z-index-app) + 5);
+  pointer-events: none;
+}
+
+.selection > .column {
+  height: auto;
+  padding-inline: var(--bs-space-sm);
+}
+
+.selection > .column > * {
+  pointer-events: auto;
+}
+
+.frame[data-selecting] .main > .column {
+  padding-bottom: calc(var(--bs-space-2xl) + var(--bs-nav-height) + var(--bs-space-lg));
+}
+
 @media (width >= 48em) and (width < 62em) {
   .column {
     margin-inline: auto;
+  }
+}
+
+@media (width >= 62em) {
+  .selection {
+    bottom: var(--bs-space-lg);
+  }
+
+  .selection > .column {
+    padding-inline: var(--bs-space-lg);
+  }
+}
+
+/* After the content in the page, so Tab reaches the page first; drawn at its left. */
+.pane {
+  position: fixed;
+  top: var(--app-shell-header-offset, 0rem);
+  bottom: var(--app-shell-footer-offset, 0rem);
+  left: var(--app-shell-navbar-offset, 0rem);
+  width: var(--bs-pane-width);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-right: 1px solid var(--bs-hairline);
+  background: var(--bs-ground);
+}
+
+@media (width >= 75em) {
+  .column {
+    max-width: var(--bs-content-max-wide);
+  }
+
+  .frame[data-pane] .header .column {
+    max-width: calc(var(--bs-pane-width) + var(--bs-content-max-wide));
+  }
+
+  .frame[data-pane] :is(.main, .footer, .selection) > .column {
+    width: calc(100% - var(--bs-pane-width));
+    margin-left: var(--bs-pane-width);
   }
 }

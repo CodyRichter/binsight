@@ -25,6 +25,13 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Doubled so it outranks the :root variables Mantine writes at runtime; paper keeps thumb sizes. */
+@media (width >= 62em) and (hover: hover) and (pointer: fine) {
+  :root:root:not(:has([data-frame="print"])) {
+    --bs-touch-min: var(--bs-touch-min-mouse);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

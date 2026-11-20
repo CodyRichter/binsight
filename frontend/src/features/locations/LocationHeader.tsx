@@ -1,14 +1,14 @@
 import { Button } from "@mantine/core";
 import { IconArrowsMove } from "@tabler/icons-react";
-import { useRef, useState, type ChangeEvent } from "react";
+import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { OwnItemSheet, pathSegments, useMakeOwnItem } from "@/features/items";
 import { countWords } from "./countWords";
 import { LabelSheet } from "./LabelSheet";
 import { moreMenu, type LocationMenuProps } from "./locationMenu";
 import { MoveSheet } from "./MoveSheet";
+import { PhotoAndIconSheet } from "./PhotoAndIconSheet";
 import { RemovalSheet, type Removal } from "./RemovalSheet";
-import { TypeAndIconSheet } from "./TypeAndIconSheet";
 import { useChangeLocation } from "./useLocationChanges";
 import { useLocationPhoto } from "./useLocationPhoto";
 import { useDeleteLocation } from "./useLocationRemoval";
@@ -39,7 +39,7 @@ function useRemoval(props: LocationHeaderProps) {
 export function LocationHeader(props: LocationHeaderProps) {
   const { location, onAddLocation } = props;
   const [moving, setMoving] = useState(false);
-  const [restyling, setRestyling] = useState(false);
+  const [choosingPicture, setChoosingPicture] = useState(false);
   const [showingLabel, setShowingLabel] = useState(false);
   const [choosingOwnItem, setChoosingOwnItem] = useState(false);
   const makeOwnItem = useMakeOwnItem(location.id);
@@ -47,17 +47,6 @@ export function LocationHeader(props: LocationHeaderProps) {
   const change = useChangeLocation(location);
   const setPhoto = useLocationPhoto(location);
   const removing = useRemoval(props);
-  const photoInput = useRef<HTMLInputElement>(null);
-  const photoTaken = (event: ChangeEvent<HTMLInputElement>) => {
-    const photo = event.currentTarget.files?.[0];
-    event.currentTarget.value = "";
-    if (photo) setPhoto(photo);
-  };
-  const lookChoices = {
-    onTakePhoto: () => photoInput.current?.click(),
-    onRemovePhoto: () => setPhoto(null),
-    onTypeAndIcon: () => setRestyling(true),
-  };
   // A site is the top of its tree, so it has nowhere to move to.
   const movable = location.parent_id !== null;
   return (
@@ -72,7 +61,7 @@ export function LocationHeader(props: LocationHeaderProps) {
           photoUrl: location.photo_url ?? undefined,
           locationType: location.type,
           locationIcon: location.icon,
-          action: { label: "Change type and icon", onClick: () => setRestyling(true) },
+          action: { label: "Change photo and icon", onClick: () => setChoosingPicture(true) },
         }}
         summary={{ value: location.summary ?? "", onSave: (summary) => change({ summary }) }}
         counts={[countWords(location.item_count, "item")]}
@@ -86,19 +75,10 @@ export function LocationHeader(props: LocationHeaderProps) {
           )
         }
         menu={moreMenu(props, movable, {
-          look: lookChoices,
+          onPicture: () => setChoosingPicture(true),
           own: { onTrack: makeOwnItem, onUseExisting: () => setChoosingOwnItem(true) },
           removal: removing.choices,
         })}
-      />
-      <input
-        ref={photoInput}
-        hidden
-        type="file"
-        accept="image/*"
-        capture="environment"
-        aria-label="Location photo"
-        onChange={photoTaken}
       />
       {movable && (
         <MoveSheet
@@ -110,11 +90,12 @@ export function LocationHeader(props: LocationHeaderProps) {
         />
       )}
       <LabelSheet code={location.id} opened={showingLabel} onClose={() => setShowingLabel(false)} />
-      <TypeAndIconSheet
-        opened={restyling}
+      <PhotoAndIconSheet
+        opened={choosingPicture}
         location={location}
         onPick={change}
-        onClose={() => setRestyling(false)}
+        onPhoto={setPhoto}
+        onClose={() => setChoosingPicture(false)}
       />
       <OwnItemSheet
         opened={choosingOwnItem}

@@ -1,4 +1,4 @@
-import { IconPin } from "@tabler/icons-react";
+import { IconListDetails, IconPin } from "@tabler/icons-react";
 import type { NavSection } from "@/components/navigation";
 import { useSavedSearches } from "./useSavedSearches";
 import { useViews } from "./useViews";
@@ -24,6 +24,7 @@ export function useViewsSection(currentView: string | undefined, onViews: boolea
     id: "views",
     title: "Views",
     to: "/views",
+    icon: IconListDetails,
     current: onViews && currentView === undefined,
     items: [
       ...views

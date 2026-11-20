@@ -20,6 +20,8 @@ window.ResizeObserver = class {
   disconnect() {}
 };
 
+Element.prototype.scrollIntoView = vi.fn();
+
 Object.defineProperty(document, "fonts", { value: new EventTarget() });
 
 afterEach(() => {

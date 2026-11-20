@@ -17,6 +17,8 @@ interface AppFrameProps {
   currentView?: string;
   /** The location whose page this is, so Add starts there. */
   addTo?: string;
+  /** The location lit in the location pane; the pane shows only when this is given. */
+  paneLocation?: string;
   /** Shown in the bottom bar's place while rows are selected. */
   selectionBar?: ReactNode;
   /** Who may open the page; anyone, by default, sees it read-only when signed out. */
@@ -62,7 +64,7 @@ export function AppFrame(props: AppFrameProps) {
   const { canEdit, canView } = useAccess();
   const { pathname, search } = useLocation();
   const frameAdditions = useContext(FrameAdditionsContext);
-  const { useInboxCount, useViewsSection } = frameAdditions;
+  const { useInboxCount, useViewsSection, LocationPane } = frameAdditions;
   const AddSheet = canEdit ? frameAdditions.AddSheet : undefined;
   const inboxCount = useInboxCount();
   const viewsSection = useViewsSection(currentView, current === "views");
@@ -81,6 +83,7 @@ export function AppFrame(props: AppFrameProps) {
       destination={destination}
       parent={parent}
       selectionBar={selectionBar}
+      pane={LocationPane && props.paneLocation && <LocationPane current={props.paneLocation} />}
     >
       <SessionCheck audience={props.audience ?? "anyone"}>
         {children}

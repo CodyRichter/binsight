@@ -1,11 +1,15 @@
+/* Floats like a toast, so it reads as acting on the rows rather than as part of the page. */
 .bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--bs-space-xs) var(--bs-space-sm);
-  min-height: var(--bs-nav-height);
-  padding: var(--bs-space-xs) calc(var(--bs-space-lg) - (var(--bs-touch-min) - 24px) / 2)
-    var(--bs-space-xs) var(--bs-space-lg);
+  min-height: calc(var(--bs-touch-min) + 2 * var(--bs-space-xs));
+  padding: var(--bs-space-xs) var(--bs-space-xs) var(--bs-space-xs) var(--bs-space-md);
+  border-radius: var(--bs-radius-md);
+  background: var(--bs-inverse);
+  color: var(--bs-on-inverse);
+  box-shadow: var(--bs-shadow-overlay);
 }
 
 .count {
@@ -22,5 +26,40 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: var(--bs-space-sm);
+}
+
+.bar :is(:global(.mantine-Button-root), :global(.mantine-ActionIcon-root)) {
+  border: 0;
+  background: transparent;
+  color: var(--bs-on-inverse);
+}
+
+.bar :is(:global(.mantine-Button-root), :global(.mantine-ActionIcon-root)):hover {
+  background: color-mix(in srgb, var(--bs-on-inverse) 14%, transparent);
+}
+
+.bar :global(.mantine-Button-root) {
+  padding-inline: var(--bs-space-sm);
+}
+
+/* On a phone the words alone keep the count, the verbs and Close on one line. */
+@media (width < 48em) {
+  .bar :global(.mantine-Button-section) {
+    display: none;
+  }
+}
+
+@media (width >= 62em) {
+  .bar {
+    padding-left: var(--bs-space-lg);
+  }
+
+  .bar :global(.mantine-Button-root) {
+    padding-inline: var(--bs-space-md);
+  }
+}
+
+.bar :is(:global(.mantine-Button-root), :global(.mantine-ActionIcon-root)):focus-visible {
+  outline: 2px solid var(--bs-on-inverse);
+  outline-offset: -2px;
 }

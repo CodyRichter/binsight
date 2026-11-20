@@ -1,0 +1,16 @@
+.record {
+  container-type: inline-size;
+}
+
+.column {
+  min-width: 0;
+}
+
+@container (width >= 760px) {
+  .columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    column-gap: var(--bs-space-lg);
+  }
+}

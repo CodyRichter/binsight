@@ -82,6 +82,7 @@ before naming it in code.
 | **Possible duplicates** | Items sharing a name, ignoring case, anywhere in the home. |
 | **Saved search** | A search the owner has kept and may pin.                    |
 | **Pin**          | Putting a saved search first on `/views` and in the navigation. |
+| **Location pane** | The location tree shown beside a location's or item's page on a wide screen, with the current location lit. |
 
 ## Access and running
 

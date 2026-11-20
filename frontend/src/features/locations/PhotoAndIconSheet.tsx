@@ -6,6 +6,7 @@ import { IconGrid } from "@/components/IconGrid";
 import { LocationIcon } from "@/components/LocationIcon";
 import type { LocationType } from "@/components/locationIcons";
 import { NameRow } from "@/components/NameRow";
+import { PhotoChoice } from "@/components/PhotoChoice";
 import { Sheet } from "@/components/Sheet";
 import { searchIcons } from "./iconSearch";
 import { starterIcons } from "./starterIcons";
@@ -14,10 +15,11 @@ import type { Location } from "./useLocations";
 
 const changeableTypes: LocationType[] = ["room", "furniture", "shelf", "bin", "drawer", "box"];
 
-interface TypeAndIconSheetProps {
+interface PhotoAndIconSheetProps {
   opened: boolean;
   location: Location;
   onPick: (change: Change) => void;
+  onPhoto: (photo: File | null) => void;
   onClose: () => void;
 }
 
@@ -31,8 +33,9 @@ function useIconIndex(opened: boolean) {
   }).data;
 }
 
-/** Picking a location's type, or the icon it shows in place of its type's. */
-export function TypeAndIconSheet({ opened, location, onPick, onClose }: TypeAndIconSheetProps) {
+/** Everything a location shows as its picture: its photo, its icon and its type. */
+export function PhotoAndIconSheet(props: PhotoAndIconSheetProps) {
+  const { opened, location, onPick, onPhoto, onClose } = props;
   const [query, setQuery] = useState("");
   const index = useIconIndex(opened);
   const found = index && query.trim() ? searchIcons(index, query) : undefined;
@@ -55,7 +58,22 @@ export function TypeAndIconSheet({ opened, location, onPick, onClose }: TypeAndI
     />
   ));
   return (
-    <Sheet opened={opened} title="Type and icon" onClose={close} rows={site ? undefined : typeRows}>
+    <Sheet
+      opened={opened}
+      title="Photo and icon"
+      onClose={close}
+      rows={site ? undefined : typeRows}
+    >
+      <Title order={2}>Photo</Title>
+      <PhotoChoice
+        photoUrl={location.photo_url ?? undefined}
+        inputLabel="Location photo"
+        onPhoto={(photo) => {
+          close();
+          onPhoto(photo);
+        }}
+      />
+      <Title order={2}>Icon</Title>
       <TextInput
         aria-label="Search icons"
         placeholder="Search icons"

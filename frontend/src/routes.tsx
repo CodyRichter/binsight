@@ -11,7 +11,7 @@ import { FrameAdditionsContext, type FrameAdditions } from "@/components/frameAd
 import { RouteError } from "@/components/RouteError";
 import { developmentRoutes, page } from "@/developmentRoutes";
 import { useInboxCount } from "@/features/items";
-import { AddSheet, MoveSheet } from "@/features/locations";
+import { AddSheet, LocationPane, LocationPaneBranches, MoveSheet } from "@/features/locations";
 import { useViewsSection } from "@/features/views";
 
 function AppError() {
@@ -49,12 +49,20 @@ function RootError() {
   );
 }
 
-const frameAdditions: FrameAdditions = { AddSheet, MoveSheet, useInboxCount, useViewsSection };
+const frameAdditions: FrameAdditions = {
+  AddSheet,
+  MoveSheet,
+  LocationPane,
+  useInboxCount,
+  useViewsSection,
+};
 
 function AppPages() {
   return (
     <FrameAdditionsContext.Provider value={frameAdditions}>
-      <Outlet />
+      <LocationPaneBranches>
+        <Outlet />
+      </LocationPaneBranches>
     </FrameAdditionsContext.Provider>
   );
 }

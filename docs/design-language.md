@@ -89,7 +89,7 @@ theme in the same change, before it is used.
 | `on-accent`      | `#14171a` | `#14171a` | Text and icons on `accent`. |
 | `highlight`      | `#fff1a8` | `#4d4200` | Marker pen: current navigation item, selected row or chip, matched search text. |
 | `focus`          | `#14171a` | `#ffd21f` | The 2px keyboard focus ring, offset 2px. |
-| `inverse`        | `#14171a` | `#2c3136` | Toast background, the selected segment, count badges. |
+| `inverse`        | `#14171a` | `#2c3136` | Toast and selection bar background, the selected segment, count badges. |
 | `on-inverse`     | `#f2f4f5` | `#f2f4f5` | Text on `inverse`. |
 | `label`          | `#ffffff` | `#e9ebe6` | Fill of a code chip. Stays paper-white in dark. |
 | `on-label`       | `#14171a` | `#14171a` | Code text and border on `label`. |
@@ -162,13 +162,17 @@ rem (px ÷ 16), so they follow the owner's own text size setting.
 | `radius-md`           | 6px   | Controls: buttons, fields, chips, thumbnails, menus, toasts. |
 | `radius-lg`           | 12px  | Sheets and dialogs only. |
 | `touch-min`           | 48px  | Smallest height and width of anything tappable. |
+| `touch-min-mouse`     | 40px  | `touch-min` from 62em when the main pointer is a mouse. |
 | `row-min`             | 64px  | Smallest height of an item row. |
 | `bar-height`          | 56px  | Top bar, task frame header, and add bar. |
 | `nav-height`          | 64px  | Bottom bar on a phone. |
-| `content-max`         | 720px | Widest the content column gets. |
+| `content-max`         | 720px | Widest the content column gets under 75em. |
+| `content-max-wide`    | 960px | Widest the content column gets beside the location pane. |
 | `nav-width`           | 264px | Side navigation on wide screens. |
+| `nav-width-rail`      | 64px  | Side navigation collapsed to its icons. |
+| `pane-width`          | 320px | The location pane. |
 | `gate-width`          | 360px | The Gate's column. |
-| `shadow-overlay`      | `0 8px 24px` at 18% ink (50% black in dark) | Sheets, dialogs, menus, toasts. |
+| `shadow-overlay`      | `0 8px 24px` at 18% ink (50% black in dark) | Sheets, dialogs, menus, toasts, the selection bar. |
 
 - The page is flat. Only things that float cast a shadow. A thing has a
   border or a shadow, never both for decoration. Never a box in a box.
@@ -178,6 +182,13 @@ rem (px ÷ 16), so they follow the owner's own text size setting.
 - A control drawn smaller than `touch-min` (segmented control, filter chip,
   stepper button, and controls inside a `bar-height` bar) keeps its drawn
   size, and its tap area grows to `touch-min` in both directions.
+- **Mouse density.** From 62em, when the main pointer is a mouse (`hover:
+  hover` and `pointer: fine`), `touch-min` is `touch-min-mouse`, and
+  everything sized from it follows: buttons, fields, rows, thumbnails. A
+  location row's drag handle and add button, and an item row's Move, show
+  only while the row is hovered or holds focus. Touch screens, and every
+  width under 62em, keep `touch-min`. Print pages always use 48px.
+  ([decision 0023](decisions/0023-desktop-panes-and-mouse-density.md))
 
 ### Vertical rhythm
 
@@ -224,8 +235,9 @@ beside the value is `touch-min`.
   and buttons, 20px in menus and tree rows, 16px beside `text-small`.
 - An icon repeats a word that is also on screen. The exceptions, which may
   stand alone with an `aria-label`: Back, Search, Scan, Add, Close, More,
-  Camera, Move (on an item row), Remove link (on a linked item's row), and
-  a stepper's plus and minus.
+  Camera, Move (on an item row), Remove link (on a linked item's row), a
+  stepper's plus and minus, Collapse and Expand navigation, and the
+  entries of the collapsed side navigation, each named by its title.
 - Icons are `ink`, `muted`, or the color of the status they sit in.
 - Location type icons: site `home` or `building-warehouse`, room `door`,
   furniture `armchair`, shelf `layout-rows`, bin `box`, drawer `archive`,
@@ -247,18 +259,21 @@ changes appear at once and roll back with a toast if refused.
 
 ### The frame
 
-Three widths and one content column. Design the narrow one first.
+Four widths and one content column, with the location pane beside it from
+75em. Design the narrow one first.
 
-| Region          | Under 48em | 48em to 62em | 62em and up |
-| --------------- | ---------- | ------------ | ----------- |
-| Navigation      | Bottom bar | Bottom bar | Side navigation, full height |
-| Content column  | Full width | `content-max`, centered | `content-max`, left-aligned beside the navigation |
-| Top bar         | Back, search field, Scan, full width | The same, held to the column | Search field, Scan and Add, held to the column, right of the navigation |
-| Bottom bar slots | Full width | Held to the column, centered | None |
-| Add             | Center of the bottom bar, opens the add sheet | The same | Button in the top bar, opens the same content as a modal |
-| Toast           | Above the bottom bar, in the column | The same | Bottom of the column |
+| Region          | Under 48em | 48em to 62em | 62em to 75em | 75em and up |
+| --------------- | ---------- | ------------ | ------------ | ----------- |
+| Navigation      | Bottom bar | Bottom bar | Side navigation, full height | The same |
+| Location pane   | None | None | None | On location and item pages, `pane-width`, between the navigation and the column |
+| Content column  | Full width | `content-max`, centered | `content-max`, left-aligned beside the navigation | Up to `content-max-wide`, beside the pane or the navigation |
+| Top bar         | Back, search field, Scan, full width | The same, held to the column | Search field, Scan and Add, held to the column, right of the navigation | The same, held to the pane and the column |
+| Bottom bar slots | Full width | Held to the column, centered | None | None |
+| Add             | Center of the bottom bar, opens the add sheet | The same | Button in the top bar, opens the same content as a modal | The same |
+| Toast           | Above the bottom bar, in the column | The same | Bottom of the column | The same, beside the pane |
+| Selection bar   | Floating above the bottom bar, in the column | The same | Floating at the bottom of the column | The same, beside the pane |
 
-- The column is the only horizontal measure. The top bar's contents, the
+- The column is the only horizontal measure under 75em. The top bar's contents, the
   page, the toast and the bottom bar's slots share its edges. Inside it,
   every left edge is the gutter (`space-lg`): the search field or the Back
   glyph, the path, the title, a section header, a thumbnail, a tree
@@ -278,9 +293,13 @@ Three widths and one content column. Design the narrow one first.
 - The top bar holds only those things. A page's own actions live in its
   page header.
 - No title bar, footer, floating action button or right-hand panel. Bars
-  are `ground` with a hairline edge, never shadowed or blurred.
-- A wide screen shows the same content with more room. It gets no extra
-  columns, cards, panels or features.
+  are `ground` with a hairline edge, never shadowed or blurred. The
+  selection bar is the one exception: it floats, like a toast, only while
+  rows are selected.
+- A wide screen shows the same content with more room. Its only additions
+  are the location pane and the Record template's two columns; it gets no
+  cards or features of its own
+  ([decision 0023](decisions/0023-desktop-panes-and-mouse-density.md)).
 - Components own the gutter and the space between them. Full-width
   components (page header, list section and its rows, value rows, empty
   state) pad themselves; the page lead pads the controls it holds. A page
@@ -333,7 +352,20 @@ place.
   destination keep their parent lit.
 - Labels are `text-nav`. Inbox's count badge is `text-nav` in a 20px
   `inverse` box.
-- While rows are selected, the selection bar takes its place.
+- While rows are selected, the selection bar floats above it, and a toast
+  floats above both.
+
+**Location pane** (`LocationPane`). From 75em, beside `/locations/{id}`,
+`/l/{code}` and `/items/{id}`: every location as a tree, as on `/`, on
+`ground` with a hairline at its right edge, scrolling apart from the page
+under the top bar. The page's location (an item's home location) is lit
+with `highlight` and marked as the current page; its branch opens, and its
+row scrolls into view, its name in `text-body-strong`. Rows open their
+location and toggles expand in place; branches opened stay open from page
+to page. No drag handles, no add button and no code chips; a name stays on
+one line, cut with an ellipsis, its full name shown on hover, the one place
+a name is cut. The first row starts right under the top bar. `/` has none, since it is the tree. It follows the content in
+tab order, since the page comes first.
 
 **Side navigation.** Top to bottom: the Binsight bin mark and "Binsight" in
 `text-heading`, centered in
@@ -345,8 +377,18 @@ pinned saved search with `pin`, all with their counts); then
 `Settings`, pinned to the bottom while the entries above it scroll. A
 visitor has no Inbox, and "Sign in" in Settings' place.
 
-- An entry is `text-body`; the current one is `text-body-strong` on
-  `highlight`. A long name wraps; its icon and count stay on the first
+- An entry is `text-body` in `muted`, its icon too; the current one is
+  `text-body-strong` in `ink`, with no fill or bar, so `highlight` stays
+  for the location pane's lit row. Hovering an entry gives it the `hover`
+  fill and `ink`. Collapsed, the current icon is the one in `ink`.
+- A collapse button (`layout-sidebar-left-collapse`, named "Collapse
+  navigation") at the bottom, after Settings, narrows it to
+  `nav-width-rail`: only icons, each centered, its name and count shown on hover as the
+  link's title and kept in the link's name. Section headers leave
+  only their hairline, but one that links to a page shows its icon (Views:
+  `list-details`). The brand shows only its mark. Expanding uses
+  `layout-sidebar-left-expand`, "Expand navigation". Each device remembers
+  the choice. A long name wraps; its icon and count stay on the first
   line.
 - A section header is bold `text-small` in `muted` (sentence case, no
   all-caps or letter spacing) and `touch-min` high when it links to a page.
@@ -366,14 +408,13 @@ Every page is one of seven templates. "Header" is the page header component.
    counts; up to two default buttons and More. A
    location always has the 96px thumbnail beside the title: its photo,
    shown nowhere larger, or else its icon. Tapping the thumbnail opens the
-   type and icon sheet. On a location the button is Move ("Add
+   photo and icon sheet. On a location the button is Move ("Add
    location" in place of Move on a site); tapping the large code chip opens
    the label sheet. More holds, in
    groups split by rules: "Add location" when there is no Locations section
    (not on a site); "Contents sheet" and "Insurance list", which open the
-   location's print pages; "Add photo" ("Replace photo" when it has one),
-   which opens the camera, "Remove photo" when it has one, and "Type and
-   icon…" (`icons`); then, when it has no own item, "Track as an item"
+   location's print pages; "Photo and icon…" (`photo`), which opens the
+   photo and icon sheet; then, when it has no own item, "Track as an item"
    (`armchair`), which makes its own item and opens that item's page,
    saying "Tracked as an item", and "Use an existing item…"
    (`list-search`), which opens a sheet of item search results to pick
@@ -521,6 +562,10 @@ location's page with "This bin is empty".
    "Linked: a part" from its own side, or "Link removed"; history keeps no
    names, so the sections say which item. A deleted item's page has none.
 3. Section "History", last: a list of history rows, newest first.
+
+When the column is at least 760px wide, the sections below the header
+(`RecordColumns`) split into two columns: Details on the left; Attachments, the link
+sections and History on the right. Narrower, they stack in the order above.
 
 **Task** (`/scan`). Full screen in the task frame, so nothing
 is tapped by mistake.
@@ -800,8 +845,11 @@ the field while the item has one. The tag sheet is titled "Add tag": one
 field, "Tag", a primary "Add", and name rows of the tags in use that the
 item lacks, narrowed as it is typed.
 
-The type and icon sheet is titled "Type and icon", and each opening makes
-one pick. Its one field, "Search icons", sits over an icon grid. With the
+The photo and icon sheet is titled "Photo and icon", and each opening makes
+one pick. Under the heading "Photo" it shows "Add photo" (`photo`), which
+opens the camera; once the location has a photo, the photo at 96px with
+"Replace photo" and "Remove photo" (`photo-off`) beside it. Under the
+heading "Icon", its one field, "Search icons", sits over an icon grid. With the
 field empty the grid holds "Type's icon" first, which clears the choice,
 then a short starter set for home storage; typing searches every icon's
 name and tags, words in any order. Below, under the heading "Type", the
@@ -908,7 +956,7 @@ types an exact value. Minus stops at 1. No "low" coloring.
 an item or location page. Without a photo it is `surface` with a `muted`
 icon: `package` for an item, the location's icon for a location, with no
 plus sign or caption. On a location's page it is a button named "Change
-type and icon"; on an item's page without a photo (and not deleted) it is a
+photo and icon"; on an item's page without a photo (and not deleted) it is a
 button named "Add photo" that opens the camera to add one — both with the
 hover fill and focus ring of any button.
 
@@ -923,7 +971,10 @@ line under the name.
 Full width on `ground`, hairline below, at least `row-min` high, and a path does not make it taller. Hovering the row
 fills it with `hover`; hovering Move, the stepper or the select box fills only that control, so the
 two targets never read as one. Move sits a `space-sm` in from the gutter. In a list that allows bulk edit, every row's thumbnail carries its
-select box, so the row keeps its layout. Names wrap;
+select box, so the row keeps its layout. With a mouse from 62em, the box
+instead has its own column at the gutter, `space-md` before the thumbnail,
+drawn only while the row is hovered, holds focus or is selected, or while
+anything in the list is selected. Names wrap;
 nothing is cut with an ellipsis. Matched search text is marked with
 `highlight`. No swipe gestures. An item added by photo and not named yet
 reads "Unnamed" in `muted`, here and as its page's title, which is edited in
@@ -1028,7 +1079,9 @@ blocks Enter.
 
 The row `space-sm` under the bar holds "Add several" (or "Add one" while
 adding several) before the default Add button at the right edge and is
-`touch-min` high.
+`touch-min` high. From 62em there is no row under the bar: "Add several"
+and Add sit inside it, after the camera, Add last, drawn 40px high like
+the bar's other controls.
 
 Pasting more than one line into the one-name field switches to "Add
 several" with the pasted lines in it. A likely duplicate is an item already
@@ -1054,21 +1107,31 @@ left and the path, title, status badge and (on a live item) quantity
 stepper sit `space-md` to its right, top-aligned, at every width, with
 `space-sm` above the stepper so tappable controls stay separated. The
 buttons and More run the column's full width, `space-lg` under the taller
-of the two.
+of the two. From 62em the buttons and More sit at the right of the header
+instead, top-aligned with it, so the page starts one row sooner.
 
 **Page lead.** The top of a page: the page header, then the controls that
 belong to the whole page (add bar, "Here / Everything inside", filter
 chips), each `space-lg` from the next. A hairline across the column, `space-lg`
 from the header and from the first control, keeps the thing apart from adding to it.
+From 62em, where the header's buttons sit beside its title, there is no
+hairline; the controls start `space-lg` under the header.
 It gives its controls the gutter.
 The filter chip row is the exception: it runs edge to edge so it can scroll
 sideways, with the gutter inside the scroller. A page with no such controls
 uses the page header alone.
 
-**Selection bar.** Takes the bottom bar's place, at its height, while rows
-are selected, and appears at the bottom of the column on wide screens:
-the count ("3 selected"), up to three default verb buttons, and Close,
-which ends the selection.
+**Selection bar.** Floats over the foot of the content column while rows
+are selected, at every width
+([decision 0024](decisions/0024-floating-selection-bar.md)): `space-sm`
+above the bottom bar on a phone, which stays, and `space-lg` above the
+screen's edge from 62em, inside the column's gutter and never over the
+location pane. It is drawn like a toast: `inverse`, `on-inverse` text,
+`radius-md` and `shadow-overlay`. It holds the count ("3 selected"), up to
+three verb buttons with no fill or border in `on-inverse`, a 14%
+`on-inverse` tint on hover, and Close, which ends the selection. Under
+48em the verbs drop their icons, so the bar stays on one line. The page
+gains bottom padding so its last row can scroll clear of it.
 
 Bulk edit selects items on a location's page (Here and Everything inside),
 `/search`, views and saved searches, and `/inbox`; locations listed there

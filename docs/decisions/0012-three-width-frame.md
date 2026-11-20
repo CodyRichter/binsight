@@ -1,6 +1,7 @@
 # 0012: The frame has three widths and one column, and text starts at 14px
 
-Status: Accepted
+Status: Accepted, amended by [0023](0023-desktop-panes-and-mouse-density.md)
+for widths of 62em and up.
 
 ## Context
 
