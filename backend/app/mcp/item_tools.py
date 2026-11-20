@@ -7,6 +7,7 @@ from mcp.types import CallToolResult
 from app.core import clock
 from app.core.database import open_read_session, open_write_session
 from app.core.pagination import DEFAULT_LIMIT, Page, PageLimit
+from app.core.settings import Settings
 from app.features.items import service
 from app.features.items.schemas import (
     InboxCount,
@@ -32,6 +33,17 @@ quantity 1; change it afterwards with update_item.
 
 Returns the new item with its path, the names from its location's site down to the
 location, and the history_entry_id of the change."""
+
+MAKE_OWN_ITEM = """Track a location itself as an item, such as a desk, a cabinet or a toolbox.
+
+Use this when the owner wants to record what a piece of furniture or a container that holds
+things is worth, or keep its receipt, serial number or warranty. location_id is the
+location's code, such as K7Q-4MZ. The new item is named like the location, lives in it, and
+gets a copy of its photo; it is the location's own item, not counted among its contents.
+Fill in its price and other details afterwards with update_item. To make an item that
+already exists a location's own item instead, give update_item own_item_of.
+
+Returns the new item, or the error own_item_taken when the location already has one."""
 
 LIST_ITEMS = """List the items in one location, oldest first, a page at a time.
 
@@ -64,6 +76,8 @@ changes holds only what to change; anything left out stays as it is:
 - notes, brand, model, serial_number: text. order_link: an http(s) address.
 - purchase_date, warranty_ends, return_ends: dates as YYYY-MM-DD.
 - price_cents: the price as a whole number of cents, so 24.99 is 2499.
+- own_item_of: a location's code, to say this item is that location itself (a desk, a
+  toolbox); the item moves into it. null says it is no longer. See make_own_item.
 Every detail but name, quantity and tags is cleared by giving it as null. Search finds
 items by brand, model, serial number, notes and tags as well as by name.
 
@@ -140,6 +154,8 @@ def _add_changing_tools(server: MCPServer, app: FastAPI) -> None:
         item_id: str, changes: dict[str, object]
     ) -> Annotated[CallToolResult, ItemUpdated]:
         # Validated in the action, so a bad value is refused with the API's validation_failed.
+        if isinstance(changes.get("own_item_of"), str):
+            changes["own_item_of"] = locations.location_code(str(changes["own_item_of"]))
         return await run_action(
             app,
             open_write_session,
@@ -174,6 +190,17 @@ def _add_adding_tools(server: MCPServer, app: FastAPI) -> None:
             photo_base64,
             lambda session, photo: service.create_item_by_photo(
                 session, photo, _home(home_location_id), MCP_ACTOR, clock.now()
+            ),
+        )
+
+    @server.tool(description=MAKE_OWN_ITEM)
+    async def make_own_item(location_id: str) -> Annotated[CallToolResult, ItemCreated]:
+        settings: Settings = app.state.settings
+        return await run_action(
+            app,
+            open_write_session,
+            lambda session: service.make_own_item(
+                session, settings, locations.location_code(location_id), MCP_ACTOR, clock.now()
             ),
         )
 

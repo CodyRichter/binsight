@@ -25,6 +25,7 @@ def test_creating_an_item_answers_with_it_and_its_history_entry(signed_in: TestC
         "name": "HDMI cable",
         "quantity": 1,
         "home_location_id": home,
+        "own_item_of": None,
         "path": [{"id": home, "name": "Home", "type": "site"}],
         "status": "in_place",
         "category": None,

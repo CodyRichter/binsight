@@ -373,7 +373,11 @@ Every page is one of seven templates. "Header" is the page header component.
    (not on a site); "Contents sheet" and "Insurance list", which open the
    location's print pages; "Add photo" ("Replace photo" when it has one),
    which opens the camera, "Remove photo" when it has one, and "Type and
-   icon…" (`icons`); then "Merge into…" (`arrow-merge`) and "Delete
+   icon…" (`icons`); then, when it has no own item, "Track as an item"
+   (`armchair`), which makes its own item and opens that item's page,
+   saying "Tracked as an item", and "Use an existing item…"
+   (`list-search`), which opens a sheet of item search results to pick
+   one from, saying the same; then "Merge into…" (`arrow-merge`) and "Delete
    location" (`trash`, `danger`) last. A photo says
    "Added a photo to {place}" or "Removed the photo", with Undo; the type and
    icon sheet says "Changed to {type}", "Icon changed" or "Icon reset",
@@ -388,7 +392,12 @@ Every page is one of seven templates. "Header" is the page header component.
 2. The add bar, on a location only. The page's one accent.
 3. "Here / Everything inside", only when the location contains other
    locations.
-4. Section "Locations" with its count and its one action, "Add location";
+4. Section "As an item", only when the location has an own item, with its
+   one action "Open item". Its rows are value rows with the name beside
+   the value: the item's status when lent or archived, then whichever of
+   brand, model, serial number, purchase date, price and warranty end are
+   filled, read-only. With none filled, one row "Details: None yet".
+5. Section "Locations" with its count and its one action, "Add location";
    then section "Items" with its count. An empty section is left out. A
    location with neither shows the empty state "This bin is empty", using
    its type's word, under the add bar.
@@ -469,7 +478,8 @@ location's page with "This bin is empty".
    which opens the status sheet; then "Link an item", which opens
    the link sheet, "Attach…", which opens the Attach sheet, and
    "Duplicate" (`copy`), which opens the copy's page, saying "Duplicated
-   {name}"; then "Merge into…" (`arrow-merge`), which opens the merge sheet
+   {name}", and, on a location's own item, "Stop tracking as the location"
+   (`link-off`), saying "No longer tracked as an item"; then "Merge into…" (`arrow-merge`), which opens the merge sheet
    and goes to the item picked, saying "Merged {name} into {name}"; then
    "Delete item", which goes to the item's location
    (or `/inbox`) with the toast "Deleted {name}". Every one offers Undo. A

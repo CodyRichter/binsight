@@ -11,6 +11,7 @@ function sampleLocation(overrides: Partial<Location> = {}): Location {
     name: "Spare cables",
     type: "bin",
     icon: null,
+    own_item_id: null,
     parent_id: "H4P-2RN",
     summary: null,
     path: [

@@ -14,6 +14,7 @@ function place(id: string, path: string[]): Location {
     parent_id: path.at(-2) ?? null,
     summary: null,
     icon: null,
+    own_item_id: null,
     path: path.map((step) => ({ id: step, name: step, type: "bin" })),
     direct_item_count: 0,
     photo_url: null,

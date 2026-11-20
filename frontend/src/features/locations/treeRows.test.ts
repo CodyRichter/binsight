@@ -10,6 +10,7 @@ function location(id: string, parentId: string | null): Location {
     parent_id: parentId,
     summary: null,
     icon: null,
+    own_item_id: null,
     path: [],
     direct_item_count: 0,
     photo_url: null,

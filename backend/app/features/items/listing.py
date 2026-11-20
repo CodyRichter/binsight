@@ -51,7 +51,12 @@ def list_items(
     """The items in a location, oldest first, and optionally those in every location beneath it."""
     within = locations.location_ids_within(session, location_id)
     homes = within if everything_inside else [location_id]
-    return _oldest_first(session, models.Item.home_location_id.in_(homes), limit, cursor)
+    # The location's own item is the location itself, shown above its contents.
+    which = and_(
+        models.Item.home_location_id.in_(homes),
+        or_(models.Item.own_item_of.is_(None), models.Item.own_item_of != location_id),
+    )
+    return _oldest_first(session, which, limit, cursor)
 
 
 def list_items_in(session: Session, location_ids: list[str] | None) -> list[Item]:

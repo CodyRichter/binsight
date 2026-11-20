@@ -1,6 +1,6 @@
 import { SegmentedControl } from "@mantine/core";
 import { PageLead } from "@/components/PageLead";
-import { ItemAdder } from "@/features/items";
+import { ItemAdder, OwnItemCard } from "@/features/items";
 import { useAccess } from "@/lib/api/useAccess";
 import { LocationHeader } from "./LocationHeader";
 import { LocationShownHeader } from "./LocationShownHeader";
@@ -38,13 +38,16 @@ export function LocationLead({
     <LocationShownHeader location={location} />
   );
   return (
-    <PageLead header={header}>
-      {(canEdit || hasChildren) && (
-        <>
-          {canEdit && <ItemAdder home={location} onSettled={refreshTree} />}
-          {hasChildren && <SegmentedControl data={scopes} value={scope} onChange={onScope} />}
-        </>
-      )}
-    </PageLead>
+    <>
+      <PageLead header={header}>
+        {(canEdit || hasChildren) && (
+          <>
+            {canEdit && <ItemAdder home={location} onSettled={refreshTree} />}
+            {hasChildren && <SegmentedControl data={scopes} value={scope} onChange={onScope} />}
+          </>
+        )}
+      </PageLead>
+      {location.own_item_id && <OwnItemCard itemId={location.own_item_id} />}
+    </>
   );
 }

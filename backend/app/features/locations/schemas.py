@@ -42,6 +42,8 @@ class Location(BaseModel):
     parent_id: str | None
     summary: str | None
     icon: str | None
+    # The item this location is itself, such as a desk with its price and receipt.
+    own_item_id: str | None
     path: list[PathStep]
     direct_item_count: int
     item_count: int

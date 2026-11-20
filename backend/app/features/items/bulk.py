@@ -15,6 +15,7 @@ from app.features.items.bulk_schemas import (
 )
 from app.features.items.categories import category_name
 from app.features.items.details import apply_changes
+from app.features.items.own_items import leaving
 from app.features.items.records import live_item
 from app.features.items.schemas import Item, ItemChanges
 from app.features.items.shaping import refuse_deleted_home, shaped
@@ -68,10 +69,11 @@ def move_items(session: Session, move: ItemsMove, actor: Actor, now: datetime) -
     """Move many items into one location, as one change to undo."""
     changes = []
     for item in _moving(session, move):
-        before = {"home_location_id": item.home_location_id}
+        released_before, released_after = leaving(item, move.location_id)
+        before = {"home_location_id": item.home_location_id, **released_before}
         item.home_location_id = move.location_id
         item.updated_at = now
-        after = {"home_location_id": move.location_id}
+        after = {"home_location_id": move.location_id, **released_after}
         changes.append((item, history.RecordChange("item", item.id, before, after)))
     return recorded(session, "item.moved", changes, actor, now)
 
@@ -142,8 +144,10 @@ def delete_items(
     changes = []
     for item_id in deleting.item_ids:
         item = live_item(session, item_id)
+        released_before, released_after = leaving(item, None)
         item.deleted_at = now
         item.updated_at = now
-        after = {"deleted_at": now.isoformat()}
-        changes.append((item, history.RecordChange("item", item.id, {"deleted_at": None}, after)))
+        before = {"deleted_at": None, **released_before}
+        after = {"deleted_at": now.isoformat(), **released_after}
+        changes.append((item, history.RecordChange("item", item.id, before, after)))
     return recorded(session, "item.deleted", changes, actor, now)

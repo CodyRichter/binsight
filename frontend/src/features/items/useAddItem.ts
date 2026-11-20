@@ -17,6 +17,7 @@ export function adding(name: string | null, home: Destination | null, photoUrl?:
     name,
     quantity: 1,
     home_location_id: home?.id ?? null,
+    own_item_of: null,
     path: home?.path ?? [],
     photo_url: photoUrl ?? null,
     created_at: new Date().toISOString(),

@@ -678,6 +678,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/items/own-item": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Make Own Item */
+        post: operations["make_own_item"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/items/add-several": {
         parameters: {
             query?: never;
@@ -1403,6 +1420,8 @@ export interface components {
             quantity: number;
             /** Home Location Id */
             home_location_id: string | null;
+            /** Own Item Of */
+            own_item_of: string | null;
             status: components["schemas"]["ItemStatus"];
             /** Category */
             category: string | null;
@@ -1475,6 +1494,8 @@ export interface components {
             warranty_ends?: string | null;
             /** Return Ends */
             return_ends?: string | null;
+            /** Own Item Of */
+            own_item_of?: string | null;
         };
         /** ItemCreated */
         ItemCreated: {
@@ -1486,6 +1507,8 @@ export interface components {
             quantity: number;
             /** Home Location Id */
             home_location_id: string | null;
+            /** Own Item Of */
+            own_item_of: string | null;
             status: components["schemas"]["ItemStatus"];
             /** Category */
             category: string | null;
@@ -1539,6 +1562,8 @@ export interface components {
             quantity: number;
             /** Home Location Id */
             home_location_id: string | null;
+            /** Own Item Of */
+            own_item_of: string | null;
             status: components["schemas"]["ItemStatus"];
             /** Category */
             category: string | null;
@@ -1602,6 +1627,8 @@ export interface components {
             quantity: number;
             /** Home Location Id */
             home_location_id: string | null;
+            /** Own Item Of */
+            own_item_of: string | null;
             status: components["schemas"]["ItemStatus"];
             /** Category */
             category: string | null;
@@ -1671,6 +1698,8 @@ export interface components {
             quantity: number;
             /** Home Location Id */
             home_location_id: string | null;
+            /** Own Item Of */
+            own_item_of: string | null;
             status: components["schemas"]["ItemStatus"];
             /** Category */
             category: string | null;
@@ -1724,6 +1753,8 @@ export interface components {
             quantity: number;
             /** Home Location Id */
             home_location_id: string | null;
+            /** Own Item Of */
+            own_item_of: string | null;
             status: components["schemas"]["ItemStatus"];
             /** Category */
             category: string | null;
@@ -1785,6 +1816,8 @@ export interface components {
             quantity: number;
             /** Home Location Id */
             home_location_id: string | null;
+            /** Own Item Of */
+            own_item_of: string | null;
             status: components["schemas"]["ItemStatus"];
             /** Category */
             category: string | null;
@@ -1843,6 +1876,8 @@ export interface components {
             quantity: number;
             /** Home Location Id */
             home_location_id: string | null;
+            /** Own Item Of */
+            own_item_of: string | null;
             status: components["schemas"]["ItemStatus"];
             /** Category */
             category: string | null;
@@ -1896,6 +1931,8 @@ export interface components {
             quantity: number;
             /** Home Location Id */
             home_location_id: string | null;
+            /** Own Item Of */
+            own_item_of: string | null;
             status: components["schemas"]["ItemStatus"];
             /** Category */
             category: string | null;
@@ -1960,6 +1997,8 @@ export interface components {
             quantity: number;
             /** Home Location Id */
             home_location_id: string | null;
+            /** Own Item Of */
+            own_item_of: string | null;
             status: components["schemas"]["ItemStatus"];
             /** Category */
             category: string | null;
@@ -2029,6 +2068,8 @@ export interface components {
             quantity: number;
             /** Home Location Id */
             home_location_id: string | null;
+            /** Own Item Of */
+            own_item_of: string | null;
             status: components["schemas"]["ItemStatus"];
             /** Category */
             category: string | null;
@@ -2087,6 +2128,8 @@ export interface components {
             quantity: number;
             /** Home Location Id */
             home_location_id: string | null;
+            /** Own Item Of */
+            own_item_of: string | null;
             status: components["schemas"]["ItemStatus"];
             /** Category */
             category: string | null;
@@ -2230,6 +2273,8 @@ export interface components {
             summary: string | null;
             /** Icon */
             icon: string | null;
+            /** Own Item Id */
+            own_item_id: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Direct Item Count */
@@ -2267,6 +2312,8 @@ export interface components {
             summary: string | null;
             /** Icon */
             icon: string | null;
+            /** Own Item Id */
+            own_item_id: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Direct Item Count */
@@ -2293,6 +2340,8 @@ export interface components {
             summary: string | null;
             /** Icon */
             icon: string | null;
+            /** Own Item Id */
+            own_item_id: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Direct Item Count */
@@ -2327,6 +2376,8 @@ export interface components {
             summary: string | null;
             /** Icon */
             icon: string | null;
+            /** Own Item Id */
+            own_item_id: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Direct Item Count */
@@ -2358,6 +2409,8 @@ export interface components {
             summary: string | null;
             /** Icon */
             icon: string | null;
+            /** Own Item Id */
+            own_item_id: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Direct Item Count */
@@ -2384,6 +2437,8 @@ export interface components {
             summary: string | null;
             /** Icon */
             icon: string | null;
+            /** Own Item Id */
+            own_item_id: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Direct Item Count */
@@ -2418,6 +2473,8 @@ export interface components {
             summary: string | null;
             /** Icon */
             icon: string | null;
+            /** Own Item Id */
+            own_item_id: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Direct Item Count */
@@ -2444,6 +2501,8 @@ export interface components {
             summary: string | null;
             /** Icon */
             icon: string | null;
+            /** Own Item Id */
+            own_item_id: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Direct Item Count */
@@ -2491,6 +2550,8 @@ export interface components {
             summary: string | null;
             /** Icon */
             icon: string | null;
+            /** Own Item Id */
+            own_item_id: string | null;
             /** Path */
             path: components["schemas"]["PathStep"][];
             /** Direct Item Count */
@@ -2576,6 +2637,11 @@ export interface components {
         NewMcpCredential: {
             /** Name */
             name: string;
+        };
+        /** NewOwnItem */
+        NewOwnItem: {
+            /** Location Id */
+            location_id: string;
         };
         /** NewSavedSearch */
         NewSavedSearch: {
@@ -5052,6 +5118,57 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ItemsChanged"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    make_own_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewOwnItem"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemCreated"];
                 };
             };
             /** @description Not Found */

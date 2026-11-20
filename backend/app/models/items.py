@@ -35,6 +35,9 @@ class Item(Model):
         CheckConstraint(
             "(status = 'lent_out') = (lent_to IS NOT NULL)", name="lent_to_only_when_lent_out"
         ),
+        CheckConstraint(
+            "own_item_of IS NULL OR own_item_of = home_location_id", name="own_item_at_home"
+        ),
     )
 
     id: Mapped[str] = mapped_column(primary_key=True)
@@ -42,6 +45,8 @@ class Item(Model):
     name: Mapped[str | None]
     quantity: Mapped[int] = mapped_column(default=1)
     home_location_id: Mapped[str | None] = mapped_column(ForeignKey("location.id"), index=True)
+    # The location this item is itself, such as a desk: furniture worth tracking.
+    own_item_of: Mapped[str | None] = mapped_column(ForeignKey("location.id"), unique=True)
     status: Mapped[ItemStatus] = mapped_column(
         Enum(
             ItemStatus,

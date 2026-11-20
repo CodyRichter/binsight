@@ -17,6 +17,7 @@ from app.features.attachments.schemas import FileOnDisk as FileOnDisk
 from app.features.attachments.schemas import StoredFile as StoredFile
 from app.features.attachments.storing import MAX_FILE_BYTES as MAX_FILE_BYTES
 from app.features.attachments.storing import MAX_PHOTO_BYTES as MAX_PHOTO_BYTES
+from app.features.attachments.storing import copied_photo as copied_photo
 from app.features.attachments.storing import file_from_base64 as file_from_base64
 from app.features.attachments.storing import photo_from_base64 as photo_from_base64
 from app.features.attachments.storing import saved_file as saved_file
@@ -224,6 +225,14 @@ def photo_url(session: Session, item_id: str) -> str | None:
 def location_photo_id(session: Session, location_id: str) -> str | None:
     """The identifier of a location's photo, or None when it has none."""
     return _first_photo(session, models.Attachment.location_id == location_id)
+
+
+def location_photo_file(
+    session: Session, settings: Settings, location_id: str
+) -> FileOnDisk | None:
+    """Where a location's photo is on disk, or None when it has none."""
+    photo = location_photo_id(session, location_id)
+    return attachment_file(session, settings, photo, visitor=False) if photo else None
 
 
 def location_photo_url(session: Session, location_id: str) -> str | None:

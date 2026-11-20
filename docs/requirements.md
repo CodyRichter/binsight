@@ -68,8 +68,12 @@ PLACES
   searchable, for bins not worth itemizing.
 - Rename, merge or delete locations. Deleting asks where the contents
   should go.
-- A location is not an item. If a container is itself worth tracking (an
-  expensive toolbox), add it as an item too.
+- A location is not an item, but one worth tracking itself (a desk, a
+  cabinet, an expensive toolbox) can have its own item, for its price,
+  receipts, serial number and warranty. One tap makes it, named like the
+  location and with a copy of its photo, or an item already made is used.
+  It is shown on the location's page, not among its contents, and counts
+  in the locations around it and in their insurance lists.
 
 
 LABELS AND QR CODES

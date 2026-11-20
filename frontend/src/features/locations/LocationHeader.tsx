@@ -2,7 +2,7 @@ import { Button } from "@mantine/core";
 import { IconArrowsMove } from "@tabler/icons-react";
 import { useRef, useState, type ChangeEvent } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { pathSegments } from "@/features/items";
+import { OwnItemSheet, pathSegments, useMakeOwnItem } from "@/features/items";
 import { countWords } from "./countWords";
 import { LabelSheet } from "./LabelSheet";
 import { moreMenu, type LocationMenuProps } from "./locationMenu";
@@ -41,6 +41,8 @@ export function LocationHeader(props: LocationHeaderProps) {
   const [moving, setMoving] = useState(false);
   const [restyling, setRestyling] = useState(false);
   const [showingLabel, setShowingLabel] = useState(false);
+  const [choosingOwnItem, setChoosingOwnItem] = useState(false);
+  const makeOwnItem = useMakeOwnItem(location.id);
   const move = useMoveLocation(location);
   const change = useChangeLocation(location);
   const setPhoto = useLocationPhoto(location);
@@ -83,7 +85,11 @@ export function LocationHeader(props: LocationHeaderProps) {
             onAddLocation && <Button onClick={onAddLocation}>Add location</Button>
           )
         }
-        menu={moreMenu(props, movable, lookChoices, removing.choices)}
+        menu={moreMenu(props, movable, {
+          look: lookChoices,
+          own: { onTrack: makeOwnItem, onUseExisting: () => setChoosingOwnItem(true) },
+          removal: removing.choices,
+        })}
       />
       <input
         ref={photoInput}
@@ -109,6 +115,11 @@ export function LocationHeader(props: LocationHeaderProps) {
         location={location}
         onPick={change}
         onClose={() => setRestyling(false)}
+      />
+      <OwnItemSheet
+        opened={choosingOwnItem}
+        locationId={location.id}
+        onClose={() => setChoosingOwnItem(false)}
       />
       <RemovalSheet
         location={location}

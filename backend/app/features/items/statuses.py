@@ -9,6 +9,7 @@ from app.core.pagination import Page, counted_page, decode_offset
 from app.features.history import service as history
 from app.features.items.bulk import changing_items, recorded
 from app.features.items.bulk_schemas import ItemsChanged, ItemsLend, ItemsStatus
+from app.features.items.own_items import leaving
 from app.features.items.records import live_item
 from app.features.items.schemas import (
     Item,
@@ -177,11 +178,14 @@ def mark_item_found(
     if item.status != ItemStatus.missing:
         raise AppError(409, "not_missing", "That item isn't marked missing.")
     refuse_deleted_home(session, found.location_id)
+    released_before, released_after = leaving(item, found.location_id)
     before = {"status": item.status.value, "home_location_id": item.home_location_id}
     item.status = ItemStatus.in_place
     item.home_location_id = found.location_id
     item.updated_at = now
     after = {"status": ItemStatus.in_place.value, "home_location_id": found.location_id}
+    before |= released_before
+    after |= released_after
     change = history.RecordChange("item", item.id, before, after)
     entry_id = history.record(session, actor, "item.found", [change], now)
     return ItemMarkedFound(**shaped(session, item).model_dump(), history_entry_id=entry_id)

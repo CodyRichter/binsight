@@ -9,6 +9,7 @@ schema; column types and indexes are decided when each table is built.
 ```
 Location ──parent──> Location          (a tree; sites have no parent)
 Item ──home location──> Location       (optional; none means inbox)
+Item ──own item of──> Location         (optional; at most one item per location)
 Item ──0..1──> Category
 Item <──many──> Tag
 Item <──Link──> Item
@@ -87,6 +88,7 @@ its QR code; it is not stored.
 | `name`              | See the rule below.                                  |
 | `quantity`          | Whole number, 1 by default, never negative.          |
 | `home_location`     | A location, or none.                                 |
+| `own_item_of`       | A location this item is itself (its own item), or none. Always its home location. |
 | `status`            | `in_place` by default.                               |
 | `lent_to`           | A name. Present only when status is `lent_out`.      |
 | `lent_at`           | When `lent_to` was set.                              |
@@ -116,6 +118,22 @@ Rules:
 - Changing status never clears `home_location`.
 - Marking a `missing` item found asks for its home location, which may be
   the same one.
+- A location has at most one own item. Making one ("track as an item")
+  adds an item named like the location, at home in it, with a copy of its
+  photo, as one `item.created` entry. Making an existing item a location's
+  own item moves it there in the same change; ending it leaves the item
+  where it is.
+- The own item is not among its location's contents: it is left out of
+  the location's items and its count, but counts in every location around
+  it, and in insurance lists.
+- An item stops being its location's own item when it moves elsewhere
+  (moved, bulk moved or found somewhere else), is deleted or is merged
+  into another item, in that same change, so Undo makes it so again.
+  Archiving keeps it.
+- Merging a location takes its own item along, as the other location's own
+  item when that one has none. Deleting a location moves its own item with
+  its contents, or, when nothing else moves, to the location around it (the
+  inbox for a site), and it is no longer an own item.
 - Individually tracked things (a drill with a serial number) are items with
   quantity 1. There is no separate kind of item.
 - A duplicate is a new item with quantity 1 and the original's name, home,
