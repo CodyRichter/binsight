@@ -16,6 +16,10 @@ class NewItem(BaseModel):
     home_location_id: str | None = None
 
 
+class NewOwnItem(BaseModel):
+    location_id: str
+
+
 class NewItems(BaseModel):
     names: list[ItemName] = Field(min_length=1, max_length=100)
     home_location_id: str | None = None
@@ -53,6 +57,8 @@ class ItemChanges(BaseModel):
     order_link: WebAddress | None = None
     warranty_ends: date | None = None
     return_ends: date | None = None
+    # A location's code makes the item that location's own item, moving it there; null unlinks.
+    own_item_of: str | None = None
 
     @model_validator(mode="after")
     def _only_details_are_cleared(self) -> Self:
@@ -109,6 +115,7 @@ class Item(BaseModel):
     name: str | None
     quantity: int
     home_location_id: str | None
+    own_item_of: str | None
     status: ItemStatus
     category: str | None
     tags: list[str]

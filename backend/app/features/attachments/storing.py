@@ -9,7 +9,7 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 from app.core.errors import AppError
 from app.core.identifiers import new_identifier
 from app.core.settings import Settings
-from app.features.attachments.schemas import StoredFile
+from app.features.attachments.schemas import FileOnDisk, StoredFile
 
 MAX_PHOTO_BYTES = 20 * 1024 * 1024
 MAX_FILE_BYTES = 50 * 1024 * 1024
@@ -111,4 +111,11 @@ def saved_file(settings: Settings, raw: bytes, filename: str | None) -> Iterator
     if len(raw) > MAX_FILE_BYTES:
         raise AppError(422, "file_too_large", "That file is larger than 50 MB.")
     with _written(settings, raw, _file_type(raw), filename) as stored:
+        yield stored
+
+
+@contextmanager
+def copied_photo(settings: Settings, photo: FileOnDisk) -> Iterator[StoredFile]:
+    """Store a copy of a stored photo, so each owner's can be removed alone."""
+    with _written(settings, photo.path.read_bytes(), IMAGE_TYPES["JPEG"], photo.filename) as stored:
         yield stored

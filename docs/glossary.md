@@ -48,6 +48,7 @@ before naming it in code.
 | **Category**      | The one kind of thing an item is, e.g. cable, tool.        |
 | **Tag**           | A keyword on an item. An item can have many.               |
 | **Link**          | A relationship between two items: `belongs_with` or `part_of`. |
+| **Own item**      | The item a location is itself, such as a desk, a cabinet or a toolbox, for its price, receipts and serial number. It lives in that location but is not among its contents. "Track as an item" makes one. |
 | **Selection**     | The items ticked in one list, for a bulk edit.             |
 | **Bulk edit**     | Moving, tagging, recategorizing or changing the status of a selection in one change. |
 | **Attachment**    | A photo, file or web link stored against an item or location. |

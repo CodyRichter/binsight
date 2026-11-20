@@ -10,6 +10,7 @@ function sampleItem(overrides: Partial<Item> = {}): Item {
     name: "BMC Roadmachine Bike",
     quantity: 1,
     home_location_id: "loc-2",
+    own_item_of: null,
     status: "in_place",
     category: null,
     tags: [],

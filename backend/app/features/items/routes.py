@@ -40,6 +40,7 @@ from app.features.items.schemas import (
     LinkedItem,
     NewItem,
     NewItems,
+    NewOwnItem,
     Tag,
 )
 
@@ -53,6 +54,15 @@ unlink_router = APIRouter()
 @write_router.post("", operation_id="create_item", status_code=201, responses=refusals(404, 422))
 def create_item(body: NewItem, session: WriteSession, actor: AppActor) -> ItemCreated:
     return service.create_item(session, body, actor, clock.now())
+
+
+@write_router.post(
+    "/own-item", operation_id="make_own_item", status_code=201, responses=refusals(404, 409, 422)
+)
+def make_own_item(
+    body: NewOwnItem, session: WriteSession, settings: AppSettings, actor: AppActor
+) -> ItemCreated:
+    return service.make_own_item(session, settings, body.location_id, actor, clock.now())
 
 
 @write_router.post(

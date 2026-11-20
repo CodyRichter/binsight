@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import StrEnum
 
-from sqlalchemy import Enum, ForeignKey, func, select
+from sqlalchemy import Enum, ForeignKey, func, or_, select
 from sqlalchemy.orm import Mapped, column_property, mapped_column
 
 from app.models.base import Model
@@ -43,7 +43,26 @@ class Location(Model):
     # Archived items keep their home for the record but are not among its contents.
     direct_item_count: Mapped[int] = column_property(
         select(func.count(Item.id))
-        .where(Item.home_location_id == id, Item.deleted_at.is_(None), Item.status.not_in(ARCHIVED))
+        .where(
+            Item.home_location_id == id,
+            Item.deleted_at.is_(None),
+            Item.status.not_in(ARCHIVED),
+            # A location's own item is the location itself, not something in it.
+            or_(Item.own_item_of.is_(None), Item.own_item_of != id),
+        )
+        .correlate_except(Item)
+        .scalar_subquery()
+    )
+    own_item_id: Mapped[str | None] = column_property(
+        select(Item.id)
+        .where(Item.own_item_of == id, Item.deleted_at.is_(None))
+        .correlate_except(Item)
+        .scalar_subquery()
+    )
+    # The own item still counts toward the locations around it, as a desk counts in its room.
+    counted_own_items: Mapped[int] = column_property(
+        select(func.count(Item.id))
+        .where(Item.own_item_of == id, Item.deleted_at.is_(None), Item.status.not_in(ARCHIVED))
         .correlate_except(Item)
         .scalar_subquery()
     )

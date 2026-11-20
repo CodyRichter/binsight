@@ -29,6 +29,7 @@ def shaped(session: Session, item: models.Item) -> Item:
         name=item.name,
         quantity=item.quantity,
         home_location_id=item.home_location_id,
+        own_item_of=item.own_item_of,
         status=item.status,
         category=category_name(session, item.category_id),
         tags=item.tags,

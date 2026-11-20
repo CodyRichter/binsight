@@ -45,6 +45,8 @@ from app.features.items.listing import list_items as list_items
 from app.features.items.listing import list_items_in as list_items_in
 from app.features.items.listing import list_tags as list_tags
 from app.features.items.listing import searchable_items as searchable_items
+from app.features.items.own_items import follow_contents, leaving
+from app.features.items.own_items import make_own_item as make_own_item
 from app.features.items.records import item_record, live_item
 from app.features.items.schemas import (
     ImportedItem as ImportedItem,
@@ -175,10 +177,12 @@ def move_item(
     refuse_deleted_home(session, move.location_id)
     if item.home_location_id == move.location_id:
         raise AppError(409, "already_there", "That item is already there.")
-    before = {"home_location_id": item.home_location_id}
+    released_before, released_after = leaving(item, move.location_id)
+    before = {"home_location_id": item.home_location_id, **released_before}
     item.home_location_id = move.location_id
     item.updated_at = now
-    change = history.RecordChange("item", item.id, before, {"home_location_id": move.location_id})
+    after = {"home_location_id": move.location_id, **released_after}
+    change = history.RecordChange("item", item.id, before, after)
     entry_id = history.record(session, actor, "item.moved", [change], now)
     return ItemMoved(**shaped(session, item).model_dump(), history_entry_id=entry_id)
 
@@ -191,10 +195,13 @@ def preview_delete_item(session: Session, item_id: str) -> Item:
 def _set_deleted_at(
     session: Session, item: models.Item, deleted_at: datetime | None, actor: Actor, now: datetime
 ) -> str:
+    # A deleted item stops being its location's own item; Undo makes it so again.
+    released_before, released_after = leaving(item, None) if deleted_at else ({}, {})
     before = {"deleted_at": item.deleted_at.isoformat() if item.deleted_at else None}
+    before |= released_before
     item.deleted_at = deleted_at
     item.updated_at = now
-    after = {"deleted_at": deleted_at.isoformat() if deleted_at else None}
+    after = {"deleted_at": deleted_at.isoformat() if deleted_at else None, **released_after}
     change = history.RecordChange("item", item.id, before, after)
     action = "item.deleted" if deleted_at else "item.restored"
     return history.record(session, actor, action, [change], now)
@@ -218,9 +225,11 @@ def restore_item(session: Session, item_id: str, actor: Actor, now: datetime) ->
 
 
 def rehome_items(
-    session: Session, location_id: str, destination_id: str, now: datetime
+    session: Session, location_id: str, destination_id: str, merging: bool, now: datetime
 ) -> list[history.RecordChange]:
     """Move every item not deleted out of one location into another, for the caller to record."""
+    own = follow_contents(session, location_id, destination_id, merging)
+    session.flush()
     query = select(models.Item).where(
         models.Item.home_location_id == location_id, models.Item.deleted_at.is_(None)
     )
@@ -236,7 +245,15 @@ def rehome_items(
         )
         item.home_location_id = destination_id
         item.updated_at = now
-    return changes
+    return [own, *changes] if own else changes
+
+
+def release_own_item(
+    session: Session, location_id: str, parent_id: str | None
+) -> list[history.RecordChange]:
+    """Put a location's own item in the location around it, as the location goes empty."""
+    own = follow_contents(session, location_id, parent_id, merging=False)
+    return [own] if own else []
 
 
 def export_tables(session: Session) -> ExportTables:

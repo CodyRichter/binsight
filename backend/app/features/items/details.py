@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app import models
 from app.features.history import service as history
 from app.features.items.categories import category_for
+from app.features.items.own_items import claimed
 from app.features.items.schemas import ItemChanges
 
 
@@ -27,10 +28,16 @@ def apply_changes(
 ) -> tuple[str, history.RecordChange]:
     """Set what was given on an item, returning the history action and the change to record."""
     fields = _fields(session, changes, now)
+    claim = "own_item_of" in fields
+    own_item_of = fields.pop("own_item_of", None)
     before = {field: _recorded(getattr(item, field)) for field in fields}
     for field, value in fields.items():
         setattr(item, field, value)
-    item.updated_at = now
     after = {field: _recorded(value) for field, value in fields.items()}
+    if claim:
+        claimed_before, claimed_after = claimed(session, item, own_item_of)
+        before |= claimed_before
+        after |= claimed_after
+    item.updated_at = now
     action = "item.named" if fields.keys() == {"name"} else "item.updated"
     return action, history.RecordChange("item", item.id, before, after)

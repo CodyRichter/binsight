@@ -14,6 +14,7 @@ function item(id: string, name: string): Item {
     name,
     quantity: 1,
     home_location_id: "cables",
+    own_item_of: null,
     status: "in_place",
     category: null,
     tags: [],

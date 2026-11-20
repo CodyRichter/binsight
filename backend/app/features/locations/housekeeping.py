@@ -26,10 +26,10 @@ def _refused_destination(session: Session, location_id: str, destination_id: str
 
 
 def _move_contents(
-    session: Session, location_id: str, destination_id: str, now: datetime
+    session: Session, location_id: str, destination_id: str, merging: bool, now: datetime
 ) -> list[history.RecordChange]:
     return [
-        *items.rehome_items(session, location_id, destination_id, now),
+        *items.rehome_items(session, location_id, destination_id, merging, now),
         *locations.move_children(session, location_id, destination_id, now),
     ]
 
@@ -68,10 +68,11 @@ def delete_location(
     destination_id = delete.move_contents_to
     if destination_id is None:
         _refuse_contents(session, location_id)
-        changes = []
+        parent_id = locations.get_location(session, location_id).parent_id
+        changes = items.release_own_item(session, location_id, parent_id)
     else:
         _refused_destination(session, location_id, destination_id)
-        changes = _move_contents(session, location_id, destination_id, now)
+        changes = _move_contents(session, location_id, destination_id, False, now)
     changes.append(locations.mark_deleted(session, location_id, now))
     session.flush()
     entry_id = history.record(session, actor, "location.deleted", changes, now)
@@ -85,7 +86,7 @@ def merge_location(
     """Merge a location into another: its items and locations move, then it goes."""
     _refused_destination(session, location_id, merge.into)
     changes = [
-        *_move_contents(session, location_id, merge.into, now),
+        *_move_contents(session, location_id, merge.into, True, now),
         locations.mark_deleted(session, location_id, now),
     ]
     session.flush()

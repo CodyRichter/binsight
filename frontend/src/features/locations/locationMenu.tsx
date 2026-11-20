@@ -1,7 +1,9 @@
 import { Menu } from "@mantine/core";
 import {
   IconArrowMerge,
+  IconArmchair,
   IconFileText,
+  IconListSearch,
   IconIcons,
   IconPhoto,
   IconPhotoOff,
@@ -22,6 +24,24 @@ export interface LocationMenuProps {
 export interface RemovalChoices {
   onMerge: () => void;
   onDelete: () => void;
+}
+
+export interface OwnItemChoices {
+  onTrack: () => void;
+  onUseExisting: () => void;
+}
+
+function ownItemItems(own: OwnItemChoices): ReactNode {
+  return (
+    <>
+      <Menu.Item leftSection={<IconArmchair aria-hidden size={20} />} onClick={own.onTrack}>
+        Track as an item
+      </Menu.Item>
+      <Menu.Item leftSection={<IconListSearch aria-hidden size={20} />} onClick={own.onUseExisting}>
+        Use an existing item…
+      </Menu.Item>
+    </>
+  );
 }
 
 interface LookChoices {
@@ -93,9 +113,9 @@ function printItems({ location }: LocationMenuProps): ReactNode {
 export function moreMenu(
   props: LocationMenuProps,
   movable: boolean,
-  look: LookChoices,
-  removal: RemovalChoices,
+  choices: { look: LookChoices; own: OwnItemChoices; removal: RemovalChoices },
 ): ReactNode {
+  const { look, own, removal } = choices;
   return (
     <>
       {movable && props.onAddLocation && (
@@ -110,6 +130,12 @@ export function moreMenu(
       <Menu.Divider />
       {lookItems(props, look)}
       <Menu.Divider />
+      {props.location.own_item_id === null && (
+        <>
+          {ownItemItems(own)}
+          <Menu.Divider />
+        </>
+      )}
       {removalItems(removal)}
     </>
   );

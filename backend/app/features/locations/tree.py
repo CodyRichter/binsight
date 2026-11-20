@@ -56,7 +56,9 @@ def all_locations(session: Session) -> list[Location]:
             children[row.parent_id].append(row)
 
     def item_count(row: models.Location) -> int:
-        return row.direct_item_count + sum(item_count(child) for child in children[row.id])
+        return row.direct_item_count + sum(
+            item_count(child) + child.counted_own_items for child in children[row.id]
+        )
 
     return [
         Location(
@@ -66,6 +68,7 @@ def all_locations(session: Session) -> list[Location]:
             parent_id=row.parent_id,
             summary=row.summary,
             icon=row.icon,
+            own_item_id=row.own_item_id,
             path=path(session, row),
             direct_item_count=row.direct_item_count,
             item_count=item_count(row),

@@ -9,6 +9,7 @@ from app.core.identifiers import new_identifier
 from app.features.attachments import service as attachments
 from app.features.history import service as history
 from app.features.items.links import move_links
+from app.features.items.own_items import leaving
 from app.features.items.records import live_item
 from app.features.items.schemas import ItemCreated, ItemMerge, ItemMerged, MergePreview
 from app.features.items.shaping import refuse_deleted_home, shaped
@@ -84,10 +85,14 @@ def _folded(item: models.Item, into: models.Item, now: datetime) -> history.Reco
 
 
 def _gone(item: models.Item, now: datetime) -> history.RecordChange:
+    released_before, released_after = leaving(item, None)
     item.deleted_at = now
     item.updated_at = now
     return history.RecordChange(
-        "item", item.id, {"deleted_at": None}, {"deleted_at": now.isoformat()}
+        "item",
+        item.id,
+        {"deleted_at": None, **released_before},
+        {"deleted_at": now.isoformat(), **released_after},
     )
 
 

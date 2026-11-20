@@ -17,6 +17,7 @@ EDITOR = {
     "add_item_photo",
     "add_item_by_photo",
     "add_items",
+    "make_own_item",
     "attach_file",
     "attach_web_link",
     "change_item_status",

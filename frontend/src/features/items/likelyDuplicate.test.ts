@@ -9,6 +9,7 @@ function item(id: string, name: string | null): Item {
     name,
     quantity: 3,
     home_location_id: "cables",
+    own_item_of: null,
     path: [],
     photo_url: null,
     created_at: "2026-11-16T12:00:00Z",

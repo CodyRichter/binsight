@@ -3,12 +3,14 @@ import {
   IconArrowMerge,
   IconCopy,
   IconLink,
+  IconLinkOff,
   IconPaperclip,
   IconStatusChange,
   IconTrash,
 } from "@tabler/icons-react";
 import { useDeleteItem } from "./useDeleteItem";
 import { useDuplicateItem } from "./useItemDuplicates";
+import { useOwnItemOf } from "./useOwnItem";
 import { isArchived } from "./useStatusChange";
 import type { Item } from "./useItems";
 
@@ -24,6 +26,7 @@ interface ItemMenuProps {
 export function ItemMenu({ item, onChangeStatus, onLink, onAttach, onMerge }: ItemMenuProps) {
   const deleteItem = useDeleteItem();
   const duplicate = useDuplicateItem();
+  const ownItemOf = useOwnItemOf();
   const icon = { "aria-hidden": true, size: 20 } as const;
   return (
     <>
@@ -44,6 +47,11 @@ export function ItemMenu({ item, onChangeStatus, onLink, onAttach, onMerge }: It
       <Menu.Item leftSection={<IconCopy {...icon} />} onClick={() => duplicate(item)}>
         Duplicate
       </Menu.Item>
+      {item.own_item_of && (
+        <Menu.Item leftSection={<IconLinkOff {...icon} />} onClick={() => ownItemOf(item, null)}>
+          Stop tracking as the location
+        </Menu.Item>
+      )}
       <Menu.Divider />
       <Menu.Item leftSection={<IconArrowMerge {...icon} />} onClick={onMerge}>
         Merge into…
