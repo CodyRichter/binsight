@@ -32,3 +32,4 @@ it and mark the old one as replaced. Do not quietly work around one.
 | 0022 | [Accounts with three fixed roles, and reading without signing in](0022-accounts-and-roles.md) | Accepted |
 | 0023 | [Wide screens get a location pane, and a mouse gets denser controls](0023-desktop-panes-and-mouse-density.md) | Accepted |
 | 0024 | [The selection bar floats over the content column](0024-floating-selection-bar.md) | Accepted |
+| 0025 | [Claude sends photos and files through an upload link](0025-mcp-uploads-by-link.md) | Accepted |

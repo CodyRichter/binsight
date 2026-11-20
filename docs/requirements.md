@@ -208,7 +208,9 @@ Claude should be able to do everything you can do, through tools:
 - Change: edit an item, move an item, move a bin, change quantity, change
   status, lend, return.
 - Organize: tag, recategorize, link items, merge duplicates.
-- Attach: attach a file or link to an item.
+- Attach: attach a file or link to an item. Claude sends a photo or file to
+  a short-lived upload address, not inside the tool call, so one upload can
+  go on several items.
 
 Also:
 - Answers include the full location path and the label code or link.

@@ -36,3 +36,15 @@ class Attachment(BaseModel):
     size: int | None
     file_url: str | None
     created_at: datetime
+
+
+class NewUpload(BaseModel):
+    upload_id: str
+    upload_url: str
+    expires_at: datetime
+
+
+class UploadReceived(BaseModel):
+    upload_id: str
+    size: int
+    expires_at: datetime

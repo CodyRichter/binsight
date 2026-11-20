@@ -9,6 +9,7 @@ from app.core.database import open_read_session, open_write_session
 from app.core.pagination import DEFAULT_LIMIT, Page, PageLimit
 from app.core.settings import Settings
 from app.features.attachments import service as attachments
+from app.features.attachments.schemas import NewUpload
 from app.features.attachments.service import Attachment
 from app.features.items import service as items
 from app.features.items.schemas import AttachmentAdded, NewWebLink
@@ -42,23 +43,38 @@ as cursor for the next page.
 Returns {"items": [...], "next_cursor": ...}. Each has its kind (photo, file or link),
 filename, url (links only), content_type, size in bytes, and file_url (photos and files)."""
 
-ADD_ITEM_PHOTO = """Add a photo to an item that already exists.
+CREATE_UPLOAD = """Get an address to send a photo or file to, before attaching it.
 
-photo_base64 is a JPEG, PNG or WebP as base64 text, at most 20 MB. It is stored upright, as
-JPEG, without its metadata. The item's first photo stays its picture.
+Use this first whenever a photo or file is to go on an item or location. It returns
+{"upload_id": ..., "upload_url": ..., "expires_at": ...}. Send the file from the computer
+it is on as a multipart form with a file field, for example
+curl -F file=@/path/to/photo.jpg <upload_url>; the address needs no other credential and
+takes one file of at most 50 MB, once. Then pass upload_id to add_item_photo,
+add_item_by_photo, attach_file or set_location_photo. One upload can be used by any number
+of those calls for an hour, so one photo of a drawer can go on every item in it."""
+
+UPLOAD_REFUSALS = "upload_not_found, upload_not_sent or upload_expired"
+
+ADD_ITEM_PHOTO = f"""Add a photo to an item that already exists.
+
+upload_id is an upload the photo was sent to, a JPEG, PNG or WebP of at most 20 MB: see
+create_upload. It is stored upright, as JPEG, without its metadata. The item's first photo
+stays its picture.
 
 Returns the new attachment with the history_entry_id, which undo_history_entry takes to
-remove it again, or unsupported_photo, photo_too_large, item_not_found or item_deleted."""
+remove it again, or unsupported_photo, photo_too_large, item_not_found, item_deleted,
+{UPLOAD_REFUSALS}."""
 
-ATTACH_FILE = """Attach a file to an item, such as its receipt, manual or warranty document.
+ATTACH_FILE = f"""Attach a file to an item, such as its receipt, manual or warranty document.
 
 Use this when the owner hands over a receipt or a manual for something they have.
-file_base64 is a PDF, JPEG, PNG or WebP as base64 text, at most 50 MB, kept exactly as
-sent. filename is what it is shown as, such as "Drill receipt.pdf"; since files have no
-other type, name it so the owner can tell a receipt from a manual.
+upload_id is an upload the file was sent to, a PDF, JPEG, PNG or WebP of at most 50 MB,
+kept exactly as sent: see create_upload. filename is what it is shown as, such as
+"Drill receipt.pdf"; since files have no other type, name it so the owner can tell a
+receipt from a manual.
 
 Returns the new attachment with the history_entry_id, or unsupported_file,
-file_too_large, item_not_found or item_deleted."""
+file_too_large, item_not_found, item_deleted, {UPLOAD_REFUSALS}."""
 
 ATTACH_WEB_LINK = """Attach a web link to an item, such as its manual's page or where it was bought.
 
@@ -82,11 +98,12 @@ with update_item first."""
 
 SET_LOCATION_PHOTO = """Give a location its photo, so it is easy to recognize, replacing any it had.
 
-location_id is the location's code, such as K7Q-4MZ. photo_base64 is a JPEG, PNG or
-WebP as base64 text, at most 20 MB.
+location_id is the location's code, such as K7Q-4MZ. upload_id is an upload the photo was
+sent to, a JPEG, PNG or WebP of at most 20 MB: see create_upload.
 
 Returns the location with its photo_url and the history_entry_id; undoing it puts the old
-photo back. Refuses with unsupported_photo, photo_too_large or location_not_found."""
+photo back. Refuses with unsupported_photo, photo_too_large, location_not_found,
+upload_not_found, upload_not_sent or upload_expired."""
 
 REMOVE_LOCATION_PHOTO = """Take a location's photo away, in two calls.
 
@@ -125,14 +142,26 @@ def _add_reading_tools(server: MCPServer, app: FastAPI) -> None:
         )
 
 
+def _add_upload_tools(server: MCPServer, app: FastAPI) -> None:
+    settings: Settings = app.state.settings
+
+    @server.tool(description=CREATE_UPLOAD)
+    async def create_upload() -> Annotated[CallToolResult, NewUpload]:
+        return await run_action(
+            app,
+            open_write_session,
+            lambda session: attachments.create_upload(session, settings, clock.now()),
+        )
+
+
 def _add_item_tools(server: MCPServer, app: FastAPI) -> None:
     @server.tool(description=ADD_ITEM_PHOTO)
     async def add_item_photo(
-        item_id: str, photo_base64: str
+        item_id: str, upload_id: str
     ) -> Annotated[CallToolResult, AttachmentAdded]:
         return await run_photo_action(
             app,
-            photo_base64,
+            upload_id,
             lambda session, photo: items.add_item_photo(
                 session, item_id, photo, MCP_ACTOR, clock.now()
             ),
@@ -140,11 +169,11 @@ def _add_item_tools(server: MCPServer, app: FastAPI) -> None:
 
     @server.tool(description=ATTACH_FILE)
     async def attach_file(
-        item_id: str, file_base64: str, filename: str
+        item_id: str, upload_id: str, filename: str
     ) -> Annotated[CallToolResult, AttachmentAdded]:
         return await run_file_action(
             app,
-            (file_base64, filename),
+            (upload_id, filename),
             lambda session, file: items.attach_file(session, item_id, file, MCP_ACTOR, clock.now()),
         )
 
@@ -164,11 +193,11 @@ def _add_item_tools(server: MCPServer, app: FastAPI) -> None:
 def _add_location_tools(server: MCPServer, app: FastAPI) -> None:
     @server.tool(description=SET_LOCATION_PHOTO)
     async def set_location_photo(
-        location_id: str, photo_base64: str
+        location_id: str, upload_id: str
     ) -> Annotated[CallToolResult, LocationPhotoChanged]:
         return await run_photo_action(
             app,
-            photo_base64,
+            upload_id,
             lambda session, photo: locations.set_location_photo(
                 session, locations.location_code(location_id), photo, MCP_ACTOR, clock.now()
             ),
@@ -204,6 +233,7 @@ def _add_removal_tools(server: MCPServer, app: FastAPI) -> None:
 def add_attachment_tools(server: MCPServer, app: FastAPI) -> None:
     """Give Claude the tools for photos, files and web links on items, and location photos."""
     _add_reading_tools(server, app)
+    _add_upload_tools(server, app)
     _add_item_tools(server, app)
     _add_location_tools(server, app)
     _add_removal_tools(server, app)

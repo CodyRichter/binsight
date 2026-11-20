@@ -97,13 +97,14 @@ Returns {"items": [...], "history_entry_id": ...}, each item with its path."""
 ADD_ITEM_BY_PHOTO = """Add an item from a photo, with no name.
 
 Use this when the owner gives you a picture of something to keep track of and no name
-for it, or asks for the photo itself to be kept. photo_base64 is the image, JPEG, PNG or
-WebP, at most 20 MB, encoded as base64. home_location_id works as in create_item. The
+for it, or asks for the photo itself to be kept. upload_id is an upload the photo was sent
+to, a JPEG, PNG or WebP of at most 20 MB: see create_upload. home_location_id works as in
+create_item. The
 item has no name, so it waits in the inbox until it is named with update_item; if you
 can tell what the photo shows, name it straight away.
 
 Returns the new item with its photo_url and the history_entry_id, or the error
-unsupported_photo or photo_too_large."""
+unsupported_photo, photo_too_large, upload_not_found, upload_not_sent or upload_expired."""
 
 LIST_INBOX = """List the inbox, oldest first, a page at a time: items with no name or no home.
 
@@ -183,11 +184,11 @@ def _add_adding_tools(server: MCPServer, app: FastAPI) -> None:
 
     @server.tool(description=ADD_ITEM_BY_PHOTO)
     async def add_item_by_photo(
-        photo_base64: str, home_location_id: str | None = None
+        upload_id: str, home_location_id: str | None = None
     ) -> Annotated[CallToolResult, ItemCreated]:
         return await run_photo_action(
             app,
-            photo_base64,
+            upload_id,
             lambda session, photo: service.create_item_by_photo(
                 session, photo, _home(home_location_id), MCP_ACTOR, clock.now()
             ),

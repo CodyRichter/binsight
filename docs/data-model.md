@@ -230,7 +230,7 @@ Rules:
 ## Export
 
 - The export holds every stored row of the home's tables, and leaves out
-  accounts, login sessions, MCP credentials and confirmations: they are
+  accounts, login sessions, MCP credentials, confirmations and uploads: they are
   secrets for signing in, not the household's things.
 - An import only adds: it makes items and the locations they name, never
   changes or removes what is there.
@@ -263,3 +263,13 @@ Rules:
   made).
 - A confirmation is used once, and only for the same tool with the same
   inputs.
+
+## Upload
+
+- Stored when `create_upload` hands out an upload address: a token stored as
+  a hash, when it expires (an hour after it is made), and, once the file is
+  sent, its path under `uploads/` in the data directory and its size
+  ([decision 0025](decisions/0025-mcp-uploads-by-link.md)).
+- A file is sent to an upload once; the upload is then used by any number
+  of tool calls until it expires. Expired uploads and their files are
+  deleted when the next one is created.

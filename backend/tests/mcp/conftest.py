@@ -48,6 +48,16 @@ class Claude:
         error: dict[str, Any] = json.loads(result["content"][0]["text"])["error"]
         return error
 
+    def upload(self, content: bytes) -> str:
+        """Send a file to a new upload's address, as a client does with curl, and give its id."""
+        upload = self.call("create_upload")
+        address = upload["upload_url"].removeprefix(str(self.client.base_url))
+        anyone = TestClient(self.client.app)
+        response = anyone.post(address, files={"file": ("photo.jpg", content)})
+        assert response.status_code == 201, response.text
+        upload_id: str = upload["upload_id"]
+        return upload_id
+
     def _call(self, tool: str, arguments: dict[str, object]) -> dict[str, Any]:
         params = {"name": tool, "arguments": arguments}
         response = mcp_request(self.client, self.secret, "tools/call", params)

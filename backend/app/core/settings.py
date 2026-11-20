@@ -31,6 +31,10 @@ class Settings:
         return self.data_directory / "backups"
 
     @property
+    def uploads_directory(self) -> Path:
+        return self.data_directory / "uploads"
+
+    @property
     def is_https(self) -> bool:
         return self.app_address.startswith("https://")
 

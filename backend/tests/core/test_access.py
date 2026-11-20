@@ -14,6 +14,7 @@ VIEWER = {
     "list_history",
 }
 EDITOR = {
+    "create_upload",
     "add_item_photo",
     "add_item_by_photo",
     "add_items",
@@ -111,7 +112,8 @@ def test_every_route_is_refused_to_the_role_below_the_one_it_needs(
 
 
 def test_every_write_needs_an_editor_at_least(settings: Settings) -> None:
-    public_writes = {"create_first_admin", "sign_in", "sign_out"}
+    # send_upload's unguessable address is its permission (decision 0025).
+    public_writes = {"create_first_admin", "sign_in", "sign_out", "send_upload"}
     for method, _path, operation in _api_operations(settings):
         if method != "GET" and operation not in public_writes:
             assert operation in NEEDS, f"{operation} changes something and needs no role"

@@ -1,5 +1,3 @@
-import base64
-import binascii
 from collections.abc import Iterator
 from contextlib import contextmanager
 from io import BytesIO
@@ -32,23 +30,6 @@ def _unsupported_file() -> AppError:
     return AppError(
         422, "unsupported_file", "That file can't be attached; send a PDF, JPEG, PNG or WebP."
     )
-
-
-def _decoded(text: str, refusal: AppError) -> bytes:
-    try:
-        return base64.b64decode(text, validate=True)
-    except binascii.Error as error:
-        raise refusal from error
-
-
-def photo_from_base64(text: str) -> bytes:
-    """The bytes of a photo sent as base64 text."""
-    return _decoded(text, _unsupported_photo())
-
-
-def file_from_base64(text: str) -> bytes:
-    """The bytes of a file sent as base64 text."""
-    return _decoded(text, _unsupported_file())
 
 
 def _opened_image(raw: bytes, refusal: AppError) -> Image.Image:

@@ -61,12 +61,6 @@ def test_a_photo_is_deleted_again_when_the_action_using_it_fails(settings: Setti
     assert not (settings.data_directory / stored.path).exists()
 
 
-def test_base64_that_does_not_decode_is_refused() -> None:
-    with pytest.raises(AppError) as refused:
-        service.photo_from_base64("not base64!")
-    assert refused.value.code == "unsupported_photo"
-
-
 def test_an_item_s_photo_url_names_its_first_photo(
     settings: Settings, migrated_engine: Engine
 ) -> None:

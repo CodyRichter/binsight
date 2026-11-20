@@ -35,7 +35,7 @@ endpoint does not set them by accident. Terms are from the
 
   | Group   | Routes                                                       |
   | ------- | ------------------------------------------------------------ |
-  | Anyone  | Reading the home: locations, items, labels, search, views, saved searches, contents sheets, photos; `/api/health` and `auth`'s `get_auth_status`, `create_first_admin`, `sign_in`, `sign_out`. |
+  | Anyone  | Reading the home: locations, items, labels, search, views, saved searches, contents sheets, photos; `/api/health` and `auth`'s `get_auth_status`, `create_first_admin`, `sign_in`, `sign_out`; `send_upload`, whose unguessable address is its permission. |
   | Viewer  | Private details: `list_item_attachments`' files, `get_attachment_file` for a file, `get_insurance_list`, `list_history`; and `change_own_password`. |
   | Editor  | Every change to the home, undo included.                     |
   | Admin   | Accounts, MCP credentials, backups, `export_everything`, `import_items`. |

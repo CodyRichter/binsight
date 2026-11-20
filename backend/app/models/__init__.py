@@ -8,6 +8,7 @@ from app.models.items import ARCHIVED, Item, ItemStatus, ItemTag
 from app.models.links import ItemLink, LinkKind
 from app.models.locations import Location, LocationType
 from app.models.saved_searches import SavedSearch
+from app.models.uploads import Upload
 
 __all__ = [
     "ARCHIVED",
@@ -33,4 +34,5 @@ __all__ = [
     "Model",
     "Role",
     "SavedSearch",
+    "Upload",
 ]
