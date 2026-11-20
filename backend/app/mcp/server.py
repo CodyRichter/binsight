@@ -41,7 +41,9 @@ case and with or without the hyphen. Every change is recorded in history with th
 actor "mcp"; an item added or changed, moved or deleted by mistake can be put back with
 undo_history_entry and the history_entry_id the change returned. Deleting asks for the
 owner's confirmation first: see delete_item. Items carry photos, files such as receipts and
-manuals, and web links: see list_item_attachments and get_attachment_file. A list of
+manuals, and web links: see list_item_attachments and get_attachment_file. A photo or file
+is sent to an upload address before it is attached, never inside a call: see create_upload.
+A list of
 things can be brought in at once with import_items, which asks first. Locations are renamed
 with update_location, and deleting or merging one asks first: see delete_location and
 merge_location. Many items can be moved, tagged, recategorized, given a status, lent or

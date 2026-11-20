@@ -15,6 +15,7 @@ from pydantic import BaseModel, ValidationError
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
+from app.core import clock
 from app.core.database import open_read_session, open_write_session
 from app.core.errors import AppError, ErrorBody, ErrorResponse, validation_failed
 from app.core.settings import Settings
@@ -87,18 +88,24 @@ async def run_image_action(
     return await _run(app, open_session, action, _image(mime_type))
 
 
-type Store = Callable[[Settings], AbstractContextManager[StoredFile]]
+type Store = Callable[[Settings, bytes], AbstractContextManager[StoredFile]]
+
+
+def _uploaded(engine: Engine, settings: Settings, upload_id: str) -> bytes:
+    with open_read_session(engine) as session:
+        return attachments.uploaded_content(session, settings, upload_id, clock.now())
 
 
 async def _run_upload(
-    app: FastAPI, store: Store, action: Callable[[Session, StoredFile], BaseModel]
+    app: FastAPI, upload_id: str, store: Store, action: Callable[[Session, StoredFile], BaseModel]
 ) -> CallToolResult:
     settings: Settings = app.state.settings
     stored: list[StoredFile] = []
 
     @contextmanager
     def open_session(engine: Engine) -> Iterator[Session]:
-        with store(settings) as upload, open_write_session(engine) as session:
+        content = _uploaded(engine, settings, upload_id)
+        with store(settings, content) as upload, open_write_session(engine) as session:
             stored.append(upload)
             yield session
 
@@ -106,14 +113,14 @@ async def _run_upload(
 
 
 async def run_photo_action(
-    app: FastAPI, photo_base64: str, action: Callable[[Session, StoredFile], BaseModel]
+    app: FastAPI, upload_id: str, action: Callable[[Session, StoredFile], BaseModel]
 ) -> CallToolResult:
-    """Store a photo sent as base64, then record it in its own write transaction."""
+    """Store a copy of an upload's photo, then record it in its own write transaction."""
 
-    def store(settings: Settings) -> AbstractContextManager[StoredFile]:
-        return attachments.saved_photo(settings, attachments.photo_from_base64(photo_base64), None)
+    def store(settings: Settings, content: bytes) -> AbstractContextManager[StoredFile]:
+        return attachments.saved_photo(settings, content, None)
 
-    return await _run_upload(app, store, action)
+    return await _run_upload(app, upload_id, store, action)
 
 
 async def run_file_action(
@@ -121,13 +128,13 @@ async def run_file_action(
     upload: tuple[str, str],
     action: Callable[[Session, StoredFile], BaseModel],
 ) -> CallToolResult:
-    """Store a file sent as base64 with its filename, then record it in its own transaction."""
-    file_base64, filename = upload
+    """Store a copy of an upload's file under a filename, then record it in its own transaction."""
+    upload_id, filename = upload
 
-    def store(settings: Settings) -> AbstractContextManager[StoredFile]:
-        return attachments.saved_file(settings, attachments.file_from_base64(file_base64), filename)
+    def store(settings: Settings, content: bytes) -> AbstractContextManager[StoredFile]:
+        return attachments.saved_file(settings, content, filename)
 
-    return await _run_upload(app, store, action)
+    return await _run_upload(app, upload_id, store, action)
 
 
 def _file(attachment: FileOnDisk) -> CallToolResult:

@@ -18,10 +18,11 @@ from app.features.attachments.schemas import StoredFile as StoredFile
 from app.features.attachments.storing import MAX_FILE_BYTES as MAX_FILE_BYTES
 from app.features.attachments.storing import MAX_PHOTO_BYTES as MAX_PHOTO_BYTES
 from app.features.attachments.storing import copied_photo as copied_photo
-from app.features.attachments.storing import file_from_base64 as file_from_base64
-from app.features.attachments.storing import photo_from_base64 as photo_from_base64
 from app.features.attachments.storing import saved_file as saved_file
 from app.features.attachments.storing import saved_photo as saved_photo
+from app.features.attachments.uploads import create_upload as create_upload
+from app.features.attachments.uploads import receive_upload as receive_upload
+from app.features.attachments.uploads import uploaded_content as uploaded_content
 from app.models import AttachmentKind
 
 RECORDED = (

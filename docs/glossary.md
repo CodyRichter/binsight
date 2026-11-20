@@ -55,6 +55,7 @@ before naming it in code.
 | **Photo**         | An attachment that is an image shown as the item's or location's picture. |
 | **File**          | An attachment that is a PDF or image kept as it was sent, such as a receipt or a manual. |
 | **Web link**      | An attachment that is a web address, such as a manual's page; not a Link between items. |
+| **Upload**        | A photo or file Claude sent to a short-lived upload address, waiting to be attached by MCP tools; not yet an attachment. |
 
 ## Changes
 

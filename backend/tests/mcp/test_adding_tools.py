@@ -1,14 +1,8 @@
-import base64
-
 from fastapi.testclient import TestClient
 
 from tests.builders import AcceptanceHome
 from tests.mcp.conftest import Claude, mcp_request
 from tests.photos import photo
-
-
-def _photo_base64() -> str:
-    return base64.b64encode(photo("PNG")).decode()
 
 
 def test_several_items_go_into_a_bin_by_its_code_as_one_change(
@@ -24,11 +18,11 @@ def test_several_items_go_into_a_bin_by_its_code_as_one_change(
     ]
 
 
-def test_a_photo_sent_as_base64_adds_a_nameless_item_to_the_inbox(
+def test_an_uploaded_photo_adds_a_nameless_item_to_the_inbox(
     claude: Claude, home: AcceptanceHome
 ) -> None:
     added = claude.call(
-        "add_item_by_photo", photo_base64=_photo_base64(), home_location_id=home.cables
+        "add_item_by_photo", upload_id=claude.upload(photo("PNG")), home_location_id=home.cables
     )
     assert (added["name"], added["home_location_id"]) == (None, home.cables)
     inbox = claude.call("list_inbox")
@@ -38,7 +32,7 @@ def test_a_photo_sent_as_base64_adds_a_nameless_item_to_the_inbox(
 
 def test_claude_can_look_at_a_photo_and_name_the_item(claude: Claude, home: AcceptanceHome) -> None:
     added = claude.call(
-        "add_item_by_photo", photo_base64=_photo_base64(), home_location_id=home.cables
+        "add_item_by_photo", upload_id=claude.upload(photo("PNG")), home_location_id=home.cables
     )
     attachment_id = added["photo_url"].split("/")[3]
     params = {"name": "get_attachment_file", "arguments": {"attachment_id": attachment_id}}
@@ -51,12 +45,11 @@ def test_claude_can_look_at_a_photo_and_name_the_item(claude: Claude, home: Acce
 
 
 def test_photo_refusals_carry_the_api_s_codes(claude: Claude) -> None:
-    not_base64 = claude.refusal("add_item_by_photo", photo_base64="not base64!")
-    assert not_base64["code"] == "unsupported_photo"
-    not_a_photo = base64.b64encode(b"shopping list").decode()
-    assert claude.refusal("add_item_by_photo", photo_base64=not_a_photo)["code"] == (
+    not_a_photo = claude.upload(b"shopping list")
+    assert claude.refusal("add_item_by_photo", upload_id=not_a_photo)["code"] == (
         "unsupported_photo"
     )
+    assert claude.refusal("add_item_by_photo", upload_id="nothing")["code"] == ("upload_not_found")
     assert claude.refusal("get_attachment_file", attachment_id="nothing")["code"] == (
         "attachment_not_found"
     )

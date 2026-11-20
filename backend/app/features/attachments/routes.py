@@ -1,13 +1,18 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import FileResponse
 
+from app.core import clock
 from app.core.access import IsVisitor
-from app.core.database import ReadSession
+from app.core.database import ReadSession, WriteSession
 from app.core.errors import refusals
 from app.core.settings import AppSettings
 from app.features.attachments import service
+from app.features.attachments.schemas import NewUpload, UploadReceived
 
 router = APIRouter(prefix="/attachments")
+uploads_router = APIRouter(prefix="/attachments")
 
 # A stored file never changes, so the browser can keep it.
 FILE_CACHING = {"Cache-Control": "private, max-age=31536000, immutable"}
@@ -31,3 +36,24 @@ def get_attachment_file(
         filename=file.filename,
         content_disposition_type="inline",
     )
+
+
+@uploads_router.post("/uploads", operation_id="create_upload", status_code=201)
+def create_upload(session: WriteSession, settings: AppSettings) -> NewUpload:
+    return service.create_upload(session, settings, clock.now())
+
+
+@router.post(
+    "/uploads/{upload_id}",
+    operation_id="send_upload",
+    status_code=201,
+    responses=refusals(404, 409, 422),
+)
+def send_upload(
+    upload_id: str,
+    file: Annotated[UploadFile, File()],
+    session: WriteSession,
+    settings: AppSettings,
+) -> UploadReceived:
+    content = file.file.read(service.MAX_FILE_BYTES + 1)
+    return service.receive_upload(session, settings, upload_id, content, clock.now())

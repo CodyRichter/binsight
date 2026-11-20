@@ -29,42 +29,44 @@ from app.features.views import routes as views
 from app.mcp.server import add_mcp_server
 from app.models import Role
 
+# Every feature router goes in exactly one group; tests/test_access.py fails on any left out.
+ROUTERS_BY_ROLE: dict[Role | None, list[APIRouter]] = {
+    None: [
+        auth.router,
+        locations.router,
+        items.router,
+        items.categories_and_tags_router,
+        item_attachments.router,
+        labels.router,
+        attachments.router,
+        search.router,
+        views.router,
+        views.saved_searches_router,
+        import_export.router,
+    ],
+    Role.viewer: [auth.own_account_router, history.router, import_export.insurance_router],
+    Role.editor: [
+        locations.write_router,
+        bulk_items.router,
+        items.write_router,
+        items.unlink_router,
+        item_attachments.write_router,
+        attachments.uploads_router,
+        history.undo_router,
+        views.saved_search_changes_router,
+    ],
+    Role.admin: [
+        auth.accounts_router,
+        auth.mcp_credentials_router,
+        import_export.everything_router,
+        backups.router,
+    ],
+}
+
 
 def _routes_by_role() -> APIRouter:
-    # Every feature router goes in exactly one group; tests/test_access.py fails on any left out.
-    groups: dict[Role | None, list[APIRouter]] = {
-        None: [
-            auth.router,
-            locations.router,
-            items.router,
-            items.categories_and_tags_router,
-            item_attachments.router,
-            labels.router,
-            attachments.router,
-            search.router,
-            views.router,
-            views.saved_searches_router,
-            import_export.router,
-        ],
-        Role.viewer: [auth.own_account_router, history.router, import_export.insurance_router],
-        Role.editor: [
-            locations.write_router,
-            bulk_items.router,
-            items.write_router,
-            items.unlink_router,
-            item_attachments.write_router,
-            history.undo_router,
-            views.saved_search_changes_router,
-        ],
-        Role.admin: [
-            auth.accounts_router,
-            auth.mcp_credentials_router,
-            import_export.everything_router,
-            backups.router,
-        ],
-    }
     api = APIRouter()
-    for role, routers in groups.items():
+    for role, routers in ROUTERS_BY_ROLE.items():
         group = APIRouter(dependencies=[Depends(require(role))])
         for router in routers:
             group.include_router(router)
