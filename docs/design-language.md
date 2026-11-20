@@ -882,10 +882,10 @@ opens the camera, "Choose file", which takes a PDF, JPEG, PNG or WebP, and
 "Name", and a primary "Attach".
 
 The label sheet is titled "Label": the location's label image at the
-column's width (at most 360px), with a hairline border, then a primary
-"Download" (`download`), which saves it as "{code}.png", and "Open to print"
-(`external-link`), which opens the image in its own tab for the browser to
-print. The app does no print layout.
+column's width (at most 360px), trimmed to its rounded frame inside a hairline
+border, then a primary "Download" (`download`), which saves it as "{code}.png",
+and "Open to print" (`external-link`), which opens the image in its own tab for
+the browser to print. The app does no print layout.
 
 The move sheet is titled "Move to". Its one field, "Search locations or
 scan", narrows the rows by name or by code (typed loosely, as `b14`), and
