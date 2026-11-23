@@ -5,23 +5,25 @@ from pathlib import Path
 import segno
 from PIL import Image, ImageDraw, ImageFont
 
-# 3x2 inches at 300 DPI. Ink stays light: thermal printers fade wide solid areas, so the only
-# fill is the small pill behind the code. The frame is a thin rule inset from the die-cut.
+# 3x2 inches at 300 DPI. Ink stays light: thermal printers fade wide solid areas, so the fills
+# are narrow: a bar down each side, inset from the die-cut, and the small pill behind the code.
 LABEL_WIDTH = 900
 LABEL_HEIGHT = 600
-FRAME_INSET = 30
-FRAME_WIDTH = 6
-FRAME_RADIUS = 48
-QR_LEFT = 78
-QR_MAX_PIXELS = 420
-COLUMN_GAP = 44
-COLUMN_RIGHT = LABEL_WIDTH - 78
-BRAND_HEIGHT = 56
+BAR_INSET = 30
+BAR_WIDTH = 24
+BAR_RADIUS = 6
+QR_LEFT = 92
+QR_MAX_PIXELS = 380
+COLUMN_GAP = 30
+COLUMN_RIGHT = LABEL_WIDTH - 84
+BRAND_HEIGHT = 66
+BRAND_FONT_SIZE = 56
+BRAND_ICON_SIZE = 58
 BRAND_GAP = 30
-PILL_PADDING_X = 26
+PILL_PADDING_X = 20
 PILL_PADDING_Y = 30
 PILL_RADIUS = 36
-CODE_FONT_SIZE = 116
+CODE_FONT_SIZE = 140
 SUPERSAMPLE = 2
 FONT_WEIGHT = 700
 BRAND_NAME = "Binsight"
@@ -139,21 +141,20 @@ def _load_font(path: Path, size: int) -> ImageFont.FreeTypeFont:
     return font
 
 
-def _draw_frame(draw: ImageDraw.ImageDraw) -> None:
-    draw.rounded_rectangle(
-        (FRAME_INSET, FRAME_INSET, LABEL_WIDTH - 1 - FRAME_INSET, LABEL_HEIGHT - 1 - FRAME_INSET),
-        radius=FRAME_RADIUS,
-        outline=BLACK,
-        width=FRAME_WIDTH,
-    )
+def _draw_side_bars(draw: ImageDraw.ImageDraw) -> None:
+    top, bottom = BAR_INSET, LABEL_HEIGHT - 1 - BAR_INSET
+    for left in (BAR_INSET, LABEL_WIDTH - BAR_INSET - BAR_WIDTH):
+        draw.rounded_rectangle(
+            (left, top, left + BAR_WIDTH - 1, bottom), radius=BAR_RADIUS, fill=BLACK
+        )
 
 
 def _draw_brand(draw: ImageDraw.ImageDraw, left: int, right: int, top: int) -> None:
-    font = _load_font(SANS_FONT_PATH, 44)
+    font = _load_font(SANS_FONT_PATH, BRAND_FONT_SIZE)
     text_left, _, text_right, _ = draw.textbbox((0, 0), BRAND_NAME, font=font)
     _, cap_top, _, cap_bottom = draw.textbbox((0, 0), "B", font=font)
-    icon_size = 48
-    gap = 16
+    icon_size = BRAND_ICON_SIZE
+    gap = 18
     group_x = (left + right - (icon_size + gap + text_right - text_left)) / 2
     center_y = top + BRAND_HEIGHT / 2
     _draw_tote_mark(draw, group_x, center_y - icon_size / 2, icon_size)
@@ -198,7 +199,7 @@ def draw_label(code: str, address: str) -> bytes:
 
     label = Image.new("L", (LABEL_WIDTH, LABEL_HEIGHT), color=WHITE)
     draw = ImageDraw.Draw(label)
-    _draw_frame(draw)
+    _draw_side_bars(draw)
     qr_top = (LABEL_HEIGHT - qr_image.height) // 2
     label.paste(qr_image, (QR_LEFT, qr_top))
 

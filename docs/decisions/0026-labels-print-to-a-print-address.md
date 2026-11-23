@@ -12,8 +12,9 @@ on from another app.
 
 ## Decision
 
-- A label is a 3x2-inch landscape PNG at 300 dpi. Its only solid fill is the
-  small pill behind the code; everything else is lines and the QR code.
+- A label is a 3x2-inch landscape PNG at 300 dpi. Its only solid fills are
+  narrow: a bar down each side and the small pill behind the code. A thin
+  rule all round was tried first and printed too faint to read as a border.
 - An admin can set one print address in settings. Direct Print makes the
   backend POST the label's PNG to it as the request body (`image/png`) and
   report whether it was accepted. Binsight knows nothing about printer

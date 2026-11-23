@@ -889,10 +889,11 @@ button loading until the printer accepts it; a refusal is a toast with Retry.
 "Download" (`download`) saves it as "{code}.png"; it is the primary button when
 there is no Direct Print. The app does no print layout.
 
-The label image is 3x2 inches, landscape, black on the stock: a thin rounded
-rule inset from the die-cut, the QR code on the left, and on the right the
-brand mark above the code reversed out of one small rounded pill. That pill is
-its only fill, because thermal printers fade wide solid areas.
+The label image is 3x2 inches, landscape, black on the stock: a narrow
+rounded bar down each side, inset from the die-cut, the QR code on the left,
+and on the right the brand mark above the code reversed out of one small
+rounded pill. Those are its only fills, because thermal printers fade wide
+solid areas.
 
 Settings has a "Label printer" section, for admins: one value, "Print
 address", edited where it is shown; clearing it turns Direct Print off.

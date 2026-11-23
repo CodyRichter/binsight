@@ -20,7 +20,7 @@ def test_label_image_is_three_by_two_inches_with_the_code_in_a_dark_pill() -> No
     assert image.mode == "L"
     assert (image.width, image.height) == (900, 600)
 
-    pill = _band_pixels(image, top=300, bottom=380, left=530, right=810)
+    pill = _band_pixels(image, top=310, bottom=390, left=500, right=800)
     assert sum(pixel < 32 for pixel in pill) / len(pill) > 0.55
     assert sum(pixel > 224 for pixel in pill) / len(pill) > 0.12
 
@@ -29,12 +29,13 @@ def test_label_image_keeps_ink_light_for_thermal_printers() -> None:
     image = _open("K7Q-4MZ", "https://binsight.test/l/K7Q-4MZ")
     pixels = list(image.tobytes())
 
-    # A thin frame, the QR code and one small pill: wide solid areas print faded.
+    # Two narrow side bars, the QR code and one small pill: wide solid areas print faded.
     assert sum(pixel < 128 for pixel in pixels) / len(pixels) < 0.4
-    inside_frame_above_the_pill = _band_pixels(image, top=40, bottom=200, left=520, right=840)
-    assert all(pixel == 255 for pixel in inside_frame_above_the_pill)
-    frame_top_edge = _band_pixels(image, top=30, bottom=36, left=200, right=700)
-    assert all(pixel < 32 for pixel in frame_top_edge)
+    above_the_brand = _band_pixels(image, top=0, bottom=190, left=480, right=830)
+    assert all(pixel == 255 for pixel in above_the_brand)
+    for left in (30, 846):
+        assert all(pixel < 32 for pixel in _band_pixels(image, 60, 540, left, left + 24))
+    assert all(pixel == 255 for pixel in _band_pixels(image, 0, 600, 0, 30))
 
 
 def test_label_image_fits_long_codes_inside_the_pill() -> None:
@@ -42,9 +43,9 @@ def test_label_image_fits_long_codes_inside_the_pill() -> None:
 
     assert (image.width, image.height) == (900, 600)
     # The code shrinks to fit: nothing reaches past the pill's end toward the frame.
-    right_of_the_pill = _band_pixels(image, top=60, bottom=540, left=826, right=860)
+    right_of_the_pill = _band_pixels(image, top=60, bottom=540, left=818, right=846)
     assert all(pixel == 255 for pixel in right_of_the_pill)
-    pill_end = _band_pixels(image, top=330, bottom=350, left=800, right=815)
+    pill_end = _band_pixels(image, top=330, bottom=360, left=795, right=810)
     assert all(pixel < 32 for pixel in pill_end)
 
 
