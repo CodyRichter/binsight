@@ -19,6 +19,10 @@
   border: 1.5px solid var(--bs-hairline);
 }
 
+.loader {
+  --loader-color: currentColor;
+}
+
 .buttonLabel {
   font-size: var(--bs-text-body-strong-size);
   line-height: var(--bs-text-body-strong-line-height);

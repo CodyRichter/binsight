@@ -39,7 +39,9 @@ owner's data and the controls to change it, and almost nothing else.
   rename it or redesign it.
 - Nothing narrates a change. No "Saved", "Updated just now" or "New"
   markers. The screen changing is the confirmation; a toast appears only
-  when there is something to undo or a refusal to report.
+  when there is something to undo or a refusal to report. The one
+  exception is Direct Print: the label comes out of a printer that is
+  usually somewhere else, so a toast confirms it.
 - No welcome text, tours, tips, or tooltips that carry information.
 - A fact is said once per screen. A row does not repeat what the page title
   or section header already says.
@@ -805,7 +807,8 @@ Adding says "Added {name} to {place}", "Added {n} items to {place}" or
 "Added a photo to {place}", where the place is the location's name
 ("Cables") or "Inbox"; "Add to existing" says "Added 1 more {name}"; a
 burst on the quantity stepper says "Quantity of {name} changed to {n}";
-naming an item says "Named {name}".
+naming an item says "Named {name}". Direct Print says "Printed {code}"
+with "Print again" for 6 seconds instead of Undo.
 
 **Dialog** (`ConfirmDialog`, built on `Modal`). Only for what cannot be
 undone: emptying deleted items for good, revoking an
@@ -884,8 +887,11 @@ opens the camera, "Choose file", which takes a PDF, JPEG, PNG or WebP, and
 The label sheet is titled "Label": the location's 3x2 label image at the
 column's width (at most 360px), with the sticker's rounded corners inside a
 hairline border. When an admin has set a print address and the account can
-edit, a primary "Direct Print" (`printer`) sends it to the label printer, its
-button loading until the printer accepts it; a refusal is a toast with Retry.
+edit, a primary "Direct Print" (`printer`) sends it to the label printer.
+While it is on its way the button reads "Printing" with a spinner in place of
+the icon, and further taps do nothing. Once printed the sheet closes and the
+toast confirms it. A refusal keeps the sheet open, with a toast with Retry that
+says why.
 "Download" (`download`) saves it as "{code}.png"; it is the primary button when
 there is no Direct Print. The app does no print layout.
 

@@ -79,7 +79,8 @@ function buildInit(options: ApiRequestOptions): RequestInit {
   return { method, headers, body: encodedBody, credentials: "same-origin", signal };
 }
 
-// Binsight never sends these itself; they come from a proxy in front of it that got no answer.
+// A proxy in front of Binsight answers these when it gets no answer. Binsight's own 502 (a label
+// printer that failed) carries its error body, so only a bare one counts as unreachable.
 const gatewayStatuses = new Set([502, 503, 504]);
 
 function unreachable(cause: unknown): ApiError {
@@ -94,8 +95,12 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   } catch (error) {
     throw unreachable(error);
   }
-  if (gatewayStatuses.has(response.status)) throw unreachable(response.statusText);
-  if (!response.ok) throw await parseError(response);
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw gatewayStatuses.has(response.status) && error.code === "request_failed"
+      ? unreachable(response.statusText)
+      : error;
+  }
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }

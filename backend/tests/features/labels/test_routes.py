@@ -43,6 +43,7 @@ class _Printer(BaseHTTPRequestHandler):
     """A stand-in print server: keeps what it was sent, and answers with its class's status."""
 
     status = 200
+    reply = b"printer is out of labels"
     address = ""
     received: ClassVar[list[tuple[str, bytes]]] = []
 
@@ -51,7 +52,7 @@ class _Printer(BaseHTTPRequestHandler):
         self.received.append((self.headers["Content-Type"], body))
         self.send_response(self.status)
         self.end_headers()
-        self.wfile.write(b"printer is out of labels" if self.status >= 400 else b"{}")
+        self.wfile.write(self.reply if self.status >= 400 else b"{}")
 
     def log_message(self, *_args: object) -> None:
         return
@@ -60,6 +61,7 @@ class _Printer(BaseHTTPRequestHandler):
 @pytest.fixture
 def printer() -> Iterator[type[_Printer]]:
     _Printer.status = 200
+    _Printer.reply = b"printer is out of labels"
     _Printer.received = []
     server = ThreadingHTTPServer(("127.0.0.1", 0), _Printer)
     Thread(target=server.serve_forever, daemon=True).start()
@@ -110,3 +112,14 @@ def test_a_printer_refusal_is_passed_on(signed_in: TestClient, printer: type[_Pr
     response = signed_in.post(f"{LABELS}/{code}/print")
     assert (response.status_code, response.json()["error"]["code"]) == (502, "print_failed")
     assert "printer is out of labels" in response.json()["error"]["message"]
+
+
+def test_a_json_refusal_is_passed_on_in_words(
+    signed_in: TestClient, printer: type[_Printer]
+) -> None:
+    code = _site(signed_in)
+    signed_in.patch(f"{LABELS}/print-address", json={"print_address": printer.address})
+    printer.status = 500
+    printer.reply = b'{"error": "printer jammed"}'
+    message = signed_in.post(f"{LABELS}/{code}/print").json()["error"]["message"]
+    assert message.startswith("The label was not printed: it answered 500: printer jammed.")

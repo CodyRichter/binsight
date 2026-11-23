@@ -1,3 +1,4 @@
+import json
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -5,6 +6,20 @@ from app.core.errors import AppError
 
 PRINT_TIMEOUT_SECONDS = 30
 MOST_OF_THE_REPLY = 300
+
+
+def _reply_text(raw: bytes) -> str:
+    """The printer's reply in words: a JSON reply's detail, error or message, else the text."""
+    text = raw.decode("utf-8", "replace").strip()
+    try:
+        reply = json.loads(text)
+    except ValueError:
+        return text
+    if isinstance(reply, dict):
+        for key in ("detail", "error", "message"):
+            if isinstance(reply.get(key), str):
+                return str(reply[key])
+    return text
 
 
 def send_to_printer(print_address: str, png: bytes) -> None:
@@ -16,7 +31,7 @@ def send_to_printer(print_address: str, png: bytes) -> None:
         with urlopen(request, timeout=PRINT_TIMEOUT_SECONDS):  # noqa: S310
             return
     except HTTPError as error:
-        reply = error.read(MOST_OF_THE_REPLY).decode("utf-8", "replace").strip()
+        reply = _reply_text(error.read(MOST_OF_THE_REPLY))
         reason = f"it answered {error.code}" + (f": {reply}" if reply else "")
     except (URLError, TimeoutError, OSError) as error:
         reason = f"it could not be reached ({getattr(error, 'reason', error)})"

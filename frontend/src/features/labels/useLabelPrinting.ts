@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRef } from "react";
 import { api } from "@/lib/api/client";
 import { showToast } from "@/lib/toast";
 import type { components } from "@/types/api.generated";
@@ -29,11 +30,28 @@ export function useSetPrintAddress(): (typed: string) => void {
   return mutate;
 }
 
-/** Sends a location's label to the printer; the label coming out is the confirmation. */
-export function usePrintLabel(code: string) {
+/**
+ * Sends a location's label to the printer. While it is on its way `printing` is true; once printed,
+ * `onPrinted` runs and a toast confirms it, because the printer is usually somewhere else.
+ */
+export function usePrintLabel(code: string, onPrinted: () => void = () => undefined) {
+  const sending = useRef(false);
   const { mutate, isPending } = useMutation({
     mutationFn: () => api.post<PrintedLabel>(`/api/labels/${encodeURIComponent(code)}/print`),
-    onError: (error) => showToast({ message: error.message, onRetry: () => mutate() }),
+    onSettled: () => {
+      sending.current = false;
+    },
+    onSuccess: () => {
+      onPrinted();
+      showToast({ message: `Printed ${code}`, onPrintAgain: print });
+    },
+    onError: (error) => showToast({ message: error.message, onRetry: print }),
   });
-  return { print: () => mutate(), printing: isPending };
+  function print() {
+    // One label per press: a second tap, or a toast action, while one is on its way does nothing.
+    if (sending.current) return;
+    sending.current = true;
+    mutate();
+  }
+  return { print, printing: isPending };
 }
