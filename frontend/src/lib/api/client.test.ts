@@ -88,3 +88,17 @@ test("a proxy that gets no answer from Binsight counts as unreachable", async ()
     message: "Can't reach Binsight.",
   });
 });
+
+test("Binsight's own 502 keeps its message", async () => {
+  const body = { error: { code: "print_failed", message: "The label was not printed." } };
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue(new Response(JSON.stringify(body), { status: 502 })),
+  );
+
+  await expect(api.post("/api/labels/WQA-G5P/print")).rejects.toMatchObject({
+    status: 502,
+    code: "print_failed",
+    message: "The label was not printed.",
+  });
+});

@@ -3,7 +3,7 @@ import classes from "./Toast.module.css";
 
 interface ToastProps {
   message: string;
-  actionLabel: "Undo" | "Retry";
+  actionLabel: "Undo" | "Retry" | "Print again";
   onAction: () => void;
   onDismiss?: () => void;
 }

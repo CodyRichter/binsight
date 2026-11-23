@@ -63,3 +63,17 @@ test("retry runs and closes the refusal", () => {
   expect(onRetry).toHaveBeenCalledOnce();
   expect(screen.queryByText("Could not move it")).not.toBeInTheDocument();
 });
+
+test("a print-again offer closes after six seconds, and pressing it prints again", () => {
+  const onPrintAgain = vi.fn();
+  show({ message: "Printed WQA-G5P", onPrintAgain });
+  expect(screen.getByRole("status")).toHaveTextContent("Printed WQA-G5P");
+  tap("Print again");
+  wait(1000);
+  expect(onPrintAgain).toHaveBeenCalledOnce();
+  expect(screen.queryByText("Printed WQA-G5P")).not.toBeInTheDocument();
+
+  show({ message: "Printed WQA-G5P", onPrintAgain });
+  wait(7000);
+  expect(screen.queryByText("Printed WQA-G5P")).not.toBeInTheDocument();
+});

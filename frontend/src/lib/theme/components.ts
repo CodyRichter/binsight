@@ -7,6 +7,7 @@ import {
   Drawer,
   Input,
   InputWrapper,
+  Loader,
   Menu,
   Modal,
   SegmentedControl,
@@ -35,6 +36,8 @@ export const components = {
       },
     }),
   }),
+  // A spinner takes the color of the text around it, so it reads on any button's fill.
+  Loader: Loader.extend({ classNames: { root: classes.loader } }),
   ActionIcon: ActionIcon.extend({
     defaultProps: { variant: "subtle" },
     vars: () => ({ root: { "--ai-size": touchMin } }),
