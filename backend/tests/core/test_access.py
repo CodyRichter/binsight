@@ -42,6 +42,7 @@ EDITOR = {
     "move_item",
     "move_items",
     "move_location",
+    "print_label",
     "remove_item_attachment",
     "remove_location_photo",
     "reorder_location",
@@ -67,6 +68,7 @@ ADMIN = {
     "list_backups",
     "list_mcp_credentials",
     "revoke_mcp_credential",
+    "set_print_address",
     "update_account",
 }
 NEEDS = {

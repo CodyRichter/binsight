@@ -1,12 +1,11 @@
-/* Trims the PNG's thermal-feed margin so the preview hugs the rounded label frame. */
+/* The 3x2 label as its die-cut sticker: the image whole, with the stock's rounded corners. */
 .frame {
-  position: relative;
   display: block;
-  width: calc(2 * var(--bs-touch-min));
-  aspect-ratio: 570 / 870;
+  width: calc(3 * var(--bs-touch-min));
+  aspect-ratio: 3 / 2;
   margin: var(--bs-space-lg) var(--bs-space-lg) 0;
   overflow: hidden;
-  border-radius: 6.32% / 4.14%;
+  border-radius: 5% / 7.5%;
 }
 
 .frame[data-large] {
@@ -18,11 +17,7 @@
 }
 
 .image {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: calc(600 / 570 * 100%);
-  max-width: none;
+  display: block;
+  width: 100%;
   height: auto;
-  transform: translate(-50%, -50%);
 }

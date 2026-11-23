@@ -256,6 +256,14 @@ Rules:
   can be told apart when revoking it. Its secret is stored as a hash with a
   created time and a revoked time, and is shown once, when created.
 
+## Install settings
+
+One row of settings an admin keeps for the whole install.
+
+| Field           | Notes                                                    |
+| --------------- | -------------------------------------------------------- |
+| `print_address` | Optional. An `http` or `https` address, at most 500 characters, that Direct Print sends a label's PNG to ([decision 0026](decisions/0026-labels-print-to-a-print-address.md)). |
+
 ## Confirmation
 
 - Stored when an MCP tool returns a preview: the tool, its exact inputs, a

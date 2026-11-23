@@ -881,11 +881,21 @@ opens the camera, "Choose file", which takes a PDF, JPEG, PNG or WebP, and
 "Add link", which swaps in the Add link sheet: two fields, "Address" and
 "Name", and a primary "Attach".
 
-The label sheet is titled "Label": the location's label image at the
-column's width (at most 360px), trimmed to its rounded frame inside a hairline
-border, then a primary "Download" (`download`), which saves it as "{code}.png",
-and "Open to print" (`external-link`), which opens the image in its own tab for
-the browser to print. The app does no print layout.
+The label sheet is titled "Label": the location's 3x2 label image at the
+column's width (at most 360px), with the sticker's rounded corners inside a
+hairline border. When an admin has set a print address and the account can
+edit, a primary "Direct Print" (`printer`) sends it to the label printer, its
+button loading until the printer accepts it; a refusal is a toast with Retry.
+"Download" (`download`) saves it as "{code}.png"; it is the primary button when
+there is no Direct Print. The app does no print layout.
+
+The label image is 3x2 inches, landscape, black on the stock: a thin rounded
+rule inset from the die-cut, the QR code on the left, and on the right the
+brand mark above the code reversed out of one small rounded pill. That pill is
+its only fill, because thermal printers fade wide solid areas.
+
+Settings has a "Label printer" section, for admins: one value, "Print
+address", edited where it is shown; clearing it turns Direct Print off.
 
 The move sheet is titled "Move to". Its one field, "Search locations or
 scan", narrows the rows by name or by code (typed loosely, as `b14`), and

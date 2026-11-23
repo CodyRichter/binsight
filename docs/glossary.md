@@ -27,6 +27,8 @@ before naming it in code.
 | **Code**        | A location's short permanent identifier, e.g. `K7Q-4MZ`: six letters and digits drawn at random, shown in its address and on its label. Never reused. |
 | **Blocklist**   | The words a code must never spell, so none is ever printed on a label. |
 | **Label address** | The web address a QR code holds: the app's address plus `/l/` plus the code. |
+| **Print address** | The web address an admin sets in settings that Direct Print sends a label's PNG to, such as a label printer's print server. |
+| **Direct Print** | Sending a location's label to the print address from its label sheet, instead of downloading it. |
 | **Scanner**     | The camera inside the app, at `/scan` and in the move sheet, reading labels' QR codes. |
 
 ## Items

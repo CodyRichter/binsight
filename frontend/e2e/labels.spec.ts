@@ -48,10 +48,8 @@ test("tapping the code beside a location's name shows its label, which downloads
   await page.getByRole("button", { name: `Label ${ids.bin}` }).click();
   const sheet = page.getByRole("dialog", { name: "Label" });
   await expect(sheet.getByRole("img", { name: `Label ${ids.bin}` })).toBeVisible();
-  await expect(sheet.getByRole("link", { name: "Open to print" })).toHaveAttribute(
-    "target",
-    "_blank",
-  );
+  // No print address is set, so Download is the only way to print.
+  await expect(sheet.getByRole("button", { name: "Direct Print" })).toHaveCount(0);
   const download = page.waitForEvent("download");
   await sheet.getByRole("link", { name: "Download" }).click();
   expect((await download).suggestedFilename()).toBe(`${ids.bin}.png`);

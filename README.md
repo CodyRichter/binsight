@@ -168,7 +168,7 @@ plan for all of them; a folder that exists must be listed here.
 | --------------- | ----------------------------------------------------------- |
 | `auth`          | Accounts and roles, long-lived sessions, MCP credentials    |
 | `locations`     | The nested tree of places, their codes, moving, merging, deleting |
-| `labels`        | A location's label as a printable QR image                  |
+| `labels`        | A location's label as a printable QR image, and Direct Print to the print address |
 | `items`         | Items, quantity, status, "lent to", links, categories, tags, quick and batch add, bulk edit, inbox |
 | `attachments`   | Photos and files on items and locations                     |
 | `search`        | Global fuzzy search and filters                             |
