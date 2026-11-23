@@ -37,8 +37,8 @@ endpoint does not set them by accident. Terms are from the
   | ------- | ------------------------------------------------------------ |
   | Anyone  | Reading the home: locations, items, labels, search, views, saved searches, contents sheets, photos; `/api/health` and `auth`'s `get_auth_status`, `create_first_admin`, `sign_in`, `sign_out`; `send_upload`, whose unguessable address is its permission. |
   | Viewer  | Private details: `list_item_attachments`' files, `get_attachment_file` for a file, `get_insurance_list`, `list_history`; and `change_own_password`. |
-  | Editor  | Every change to the home, undo included.                     |
-  | Admin   | Accounts, MCP credentials, backups, `export_everything`, `import_items`. |
+  | Editor  | Every change to the home, undo included; `print_label`, which uses up a label. |
+  | Admin   | Accounts, MCP credentials, backups, `export_everything`, `import_items`, `set_print_address`. |
 
   Each role can do everything the roles before it can. A request without a
   login session where one is needed gets 401 `not_signed_in`; one whose

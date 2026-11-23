@@ -54,12 +54,14 @@ ROUTERS_BY_ROLE: dict[Role | None, list[APIRouter]] = {
         attachments.uploads_router,
         history.undo_router,
         views.saved_search_changes_router,
+        labels.print_router,
     ],
     Role.admin: [
         auth.accounts_router,
         auth.mcp_credentials_router,
         import_export.everything_router,
         backups.router,
+        labels.print_address_router,
     ],
 }
 

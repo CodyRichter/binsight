@@ -5,6 +5,7 @@ from tests.mcp.conftest import Claude
 # Routes Claude has no use for: health and sign-in, and accounts and MCP credentials,
 # because a credential that could make credentials or accounts could not be revoked for good.
 # send_upload is how a client sends a file's bytes to an upload's address outside MCP.
+# set_print_address chooses where the server sends requests, so it stays with an admin in the app.
 NO_TOOL = {
     "send_upload",
     "get_health",
@@ -20,6 +21,7 @@ NO_TOOL = {
     "create_mcp_credential",
     "list_mcp_credentials",
     "revoke_mcp_credential",
+    "set_print_address",
 }
 
 

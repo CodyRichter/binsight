@@ -5,15 +5,25 @@ from pathlib import Path
 import segno
 from PIL import Image, ImageDraw, ImageFont
 
-# 2x3 inches at 300 DPI, with a ~1 mm margin inside the canvas for thermal feed drift.
-LABEL_WIDTH = 600
-LABEL_HEIGHT = 900
-OUTER_MARGIN = 12
-BORDER_WIDTH = 10
-CORNER_RADIUS = 36
-HEADER_HEIGHT = 108
-FOOTER_HEIGHT = 172
-QR_MAX_PIXELS = 456
+# 3x2 inches at 300 DPI. Ink stays light: thermal printers fade wide solid areas, so the fills
+# are narrow: a bar down each side, inset from the die-cut, and the small pill behind the code.
+LABEL_WIDTH = 900
+LABEL_HEIGHT = 600
+BAR_INSET = 30
+BAR_WIDTH = 24
+BAR_RADIUS = 6
+QR_LEFT = 92
+QR_MAX_PIXELS = 380
+COLUMN_GAP = 30
+COLUMN_RIGHT = LABEL_WIDTH - 84
+BRAND_HEIGHT = 66
+BRAND_FONT_SIZE = 56
+BRAND_ICON_SIZE = 58
+BRAND_GAP = 30
+PILL_PADDING_X = 20
+PILL_PADDING_Y = 30
+PILL_RADIUS = 36
+CODE_FONT_SIZE = 140
 SUPERSAMPLE = 2
 FONT_WEIGHT = 700
 BRAND_NAME = "Binsight"
@@ -106,7 +116,7 @@ def _draw_tote_mark(draw: ImageDraw.ImageDraw, x: float, y: float, size: float) 
     draw.rounded_rectangle(
         (int(x + 2 * scale), int(y + 4 * scale), int(x + 30 * scale), int(y + 9.5 * scale)),
         radius=max(2, int(2.2 * scale)),
-        fill=WHITE,
+        fill=BLACK,
     )
     draw.polygon(
         [
@@ -115,12 +125,12 @@ def _draw_tote_mark(draw: ImageDraw.ImageDraw, x: float, y: float, size: float) 
             (x + 25.8 * scale, y + 27.6 * scale),
             (x + 6.2 * scale, y + 27.6 * scale),
         ],
-        fill=WHITE,
+        fill=BLACK,
     )
     draw.rounded_rectangle(
         (int(x + 10.2 * scale), int(y + 15.4 * scale), int(x + 21.8 * scale), int(y + 23 * scale)),
         radius=max(1, int(1.4 * scale)),
-        fill=BLACK,
+        fill=WHITE,
     )
 
 
@@ -131,62 +141,75 @@ def _load_font(path: Path, size: int) -> ImageFont.FreeTypeFont:
     return font
 
 
-def _draw_frame(draw: ImageDraw.ImageDraw) -> None:
-    x0, y0 = OUTER_MARGIN, OUTER_MARGIN
-    x1, y1 = LABEL_WIDTH - 1 - OUTER_MARGIN, LABEL_HEIGHT - 1 - OUTER_MARGIN
-    draw.rounded_rectangle((x0, y0, x1, y1), radius=CORNER_RADIUS, fill=BLACK)
-    draw.rectangle(
-        (x0 + BORDER_WIDTH, y0 + HEADER_HEIGHT, x1 - BORDER_WIDTH, y1 - FOOTER_HEIGHT),
-        fill=WHITE,
-    )
+def _draw_side_bars(draw: ImageDraw.ImageDraw) -> None:
+    top, bottom = BAR_INSET, LABEL_HEIGHT - 1 - BAR_INSET
+    for left in (BAR_INSET, LABEL_WIDTH - BAR_INSET - BAR_WIDTH):
+        draw.rounded_rectangle(
+            (left, top, left + BAR_WIDTH - 1, bottom), radius=BAR_RADIUS, fill=BLACK
+        )
 
 
-def _draw_header(draw: ImageDraw.ImageDraw) -> None:
-    font = _load_font(SANS_FONT_PATH, 46)
-    left, _, right, _ = draw.textbbox((0, 0), BRAND_NAME, font=font)
+def _draw_brand(draw: ImageDraw.ImageDraw, left: int, right: int, top: int) -> None:
+    font = _load_font(SANS_FONT_PATH, BRAND_FONT_SIZE)
+    text_left, _, text_right, _ = draw.textbbox((0, 0), BRAND_NAME, font=font)
     _, cap_top, _, cap_bottom = draw.textbbox((0, 0), "B", font=font)
-    text_width = right - left
-    icon_size = 50
+    icon_size = BRAND_ICON_SIZE
     gap = 18
-    group_x = (LABEL_WIDTH - (icon_size + gap + text_width)) / 2
-    center_y = OUTER_MARGIN + HEADER_HEIGHT / 2
+    group_x = (left + right - (icon_size + gap + text_right - text_left)) / 2
+    center_y = top + BRAND_HEIGHT / 2
     _draw_tote_mark(draw, group_x, center_y - icon_size / 2, icon_size)
-    text_x = group_x + icon_size + gap - left
+    text_x = group_x + icon_size + gap - text_left
     text_y = center_y - (cap_bottom - cap_top) / 2 - cap_top
-    draw.text((text_x, text_y), BRAND_NAME, fill=WHITE, font=font)
+    draw.text((text_x, text_y), BRAND_NAME, fill=BLACK, font=font)
 
 
-def _draw_footer(draw: ImageDraw.ImageDraw, code: str) -> None:
-    base_size = 98
-    max_width = LABEL_WIDTH - 2 * OUTER_MARGIN - 2 * CORNER_RADIUS
-    font = _load_font(MONO_FONT_PATH, base_size)
-    left, top, right, bottom = draw.textbbox((0, 0), code, font=font)
-    width = right - left
-    if width > max_width:
-        font = _load_font(MONO_FONT_PATH, max(20, int(base_size * max_width / width)))
-        left, top, right, bottom = draw.textbbox((0, 0), code, font=font)
-    center_y = LABEL_HEIGHT - OUTER_MARGIN - FOOTER_HEIGHT / 2
-    text_x = LABEL_WIDTH / 2 - (right - left) / 2 - left
-    text_y = center_y - (bottom - top) / 2 - top
-    draw.text((text_x, text_y), code, fill=WHITE, font=font)
+def _code_font(draw: ImageDraw.ImageDraw, code: str, max_width: int) -> ImageFont.FreeTypeFont:
+    font = _load_font(MONO_FONT_PATH, CODE_FONT_SIZE)
+    left, _, right, _ = draw.textbbox((0, 0), code, font=font)
+    if right - left <= max_width:
+        return font
+    return _load_font(MONO_FONT_PATH, max(20, int(CODE_FONT_SIZE * max_width / (right - left))))
+
+
+def _draw_code_pill(
+    draw: ImageDraw.ImageDraw,
+    code: str,
+    font: ImageFont.FreeTypeFont,
+    column: tuple[int, int],
+    top: int,
+) -> None:
+    """The code reversed out of the label's one small fill, sized to the text."""
+    left, right = column
+    text_left, _, text_right, _ = draw.textbbox((0, 0), code, font=font)
+    _, cap_top, _, cap_bottom = draw.textbbox((0, 0), "0", font=font)
+    pill_height = cap_bottom - cap_top + 2 * PILL_PADDING_Y
+    draw.rounded_rectangle((left, top, right, top + pill_height), radius=PILL_RADIUS, fill=BLACK)
+    text_x = (left + right) / 2 - (text_right - text_left) / 2 - text_left
+    draw.text((text_x, top + PILL_PADDING_Y - cap_top), code, fill=WHITE, font=font)
+
+
+def _pill_height(draw: ImageDraw.ImageDraw, font: ImageFont.FreeTypeFont) -> int:
+    _, cap_top, _, cap_bottom = draw.textbbox((0, 0), "0", font=font)
+    return int(cap_bottom - cap_top + 2 * PILL_PADDING_Y)
 
 
 def draw_label(code: str, address: str) -> bytes:
-    """A 2x3-ratio PNG of the QR code holding the label address, framed between brand and code."""
-    qr_code = segno.make(address, error="m")
-    qr_image = _draw_qr(qr_code.matrix)
+    """A 3x2-inch PNG: the QR code holding the label address, beside the brand and the code."""
+    qr_image = _draw_qr(segno.make(address, error="m").matrix)
 
     label = Image.new("L", (LABEL_WIDTH, LABEL_HEIGHT), color=WHITE)
     draw = ImageDraw.Draw(label)
-    _draw_frame(draw)
-    _draw_header(draw)
-    qr_top = OUTER_MARGIN + HEADER_HEIGHT
-    qr_area_height = LABEL_HEIGHT - 2 * OUTER_MARGIN - HEADER_HEIGHT - FOOTER_HEIGHT
-    label.paste(
-        qr_image,
-        ((LABEL_WIDTH - qr_image.width) // 2, qr_top + (qr_area_height - qr_image.height) // 2),
-    )
-    _draw_footer(draw, code)
+    _draw_side_bars(draw)
+    qr_top = (LABEL_HEIGHT - qr_image.height) // 2
+    label.paste(qr_image, (QR_LEFT, qr_top))
+
+    column_left = QR_LEFT + qr_image.width + COLUMN_GAP
+    font = _code_font(draw, code, COLUMN_RIGHT - column_left - 2 * PILL_PADDING_X)
+    group_height = BRAND_HEIGHT + BRAND_GAP + _pill_height(draw, font)
+    group_top = (LABEL_HEIGHT - group_height) // 2
+    _draw_brand(draw, column_left, COLUMN_RIGHT, group_top)
+    pill_top = group_top + BRAND_HEIGHT + BRAND_GAP
+    _draw_code_pill(draw, code, font, (column_left, COLUMN_RIGHT), pill_top)
 
     image = BytesIO()
     label.save(image, format="PNG")

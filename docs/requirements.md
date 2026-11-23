@@ -91,8 +91,11 @@ LABELS AND QR CODES
   codes point at that address, so they are specific to each install.
 - Scanning with the normal phone camera opens the location's page directly.
   No app install.
-- Each label is downloadable as an image (QR code plus the readable code),
-  to print on any ordinary printer. The app does no print layout itself.
+- Each label is a 3x2-inch landscape image (QR code plus the readable code),
+  drawn light on ink so thermal label printers print it evenly. It can be
+  downloaded to print on any printer, or, once an admin has set a print
+  address, sent straight to that label printer with Direct Print. The app
+  does no print layout itself.
 - The page after a scan shows contents, quick add, quick remove and "move
   this bin".
 - Scan-to-move from inside the app: pick an item or scan a bin, then scan

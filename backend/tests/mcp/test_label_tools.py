@@ -52,3 +52,13 @@ def test_an_unknown_label_image_is_refused_with_the_api_s_code(claude: Claude) -
     result = mcp_request(claude.client, claude.secret, "tools/call", params).json()["result"]
     assert result["isError"]
     assert json.loads(result["content"][0]["text"])["error"]["code"] == "location_not_found"
+
+
+def test_printing_without_a_printer_is_refused_with_the_api_s_code(
+    claude: Claude, home: AcceptanceHome
+) -> None:
+    assert claude.call("get_print_address") == {"print_address": None}
+    params = {"name": "print_label", "arguments": {"code": home.cables}}
+    result = mcp_request(claude.client, claude.secret, "tools/call", params).json()["result"]
+    assert result["isError"]
+    assert json.loads(result["content"][0]["text"])["error"]["code"] == "print_address_not_set"
